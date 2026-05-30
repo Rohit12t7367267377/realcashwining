@@ -1,9 +1,20 @@
 import { Link } from "@tanstack/react-router";
-import { Bell, Coins } from "lucide-react";
+import { Bell, Coins, Shield } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useUser } from "@/lib/user-store";
+import { supabase } from "@/integrations/supabase/client";
 
 export function AppHeader() {
   const { state } = useUser();
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    (async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return;
+      const { data } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id).eq("role", "admin").maybeSingle();
+      setIsAdmin(!!data);
+    })();
+  }, []);
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
       <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
