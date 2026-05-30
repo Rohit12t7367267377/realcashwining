@@ -35,9 +35,15 @@ export function AppHeader() {
             <Coins className="h-3.5 w-3.5" />
             ₹{state.loggedIn ? state.wallet.toFixed(0) : "0"}
           </Link>
+          {isAdmin && (
+            <Link to="/admin" className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-primary-foreground" title="Admin">
+              <Shield className="h-4 w-4" />
+            </Link>
+          )}
           <button className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/70">
             <Bell className="h-4 w-4" />
           </button>
+
         </div>
       </div>
     </header>
