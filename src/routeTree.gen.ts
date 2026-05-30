@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as PlayIdRouteImport } from './routes/play.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
 
+const WalletRoute = WalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -57,6 +63,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/wallet': typeof WalletRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/wallet': typeof WalletRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/wallet': typeof WalletRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
@@ -87,6 +96,7 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/login'
+    | '/wallet'
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
@@ -96,6 +106,7 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/login'
+    | '/wallet'
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
@@ -105,6 +116,7 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/login'
+    | '/wallet'
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
@@ -115,6 +127,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
+  WalletRoute: typeof WalletRoute
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
   PlayIdRoute: typeof PlayIdRoute
@@ -123,6 +136,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wallet': {
+      id: '/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -179,6 +199,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
+  WalletRoute: WalletRoute,
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
   PlayIdRoute: PlayIdRoute,
