@@ -9,38 +9,194 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as ReferRouteImport } from './routes/refer'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ResultIdRouteImport } from './routes/result.$id'
+import { Route as PlayIdRouteImport } from './routes/play.$id'
+import { Route as ContestIdRouteImport } from './routes/contest.$id'
+import { Route as CategoryIdRouteImport } from './routes/category.$id'
 
+const WalletRoute = WalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferRoute = ReferRouteImport.update({
+  id: '/refer',
+  path: '/refer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ResultIdRoute = ResultIdRouteImport.update({
+  id: '/result/$id',
+  path: '/result/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlayIdRoute = PlayIdRouteImport.update({
+  id: '/play/$id',
+  path: '/play/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContestIdRoute = ContestIdRouteImport.update({
+  id: '/contest/$id',
+  path: '/contest/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoryIdRoute = CategoryIdRouteImport.update({
+  id: '/category/$id',
+  path: '/category/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
+  '/refer': typeof ReferRoute
+  '/wallet': typeof WalletRoute
+  '/category/$id': typeof CategoryIdRoute
+  '/contest/$id': typeof ContestIdRoute
+  '/play/$id': typeof PlayIdRoute
+  '/result/$id': typeof ResultIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
+  '/refer': typeof ReferRoute
+  '/wallet': typeof WalletRoute
+  '/category/$id': typeof CategoryIdRoute
+  '/contest/$id': typeof ContestIdRoute
+  '/play/$id': typeof PlayIdRoute
+  '/result/$id': typeof ResultIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/leaderboard': typeof LeaderboardRoute
+  '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
+  '/refer': typeof ReferRoute
+  '/wallet': typeof WalletRoute
+  '/category/$id': typeof CategoryIdRoute
+  '/contest/$id': typeof ContestIdRoute
+  '/play/$id': typeof PlayIdRoute
+  '/result/$id': typeof ResultIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/leaderboard'
+    | '/login'
+    | '/profile'
+    | '/refer'
+    | '/wallet'
+    | '/category/$id'
+    | '/contest/$id'
+    | '/play/$id'
+    | '/result/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/leaderboard'
+    | '/login'
+    | '/profile'
+    | '/refer'
+    | '/wallet'
+    | '/category/$id'
+    | '/contest/$id'
+    | '/play/$id'
+    | '/result/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/leaderboard'
+    | '/login'
+    | '/profile'
+    | '/refer'
+    | '/wallet'
+    | '/category/$id'
+    | '/contest/$id'
+    | '/play/$id'
+    | '/result/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LeaderboardRoute: typeof LeaderboardRoute
+  LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
+  ReferRoute: typeof ReferRoute
+  WalletRoute: typeof WalletRoute
+  CategoryIdRoute: typeof CategoryIdRoute
+  ContestIdRoute: typeof ContestIdRoute
+  PlayIdRoute: typeof PlayIdRoute
+  ResultIdRoute: typeof ResultIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wallet': {
+      id: '/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refer': {
+      id: '/refer'
+      path: '/refer'
+      fullPath: '/refer'
+      preLoaderRoute: typeof ReferRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +204,49 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/result/$id': {
+      id: '/result/$id'
+      path: '/result/$id'
+      fullPath: '/result/$id'
+      preLoaderRoute: typeof ResultIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/play/$id': {
+      id: '/play/$id'
+      path: '/play/$id'
+      fullPath: '/play/$id'
+      preLoaderRoute: typeof PlayIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contest/$id': {
+      id: '/contest/$id'
+      path: '/contest/$id'
+      fullPath: '/contest/$id'
+      preLoaderRoute: typeof ContestIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/category/$id': {
+      id: '/category/$id'
+      path: '/category/$id'
+      fullPath: '/category/$id'
+      preLoaderRoute: typeof CategoryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LeaderboardRoute: LeaderboardRoute,
+  LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
+  ReferRoute: ReferRoute,
+  WalletRoute: WalletRoute,
+  CategoryIdRoute: CategoryIdRoute,
+  ContestIdRoute: ContestIdRoute,
+  PlayIdRoute: PlayIdRoute,
+  ResultIdRoute: ResultIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
