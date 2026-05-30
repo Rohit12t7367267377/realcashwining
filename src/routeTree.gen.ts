@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as ReferRouteImport } from './routes/refer'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +28,11 @@ const WalletRoute = WalletRouteImport.update({
 const ReferRoute = ReferRouteImport.update({
   id: '/refer',
   path: '/refer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -69,6 +75,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/wallet': typeof WalletRoute
   '/category/$id': typeof CategoryIdRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/wallet': typeof WalletRoute
   '/category/$id': typeof CategoryIdRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
+  '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/wallet': typeof WalletRoute
   '/category/$id': typeof CategoryIdRoute
@@ -105,6 +114,7 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/login'
+    | '/profile'
     | '/refer'
     | '/wallet'
     | '/category/$id'
@@ -116,6 +126,7 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/login'
+    | '/profile'
     | '/refer'
     | '/wallet'
     | '/category/$id'
@@ -127,6 +138,7 @@ export interface FileRouteTypes {
     | '/'
     | '/leaderboard'
     | '/login'
+    | '/profile'
     | '/refer'
     | '/wallet'
     | '/category/$id'
@@ -139,6 +151,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
+  ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
   WalletRoute: typeof WalletRoute
   CategoryIdRoute: typeof CategoryIdRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/refer'
       fullPath: '/refer'
       preLoaderRoute: typeof ReferRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -219,6 +239,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
+  ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
   WalletRoute: WalletRoute,
   CategoryIdRoute: CategoryIdRoute,
