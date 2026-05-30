@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
 
 const LoginRoute = LoginRouteImport.update({
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ContestIdRoute = ContestIdRouteImport.update({
+  id: '/contest/$id',
+  path: '/contest/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CategoryIdRoute = CategoryIdRouteImport.update({
   id: '/category/$id',
   path: '/category/$id',
@@ -33,30 +39,34 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/category/$id': typeof CategoryIdRoute
+  '/contest/$id': typeof ContestIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/category/$id': typeof CategoryIdRoute
+  '/contest/$id': typeof ContestIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/category/$id': typeof CategoryIdRoute
+  '/contest/$id': typeof ContestIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/category/$id'
+  fullPaths: '/' | '/login' | '/category/$id' | '/contest/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/category/$id'
-  id: '__root__' | '/' | '/login' | '/category/$id'
+  to: '/' | '/login' | '/category/$id' | '/contest/$id'
+  id: '__root__' | '/' | '/login' | '/category/$id' | '/contest/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LoginRoute: typeof LoginRoute
   CategoryIdRoute: typeof CategoryIdRoute
+  ContestIdRoute: typeof ContestIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/contest/$id': {
+      id: '/contest/$id'
+      path: '/contest/$id'
+      fullPath: '/contest/$id'
+      preLoaderRoute: typeof ContestIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/category/$id': {
       id: '/category/$id'
       path: '/category/$id'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LoginRoute: LoginRoute,
   CategoryIdRoute: CategoryIdRoute,
+  ContestIdRoute: ContestIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
