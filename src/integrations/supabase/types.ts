@@ -14,16 +14,244 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      app_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      categories: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      contests: {
+        Row: {
+          active: boolean
+          category_id: string | null
+          contest_type: string
+          created_at: string
+          duration_minutes: number
+          ends_at: string | null
+          entry_fee: number
+          first_prize: number
+          id: string
+          num_questions: number
+          prize_pool: number
+          starts_at: string | null
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          category_id?: string | null
+          contest_type?: string
+          created_at?: string
+          duration_minutes?: number
+          ends_at?: string | null
+          entry_fee?: number
+          first_prize?: number
+          id?: string
+          num_questions?: number
+          prize_pool?: number
+          starts_at?: string | null
+          title: string
+        }
+        Update: {
+          active?: boolean
+          category_id?: string | null
+          contest_type?: string
+          created_at?: string
+          duration_minutes?: number
+          ends_at?: string | null
+          entry_fee?: number
+          first_prize?: number
+          id?: string
+          num_questions?: number
+          prize_pool?: number
+          starts_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contests_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          banned: boolean
+          created_at: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          referral_code: string | null
+          wallet_balance: number
+        }
+        Insert: {
+          banned?: boolean
+          created_at?: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          referral_code?: string | null
+          wallet_balance?: number
+        }
+        Update: {
+          banned?: boolean
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          referral_code?: string | null
+          wallet_balance?: number
+        }
+        Relationships: []
+      }
+      questions: {
+        Row: {
+          category_id: string
+          correct_index: number
+          created_at: string
+          difficulty: string | null
+          explanation: string | null
+          id: string
+          options: Json
+          question: string
+        }
+        Insert: {
+          category_id: string
+          correct_index: number
+          created_at?: string
+          difficulty?: string | null
+          explanation?: string | null
+          id?: string
+          options: Json
+          question: string
+        }
+        Update: {
+          category_id?: string
+          correct_index?: number
+          created_at?: string
+          difficulty?: string | null
+          explanation?: string | null
+          id?: string
+          options?: Json
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "questions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          note: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          note?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +378,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
