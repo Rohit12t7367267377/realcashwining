@@ -26,6 +26,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
+import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 
@@ -114,6 +115,11 @@ const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
   path: '/questions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminContestsRoute = AdminContestsRouteImport.update({
   id: '/contests',
   path: '/contests',
@@ -136,6 +142,7 @@ export interface FileRoutesByFullPath {
   '/wallet': typeof WalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -156,6 +163,7 @@ export interface FileRoutesByTo {
   '/wallet': typeof WalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -178,6 +186,7 @@ export interface FileRoutesById {
   '/wallet': typeof WalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -201,6 +210,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/payments'
     | '/admin/questions'
     | '/admin/roles'
     | '/admin/settings'
@@ -221,6 +231,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/payments'
     | '/admin/questions'
     | '/admin/roles'
     | '/admin/settings'
@@ -242,6 +253,7 @@ export interface FileRouteTypes {
     | '/wallet'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/payments'
     | '/admin/questions'
     | '/admin/roles'
     | '/admin/settings'
@@ -389,6 +401,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminQuestionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/payments': {
+      id: '/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AdminPaymentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/contests': {
       id: '/admin/contests'
       path: '/contests'
@@ -409,6 +428,7 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminContestsRoute: typeof AdminContestsRoute
+  AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -419,6 +439,7 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminContestsRoute: AdminContestsRoute,
+  AdminPaymentsRoute: AdminPaymentsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
@@ -445,3 +466,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
