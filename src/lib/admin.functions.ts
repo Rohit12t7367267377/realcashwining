@@ -92,3 +92,30 @@ export const setUserRole = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
+const ROLE_ENUM = z.enum(["admin", "editor", "moderator", "user"]);
+
+export const setRoleAssignment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ userId: z.string().uuid(), role: ROLE_ENUM, enabled: z.boolean() }).parse(d)
+  )
+  .handler(async ({ context, data }) => {
+    await assertAdmin(context.supabase, context.userId);
+    // Prevent admin from removing their own admin role (lockout safety)
+    if (data.role === "admin" && !data.enabled && data.userId === context.userId) {
+      throw new Error("You cannot remove your own admin role.");
+    }
+    if (data.enabled) {
+      await supabaseAdmin
+        .from("user_roles")
+        .upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id,role" });
+    } else {
+      await supabaseAdmin
+        .from("user_roles")
+        .delete()
+        .eq("user_id", data.userId)
+        .eq("role", data.role);
+    }
+    return { ok: true };
+  });
