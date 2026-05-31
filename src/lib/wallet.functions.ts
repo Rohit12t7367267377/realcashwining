@@ -96,7 +96,8 @@ export const submitWithdrawal = createServerFn({ method: "POST" })
       supabaseAdmin.from("app_settings").select("key, value").in("key", ["min_withdrawal", "max_withdrawal_per_day"]),
       supabaseAdmin.from("profiles").select("wallet_balance, banned").eq("id", userId).single(),
     ]);
-    if (prof?.banned) throw new Error("Your account is suspended. Contact support.");
+    if (!prof) throw new Error("Profile not found");
+    if (prof.banned) throw new Error("Your account is suspended. Contact support.");
 
     const cfg: Record<string, any> = {};
     (cfgRows ?? []).forEach((s) => { cfg[s.key] = s.value; });
