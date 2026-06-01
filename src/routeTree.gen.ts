@@ -18,6 +18,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
@@ -74,6 +75,11 @@ const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
+} as any)
+const WalletHistoryRoute = WalletHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => WalletRoute,
 } as any)
 const ResultIdRoute = ResultIdRouteImport.update({
   id: '/result/$id',
@@ -139,7 +145,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
-  '/wallet': typeof WalletRoute
+  '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -151,6 +157,7 @@ export interface FileRoutesByFullPath {
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
   '/result/$id': typeof ResultIdRoute
+  '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRoutesByTo {
@@ -160,7 +167,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
-  '/wallet': typeof WalletRoute
+  '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -172,6 +179,7 @@ export interface FileRoutesByTo {
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
   '/result/$id': typeof ResultIdRoute
+  '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
 }
 export interface FileRoutesById {
@@ -183,7 +191,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
-  '/wallet': typeof WalletRoute
+  '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -195,6 +203,7 @@ export interface FileRoutesById {
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
   '/result/$id': typeof ResultIdRoute
+  '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
 }
 export interface FileRouteTypes {
@@ -219,6 +228,7 @@ export interface FileRouteTypes {
     | '/contest/$id'
     | '/play/$id'
     | '/result/$id'
+    | '/wallet/history'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -240,6 +250,7 @@ export interface FileRouteTypes {
     | '/contest/$id'
     | '/play/$id'
     | '/result/$id'
+    | '/wallet/history'
     | '/admin'
   id:
     | '__root__'
@@ -262,6 +273,7 @@ export interface FileRouteTypes {
     | '/contest/$id'
     | '/play/$id'
     | '/result/$id'
+    | '/wallet/history'
     | '/admin/'
   fileRoutesById: FileRoutesById
 }
@@ -273,7 +285,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
-  WalletRoute: typeof WalletRoute
+  WalletRoute: typeof WalletRouteWithChildren
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
   PlayIdRoute: typeof PlayIdRoute
@@ -344,6 +356,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/wallet/history': {
+      id: '/wallet/history'
+      path: '/history'
+      fullPath: '/wallet/history'
+      preLoaderRoute: typeof WalletHistoryRouteImport
+      parentRoute: typeof WalletRoute
     }
     '/result/$id': {
       id: '/result/$id'
@@ -449,6 +468,17 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface WalletRouteChildren {
+  WalletHistoryRoute: typeof WalletHistoryRoute
+}
+
+const WalletRouteChildren: WalletRouteChildren = {
+  WalletHistoryRoute: WalletHistoryRoute,
+}
+
+const WalletRouteWithChildren =
+  WalletRoute._addFileChildren(WalletRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
@@ -457,7 +487,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
-  WalletRoute: WalletRoute,
+  WalletRoute: WalletRouteWithChildren,
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
   PlayIdRoute: PlayIdRoute,
