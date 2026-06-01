@@ -192,22 +192,16 @@ function Landing() {
           India's most thrilling MCQ league for SSC, UPSC, Banking, Railway, Police, GK & more. Score fast, win bigger.
         </p>
         <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
-          <Link to="/login">
+          <Link to="/auth">
             <Button size="lg" className="h-12 w-full bg-gradient-primary text-base font-bold shadow-glow hover:opacity-95">
-              Get Started — Free ₹50
+              Get Started
             </Button>
           </Link>
-          <Link to="/login">
+          <Link to="/auth">
             <Button size="lg" variant="outline" className="h-12 w-full text-base font-semibold">
               I already have an account
             </Button>
           </Link>
-        </div>
-
-        <div className="mt-12 grid w-full max-w-md grid-cols-3 gap-3">
-          <LandStat v="₹2Cr+" l="Paid out" />
-          <LandStat v="50K+" l="Quizzes" />
-          <LandStat v="4.8★" l="Rated" />
         </div>
 
         <div className="mt-12 w-full">
@@ -221,9 +215,6 @@ function Landing() {
             ))}
           </div>
         </div>
-        <p className="mt-12 max-w-md text-[10px] text-muted-foreground">
-          Demo app. Cash, UPI & rewards shown are simulated for illustration. No real transactions.
-        </p>
       </div>
     </div>
   );
