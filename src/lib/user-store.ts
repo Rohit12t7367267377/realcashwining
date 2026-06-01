@@ -85,9 +85,9 @@ export function useUser() {
       name,
       phone,
       referralCode: code,
-      wallet: 50,
+      wallet: 0,
       joinedAt: Date.now(),
-      txns: [{ id: "s1", type: "credit", amount: 50, note: "Welcome bonus 🎉", at: Date.now() }],
+      txns: [],
     });
   }, []);
 

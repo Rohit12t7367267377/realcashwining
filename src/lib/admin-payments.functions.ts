@@ -60,6 +60,18 @@ export const reviewDeposit = createServerFn({ method: "POST" })
         amount: Number(req.amount),
         note: `Deposit approved (UTR ${req.upi_utr})`,
       });
+
+      // Contribute configured % of the deposit to the global prize pool.
+      const { data: pctRow } = await supabaseAdmin.from("app_settings").select("value").eq("key", "prize_pool_pct").maybeSingle();
+      const { data: totRow } = await supabaseAdmin.from("app_settings").select("value").eq("key", "prize_pool_total").maybeSingle();
+      const pct = Number(pctRow?.value ?? 50);
+      const currentPool = Number(totRow?.value ?? 0);
+      const addition = (Number(req.amount) * pct) / 100;
+      await supabaseAdmin.from("app_settings").upsert({
+        key: "prize_pool_total",
+        value: currentPool + addition,
+        updated_at: new Date().toISOString(),
+      });
     }
 
     const { error: upErr } = await supabaseAdmin

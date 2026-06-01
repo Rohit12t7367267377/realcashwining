@@ -11,7 +11,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/admin/settings")({ component: Page });
 
 function Page() {
-  const [rewards, setRewards] = useState({ dailyMin: 5, dailyMax: 20, referralBonus: 25, signupBonus: 50 });
+  const [adminUpi, setAdminUpi] = useState("admin@upi");
+  const [newUserBonus, setNewUserBonus] = useState(0);
+  const [prizePoolPct, setPrizePoolPct] = useState(50);
+  const [prizePoolTotal, setPrizePoolTotal] = useState(0);
   const [branding, setBranding] = useState({ siteName: "Cash Winning League", tagline: "Play. Win. Repeat." });
   const [banner, setBanner] = useState({ message: "", active: true });
   const [loading, setLoading] = useState(true);
@@ -20,13 +23,15 @@ function Page() {
     (async () => {
       const { data } = await supabase.from("app_settings").select("*");
       (data ?? []).forEach((r: any) => {
-        if (r.key === "rewards") setRewards({ ...rewards, ...r.value });
-        if (r.key === "branding") setBranding({ ...branding, ...r.value });
-        if (r.key === "banner") setBanner({ ...banner, ...r.value });
+        if (r.key === "admin_upi_id") setAdminUpi(typeof r.value === "string" ? r.value : String(r.value));
+        if (r.key === "new_user_bonus") setNewUserBonus(Number(r.value) || 0);
+        if (r.key === "prize_pool_pct") setPrizePoolPct(Number(r.value) || 0);
+        if (r.key === "prize_pool_total") setPrizePoolTotal(Number(r.value) || 0);
+        if (r.key === "branding" && r.value && typeof r.value === "object") setBranding({ siteName: "Cash Winning League", tagline: "Play. Win. Repeat.", ...r.value });
+        if (r.key === "banner" && r.value && typeof r.value === "object") setBanner({ message: "", active: true, ...r.value });
       });
       setLoading(false);
     })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function save(key: string, value: any) {
@@ -43,14 +48,37 @@ function Page() {
 
       <div className="space-y-6 max-w-2xl">
         <Card className="p-5">
-          <h2 className="font-semibold mb-3">Rewards</h2>
-          <div className="grid grid-cols-2 gap-3">
-            <div><Label>Daily reward min ₹</Label><Input type="number" value={rewards.dailyMin} onChange={(e) => setRewards({ ...rewards, dailyMin: Number(e.target.value) })} /></div>
-            <div><Label>Daily reward max ₹</Label><Input type="number" value={rewards.dailyMax} onChange={(e) => setRewards({ ...rewards, dailyMax: Number(e.target.value) })} /></div>
-            <div><Label>Referral bonus ₹</Label><Input type="number" value={rewards.referralBonus} onChange={(e) => setRewards({ ...rewards, referralBonus: Number(e.target.value) })} /></div>
-            <div><Label>Signup bonus ₹</Label><Input type="number" value={rewards.signupBonus} onChange={(e) => setRewards({ ...rewards, signupBonus: Number(e.target.value) })} /></div>
+          <h2 className="font-semibold mb-1">Payments</h2>
+          <p className="text-xs text-muted-foreground mb-3">UPI ID where users send deposits. Only admins can change this.</p>
+          <Label>Admin UPI ID</Label>
+          <Input value={adminUpi} onChange={(e) => setAdminUpi(e.target.value)} placeholder="yourname@bank" className="font-mono" />
+          <Button className="mt-3" onClick={() => save("admin_upi_id", adminUpi.trim())}>Save UPI ID</Button>
+        </Card>
+
+        <Card className="p-5">
+          <h2 className="font-semibold mb-1">New user starting balance</h2>
+          <p className="text-xs text-muted-foreground mb-3">
+            Amount auto-credited to a brand-new user's wallet at signup. Set to 0 for no bonus.
+          </p>
+          <Label>Bonus amount (₹)</Label>
+          <Input type="number" min={0} value={newUserBonus} onChange={(e) => setNewUserBonus(Number(e.target.value))} />
+          <Button className="mt-3" onClick={() => save("new_user_bonus", newUserBonus)}>Save bonus</Button>
+          <p className="text-[11px] text-muted-foreground mt-2">
+            To adjust an existing user's balance manually, go to <b>Users &amp; Wallets</b>.
+          </p>
+        </Card>
+
+        <Card className="p-5">
+          <h2 className="font-semibold mb-1">Prize pool</h2>
+          <p className="text-xs text-muted-foreground mb-3">
+            Percentage of every approved deposit that flows into the prize pool.
+          </p>
+          <Label>Contribution (%)</Label>
+          <Input type="number" min={0} max={100} value={prizePoolPct} onChange={(e) => setPrizePoolPct(Number(e.target.value))} />
+          <Button className="mt-3" onClick={() => save("prize_pool_pct", prizePoolPct)}>Save percentage</Button>
+          <div className="mt-4 rounded-lg bg-muted/40 p-3 text-sm">
+            Current prize pool: <span className="font-bold">₹{prizePoolTotal.toFixed(2)}</span>
           </div>
-          <Button className="mt-4" onClick={() => save("rewards", rewards)}>Save rewards</Button>
         </Card>
 
         <Card className="p-5">
