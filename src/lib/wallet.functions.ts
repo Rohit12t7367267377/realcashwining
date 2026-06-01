@@ -150,3 +150,22 @@ export const submitWithdrawal = createServerFn({ method: "POST" })
 
     return { ok: true, withdrawal: row, newBalance: newBal };
   });
+
+// ---------- Read: full transaction history ----------
+
+export const getTransactionHistory = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const [{ data: txns }, { data: deposits }, { data: withdrawals }] = await Promise.all([
+      supabase.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(200),
+      supabase.from("deposit_requests").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(100),
+      supabase.from("withdrawal_requests").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(100),
+    ]);
+
+    return {
+      txns: txns ?? [],
+      deposits: deposits ?? [],
+      withdrawals: withdrawals ?? [],
+    };
+  });

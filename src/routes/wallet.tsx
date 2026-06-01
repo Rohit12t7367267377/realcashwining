@@ -104,6 +104,9 @@ function WalletInner() {
             </div>
           </div>
         ))}
+        <Link to="/wallet/history" className="mt-2 block rounded-2xl bg-card p-3 text-center text-xs font-bold text-primary shadow-soft transition hover:shadow-glow">
+          View Full History →
+        </Link>
       </Section>
     </AppShell>
   );
