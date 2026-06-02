@@ -1,4 +1,5 @@
 import { createMiddleware } from "@tanstack/react-start";
+import { getRequest } from "@tanstack/react-start/server";
 
 export const ADMIN_PASSWORD = "Zoe@123";
 export const ADMIN_GATE_KEY = "cwl_admin_gate_v1";
