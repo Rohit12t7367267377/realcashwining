@@ -130,14 +130,22 @@ function TxnHistoryInner() {
   }, [data]);
 
   const filtered = useMemo(() => {
-    if (filter === "all") return unified;
-    if (filter === "credit") return unified.filter((r) => r.type === "credit");
-    if (filter === "debit") return unified.filter((r) => r.type === "debit");
-    if (filter === "deposit") return unified.filter((r) => r.category === "deposit");
-    if (filter === "withdrawal") return unified.filter((r) => r.category === "withdrawal");
-    if (filter === "prize") return unified.filter((r) => r.category === "prize");
-    return unified;
-  }, [unified, filter]);
+    let rows = unified;
+    if (filter === "credit") rows = rows.filter((r) => r.type === "credit");
+    else if (filter === "debit") rows = rows.filter((r) => r.type === "debit");
+    else if (filter === "deposit") rows = rows.filter((r) => r.category === "deposit");
+    else if (filter === "withdrawal") rows = rows.filter((r) => r.category === "withdrawal");
+    else if (filter === "prize") rows = rows.filter((r) => r.category === "prize");
+
+    const q = search.trim().toLowerCase();
+    if (q) {
+      rows = rows.filter((r) => {
+        const hay = `${r.id} ${r.note} ${r.meta ?? ""}`.toLowerCase();
+        return hay.includes(q);
+      });
+    }
+    return rows;
+  }, [unified, filter, search]);
 
   const stats = useMemo(() => {
     const credits = unified.filter((r) => r.type === "credit" && r.status === "completed").reduce((s, r) => s + r.amount, 0);
