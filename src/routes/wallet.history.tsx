@@ -18,8 +18,11 @@ import {
   Filter,
   Landmark,
   Smartphone,
+  Search,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/wallet/history")({
   head: () => ({ meta: [{ title: "Transaction History — Cash Winning League" }] }),
@@ -63,6 +66,7 @@ function TxnHistoryInner() {
     queryFn: () => fetchHistory(),
   });
   const [filter, setFilter] = useState<FilterTab>("all");
+  const [search, setSearch] = useState("");
 
   const unified = useMemo(() => {
     if (!data) return [];
@@ -126,14 +130,22 @@ function TxnHistoryInner() {
   }, [data]);
 
   const filtered = useMemo(() => {
-    if (filter === "all") return unified;
-    if (filter === "credit") return unified.filter((r) => r.type === "credit");
-    if (filter === "debit") return unified.filter((r) => r.type === "debit");
-    if (filter === "deposit") return unified.filter((r) => r.category === "deposit");
-    if (filter === "withdrawal") return unified.filter((r) => r.category === "withdrawal");
-    if (filter === "prize") return unified.filter((r) => r.category === "prize");
-    return unified;
-  }, [unified, filter]);
+    let rows = unified;
+    if (filter === "credit") rows = rows.filter((r) => r.type === "credit");
+    else if (filter === "debit") rows = rows.filter((r) => r.type === "debit");
+    else if (filter === "deposit") rows = rows.filter((r) => r.category === "deposit");
+    else if (filter === "withdrawal") rows = rows.filter((r) => r.category === "withdrawal");
+    else if (filter === "prize") rows = rows.filter((r) => r.category === "prize");
+
+    const q = search.trim().toLowerCase();
+    if (q) {
+      rows = rows.filter((r) => {
+        const hay = `${r.id} ${r.note} ${r.meta ?? ""}`.toLowerCase();
+        return hay.includes(q);
+      });
+    }
+    return rows;
+  }, [unified, filter, search]);
 
   const stats = useMemo(() => {
     const credits = unified.filter((r) => r.type === "credit" && r.status === "completed").reduce((s, r) => s + r.amount, 0);
@@ -169,8 +181,27 @@ function TxnHistoryInner() {
         <StatCard label="Net" value={`₹${stats.net.toFixed(0)}`} color={stats.net >= 0 ? "text-success" : "text-destructive"} />
       </section>
 
+      {/* Search */}
+      <section className="mt-4 relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by ID, UTR, or contest…"
+          className="h-10 rounded-xl pl-9 pr-9 bg-card border-0 shadow-soft focus-visible:ring-1"
+        />
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </section>
+
       {/* Filters */}
-      <section className="mt-5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <section className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
         <FilterChip active={filter === "all"} onClick={() => setFilter("all")}>All</FilterChip>
         <FilterChip active={filter === "credit"} onClick={() => setFilter("credit")}>Credits</FilterChip>
         <FilterChip active={filter === "debit"} onClick={() => setFilter("debit")}>Debits</FilterChip>
@@ -184,7 +215,9 @@ function TxnHistoryInner() {
         {filtered.length === 0 && (
           <div className="rounded-2xl bg-card p-8 text-center shadow-soft">
             <Filter className="mx-auto h-8 w-8 text-muted-foreground" />
-            <p className="mt-2 text-sm text-muted-foreground">No transactions match this filter.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {search.trim() ? "No transactions match your search." : "No transactions match this filter."}
+            </p>
           </div>
         )}
 
