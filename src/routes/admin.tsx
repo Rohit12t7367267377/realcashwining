@@ -1,8 +1,7 @@
-import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { AdminShell } from "@/components/AdminShell";
-import { Loader2, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -13,44 +12,17 @@ export const Route = createFileRoute("/admin")({
 });
 
 const ADMIN_PASSWORD = "Zoe@123";
-const ADMIN_EMAIL = "rohitrao63636@gmail.com";
 const GATE_KEY = "cwl_admin_gate_v1";
 
 function AdminLayout() {
-  const nav = useNavigate();
   const [gateOk, setGateOk] = useState(false);
   const [pw, setPw] = useState("");
-  const [state, setState] = useState<"idle" | "checking" | "ok" | "deny">("idle");
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem(GATE_KEY) === "1") {
       setGateOk(true);
     }
   }, []);
-
-  useEffect(() => {
-    if (!gateOk) return;
-    (async () => {
-      setState("checking");
-      const { data: u } = await supabase.auth.getUser();
-      if (!u.user) {
-        setState("deny");
-        return;
-      }
-      // Email must match admin email
-      if (u.user.email !== ADMIN_EMAIL) {
-        setState("deny");
-        return;
-      }
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", u.user.id)
-        .eq("role", "admin")
-        .maybeSingle();
-      setState(data ? "ok" : "deny");
-    })();
-  }, [gateOk]);
 
   function submitGate(e: React.FormEvent) {
     e.preventDefault();
@@ -88,30 +60,6 @@ function AdminLayout() {
     );
   }
 
-  if (state === "checking" || state === "idle") {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin" />
-      </div>
-    );
-  }
-  if (state === "deny") {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center gap-3 p-8 text-center">
-        <h1 className="text-2xl font-bold">Access denied</h1>
-        <p className="text-muted-foreground max-w-sm">
-          Admin access is restricted to the authorised account only.
-        </p>
-        <Button onClick={() => nav({ to: "/auth" })}>Sign in</Button>
-        <button
-          onClick={() => { sessionStorage.removeItem(GATE_KEY); setGateOk(false); }}
-          className="text-xs text-muted-foreground hover:underline mt-2"
-        >
-          Lock again
-        </button>
-      </div>
-    );
-  }
   return (
     <AdminShell>
       <Outlet />

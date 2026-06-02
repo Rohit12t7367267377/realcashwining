@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireAdminPassword } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
@@ -11,10 +11,10 @@ async function assertAdmin(supabase: any, userId: string) {
 // ---------- Deposits ----------
 
 export const listDeposits = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdminPassword])
   .inputValidator((d) => z.object({ status: z.enum(["pending", "approved", "rejected", "all"]).default("pending") }).parse(d))
-  .handler(async ({ context, data }) => {
-    await assertAdmin(context.supabase, context.userId);
+  .handler(async ({ data }) => {
+    
     let q = supabaseAdmin
       .from("deposit_requests")
       .select("*")
@@ -34,7 +34,7 @@ export const listDeposits = createServerFn({ method: "GET" })
   });
 
 export const reviewDeposit = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdminPassword])
   .inputValidator((d) =>
     z.object({
       id: z.string().uuid(),
@@ -42,8 +42,8 @@ export const reviewDeposit = createServerFn({ method: "POST" })
       note: z.string().max(300).optional(),
     }).parse(d)
   )
-  .handler(async ({ context, data }) => {
-    await assertAdmin(context.supabase, context.userId);
+  .handler(async ({ data }) => {
+    
 
     const { data: req, error: rerr } = await supabaseAdmin.from("deposit_requests").select("*").eq("id", data.id).single();
     if (rerr) throw new Error(rerr.message);
@@ -79,7 +79,7 @@ export const reviewDeposit = createServerFn({ method: "POST" })
       .update({
         status: data.action === "approve" ? "approved" : "rejected",
         admin_note: data.note ?? null,
-        reviewed_by: context.userId,
+        reviewed_by: null,
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", data.id);
@@ -91,10 +91,10 @@ export const reviewDeposit = createServerFn({ method: "POST" })
 // ---------- Withdrawals ----------
 
 export const listWithdrawals = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdminPassword])
   .inputValidator((d) => z.object({ status: z.enum(["pending", "approved", "paid", "rejected", "all"]).default("pending") }).parse(d))
-  .handler(async ({ context, data }) => {
-    await assertAdmin(context.supabase, context.userId);
+  .handler(async ({ data }) => {
+    
     let q = supabaseAdmin
       .from("withdrawal_requests")
       .select("*")
@@ -113,7 +113,7 @@ export const listWithdrawals = createServerFn({ method: "GET" })
   });
 
 export const reviewWithdrawal = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
+  .middleware([requireAdminPassword])
   .inputValidator((d) =>
     z.object({
       id: z.string().uuid(),
@@ -122,8 +122,8 @@ export const reviewWithdrawal = createServerFn({ method: "POST" })
       note: z.string().max(300).optional(),
     }).parse(d)
   )
-  .handler(async ({ context, data }) => {
-    await assertAdmin(context.supabase, context.userId);
+  .handler(async ({ data }) => {
+    
 
     const { data: req, error: rerr } = await supabaseAdmin.from("withdrawal_requests").select("*").eq("id", data.id).single();
     if (rerr) throw new Error(rerr.message);
@@ -148,7 +148,7 @@ export const reviewWithdrawal = createServerFn({ method: "POST" })
         status: data.action === "mark_paid" ? "paid" : "rejected",
         payout_ref: data.payout_ref ?? null,
         admin_note: data.note ?? null,
-        reviewed_by: context.userId,
+        reviewed_by: null,
         reviewed_at: new Date().toISOString(),
       })
       .eq("id", data.id);
