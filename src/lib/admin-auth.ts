@@ -20,7 +20,8 @@ export const attachAdminPass = createMiddleware({ type: "function" }).client(
 
 // Server: validate the header
 export const requireAdminPassword = createMiddleware({ type: "function" }).server(
-  async ({ next, request }) => {
+  async ({ next }) => {
+    const request = getRequest();
     const provided = request?.headers.get(HEADER);
     if (provided !== ADMIN_PASSWORD) {
       throw new Error("Unauthorized: admin password required");
