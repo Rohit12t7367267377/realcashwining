@@ -66,6 +66,7 @@ function TxnHistoryInner() {
     queryFn: () => fetchHistory(),
   });
   const [filter, setFilter] = useState<FilterTab>("all");
+  const [search, setSearch] = useState("");
 
   const unified = useMemo(() => {
     if (!data) return [];
