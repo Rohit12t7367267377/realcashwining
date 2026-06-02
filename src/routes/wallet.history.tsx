@@ -181,8 +181,27 @@ function TxnHistoryInner() {
         <StatCard label="Net" value={`₹${stats.net.toFixed(0)}`} color={stats.net >= 0 ? "text-success" : "text-destructive"} />
       </section>
 
+      {/* Search */}
+      <section className="mt-4 relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by ID, UTR, or contest…"
+          className="h-10 rounded-xl pl-9 pr-9 bg-card border-0 shadow-soft focus-visible:ring-1"
+        />
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </section>
+
       {/* Filters */}
-      <section className="mt-5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <section className="mt-3 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
         <FilterChip active={filter === "all"} onClick={() => setFilter("all")}>All</FilterChip>
         <FilterChip active={filter === "credit"} onClick={() => setFilter("credit")}>Credits</FilterChip>
         <FilterChip active={filter === "debit"} onClick={() => setFilter("debit")}>Debits</FilterChip>
