@@ -13,6 +13,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 const ADMIN_PASSWORD = "Zoe@123";
+const ADMIN_EMAIL = "rohitrao63636@gmail.com";
 const GATE_KEY = "cwl_admin_gate_v1";
 
 function AdminLayout() {
@@ -33,6 +34,11 @@ function AdminLayout() {
       setState("checking");
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) {
+        setState("deny");
+        return;
+      }
+      // Email must match admin email
+      if (u.user.email !== ADMIN_EMAIL) {
         setState("deny");
         return;
       }
@@ -92,9 +98,9 @@ function AdminLayout() {
   if (state === "deny") {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center gap-3 p-8 text-center">
-        <h1 className="text-2xl font-bold">Admin account required</h1>
+        <h1 className="text-2xl font-bold">Access denied</h1>
         <p className="text-muted-foreground max-w-sm">
-          The password is correct, but you also need to be signed in with the admin account.
+          Admin access is restricted to the authorised account only.
         </p>
         <Button onClick={() => nav({ to: "/auth" })}>Sign in</Button>
         <button
