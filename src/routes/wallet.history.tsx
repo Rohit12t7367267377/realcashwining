@@ -215,7 +215,9 @@ function TxnHistoryInner() {
         {filtered.length === 0 && (
           <div className="rounded-2xl bg-card p-8 text-center shadow-soft">
             <Filter className="mx-auto h-8 w-8 text-muted-foreground" />
-            <p className="mt-2 text-sm text-muted-foreground">No transactions match this filter.</p>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {search.trim() ? "No transactions match your search." : "No transactions match this filter."}
+            </p>
           </div>
         )}
 
