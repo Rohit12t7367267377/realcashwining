@@ -18,8 +18,11 @@ import {
   Filter,
   Landmark,
   Smartphone,
+  Search,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/wallet/history")({
   head: () => ({ meta: [{ title: "Transaction History — Cash Winning League" }] }),
