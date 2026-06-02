@@ -13,7 +13,7 @@ async function assertAdmin(supabase: any, userId: string) {
 export const listDeposits = createServerFn({ method: "GET" })
   .middleware([requireAdminPassword])
   .inputValidator((d) => z.object({ status: z.enum(["pending", "approved", "rejected", "all"]).default("pending") }).parse(d))
-  .handler(async ({ context, data }) => {
+  .handler(async ({ data }) => {
     
     let q = supabaseAdmin
       .from("deposit_requests")
@@ -42,7 +42,7 @@ export const reviewDeposit = createServerFn({ method: "POST" })
       note: z.string().max(300).optional(),
     }).parse(d)
   )
-  .handler(async ({ context, data }) => {
+  .handler(async ({ data }) => {
     
 
     const { data: req, error: rerr } = await supabaseAdmin.from("deposit_requests").select("*").eq("id", data.id).single();
@@ -93,7 +93,7 @@ export const reviewDeposit = createServerFn({ method: "POST" })
 export const listWithdrawals = createServerFn({ method: "GET" })
   .middleware([requireAdminPassword])
   .inputValidator((d) => z.object({ status: z.enum(["pending", "approved", "paid", "rejected", "all"]).default("pending") }).parse(d))
-  .handler(async ({ context, data }) => {
+  .handler(async ({ data }) => {
     
     let q = supabaseAdmin
       .from("withdrawal_requests")
@@ -122,7 +122,7 @@ export const reviewWithdrawal = createServerFn({ method: "POST" })
       note: z.string().max(300).optional(),
     }).parse(d)
   )
-  .handler(async ({ context, data }) => {
+  .handler(async ({ data }) => {
     
 
     const { data: req, error: rerr } = await supabaseAdmin.from("withdrawal_requests").select("*").eq("id", data.id).single();
