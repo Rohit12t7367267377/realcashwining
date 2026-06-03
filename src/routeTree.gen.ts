@@ -34,6 +34,7 @@ import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminBooksRouteImport } from './routes/admin.books'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
@@ -160,6 +161,11 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBooksRoute = AdminBooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -174,6 +180,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -228,6 +236,7 @@ export interface FileRoutesById {
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -257,6 +266,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/terms'
     | '/wallet'
+    | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
     | '/admin/payments'
@@ -283,6 +293,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/terms'
     | '/wallet'
+    | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
     | '/admin/payments'
@@ -310,6 +321,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/terms'
     | '/wallet'
+    | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
     | '/admin/payments'
@@ -521,10 +533,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/books': {
+      id: '/admin/books'
+      path: '/books'
+      fullPath: '/admin/books'
+      preLoaderRoute: typeof AdminBooksRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminBooksRoute: typeof AdminBooksRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminContestsRoute: typeof AdminContestsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
@@ -536,6 +556,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminBooksRoute: AdminBooksRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminContestsRoute: AdminContestsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
