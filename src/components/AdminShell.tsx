@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, FolderTree, HelpCircle, Trophy, Users, Settings, LogOut, Home, ShieldCheck, Banknote } from "lucide-react";
+import { LayoutDashboard, FolderTree, HelpCircle, Trophy, Users, Settings, LogOut, Home, ShieldCheck, Banknote, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -9,6 +9,7 @@ const NAV = [
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
   { to: "/admin/questions", label: "Questions", icon: HelpCircle },
   { to: "/admin/contests", label: "Contests", icon: Trophy },
+  { to: "/admin/books", label: "Books", icon: BookOpen },
   { to: "/admin/users", label: "Users & Wallets", icon: Users },
   { to: "/admin/roles", label: "Roles", icon: ShieldCheck },
   { to: "/admin/settings", label: "Settings", icon: Settings },
