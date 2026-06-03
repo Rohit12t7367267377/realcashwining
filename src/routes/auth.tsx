@@ -129,6 +129,15 @@ function AuthPage() {
             {loading ? "..." : mode === "login" ? "Sign in" : "Sign up"}
           </Button>
         </form>
+        {mode === "login" && (
+          <button
+            type="button"
+            onClick={() => { setForgotEmail(email); setForgotOpen(true); }}
+            className="mt-3 text-xs text-muted-foreground hover:text-primary hover:underline w-full text-center"
+          >
+            Forgot password?
+          </button>
+        )}
         <button
           type="button"
           className="mt-4 text-sm text-primary hover:underline w-full text-center"
@@ -136,8 +145,34 @@ function AuthPage() {
         >
           {mode === "login" ? "No account? Sign up" : "Have an account? Sign in"}
         </button>
-        <Link to="/" className="block mt-4 text-xs text-muted-foreground text-center hover:underline">← Back to app</Link>
+        <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+          <Link to="/" className="hover:underline">← Back</Link>
+          <div className="flex gap-3">
+            <Link to="/terms" className="hover:underline">Terms</Link>
+            <Link to="/support" className="hover:underline">Support</Link>
+          </div>
+        </div>
       </Card>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reset your password</DialogTitle>
+            <DialogDescription>Enter your email and we'll send you a reset link.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={sendReset} className="space-y-4">
+            <div>
+              <Label>Email</Label>
+              <Input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} required />
+            </div>
+            <DialogFooter>
+              <Button type="submit" disabled={forgotLoading} className="w-full">
+                {forgotLoading ? "Sending…" : "Send reset link"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
