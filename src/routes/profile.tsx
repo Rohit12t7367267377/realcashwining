@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
-import { LogOut, Trophy, Target, Award, Phone, Hash, History } from "lucide-react";
+import { LogOut, Trophy, Target, Award, Phone, Hash, History, LifeBuoy, FileText, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile — Cash Winning League" }] }),
@@ -72,10 +72,22 @@ function ProfilePage() {
         </div>
       </section>
 
+      <div className="mt-6 grid grid-cols-3 gap-2">
+        <Link to="/books" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
+          <BookOpen className="h-5 w-5 text-primary" /> Books
+        </Link>
+        <Link to="/support" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
+          <LifeBuoy className="h-5 w-5 text-primary" /> Support
+        </Link>
+        <Link to="/terms" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
+          <FileText className="h-5 w-5 text-primary" /> Terms
+        </Link>
+      </div>
+
       <Button
         onClick={() => { logout(); nav({ to: "/" }); }}
         variant="outline"
-        className="mt-8 h-12 w-full font-bold text-destructive hover:bg-destructive/10"
+        className="mt-6 h-12 w-full font-bold text-destructive hover:bg-destructive/10"
       >
         <LogOut className="mr-2 h-4 w-4" /> Logout
       </Button>

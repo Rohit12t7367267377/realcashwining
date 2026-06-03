@@ -10,10 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as BooksRouteImport } from './routes/books'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -30,10 +34,26 @@ import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminBooksRouteImport } from './routes/admin.books'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReferRoute = ReferRouteImport.update({
@@ -54,6 +74,11 @@ const LoginRoute = LoginRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BooksRoute = BooksRouteImport.update({
+  id: '/books',
+  path: '/books',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -136,16 +161,26 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBooksRoute = AdminBooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/books': typeof BooksRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -163,11 +198,16 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/books': typeof BooksRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -187,11 +227,16 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
+  '/books': typeof BooksRoute
   '/leaderboard': typeof LeaderboardRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/support': typeof SupportRoute
+  '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -212,11 +257,16 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/auth'
+    | '/books'
     | '/leaderboard'
     | '/login'
     | '/profile'
     | '/refer'
+    | '/reset-password'
+    | '/support'
+    | '/terms'
     | '/wallet'
+    | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
     | '/admin/payments'
@@ -234,11 +284,16 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/books'
     | '/leaderboard'
     | '/login'
     | '/profile'
     | '/refer'
+    | '/reset-password'
+    | '/support'
+    | '/terms'
     | '/wallet'
+    | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
     | '/admin/payments'
@@ -257,11 +312,16 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/auth'
+    | '/books'
     | '/leaderboard'
     | '/login'
     | '/profile'
     | '/refer'
+    | '/reset-password'
+    | '/support'
+    | '/terms'
     | '/wallet'
+    | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
     | '/admin/payments'
@@ -281,10 +341,14 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
+  BooksRoute: typeof BooksRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SupportRoute: typeof SupportRoute
+  TermsRoute: typeof TermsRoute
   WalletRoute: typeof WalletRouteWithChildren
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
@@ -299,6 +363,27 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/wallet'
       preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refer': {
@@ -327,6 +412,13 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/books': {
+      id: '/books'
+      path: '/books'
+      fullPath: '/books'
+      preLoaderRoute: typeof BooksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -441,10 +533,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/books': {
+      id: '/admin/books'
+      path: '/books'
+      fullPath: '/admin/books'
+      preLoaderRoute: typeof AdminBooksRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminBooksRoute: typeof AdminBooksRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminContestsRoute: typeof AdminContestsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
@@ -456,6 +556,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminBooksRoute: AdminBooksRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminContestsRoute: AdminContestsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
@@ -483,10 +584,14 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
+  BooksRoute: BooksRoute,
   LeaderboardRoute: LeaderboardRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SupportRoute: SupportRoute,
+  TermsRoute: TermsRoute,
   WalletRoute: WalletRouteWithChildren,
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
@@ -496,13 +601,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

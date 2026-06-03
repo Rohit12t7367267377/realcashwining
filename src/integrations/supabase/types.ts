@@ -32,6 +32,42 @@ export type Database = {
         }
         Relationships: []
       }
+      books: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          downloads: number
+          file_path: string
+          file_size: number | null
+          id: string
+          title: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          downloads?: number
+          file_path: string
+          file_size?: number | null
+          id?: string
+          title: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          downloads?: number
+          file_path?: string
+          file_size?: number | null
+          id?: string
+          title?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           active: boolean
@@ -368,6 +404,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_book_download: {
+        Args: { _book_id: string }
+        Returns: undefined
       }
     }
     Enums: {
