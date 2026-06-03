@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as SupportRouteImport } from './routes/support'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -41,6 +42,11 @@ const WalletRoute = WalletRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -158,6 +164,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
@@ -182,6 +189,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
@@ -208,6 +216,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
@@ -235,6 +244,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/refer'
     | '/reset-password'
+    | '/support'
     | '/terms'
     | '/wallet'
     | '/admin/categories'
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/refer'
     | '/reset-password'
+    | '/support'
     | '/terms'
     | '/wallet'
     | '/admin/categories'
@@ -284,6 +295,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/refer'
     | '/reset-password'
+    | '/support'
     | '/terms'
     | '/wallet'
     | '/admin/categories'
@@ -310,6 +322,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   WalletRoute: typeof WalletRouteWithChildren
   CategoryIdRoute: typeof CategoryIdRoute
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -528,6 +548,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   WalletRoute: WalletRouteWithChildren,
   CategoryIdRoute: CategoryIdRoute,
