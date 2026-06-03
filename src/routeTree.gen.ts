@@ -10,6 +10,8 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
@@ -34,6 +36,16 @@ import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReferRoute = ReferRouteImport.update({
@@ -145,6 +157,8 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
@@ -167,6 +181,8 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
@@ -191,6 +207,8 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
@@ -216,6 +234,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/refer'
+    | '/reset-password'
+    | '/terms'
     | '/wallet'
     | '/admin/categories'
     | '/admin/contests'
@@ -238,6 +258,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/refer'
+    | '/reset-password'
+    | '/terms'
     | '/wallet'
     | '/admin/categories'
     | '/admin/contests'
@@ -261,6 +283,8 @@ export interface FileRouteTypes {
     | '/login'
     | '/profile'
     | '/refer'
+    | '/reset-password'
+    | '/terms'
     | '/wallet'
     | '/admin/categories'
     | '/admin/contests'
@@ -285,6 +309,8 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  TermsRoute: typeof TermsRoute
   WalletRoute: typeof WalletRouteWithChildren
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
@@ -299,6 +325,20 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/wallet'
       preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/refer': {
@@ -487,6 +527,8 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  TermsRoute: TermsRoute,
   WalletRoute: WalletRouteWithChildren,
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
@@ -496,3 +538,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
