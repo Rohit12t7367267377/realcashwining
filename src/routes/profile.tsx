@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
-import { LogOut, Trophy, Target, Award, Phone, Hash, History } from "lucide-react";
+import { LogOut, Trophy, Target, Award, Phone, Hash, History, LifeBuoy, FileText, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({ meta: [{ title: "Profile — Cash Winning League" }] }),
