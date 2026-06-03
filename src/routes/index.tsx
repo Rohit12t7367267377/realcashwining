@@ -208,12 +208,18 @@ function Landing() {
           <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">All Exam Categories</h3>
           <div className="grid grid-cols-4 gap-3">
             {CATEGORIES.map((c) => (
-              <div key={c.id} className="flex flex-col items-center rounded-2xl bg-card/80 p-3 shadow-soft backdrop-blur">
+              <Link key={c.id} to="/category/$id" params={{ id: c.id }} className="flex flex-col items-center rounded-2xl bg-card/80 p-3 shadow-soft backdrop-blur hover:-translate-y-1 transition">
                 <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-xl`}>{c.emoji}</div>
                 <div className="mt-1 text-[11px] font-bold">{c.name}</div>
-              </div>
+              </Link>
             ))}
           </div>
+        </div>
+
+        <div className="mt-10 flex gap-4 text-xs text-muted-foreground">
+          <Link to="/terms" className="hover:text-primary hover:underline">Terms &amp; Conditions</Link>
+          <Link to="/support" className="hover:text-primary hover:underline">Help &amp; Support</Link>
+          <Link to="/books" className="hover:text-primary hover:underline">Study Books</Link>
         </div>
       </div>
     </div>
