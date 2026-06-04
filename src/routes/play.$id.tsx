@@ -85,7 +85,14 @@ function PlayPage() {
             <Clock className="h-3.5 w-3.5" />
             {mm}:{ss}
           </div>
-          <div className="text-sm font-bold">{idx + 1}/{c.questions.length}</div>
+          <div className="flex items-center gap-2">
+            {anti.violations > 0 && (
+              <div className="flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-1 text-xs font-bold text-destructive">
+                <ShieldAlert className="h-3 w-3" />{anti.violations}/3
+              </div>
+            )}
+            <div className="text-sm font-bold">{idx + 1}/{c.questions.length}</div>
+          </div>
         </div>
         <div className="h-1 bg-muted">
           <div className="h-full bg-gradient-primary transition-all duration-300" style={{ width: `${pct}%` }} />
