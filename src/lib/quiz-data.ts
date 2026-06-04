@@ -17,6 +17,14 @@ export const CATEGORIES: Category[] = [
   { id: "gk", name: "GK & Current", short: "Affairs", emoji: "🌍", color: "from-cyan-500 to-sky-600", description: "Daily current affairs" },
   { id: "reasoning", name: "Reasoning", short: "Logical", emoji: "🧠", color: "from-violet-500 to-purple-600", description: "Verbal & non-verbal" },
   { id: "english", name: "English", short: "Language", emoji: "🔤", color: "from-pink-500 to-rose-600", description: "Grammar, vocab, comp" },
+  { id: "cricket", name: "Cricket", short: "Live & Trivia", emoji: "🏏", color: "from-green-500 to-emerald-600", description: "Live match quizzes" },
+  { id: "football", name: "Football", short: "Live & Trivia", emoji: "⚽", color: "from-lime-500 to-green-600", description: "Live match quizzes" },
+  { id: "tennis", name: "Tennis", short: "Grand Slams", emoji: "🎾", color: "from-yellow-500 to-amber-600", description: "ATP, WTA & majors" },
+  { id: "basketball", name: "Basketball", short: "NBA & FIBA", emoji: "🏀", color: "from-orange-500 to-red-600", description: "NBA, FIBA, players" },
+  { id: "badminton", name: "Badminton", short: "BWF", emoji: "🏸", color: "from-sky-500 to-blue-600", description: "BWF, players, rules" },
+  { id: "hockey", name: "Hockey", short: "FIH", emoji: "🏑", color: "from-teal-500 to-cyan-600", description: "Field & ice hockey" },
+  { id: "kabaddi", name: "Kabaddi", short: "PKL", emoji: "🤼", color: "from-red-500 to-rose-600", description: "Pro Kabaddi & rules" },
+  { id: "sports-other", name: "Other Sports", short: "Multi", emoji: "🏅", color: "from-indigo-500 to-violet-600", description: "Olympics, F1, golf & more" },
 ];
 
 export type Question = {
