@@ -1,4 +1,26 @@
 import { useEffect, useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
+let supabaseSyncStarted = false;
+function startSupabaseSync() {
+  if (supabaseSyncStarted || typeof window === "undefined") return;
+  supabaseSyncStarted = true;
+  const apply = (session: any) => {
+    const u = session?.user;
+    if (u) {
+      const base = current ?? load();
+      const name = u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Player";
+      const phone = u.phone || u.user_metadata?.phone || base.phone || "";
+      const referralCode = base.referralCode || ("CWL" + Math.random().toString(36).slice(2, 7).toUpperCase());
+      save({ ...base, loggedIn: true, name, phone, referralCode, joinedAt: base.joinedAt || Date.now() });
+    } else {
+      const base = current ?? load();
+      if (base.loggedIn) save({ ...base, loggedIn: false });
+    }
+  };
+  supabase.auth.getSession().then(({ data }) => apply(data.session));
+  supabase.auth.onAuthStateChange((_e, session) => apply(session));
+}
 
 const KEY = "cwl_user_state_v1";
 
@@ -65,6 +87,7 @@ export function useUser() {
   });
 
   useEffect(() => {
+    startSupabaseSync();
     const l = () => setState(current!);
     listeners.push(l);
     return () => {
@@ -91,7 +114,7 @@ export function useUser() {
     });
   }, []);
 
-  const logout = useCallback(() => save(DEFAULT), []);
+  const logout = useCallback(() => { void supabase.auth.signOut(); save(DEFAULT); }, []);
 
   const addMoney = useCallback((amount: number, note = "Added via UPI") => {
     update((s) => ({
