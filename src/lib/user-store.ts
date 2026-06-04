@@ -87,6 +87,7 @@ export function useUser() {
   });
 
   useEffect(() => {
+    startSupabaseSync();
     const l = () => setState(current!);
     listeners.push(l);
     return () => {
