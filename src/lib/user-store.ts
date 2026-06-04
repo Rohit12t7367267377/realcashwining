@@ -114,7 +114,7 @@ export function useUser() {
     });
   }, []);
 
-  const logout = useCallback(() => save(DEFAULT), []);
+  const logout = useCallback(() => { void supabase.auth.signOut(); save(DEFAULT); }, []);
 
   const addMoney = useCallback((amount: number, note = "Added via UPI") => {
     update((s) => ({
