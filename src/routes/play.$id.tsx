@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getContest } from "@/lib/quiz-data";
 import { Button } from "@/components/ui/button";
-import { Clock, ChevronRight, X } from "lucide-react";
+import { Clock, ChevronRight, X, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAntiCheat } from "@/lib/anti-cheat";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/play/$id")({
   component: PlayPage,
@@ -26,15 +28,27 @@ function PlayPage() {
     return () => clearInterval(t);
   }, [submitted]);
 
-  const submit = useMemo(
-    () => () => {
+  const submit = useCallback(() => {
       if (submitted) return;
       setSubmitted(true);
       const payload = encodeURIComponent(JSON.stringify(answers));
+      void anti.finalize(0);
       nav({ to: "/result/$id", params: { id: c.id }, search: { a: payload } });
+    }, [answers, c.id, nav, submitted]);
+
+  const anti = useAntiCheat({
+    contestId: c.id,
+    enabled: !submitted,
+    maxViolations: 3,
+    onAlreadyAttempted: () => {
+      toast.error("Anti-cheat: only one attempt per contest is allowed.");
+      nav({ to: "/contest/$id", params: { id: c.id } });
     },
-    [answers, c.id, nav, submitted]
-  );
+    onForceSubmit: (reason) => {
+      toast.error(`Auto-submitted: ${reason}`);
+      submit();
+    },
+  });
 
   useEffect(() => {
     if (remaining === 0 && !submitted) submit();
@@ -71,7 +85,14 @@ function PlayPage() {
             <Clock className="h-3.5 w-3.5" />
             {mm}:{ss}
           </div>
-          <div className="text-sm font-bold">{idx + 1}/{c.questions.length}</div>
+          <div className="flex items-center gap-2">
+            {anti.violations > 0 && (
+              <div className="flex items-center gap-1 rounded-full bg-destructive/10 px-2 py-1 text-xs font-bold text-destructive">
+                <ShieldAlert className="h-3 w-3" />{anti.violations}/3
+              </div>
+            )}
+            <div className="text-sm font-bold">{idx + 1}/{c.questions.length}</div>
+          </div>
         </div>
         <div className="h-1 bg-muted">
           <div className="h-full bg-gradient-primary transition-all duration-300" style={{ width: `${pct}%` }} />
