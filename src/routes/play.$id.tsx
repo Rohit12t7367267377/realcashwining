@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getContest } from "@/lib/quiz-data";
 import { Button } from "@/components/ui/button";
 import { Clock, ChevronRight, X, ShieldAlert } from "lucide-react";
