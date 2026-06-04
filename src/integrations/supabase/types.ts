@@ -101,6 +101,45 @@ export type Database = {
         }
         Relationships: []
       }
+      contest_attempts: {
+        Row: {
+          contest_id: string
+          device_fingerprint: string | null
+          id: string
+          ip_address: string | null
+          score: number | null
+          started_at: string
+          status: string
+          submitted_at: string | null
+          user_id: string
+          violations: number
+        }
+        Insert: {
+          contest_id: string
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: string | null
+          score?: number | null
+          started_at?: string
+          status?: string
+          submitted_at?: string | null
+          user_id: string
+          violations?: number
+        }
+        Update: {
+          contest_id?: string
+          device_fingerprint?: string | null
+          id?: string
+          ip_address?: string | null
+          score?: number | null
+          started_at?: string
+          status?: string
+          submitted_at?: string | null
+          user_id?: string
+          violations?: number
+        }
+        Relationships: []
+      }
       contests: {
         Row: {
           active: boolean
