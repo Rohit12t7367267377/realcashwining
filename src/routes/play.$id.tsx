@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getContest } from "@/lib/quiz-data";
 import { Button } from "@/components/ui/button";
-import { Clock, ChevronRight, X } from "lucide-react";
+import { Clock, ChevronRight, X, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAntiCheat } from "@/lib/anti-cheat";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/play/$id")({
   component: PlayPage,
