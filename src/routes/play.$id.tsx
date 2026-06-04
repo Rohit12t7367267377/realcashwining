@@ -28,15 +28,27 @@ function PlayPage() {
     return () => clearInterval(t);
   }, [submitted]);
 
-  const submit = useMemo(
-    () => () => {
+  const submit = useCallback(() => {
       if (submitted) return;
       setSubmitted(true);
       const payload = encodeURIComponent(JSON.stringify(answers));
+      void anti.finalize(0);
       nav({ to: "/result/$id", params: { id: c.id }, search: { a: payload } });
+    }, [answers, c.id, nav, submitted]);
+
+  const anti = useAntiCheat({
+    contestId: c.id,
+    enabled: !submitted,
+    maxViolations: 3,
+    onAlreadyAttempted: () => {
+      toast.error("Anti-cheat: only one attempt per contest is allowed.");
+      nav({ to: "/contest/$id", params: { id: c.id } });
     },
-    [answers, c.id, nav, submitted]
-  );
+    onForceSubmit: (reason) => {
+      toast.error(`Auto-submitted: ${reason}`);
+      submit();
+    },
+  });
 
   useEffect(() => {
     if (remaining === 0 && !submitted) submit();
