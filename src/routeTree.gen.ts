@@ -16,6 +16,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as LiveScoresRouteImport } from './routes/live-scores'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -69,6 +70,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveScoresRoute = LiveScoresRouteImport.update({
+  id: '/live-scores',
+  path: '/live-scores',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LeaderboardRoute = LeaderboardRouteImport.update({
@@ -173,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
@@ -200,6 +207,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
@@ -229,6 +237,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
   '/leaderboard': typeof LeaderboardRoute
+  '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
@@ -259,6 +268,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/books'
     | '/leaderboard'
+    | '/live-scores'
     | '/login'
     | '/profile'
     | '/refer'
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/books'
     | '/leaderboard'
+    | '/live-scores'
     | '/login'
     | '/profile'
     | '/refer'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/books'
     | '/leaderboard'
+    | '/live-scores'
     | '/login'
     | '/profile'
     | '/refer'
@@ -343,6 +355,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRoute
   LeaderboardRoute: typeof LeaderboardRoute
+  LiveScoresRoute: typeof LiveScoresRoute
   LoginRoute: typeof LoginRoute
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
@@ -405,6 +418,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live-scores': {
+      id: '/live-scores'
+      path: '/live-scores'
+      fullPath: '/live-scores'
+      preLoaderRoute: typeof LiveScoresRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/leaderboard': {
@@ -586,6 +606,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   BooksRoute: BooksRoute,
   LeaderboardRoute: LeaderboardRoute,
+  LiveScoresRoute: LiveScoresRoute,
   LoginRoute: LoginRoute,
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
