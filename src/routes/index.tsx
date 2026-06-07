@@ -72,21 +72,34 @@ function Home() {
         <Trophy className="h-4 w-4 text-primary" />
       </section>
 
+      {/* Live scores quick link */}
+      <Link to="/live-scores" className="mt-3 block rounded-2xl border border-destructive/30 bg-gradient-card px-4 py-3 shadow-soft hover:shadow-glow transition">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="flex h-2 w-2 rounded-full bg-destructive"><span className="h-full w-full animate-ping rounded-full bg-destructive" /></span>
+            <span className="text-xs font-bold uppercase tracking-wider text-destructive">Live Scores</span>
+            <span className="text-sm font-medium">Cricket · Football · Tennis</span>
+          </div>
+          <span className="text-xs text-primary">View →</span>
+        </div>
+      </Link>
+
       {/* Categories */}
       <section className="mt-6">
-        <SectionHeader title="Exam Categories" subtitle="Pick your battlefield" />
-        <div className="mt-3 grid grid-cols-4 gap-3">
+        <SectionHeader title="Quiz Categories" subtitle="Sports · GK · Coding" />
+        <div className="mt-3 grid grid-cols-3 gap-3">
           {CATEGORIES.map((c) => (
             <Link
               key={c.id}
               to="/category/$id"
               params={{ id: c.id }}
-              className="group flex flex-col items-center rounded-2xl bg-card p-3 text-center shadow-soft transition-all hover:-translate-y-1 hover:shadow-glow"
+              className="group flex flex-col items-center rounded-2xl bg-card p-4 text-center shadow-soft transition-all hover:-translate-y-1 hover:shadow-glow"
             >
-              <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-2xl shadow-md`}>
+              <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-3xl shadow-md`}>
                 {c.emoji}
               </div>
-              <div className="mt-2 text-xs font-bold leading-tight">{c.name}</div>
+              <div className="mt-2 text-sm font-bold leading-tight">{c.name}</div>
+              <div className="mt-0.5 text-[10px] text-muted-foreground leading-tight">{c.short}</div>
             </Link>
           ))}
         </div>
@@ -189,7 +202,7 @@ function Landing() {
           Play Quiz.<br />Win <span className="text-gradient-primary">Real Cash.</span>
         </h1>
         <p className="mt-4 max-w-md text-base text-muted-foreground">
-          India's most thrilling MCQ league for SSC, UPSC, Banking, Railway, Police, GK & more. Score fast, win bigger.
+          Live Sports quizzes (cricket, football, tennis & more), General Knowledge for every competitive exam, and Coding challenges across every language.
         </p>
         <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
           <Link to="/auth">
@@ -197,20 +210,20 @@ function Landing() {
               Get Started
             </Button>
           </Link>
-          <Link to="/auth">
+          <Link to="/live-scores">
             <Button size="lg" variant="outline" className="h-12 w-full text-base font-semibold">
-              I already have an account
+              ⚡ View Live Scores
             </Button>
           </Link>
         </div>
 
         <div className="mt-12 w-full">
-          <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">All Exam Categories</h3>
-          <div className="grid grid-cols-4 gap-3">
+          <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">Quiz Categories</h3>
+          <div className="grid grid-cols-3 gap-3">
             {CATEGORIES.map((c) => (
-              <Link key={c.id} to="/category/$id" params={{ id: c.id }} className="flex flex-col items-center rounded-2xl bg-card/80 p-3 shadow-soft backdrop-blur hover:-translate-y-1 transition">
-                <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-xl`}>{c.emoji}</div>
-                <div className="mt-1 text-[11px] font-bold">{c.name}</div>
+              <Link key={c.id} to="/category/$id" params={{ id: c.id }} className="flex flex-col items-center rounded-2xl bg-card/80 p-4 shadow-soft backdrop-blur hover:-translate-y-1 transition">
+                <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-3xl`}>{c.emoji}</div>
+                <div className="mt-2 text-sm font-bold">{c.name}</div>
               </Link>
             ))}
           </div>

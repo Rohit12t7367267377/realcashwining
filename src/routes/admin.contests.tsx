@@ -15,13 +15,13 @@ export const Route = createFileRoute("/admin/contests")({ component: Page });
 
 type Contest = {
   id: string; title: string; category_id: string | null; entry_fee: number; prize_pool: number; first_prize: number;
-  duration_minutes: number; num_questions: number; contest_type: string; active: boolean;
+  duration_minutes: number; num_questions: number; contest_type: string; active: boolean; max_participants: number;
 };
 type Cat = { id: string; name: string };
 
 const empty = {
   title: "", category_id: "", entry_fee: 20, prize_pool: 200, first_prize: 100,
-  duration_minutes: 10, num_questions: 10, contest_type: "paid", active: true,
+  duration_minutes: 10, num_questions: 10, contest_type: "paid", active: true, max_participants: 100,
 };
 
 function Page() {
@@ -47,7 +47,7 @@ function Page() {
     setForm({
       title: r.title, category_id: r.category_id ?? "", entry_fee: Number(r.entry_fee), prize_pool: Number(r.prize_pool),
       first_prize: Number(r.first_prize), duration_minutes: r.duration_minutes, num_questions: r.num_questions,
-      contest_type: r.contest_type, active: r.active,
+      contest_type: r.contest_type, active: r.active, max_participants: r.max_participants ?? 100,
     });
     setOpen(true);
   }
@@ -92,6 +92,7 @@ function Page() {
               <div>Prize pool: <strong>₹{r.prize_pool}</strong></div>
               <div>1st: ₹{r.first_prize}</div>
               <div>{r.num_questions} Q · {r.duration_minutes}m</div>
+              <div className="col-span-2">Max participants: <strong>{r.max_participants ?? "—"}</strong></div>
             </div>
             {!r.active && <div className="text-xs text-muted-foreground mt-2">Hidden</div>}
           </Card>
@@ -128,6 +129,7 @@ function Page() {
               </div>
               <div><Label># Questions</Label><Input type="number" value={form.num_questions} onChange={(e) => setForm({ ...form, num_questions: Number(e.target.value) })} /></div>
               <div><Label>Duration (min)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: Number(e.target.value) })} /></div>
+              <div className="col-span-2"><Label>Max participants</Label><Input type="number" min={1} value={form.max_participants} onChange={(e) => setForm({ ...form, max_participants: Number(e.target.value) })} /></div>
             </div>
             <div className="flex items-center justify-between"><Label>Active</Label><Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} /></div>
             <Button onClick={save} className="w-full">Save</Button>
