@@ -112,10 +112,16 @@ function AuthPage() {
 
         <form onSubmit={submit} className="space-y-4">
           {mode === "signup" && (
-            <div>
-              <Label>Full name</Label>
-              <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-            </div>
+            <>
+              <div>
+                <Label>Full name</Label>
+                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+              </div>
+              <div>
+                <Label>Phone <span className="text-xs text-muted-foreground">(optional)</span></Label>
+                <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 …" />
+              </div>
+            </>
           )}
           <div>
             <Label>Email</Label>
@@ -124,6 +130,11 @@ function AuthPage() {
           <div>
             <Label>Password</Label>
             <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+            {mode === "signup" && (
+              <p className="mt-1.5 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                ⚠️ Save your password — it's shown only once. We can't recover it for you.
+              </p>
+            )}
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "..." : mode === "login" ? "Sign in" : "Sign up"}

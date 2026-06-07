@@ -111,3 +111,20 @@ function buildContests(): Contest[] {
 }
 
 export const CONTESTS: Contest[] = buildContests();
+
+export function getContest(id: string): Contest | undefined {
+  return CONTESTS.find((c) => c.id === id);
+}
+
+export const LEADERBOARD: { rank: number; name: string; score: number; wins: number; earnings: number }[] = [
+  { rank: 1, name: "Aarav K.", score: 9840, wins: 142, earnings: 28500 },
+  { rank: 2, name: "Priya S.", score: 9210, wins: 128, earnings: 24100 },
+  { rank: 3, name: "Rohan M.", score: 8750, wins: 119, earnings: 21300 },
+  { rank: 4, name: "Sneha P.", score: 8100, wins: 104, earnings: 18900 },
+  { rank: 5, name: "Vikram J.", score: 7650, wins: 96, earnings: 16200 },
+  { rank: 6, name: "Anaya R.", score: 7200, wins: 88, earnings: 14500 },
+  { rank: 7, name: "Karan D.", score: 6800, wins: 81, earnings: 12700 },
+  { rank: 8, name: "Diya T.", score: 6400, wins: 75, earnings: 11000 },
+  { rank: 9, name: "Aditya N.", score: 6050, wins: 69, earnings: 9800 },
+  { rank: 10, name: "Isha V.", score: 5700, wins: 64, earnings: 8600 },
+];
