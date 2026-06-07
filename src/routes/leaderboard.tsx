@@ -13,7 +13,7 @@ function LeaderboardPage() {
   const { state } = useUser();
   const youScore = state.totalScore;
   const all = [...LEADERBOARD];
-  if (state.loggedIn) all.push({ name: state.name + " (You)", score: youScore, wins: state.contestsWon, avatar: "🎯" });
+  if (state.loggedIn) all.push({ name: state.name + " (You)", score: youScore, wins: state.contestsWon, earnings: 0, avatar: "🎯" });
   all.sort((a, b) => b.score - a.score);
   const top3 = all.slice(0, 3);
   const rest = all.slice(3);
