@@ -151,6 +151,7 @@ export type Database = {
           entry_fee: number
           first_prize: number
           id: string
+          max_participants: number
           num_questions: number
           prize_pool: number
           starts_at: string | null
@@ -166,6 +167,7 @@ export type Database = {
           entry_fee?: number
           first_prize?: number
           id?: string
+          max_participants?: number
           num_questions?: number
           prize_pool?: number
           starts_at?: string | null
@@ -181,6 +183,7 @@ export type Database = {
           entry_fee?: number
           first_prize?: number
           id?: string
+          max_participants?: number
           num_questions?: number
           prize_pool?: number
           starts_at?: string | null
