@@ -116,7 +116,7 @@ export function getContest(id: string): Contest | undefined {
   return CONTESTS.find((c) => c.id === id);
 }
 
-export const LEADERBOARD: { rank: number; name: string; score: number; wins: number; earnings: number }[] = [
+export const LEADERBOARD: { rank: number; name: string; score: number; wins: number; earnings: number; avatar: string }[] = [
   { rank: 1, name: "Aarav K.", score: 9840, wins: 142, earnings: 28500, avatar: "🏆" },
   { rank: 2, name: "Priya S.", score: 9210, wins: 128, earnings: 24100, avatar: "🥈" },
   { rank: 3, name: "Rohan M.", score: 8750, wins: 119, earnings: 21300, avatar: "🥉" },
