@@ -7,6 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RefreshCw, Radio } from "lucide-react";
 
 export const Route = createFileRoute("/live-scores")({
+  ssr: false,
   head: () => ({ meta: [{ title: "Live Sports Scores — CWL" }] }),
   component: LiveScores,
 });
