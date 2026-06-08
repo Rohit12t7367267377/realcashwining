@@ -100,7 +100,7 @@ function Page() {
             <div className="flex-1">
               <div className="font-medium">{r.question}</div>
               <div className="text-xs text-muted-foreground mt-1">
-                {cats.find((c) => c.id === r.category_id)?.name} · {r.difficulty} · Answer: <strong>{r.options[r.correct_index]}</strong>
+                {cats.find((c) => c.id === r.category_id)?.name} · {r.difficulty} · ⏱ {r.time_seconds ?? 30}s · Answer: <strong>{r.options[r.correct_index]}</strong>
               </div>
             </div>
             <div className="flex gap-1">
