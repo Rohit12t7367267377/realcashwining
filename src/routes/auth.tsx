@@ -1,12 +1,11 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertTriangle, Mail, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -14,188 +13,154 @@ export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Sign in — Cash Winning League" }] }),
 });
 
+type Step = "warning" | "email" | "otp";
+
 function AuthPage() {
   const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [step, setStep] = useState<Step>("warning");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [otp, setOtp] = useState("");
   const [fullName, setFullName] = useState("");
-  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [forgotOpen, setForgotOpen] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState("");
-  const [forgotLoading, setForgotLoading] = useState(false);
 
-  async function sendReset(e: React.FormEvent) {
+  const isGmail = (v: string) => /^[^\s@]+@gmail\.com$/i.test(v.trim());
+
+  async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
-    setForgotLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setForgotLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Reset link sent. Check your email.");
-    setForgotOpen(false);
-    setForgotEmail("");
-  }
-
-  async function signInWithGoogle() {
-    setGoogleLoading(true);
-    try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
-      });
-      if (result.error) {
-        toast.error(result.error.message ?? "Google sign-in failed");
-        setGoogleLoading(false);
-        return;
-      }
-      if (result.redirected) return;
-      toast.success("Signed in with Google");
-      navigate({ to: "/" });
-    } catch (err: any) {
-      toast.error(err?.message ?? "Google sign-in failed");
-      setGoogleLoading(false);
-    }
-  }
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+    if (!isGmail(email)) return toast.error("Please enter a valid @gmail.com address");
     setLoading(true);
-    try {
-      if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: { full_name: fullName },
-          },
-        });
-        if (error) throw error;
-        toast.success("Account created! Check your email if confirmation is required.");
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-        toast.success("Welcome back!");
-      }
-      navigate({ to: "/" });
-    } catch (err: any) {
-      toast.error(err.message ?? "Auth failed");
-    } finally {
-      setLoading(false);
-    }
+    const { error } = await supabase.auth.signInWithOtp({
+      email: email.trim(),
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: window.location.origin,
+        data: { full_name: fullName },
+      },
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("OTP sent to your Gmail");
+    setStep("otp");
+  }
+
+  async function verifyOtp(e: React.FormEvent) {
+    e.preventDefault();
+    if (otp.length < 6) return toast.error("Enter the 6-digit code");
+    setLoading(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email: email.trim(),
+      token: otp.trim(),
+      type: "email",
+    });
+    setLoading(false);
+    if (error) return toast.error(error.message);
+    toast.success("Signed in!");
+    navigate({ to: "/" });
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
       <Card className="w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold mb-1">{mode === "login" ? "Welcome back" : "Create account"}</h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          {mode === "login" ? "Sign in to play & manage your wallet." : "First account becomes admin automatically."}
-        </p>
-
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full h-11 mb-4"
-          disabled={googleLoading}
-          onClick={signInWithGoogle}
-        >
-          <GoogleIcon /> {googleLoading ? "Redirecting…" : `Continue with Google`}
-        </Button>
-
-        <div className="relative my-4 text-center">
-          <div className="absolute inset-0 flex items-center"><div className="w-full border-t" /></div>
-          <span className="relative bg-card px-3 text-xs uppercase tracking-wider text-muted-foreground">or with email</span>
-        </div>
-
-        <form onSubmit={submit} className="space-y-4">
-          {mode === "signup" && (
-            <>
-              <div>
-                <Label>Full name</Label>
-                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-              </div>
-              <div>
-                <Label>Phone <span className="text-xs text-muted-foreground">(optional)</span></Label>
-                <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 …" />
-              </div>
-            </>
-          )}
-          <div>
-            <Label>Email</Label>
-            <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          </div>
-          <div>
-            <Label>Password</Label>
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-            {mode === "signup" && (
-              <p className="mt-1.5 text-[11px] text-amber-600 dark:text-amber-400 font-medium">
-                ⚠️ Save your password — it's shown only once. We can't recover it for you.
-              </p>
-            )}
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "..." : mode === "login" ? "Sign in" : "Sign up"}
-          </Button>
-        </form>
-        {mode === "login" && (
-          <button
-            type="button"
-            onClick={() => { setForgotEmail(email); setForgotOpen(true); }}
-            className="mt-3 text-xs text-muted-foreground hover:text-primary hover:underline w-full text-center"
-          >
-            Forgot password?
-          </button>
-        )}
-        <button
-          type="button"
-          className="mt-4 text-sm text-primary hover:underline w-full text-center"
-          onClick={() => setMode(mode === "login" ? "signup" : "login")}
-        >
-          {mode === "login" ? "No account? Sign up" : "Have an account? Sign in"}
-        </button>
-        <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
-          <Link to="/" className="hover:underline">← Back</Link>
-          <div className="flex gap-3">
-            <Link to="/terms" className="hover:underline">Terms</Link>
-            <Link to="/support" className="hover:underline">Support</Link>
-          </div>
-        </div>
-      </Card>
-
-      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Reset your password</DialogTitle>
-            <DialogDescription>Enter your email and we'll send you a reset link.</DialogDescription>
-          </DialogHeader>
-          <form onSubmit={sendReset} className="space-y-4">
-            <div>
-              <Label>Email</Label>
-              <Input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} required />
+        {step === "warning" && (
+          <>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-950">
+              <AlertTriangle className="h-7 w-7 text-amber-600 dark:text-amber-400" />
             </div>
-            <DialogFooter>
-              <Button type="submit" disabled={forgotLoading} className="w-full">
-                {forgotLoading ? "Sending…" : "Send reset link"}
-              </Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </div>
-  );
-}
+            <h1 className="text-center text-2xl font-bold mb-2">Important Notice</h1>
+            <div className="space-y-3 text-sm text-muted-foreground mb-6">
+              <p>• Sign in is allowed <strong>only with a valid @gmail.com address</strong>.</p>
+              <p>• We will send a <strong>one-time password (OTP)</strong> to your Gmail. No passwords are saved.</p>
+              <p>• Social logins (Google button) and phone-number login are <strong>disabled</strong>.</p>
+              <p>• Quizzes are protected by an <strong>anti-cheat system</strong>: tab-switching, copy/paste and dev-tools are blocked.</p>
+              <p>• You must be 18+ and play responsibly.</p>
+            </div>
+            <Button className="w-full h-11" onClick={() => setStep("email")}>
+              I understand — Continue
+            </Button>
+            <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+              <Link to="/" className="hover:underline">← Back</Link>
+              <div className="flex gap-3">
+                <Link to="/terms" className="hover:underline">Terms</Link>
+                <Link to="/support" className="hover:underline">Support</Link>
+              </div>
+            </div>
+          </>
+        )}
 
-function GoogleIcon() {
-  return (
-    <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden>
-      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.75h3.57c2.08-1.92 3.28-4.74 3.28-8.07z"/>
-      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.75c-.99.66-2.25 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23z"/>
-      <path fill="#FBBC05" d="M5.84 14.12A6.61 6.61 0 0 1 5.49 12c0-.74.13-1.45.35-2.12V7.04H2.18A11 11 0 0 0 1 12c0 1.77.42 3.45 1.18 4.96l3.66-2.84z"/>
-      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.65l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.04l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/>
-    </svg>
+        {step === "email" && (
+          <>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <Mail className="h-7 w-7 text-primary" />
+            </div>
+            <h1 className="text-center text-2xl font-bold mb-1">Sign in with Gmail</h1>
+            <p className="text-center text-sm text-muted-foreground mb-6">We'll email you a 6-digit code.</p>
+            <form onSubmit={sendOtp} className="space-y-4">
+              <div>
+                <Label>Full name <span className="text-xs text-muted-foreground">(new users)</span></Label>
+                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your name" />
+              </div>
+              <div>
+                <Label>Gmail address</Label>
+                <Input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@gmail.com"
+                  required
+                  autoComplete="email"
+                />
+                <p className="mt-1 text-[11px] text-muted-foreground">Only @gmail.com addresses are accepted.</p>
+              </div>
+              <Button type="submit" className="w-full h-11" disabled={loading}>
+                {loading ? "Sending…" : "Send OTP"}
+              </Button>
+            </form>
+            <button
+              type="button"
+              onClick={() => setStep("warning")}
+              className="mt-4 text-xs text-muted-foreground hover:underline w-full text-center"
+            >
+              ← Back to notice
+            </button>
+          </>
+        )}
+
+        {step === "otp" && (
+          <>
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+              <ShieldCheck className="h-7 w-7 text-primary" />
+            </div>
+            <h1 className="text-center text-2xl font-bold mb-1">Enter OTP</h1>
+            <p className="text-center text-sm text-muted-foreground mb-6">
+              Code sent to <strong>{email}</strong>
+            </p>
+            <form onSubmit={verifyOtp} className="space-y-4">
+              <div>
+                <Label>6-digit code</Label>
+                <Input
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                  placeholder="••••••"
+                  className="text-center text-2xl tracking-[0.5em] font-bold"
+                  required
+                />
+              </div>
+              <Button type="submit" className="w-full h-11" disabled={loading}>
+                {loading ? "Verifying…" : "Verify & Continue"}
+              </Button>
+            </form>
+            <button
+              type="button"
+              onClick={() => { setStep("email"); setOtp(""); }}
+              className="mt-4 text-xs text-muted-foreground hover:underline w-full text-center"
+            >
+              Use a different email
+            </button>
+          </>
+        )}
+      </Card>
+    </div>
   );
 }

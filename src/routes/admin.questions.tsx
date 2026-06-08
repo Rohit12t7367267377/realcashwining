@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/questions")({ component: Page });
 
-type Q = { id: string; category_id: string; question: string; options: string[]; correct_index: number; explanation: string | null; difficulty: string | null };
+type Q = { id: string; category_id: string; question: string; options: string[]; correct_index: number; explanation: string | null; difficulty: string | null; time_seconds: number };
 type Cat = { id: string; name: string };
 
 function Page() {
@@ -29,6 +29,7 @@ function Page() {
     correct_index: 0,
     explanation: "",
     difficulty: "medium",
+    time_seconds: 30,
   });
 
   async function load() {
@@ -44,7 +45,7 @@ function Page() {
 
   function openNew() {
     setEditing(null);
-    setForm({ category_id: cats[0]?.id ?? "", question: "", options: ["", "", "", ""], correct_index: 0, explanation: "", difficulty: "medium" });
+    setForm({ category_id: cats[0]?.id ?? "", question: "", options: ["", "", "", ""], correct_index: 0, explanation: "", difficulty: "medium", time_seconds: 30 });
     setOpen(true);
   }
   function openEdit(r: Q) {
@@ -53,6 +54,7 @@ function Page() {
       category_id: r.category_id, question: r.question,
       options: Array.isArray(r.options) ? r.options : ["", "", "", ""],
       correct_index: r.correct_index, explanation: r.explanation ?? "", difficulty: r.difficulty ?? "medium",
+      time_seconds: r.time_seconds ?? 30,
     });
     setOpen(true);
   }
@@ -98,7 +100,7 @@ function Page() {
             <div className="flex-1">
               <div className="font-medium">{r.question}</div>
               <div className="text-xs text-muted-foreground mt-1">
-                {cats.find((c) => c.id === r.category_id)?.name} · {r.difficulty} · Answer: <strong>{r.options[r.correct_index]}</strong>
+                {cats.find((c) => c.id === r.category_id)?.name} · {r.difficulty} · ⏱ {r.time_seconds ?? 30}s · Answer: <strong>{r.options[r.correct_index]}</strong>
               </div>
             </div>
             <div className="flex gap-1">
@@ -131,16 +133,28 @@ function Page() {
             ))}
             <p className="text-xs text-muted-foreground">Select the radio next to the correct option.</p>
             <div><Label>Explanation</Label><Textarea value={form.explanation} onChange={(e) => setForm({ ...form, explanation: e.target.value })} rows={2} /></div>
-            <div>
-              <Label>Difficulty</Label>
-              <Select value={form.difficulty} onValueChange={(v) => setForm({ ...form, difficulty: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Difficulty</Label>
+                <Select value={form.difficulty} onValueChange={(v) => setForm({ ...form, difficulty: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Time per question (seconds)</Label>
+                <Input
+                  type="number"
+                  min={5}
+                  max={600}
+                  value={form.time_seconds}
+                  onChange={(e) => setForm({ ...form, time_seconds: Math.max(5, Number(e.target.value) || 30) })}
+                />
+              </div>
             </div>
             <Button onClick={save} className="w-full">Save</Button>
           </div>
