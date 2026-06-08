@@ -133,16 +133,28 @@ function Page() {
             ))}
             <p className="text-xs text-muted-foreground">Select the radio next to the correct option.</p>
             <div><Label>Explanation</Label><Textarea value={form.explanation} onChange={(e) => setForm({ ...form, explanation: e.target.value })} rows={2} /></div>
-            <div>
-              <Label>Difficulty</Label>
-              <Select value={form.difficulty} onValueChange={(v) => setForm({ ...form, difficulty: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="easy">Easy</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="hard">Hard</SelectItem>
-                </SelectContent>
-              </Select>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Difficulty</Label>
+                <Select value={form.difficulty} onValueChange={(v) => setForm({ ...form, difficulty: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="easy">Easy</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="hard">Hard</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label>Time per question (seconds)</Label>
+                <Input
+                  type="number"
+                  min={5}
+                  max={600}
+                  value={form.time_seconds}
+                  onChange={(e) => setForm({ ...form, time_seconds: Math.max(5, Number(e.target.value) || 30) })}
+                />
+              </div>
             </div>
             <Button onClick={save} className="w-full">Save</Button>
           </div>
