@@ -45,7 +45,7 @@ function Page() {
 
   function openNew() {
     setEditing(null);
-    setForm({ category_id: cats[0]?.id ?? "", question: "", options: ["", "", "", ""], correct_index: 0, explanation: "", difficulty: "medium" });
+    setForm({ category_id: cats[0]?.id ?? "", question: "", options: ["", "", "", ""], correct_index: 0, explanation: "", difficulty: "medium", time_seconds: 30 });
     setOpen(true);
   }
   function openEdit(r: Q) {
@@ -54,6 +54,7 @@ function Page() {
       category_id: r.category_id, question: r.question,
       options: Array.isArray(r.options) ? r.options : ["", "", "", ""],
       correct_index: r.correct_index, explanation: r.explanation ?? "", difficulty: r.difficulty ?? "medium",
+      time_seconds: r.time_seconds ?? 30,
     });
     setOpen(true);
   }
