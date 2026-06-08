@@ -1,0 +1,1 @@
+ALTER TABLE public.questions ADD COLUMN IF NOT EXISTS time_seconds integer NOT NULL DEFAULT 30;

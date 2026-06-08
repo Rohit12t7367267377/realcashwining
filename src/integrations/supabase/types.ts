@@ -320,6 +320,7 @@ export type Database = {
           id: string
           options: Json
           question: string
+          time_seconds: number
         }
         Insert: {
           category_id: string
@@ -330,6 +331,7 @@ export type Database = {
           id?: string
           options: Json
           question: string
+          time_seconds?: number
         }
         Update: {
           category_id?: string
@@ -340,6 +342,7 @@ export type Database = {
           id?: string
           options?: Json
           question?: string
+          time_seconds?: number
         }
         Relationships: [
           {
