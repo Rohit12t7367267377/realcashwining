@@ -13,7 +13,7 @@ import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin/questions")({ component: Page });
 
-type Q = { id: string; category_id: string; question: string; options: string[]; correct_index: number; explanation: string | null; difficulty: string | null };
+type Q = { id: string; category_id: string; question: string; options: string[]; correct_index: number; explanation: string | null; difficulty: string | null; time_seconds: number };
 type Cat = { id: string; name: string };
 
 function Page() {
@@ -29,6 +29,7 @@ function Page() {
     correct_index: 0,
     explanation: "",
     difficulty: "medium",
+    time_seconds: 30,
   });
 
   async function load() {
