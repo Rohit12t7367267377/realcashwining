@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { upsertContest, deleteContest } from "@/lib/admin-contests.functions";
+
 
 export const Route = createFileRoute("/admin/contests")({ component: Page });
 
@@ -53,16 +55,26 @@ function Page() {
   }
   async function save() {
     const payload = { ...form, category_id: form.category_id || null };
-    const res = editing
-      ? await supabase.from("contests").update(payload).eq("id", editing.id)
-      : await supabase.from("contests").insert(payload);
-    if (res.error) toast.error(res.error.message); else { toast.success("Saved"); setOpen(false); load(); }
+    try {
+      await upsertContest({ data: { id: editing?.id, values: payload } });
+      toast.success("Saved");
+      setOpen(false);
+      load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to save");
+    }
   }
   async function del(id: string) {
     if (!confirm("Delete contest?")) return;
-    const { error } = await supabase.from("contests").delete().eq("id", id);
-    if (error) toast.error(error.message); else { toast.success("Deleted"); load(); }
+    try {
+      await deleteContest({ data: { id } });
+      toast.success("Deleted");
+      load();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to delete");
+    }
   }
+
 
   return (
     <div>
