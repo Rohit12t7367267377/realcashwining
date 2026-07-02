@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
-import { CATEGORIES, CONTESTS } from "@/lib/quiz-data";
+import { CATEGORIES } from "@/lib/quiz-data";
 import { useUser } from "@/lib/user-store";
 import { Button } from "@/components/ui/button";
 import { Flame, Gift, Trophy, Users, Clock, Zap } from "lucide-react";
