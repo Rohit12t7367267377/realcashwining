@@ -105,51 +105,20 @@ function Home() {
         </div>
       </section>
 
-      {/* Featured contests */}
+      {/* Real contests link */}
       <section className="mt-6">
-        <SectionHeader title="🔥 Hot Contests" subtitle="Limited spots — join now" />
-        <div className="mt-3 space-y-3">
-          {featured.map((c) => {
-            const cat = CATEGORIES.find((x) => x.id === c.categoryId)!;
-            const pct = Math.round((c.filled / c.spots) * 100);
-            return (
-              <button
-                key={c.id}
-                onClick={() => navigate({ to: "/contest/$id", params: { id: c.id } })}
-                className="block w-full rounded-2xl bg-card p-4 text-left shadow-soft transition hover:shadow-glow"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br ${cat.color} text-xl`}>
-                      {cat.emoji}
-                    </div>
-                    <div>
-                      <div className="text-sm font-bold">{c.title}</div>
-                      <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                        <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{c.durationSec / 60}m</span>
-                        <span className="flex items-center gap-1"><Zap className="h-3 w-3" />{c.questions.length} Qs</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="rounded-lg bg-gradient-gold px-2 py-1 text-xs font-black text-amber-950">
-                      Win ₹{c.prize}
-                    </div>
-                    <div className="mt-1 text-[10px] text-muted-foreground">Entry ₹{c.entryFee}</div>
-                  </div>
-                </div>
-                <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full bg-gradient-primary transition-all" style={{ width: `${pct}%` }} />
-                </div>
-                <div className="mt-1.5 flex items-center justify-between text-[10px] text-muted-foreground">
-                  <span className="flex items-center gap-1"><Users className="h-3 w-3" />{c.filled}/{c.spots}</span>
-                  <span>{c.spots - c.filled} spots left</span>
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        <SectionHeader title="🔥 Live Contests" subtitle="Real quizzes created by admin" />
+        <Link to="/category/$id" params={{ id: "sports" }} className="mt-3 block rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft hover:shadow-glow transition">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-sm font-bold">Browse Sports Contests</div>
+              <div className="text-[11px] opacity-90">Cricket · Football · Tennis & more</div>
+            </div>
+            <Trophy className="h-5 w-5" />
+          </div>
+        </Link>
       </section>
+
 
       {/* Promo */}
       <section className="mt-6 rounded-2xl bg-gradient-success p-4 text-success-foreground shadow-soft">
