@@ -31,6 +31,7 @@ import { Route as CategoryIdRouteImport } from './routes/category.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
+import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
@@ -147,6 +148,11 @@ const AdminRolesRoute = AdminRolesRouteImport.update({
   path: '/roles',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminResultsRoute = AdminResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
   id: '/questions',
   path: '/questions',
@@ -192,6 +198,7 @@ export interface FileRoutesByFullPath {
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/admin/contests': typeof AdminContestsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
@@ -281,6 +290,7 @@ export interface FileRouteTypes {
     | '/admin/contests'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/users'
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/admin/contests'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/users'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '/admin/contests'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/users'
@@ -525,6 +537,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRolesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/results': {
+      id: '/admin/results'
+      path: '/results'
+      fullPath: '/admin/results'
+      preLoaderRoute: typeof AdminResultsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/questions': {
       id: '/admin/questions'
       path: '/questions'
@@ -569,6 +588,7 @@ interface AdminRouteChildren {
   AdminContestsRoute: typeof AdminContestsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
+  AdminResultsRoute: typeof AdminResultsRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
@@ -581,6 +601,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminContestsRoute: AdminContestsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
+  AdminResultsRoute: AdminResultsRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
