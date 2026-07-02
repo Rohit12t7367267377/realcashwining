@@ -109,12 +109,18 @@ export function useAntiCheat(opts: {
     };
   }, [enabled, maxViolations, onForceSubmit]);
 
-  async function finalize(score: number) {
+  async function finalize(score: number, answers?: (number | null)[]) {
     const id = attemptIdRef.current;
     if (!id) return;
     await supabase
       .from("contest_attempts")
-      .update({ submitted_at: new Date().toISOString(), score, violations, status: "submitted" })
+      .update({
+        submitted_at: new Date().toISOString(),
+        score,
+        violations,
+        status: "submitted",
+        ...(answers ? { answers: answers as unknown as never } : {}),
+      })
       .eq("id", id);
   }
 
