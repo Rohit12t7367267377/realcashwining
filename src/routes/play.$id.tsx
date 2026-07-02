@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { getContest } from "@/lib/quiz-data";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Clock, ChevronRight, X, ShieldAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -11,38 +11,68 @@ export const Route = createFileRoute("/play/$id")({
   component: PlayPage,
 });
 
+type Contest = {
+  id: string;
+  title: string;
+  category_id: string | null;
+  duration_minutes: number;
+  num_questions: number;
+};
+type Q = { id: string; question: string; options: string[] };
+
 function PlayPage() {
   const { id } = Route.useParams();
-  const c = getContest(id);
   const nav = useNavigate();
-  if (!c) return <p>Not found</p>;
-
+  const [c, setC] = useState<Contest | null | undefined>(undefined);
+  const [questions, setQuestions] = useState<Q[]>([]);
   const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState<(number | null)[]>(() => Array(c.questions.length).fill(null));
-  const [remaining, setRemaining] = useState(c.durationSec);
+  const [answers, setAnswers] = useState<(number | null)[]>([]);
+  const [remaining, setRemaining] = useState(0);
   const [submitted, setSubmitted] = useState(false);
 
   useEffect(() => {
-    if (submitted) return;
+    (async () => {
+      const { data: contest } = await supabase.from("contests").select("id, title, category_id, duration_minutes, num_questions").eq("id", id).maybeSingle();
+      if (!contest) { setC(null); return; }
+      setC(contest as Contest);
+      setRemaining((contest.duration_minutes || 5) * 60);
+      if (!contest.category_id) { setQuestions([]); setAnswers([]); return; }
+      const { data: qs } = await supabase
+        .from("questions")
+        .select("id, question, options")
+        .eq("category_id", contest.category_id)
+        .limit(contest.num_questions || 10);
+      const shaped = (qs ?? []).map((q) => ({
+        id: q.id,
+        question: q.question,
+        options: Array.isArray(q.options) ? (q.options as string[]) : [],
+      }));
+      setQuestions(shaped);
+      setAnswers(Array(shaped.length).fill(null));
+    })();
+  }, [id]);
+
+  useEffect(() => {
+    if (submitted || !c) return;
     const t = setInterval(() => setRemaining((r) => Math.max(0, r - 1)), 1000);
     return () => clearInterval(t);
-  }, [submitted]);
+  }, [submitted, c]);
 
   const submit = useCallback(() => {
-      if (submitted) return;
-      setSubmitted(true);
-      const payload = encodeURIComponent(JSON.stringify(answers));
-      void anti.finalize(0);
-      nav({ to: "/result/$id", params: { id: c.id }, search: { a: payload } });
-    }, [answers, c.id, nav, submitted]);
+    if (submitted || !c) return;
+    setSubmitted(true);
+    void anti.finalize(0, answers);
+    nav({ to: "/result/$id", params: { id: c.id } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [answers, c, nav, submitted]);
 
   const anti = useAntiCheat({
-    contestId: c.id,
-    enabled: !submitted,
+    contestId: c?.id ?? "",
+    enabled: !submitted && !!c,
     maxViolations: 3,
     onAlreadyAttempted: () => {
-      toast.error("Anti-cheat: only one attempt per contest is allowed.");
-      nav({ to: "/contest/$id", params: { id: c.id } });
+      toast.error("You have already attempted this contest.");
+      if (c) nav({ to: "/result/$id", params: { id: c.id } });
     },
     onForceSubmit: (reason) => {
       toast.error(`Auto-submitted: ${reason}`);
@@ -51,13 +81,17 @@ function PlayPage() {
   });
 
   useEffect(() => {
-    if (remaining === 0 && !submitted) submit();
-  }, [remaining, submit, submitted]);
+    if (c && remaining === 0 && !submitted) submit();
+  }, [c, remaining, submit, submitted]);
 
-  const q = c.questions[idx];
+  if (c === undefined) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
+  if (!c) return <div className="p-6">Contest not found</div>;
+  if (questions.length === 0) return <div className="p-6 text-sm text-muted-foreground">Admin hasn't added questions for this contest yet.</div>;
+
+  const q = questions[idx];
   const mm = String(Math.floor(remaining / 60)).padStart(2, "0");
   const ss = String(remaining % 60).padStart(2, "0");
-  const pct = ((idx + 1) / c.questions.length) * 100;
+  const pct = ((idx + 1) / questions.length) * 100;
   const danger = remaining < 30;
 
   const pick = (i: number) => {
@@ -69,13 +103,12 @@ function PlayPage() {
   };
 
   const next = () => {
-    if (idx < c.questions.length - 1) setIdx(idx + 1);
+    if (idx < questions.length - 1) setIdx(idx + 1);
     else submit();
   };
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
       <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur">
         <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
           <button onClick={() => confirm("Quit quiz? Your entry won't be refunded.") && nav({ to: "/" })} className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
@@ -91,7 +124,7 @@ function PlayPage() {
                 <ShieldAlert className="h-3 w-3" />{anti.violations}/3
               </div>
             )}
-            <div className="text-sm font-bold">{idx + 1}/{c.questions.length}</div>
+            <div className="text-sm font-bold">{idx + 1}/{questions.length}</div>
           </div>
         </div>
         <div className="h-1 bg-muted">
@@ -102,7 +135,7 @@ function PlayPage() {
       <main className="mx-auto max-w-2xl px-4 py-6 pb-32">
         <div className="rounded-3xl bg-gradient-card p-5 shadow-soft">
           <div className="text-xs font-bold uppercase tracking-widest text-primary">Question {idx + 1}</div>
-          <h2 className="mt-2 text-lg font-bold leading-snug">{q.q}</h2>
+          <h2 className="mt-2 text-lg font-bold leading-snug">{q.question}</h2>
         </div>
 
         <div className="mt-5 space-y-3">
@@ -134,7 +167,7 @@ function PlayPage() {
         <div className="mx-auto flex max-w-2xl gap-2">
           <Button variant="outline" onClick={() => pick(-1)} className="h-12 flex-1">Skip</Button>
           <Button onClick={next} disabled={answers[idx] === null} className="h-12 flex-[2] bg-gradient-primary font-bold shadow-glow">
-            {idx === c.questions.length - 1 ? "Submit" : "Next"} <ChevronRight className="ml-1 h-4 w-4" />
+            {idx === questions.length - 1 ? "Submit" : "Next"} <ChevronRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
       </div>
