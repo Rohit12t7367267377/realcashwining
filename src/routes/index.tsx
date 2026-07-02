@@ -36,7 +36,7 @@ function Home() {
     else toast.success(`+₹${r} added to your wallet!`);
   };
 
-  const featured = CONTESTS.filter((c) => c.entryFee > 0).slice(0, 4);
+  
 
   return (
     <AppShell>
