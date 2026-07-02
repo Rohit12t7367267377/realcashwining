@@ -33,6 +33,9 @@ function PlayPage() {
   useEffect(() => {
     (async () => {
       const { data: contest } = await supabase.from("contests").select("id, title, category_id, duration_minutes, num_questions").eq("id", id).maybeSingle();
+      if (!contest) { setC(null); return; }
+      setC(contest as Contest);
+      setRemaining((contest.duration_minutes || 5) * 60);
       if (!contest.category_id) { setQuestions([]); setAnswers([]); return; }
       const { data: qs } = await supabase
         .from("questions")
