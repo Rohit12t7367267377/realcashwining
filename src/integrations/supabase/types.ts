@@ -103,10 +103,14 @@ export type Database = {
       }
       contest_attempts: {
         Row: {
+          answers: Json | null
           contest_id: string
           device_fingerprint: string | null
           id: string
           ip_address: string | null
+          is_winner: boolean
+          prize_awarded: number
+          rank: number | null
           score: number | null
           started_at: string
           status: string
@@ -115,10 +119,14 @@ export type Database = {
           violations: number
         }
         Insert: {
+          answers?: Json | null
           contest_id: string
           device_fingerprint?: string | null
           id?: string
           ip_address?: string | null
+          is_winner?: boolean
+          prize_awarded?: number
+          rank?: number | null
           score?: number | null
           started_at?: string
           status?: string
@@ -127,10 +135,14 @@ export type Database = {
           violations?: number
         }
         Update: {
+          answers?: Json | null
           contest_id?: string
           device_fingerprint?: string | null
           id?: string
           ip_address?: string | null
+          is_winner?: boolean
+          prize_awarded?: number
+          rank?: number | null
           score?: number | null
           started_at?: string
           status?: string
@@ -154,6 +166,7 @@ export type Database = {
           max_participants: number
           num_questions: number
           prize_pool: number
+          results_status: string
           starts_at: string | null
           title: string
         }
@@ -170,6 +183,7 @@ export type Database = {
           max_participants?: number
           num_questions?: number
           prize_pool?: number
+          results_status?: string
           starts_at?: string | null
           title: string
         }
@@ -186,6 +200,7 @@ export type Database = {
           max_participants?: number
           num_questions?: number
           prize_pool?: number
+          results_status?: string
           starts_at?: string | null
           title?: string
         }
@@ -443,6 +458,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_declare_contest_result: {
+        Args: {
+          _attempt_id: string
+          _contest_id: string
+          _prize: number
+          _rank: number
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
