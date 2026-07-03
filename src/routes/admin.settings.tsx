@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { saveAppSetting } from "@/lib/admin-settings.functions";
 
 export const Route = createFileRoute("/admin/settings")({ component: Page });
 
