@@ -17,6 +17,8 @@ type Contest = {
   category_id: string | null;
   duration_minutes: number;
   num_questions: number;
+  active: boolean;
+  results_status: string;
 };
 type Q = { id: string; question: string; options: string[] };
 
@@ -24,6 +26,7 @@ function PlayPage() {
   const { id } = Route.useParams();
   const nav = useNavigate();
   const [c, setC] = useState<Contest | null | undefined>(undefined);
+  const [blocked, setBlocked] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Q[]>([]);
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
@@ -32,9 +35,17 @@ function PlayPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: contest } = await supabase.from("contests").select("id, title, category_id, duration_minutes, num_questions").eq("id", id).maybeSingle();
+      const { data: contest } = await supabase.from("contests").select("id, title, category_id, duration_minutes, num_questions, active, results_status").eq("id", id).maybeSingle();
       if (!contest) { setC(null); return; }
       setC(contest as Contest);
+      if (!contest.active) {
+        setBlocked("This contest is not currently open. Please wait for the admin to activate it.");
+        return;
+      }
+      if (contest.results_status === "declared") {
+        setBlocked("Results have already been declared for this contest.");
+        return;
+      }
       setRemaining((contest.duration_minutes || 5) * 60);
       if (!contest.category_id) { setQuestions([]); setAnswers([]); return; }
       const { data: qs } = await supabase
@@ -86,6 +97,7 @@ function PlayPage() {
 
   if (c === undefined) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!c) return <div className="p-6">Contest not found</div>;
+  if (blocked) return <div className="p-6 text-sm text-muted-foreground">{blocked}</div>;
   if (questions.length === 0) return <div className="p-6 text-sm text-muted-foreground">Admin hasn't added questions for this contest yet.</div>;
 
   const q = questions[idx];
