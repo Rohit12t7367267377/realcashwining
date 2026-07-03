@@ -36,8 +36,12 @@ function Page() {
   }, []);
 
   async function save(key: string, value: any) {
-    const { error } = await supabase.from("app_settings").upsert({ key, value, updated_at: new Date().toISOString() });
-    if (error) toast.error(error.message); else toast.success("Saved");
+    try {
+      await saveAppSetting({ data: { key, value } });
+      toast.success("Saved");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to save");
+    }
   }
 
   if (loading) return <div>Loading…</div>;
