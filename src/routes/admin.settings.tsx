@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
+import { saveAppSetting } from "@/lib/admin-settings.functions";
 
 export const Route = createFileRoute("/admin/settings")({ component: Page });
 
@@ -35,8 +36,12 @@ function Page() {
   }, []);
 
   async function save(key: string, value: any) {
-    const { error } = await supabase.from("app_settings").upsert({ key, value, updated_at: new Date().toISOString() });
-    if (error) toast.error(error.message); else toast.success("Saved");
+    try {
+      await saveAppSetting({ data: { key, value } });
+      toast.success("Saved");
+    } catch (e: any) {
+      toast.error(e?.message ?? "Failed to save");
+    }
   }
 
   if (loading) return <div>Loading…</div>;
