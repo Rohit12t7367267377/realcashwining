@@ -17,6 +17,8 @@ type Contest = {
   category_id: string | null;
   duration_minutes: number;
   num_questions: number;
+  active: boolean;
+  results_status: string;
 };
 type Q = { id: string; question: string; options: string[] };
 
@@ -24,6 +26,7 @@ function PlayPage() {
   const { id } = Route.useParams();
   const nav = useNavigate();
   const [c, setC] = useState<Contest | null | undefined>(undefined);
+  const [blocked, setBlocked] = useState<string | null>(null);
   const [questions, setQuestions] = useState<Q[]>([]);
   const [idx, setIdx] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
