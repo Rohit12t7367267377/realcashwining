@@ -97,6 +97,7 @@ function PlayPage() {
 
   if (c === undefined) return <div className="p-6 text-sm text-muted-foreground">Loading…</div>;
   if (!c) return <div className="p-6">Contest not found</div>;
+  if (blocked) return <div className="p-6 text-sm text-muted-foreground">{blocked}</div>;
   if (questions.length === 0) return <div className="p-6 text-sm text-muted-foreground">Admin hasn't added questions for this contest yet.</div>;
 
   const q = questions[idx];
