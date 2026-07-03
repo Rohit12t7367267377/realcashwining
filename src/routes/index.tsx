@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
 import { CATEGORIES } from "@/lib/quiz-data";
 import { useUser } from "@/lib/user-store";
