@@ -22,8 +22,10 @@ export const Route = createFileRoute("/")({
 function Home() {
   const { state, claimDaily } = useUser();
   const navigate = useNavigate();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
 
-  if (!state.loggedIn) {
+  if (!mounted || !state.loggedIn) {
     return (
       <div className="min-h-screen bg-background">
         <Landing />
