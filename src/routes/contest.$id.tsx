@@ -122,6 +122,7 @@ function ContestPage() {
       <div className="sticky bottom-24 mt-6">
         <Button onClick={join} disabled={joining || !c.active} size="lg" className="h-14 w-full bg-gradient-primary text-base font-bold shadow-glow">
           {joining ? "Joining…" :
+            !c.active ? "Waiting for admin approval" :
             c.results_status === "declared" ? "View Results" :
             Number(c.entry_fee) > 0 ? `Pay ₹${c.entry_fee} & Join Contest` : "Start Free Quiz"}
         </Button>
