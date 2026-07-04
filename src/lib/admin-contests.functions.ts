@@ -14,6 +14,8 @@ const contestSchema = z.object({
   contest_type: z.string().min(1),
   active: z.boolean(),
   max_participants: z.number().int().min(1),
+  starts_at: z.string().datetime().nullable().optional(),
+  ends_at: z.string().datetime().nullable().optional(),
 });
 
 export const upsertContest = createServerFn({ method: "POST" })

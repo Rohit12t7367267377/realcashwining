@@ -14,7 +14,7 @@ export const getMyWallet = createServerFn({ method: "GET" })
       supabase.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(50),
       supabase.from("deposit_requests").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
       supabase.from("withdrawal_requests").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
-      supabase.from("app_settings").select("key, value").in("key", ["admin_upi_id", "min_deposit", "min_withdrawal", "max_withdrawal_per_day"]),
+      supabase.from("app_settings").select("key, value").in("key", ["admin_upi_id", "admin_upi_qr", "min_deposit", "max_deposit", "min_withdrawal", "max_withdrawal_per_day"]),
     ]);
 
     const cfg: Record<string, any> = {};
@@ -29,7 +29,9 @@ export const getMyWallet = createServerFn({ method: "GET" })
       withdrawals: withdrawals ?? [],
       settings: {
         admin_upi_id: String(cfg.admin_upi_id ?? "admin@upi"),
-        min_deposit: Number(cfg.min_deposit ?? 10),
+        admin_upi_qr: cfg.admin_upi_qr ? String(cfg.admin_upi_qr) : "",
+        min_deposit: Number(cfg.min_deposit ?? 20),
+        max_deposit: Number(cfg.max_deposit ?? 5000),
         min_withdrawal: Number(cfg.min_withdrawal ?? 100),
         max_withdrawal_per_day: Number(cfg.max_withdrawal_per_day ?? 5000),
       },
@@ -39,7 +41,7 @@ export const getMyWallet = createServerFn({ method: "GET" })
 // ---------- Write: submit a deposit request ----------
 
 const depositSchema = z.object({
-  amount: z.number().min(1).max(100000),
+  amount: z.number().min(1).max(5000),
   upi_utr: z.string().trim().min(6).max(50).regex(/^[A-Za-z0-9]+$/, "UTR must be alphanumeric"),
   payer_upi: z.string().trim().max(100).optional().nullable(),
   screenshot_url: z.string().url().max(500).optional().nullable(),
@@ -51,9 +53,13 @@ export const submitDeposit = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { userId } = context;
 
-    const { data: cfg } = await supabaseAdmin.from("app_settings").select("value").eq("key", "min_deposit").maybeSingle();
-    const min = Number(cfg?.value ?? 10);
+    const { data: cfgRows } = await supabaseAdmin.from("app_settings").select("key, value").in("key", ["min_deposit", "max_deposit"]);
+    const cfgMap: Record<string, any> = {};
+    (cfgRows ?? []).forEach((r) => { cfgMap[r.key] = r.value; });
+    const min = Number(cfgMap.min_deposit ?? 20);
+    const max = Number(cfgMap.max_deposit ?? 5000);
     if (data.amount < min) throw new Error(`Minimum deposit is ₹${min}`);
+    if (data.amount > max) throw new Error(`Maximum deposit is ₹${max}`);
 
     // prevent duplicate UTR
     const { data: dup } = await supabaseAdmin

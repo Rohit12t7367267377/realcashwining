@@ -15,15 +15,23 @@ import { upsertContest, deleteContest } from "@/lib/admin-contests.functions";
 
 export const Route = createFileRoute("/admin/contests")({ component: Page });
 
+function toLocalInput(iso: string) {
+  const d = new Date(iso);
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
+}
+
 type Contest = {
   id: string; title: string; category_id: string | null; entry_fee: number; prize_pool: number; first_prize: number;
   duration_minutes: number; num_questions: number; contest_type: string; active: boolean; max_participants: number;
+  starts_at: string | null; ends_at: string | null;
 };
 type Cat = { id: string; name: string };
 
 const empty = {
   title: "", category_id: "", entry_fee: 20, prize_pool: 200, first_prize: 100,
   duration_minutes: 10, num_questions: 10, contest_type: "paid", active: true, max_participants: 100,
+  starts_at: "", ends_at: "",
 };
 
 function Page() {
@@ -50,11 +58,18 @@ function Page() {
       title: r.title, category_id: r.category_id ?? "", entry_fee: Number(r.entry_fee), prize_pool: Number(r.prize_pool),
       first_prize: Number(r.first_prize), duration_minutes: r.duration_minutes, num_questions: r.num_questions,
       contest_type: r.contest_type, active: r.active, max_participants: r.max_participants ?? 100,
+      starts_at: r.starts_at ? toLocalInput(r.starts_at) : "",
+      ends_at: r.ends_at ? toLocalInput(r.ends_at) : "",
     });
     setOpen(true);
   }
   async function save() {
-    const payload = { ...form, category_id: form.category_id || null };
+    const payload = {
+      ...form,
+      category_id: form.category_id || null,
+      starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : null,
+      ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
+    };
     try {
       await upsertContest({ data: { id: editing?.id, values: payload } });
       toast.success("Saved");
@@ -142,6 +157,9 @@ function Page() {
               <div><Label># Questions</Label><Input type="number" value={form.num_questions} onChange={(e) => setForm({ ...form, num_questions: Number(e.target.value) })} /></div>
               <div><Label>Duration (min)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: Number(e.target.value) })} /></div>
               <div className="col-span-2"><Label>Max participants</Label><Input type="number" min={1} value={form.max_participants} onChange={(e) => setForm({ ...form, max_participants: Number(e.target.value) })} /></div>
+              <div><Label>Start time</Label><Input type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} /></div>
+              <div><Label>End time</Label><Input type="datetime-local" value={form.ends_at} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} /></div>
+              <p className="col-span-2 text-[11px] text-muted-foreground">Quiz is only playable between start and end time. Leave blank to allow anytime.</p>
             </div>
             <div className="flex items-center justify-between"><Label>Active</Label><Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} /></div>
             <Button onClick={save} className="w-full">Save</Button>

@@ -13,6 +13,10 @@ export const Route = createFileRoute("/admin/settings")({ component: Page });
 
 function Page() {
   const [adminUpi, setAdminUpi] = useState("admin@upi");
+  const [adminUpiQr, setAdminUpiQr] = useState("");
+  const [minDeposit, setMinDeposit] = useState(20);
+  const [maxDeposit, setMaxDeposit] = useState(5000);
+  const [minWithdrawal, setMinWithdrawal] = useState(100);
   const [newUserBonus, setNewUserBonus] = useState(0);
   const [prizePoolPct, setPrizePoolPct] = useState(50);
   const [prizePoolTotal, setPrizePoolTotal] = useState(0);
@@ -25,6 +29,10 @@ function Page() {
       const { data } = await supabase.from("app_settings").select("*");
       (data ?? []).forEach((r: any) => {
         if (r.key === "admin_upi_id") setAdminUpi(typeof r.value === "string" ? r.value : String(r.value));
+        if (r.key === "admin_upi_qr") setAdminUpiQr(typeof r.value === "string" ? r.value : String(r.value));
+        if (r.key === "min_deposit") setMinDeposit(Number(r.value) || 20);
+        if (r.key === "max_deposit") setMaxDeposit(Number(r.value) || 5000);
+        if (r.key === "min_withdrawal") setMinWithdrawal(Number(r.value) || 100);
         if (r.key === "new_user_bonus") setNewUserBonus(Number(r.value) || 0);
         if (r.key === "prize_pool_pct") setPrizePoolPct(Number(r.value) || 0);
         if (r.key === "prize_pool_total") setPrizePoolTotal(Number(r.value) || 0);
@@ -58,6 +66,34 @@ function Page() {
           <Label>Admin UPI ID</Label>
           <Input value={adminUpi} onChange={(e) => setAdminUpi(e.target.value)} placeholder="yourname@bank" className="font-mono" />
           <Button className="mt-3" onClick={() => save("admin_upi_id", adminUpi.trim())}>Save UPI ID</Button>
+
+          <div className="mt-5 border-t pt-4">
+            <Label>UPI QR image URL (PhonePe / GPay / Paytm)</Label>
+            <p className="text-[11px] text-muted-foreground mb-1.5">Paste the URL of your UPI QR code image. Users will see this QR on the deposit page.</p>
+            <Input value={adminUpiQr} onChange={(e) => setAdminUpiQr(e.target.value)} placeholder="https://…/upi-qr.png" />
+            {adminUpiQr && <img src={adminUpiQr} alt="QR preview" className="mt-2 h-32 w-32 rounded border bg-white object-contain p-1" />}
+            <Button className="mt-3" onClick={() => save("admin_upi_qr", adminUpiQr.trim())}>Save QR</Button>
+          </div>
+
+          <div className="mt-5 grid grid-cols-3 gap-3 border-t pt-4">
+            <div>
+              <Label>Min deposit ₹</Label>
+              <Input type="number" min={1} value={minDeposit} onChange={(e) => setMinDeposit(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label>Max deposit ₹</Label>
+              <Input type="number" min={1} value={maxDeposit} onChange={(e) => setMaxDeposit(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label>Min withdrawal ₹</Label>
+              <Input type="number" min={1} value={minWithdrawal} onChange={(e) => setMinWithdrawal(Number(e.target.value))} />
+            </div>
+          </div>
+          <Button className="mt-3" onClick={async () => {
+            await save("min_deposit", minDeposit);
+            await save("max_deposit", maxDeposit);
+            await save("min_withdrawal", minWithdrawal);
+          }}>Save limits</Button>
         </Card>
 
         <Card className="p-5">

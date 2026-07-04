@@ -19,6 +19,8 @@ type Contest = {
   num_questions: number;
   active: boolean;
   results_status: string;
+  starts_at: string | null;
+  ends_at: string | null;
 };
 type Q = { id: string; question: string; options: string[] };
 
@@ -35,7 +37,7 @@ function PlayPage() {
 
   useEffect(() => {
     (async () => {
-      const { data: contest } = await supabase.from("contests").select("id, title, category_id, duration_minutes, num_questions, active, results_status").eq("id", id).maybeSingle();
+      const { data: contest } = await supabase.from("contests").select("id, title, category_id, duration_minutes, num_questions, active, results_status, starts_at, ends_at").eq("id", id).maybeSingle();
       if (!contest) { setC(null); return; }
       setC(contest as Contest);
       if (!contest.active) {
@@ -44,6 +46,15 @@ function PlayPage() {
       }
       if (contest.results_status === "declared") {
         setBlocked("Results have already been declared for this contest.");
+        return;
+      }
+      const now = Date.now();
+      if (contest.starts_at && new Date(contest.starts_at).getTime() > now) {
+        setBlocked(`This contest starts at ${new Date(contest.starts_at).toLocaleString()}. Please come back then.`);
+        return;
+      }
+      if (contest.ends_at && new Date(contest.ends_at).getTime() < now) {
+        setBlocked("This contest has ended.");
         return;
       }
       setRemaining((contest.duration_minutes || 5) * 60);
