@@ -14,7 +14,7 @@ export const getMyWallet = createServerFn({ method: "GET" })
       supabase.from("transactions").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(50),
       supabase.from("deposit_requests").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
       supabase.from("withdrawal_requests").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(20),
-      supabase.from("app_settings").select("key, value").in("key", ["admin_upi_id", "min_deposit", "min_withdrawal", "max_withdrawal_per_day"]),
+      supabase.from("app_settings").select("key, value").in("key", ["admin_upi_id", "admin_upi_qr", "min_deposit", "max_deposit", "min_withdrawal", "max_withdrawal_per_day"]),
     ]);
 
     const cfg: Record<string, any> = {};
@@ -29,7 +29,9 @@ export const getMyWallet = createServerFn({ method: "GET" })
       withdrawals: withdrawals ?? [],
       settings: {
         admin_upi_id: String(cfg.admin_upi_id ?? "admin@upi"),
-        min_deposit: Number(cfg.min_deposit ?? 10),
+        admin_upi_qr: cfg.admin_upi_qr ? String(cfg.admin_upi_qr) : "",
+        min_deposit: Number(cfg.min_deposit ?? 20),
+        max_deposit: Number(cfg.max_deposit ?? 5000),
         min_withdrawal: Number(cfg.min_withdrawal ?? 100),
         max_withdrawal_per_day: Number(cfg.max_withdrawal_per_day ?? 5000),
       },
