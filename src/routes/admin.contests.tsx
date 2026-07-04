@@ -58,7 +58,12 @@ function Page() {
     setOpen(true);
   }
   async function save() {
-    const payload = { ...form, category_id: form.category_id || null };
+    const payload = {
+      ...form,
+      category_id: form.category_id || null,
+      starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : null,
+      ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : null,
+    };
     try {
       await upsertContest({ data: { id: editing?.id, values: payload } });
       toast.success("Saved");
