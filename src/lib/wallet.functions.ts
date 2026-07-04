@@ -53,9 +53,13 @@ export const submitDeposit = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { userId } = context;
 
-    const { data: cfg } = await supabaseAdmin.from("app_settings").select("value").eq("key", "min_deposit").maybeSingle();
-    const min = Number(cfg?.value ?? 10);
+    const { data: cfgRows } = await supabaseAdmin.from("app_settings").select("key, value").in("key", ["min_deposit", "max_deposit"]);
+    const cfgMap: Record<string, any> = {};
+    (cfgRows ?? []).forEach((r) => { cfgMap[r.key] = r.value; });
+    const min = Number(cfgMap.min_deposit ?? 20);
+    const max = Number(cfgMap.max_deposit ?? 5000);
     if (data.amount < min) throw new Error(`Minimum deposit is ₹${min}`);
+    if (data.amount > max) throw new Error(`Maximum deposit is ₹${max}`);
 
     // prevent duplicate UTR
     const { data: dup } = await supabaseAdmin
