@@ -41,7 +41,7 @@ export const getMyWallet = createServerFn({ method: "GET" })
 // ---------- Write: submit a deposit request ----------
 
 const depositSchema = z.object({
-  amount: z.number().min(1).max(100000),
+  amount: z.number().min(1).max(5000),
   upi_utr: z.string().trim().min(6).max(50).regex(/^[A-Za-z0-9]+$/, "UTR must be alphanumeric"),
   payer_upi: z.string().trim().max(100).optional().nullable(),
   screenshot_url: z.string().url().max(500).optional().nullable(),
