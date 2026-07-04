@@ -19,6 +19,8 @@ type Contest = {
   num_questions: number;
   active: boolean;
   results_status: string;
+  starts_at: string | null;
+  ends_at: string | null;
 };
 type Q = { id: string; question: string; options: string[] };
 
