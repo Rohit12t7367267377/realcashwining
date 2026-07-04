@@ -15,6 +15,12 @@ import { upsertContest, deleteContest } from "@/lib/admin-contests.functions";
 
 export const Route = createFileRoute("/admin/contests")({ component: Page });
 
+function toLocalInput(iso: string) {
+  const d = new Date(iso);
+  const off = d.getTimezoneOffset();
+  return new Date(d.getTime() - off * 60000).toISOString().slice(0, 16);
+}
+
 type Contest = {
   id: string; title: string; category_id: string | null; entry_fee: number; prize_pool: number; first_prize: number;
   duration_minutes: number; num_questions: number; contest_type: string; active: boolean; max_participants: number;
