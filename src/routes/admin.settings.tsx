@@ -13,6 +13,10 @@ export const Route = createFileRoute("/admin/settings")({ component: Page });
 
 function Page() {
   const [adminUpi, setAdminUpi] = useState("admin@upi");
+  const [adminUpiQr, setAdminUpiQr] = useState("");
+  const [minDeposit, setMinDeposit] = useState(20);
+  const [maxDeposit, setMaxDeposit] = useState(5000);
+  const [minWithdrawal, setMinWithdrawal] = useState(100);
   const [newUserBonus, setNewUserBonus] = useState(0);
   const [prizePoolPct, setPrizePoolPct] = useState(50);
   const [prizePoolTotal, setPrizePoolTotal] = useState(0);
@@ -25,6 +29,10 @@ function Page() {
       const { data } = await supabase.from("app_settings").select("*");
       (data ?? []).forEach((r: any) => {
         if (r.key === "admin_upi_id") setAdminUpi(typeof r.value === "string" ? r.value : String(r.value));
+        if (r.key === "admin_upi_qr") setAdminUpiQr(typeof r.value === "string" ? r.value : String(r.value));
+        if (r.key === "min_deposit") setMinDeposit(Number(r.value) || 20);
+        if (r.key === "max_deposit") setMaxDeposit(Number(r.value) || 5000);
+        if (r.key === "min_withdrawal") setMinWithdrawal(Number(r.value) || 100);
         if (r.key === "new_user_bonus") setNewUserBonus(Number(r.value) || 0);
         if (r.key === "prize_pool_pct") setPrizePoolPct(Number(r.value) || 0);
         if (r.key === "prize_pool_total") setPrizePoolTotal(Number(r.value) || 0);
