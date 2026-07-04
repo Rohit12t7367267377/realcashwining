@@ -157,6 +157,9 @@ function Page() {
               <div><Label># Questions</Label><Input type="number" value={form.num_questions} onChange={(e) => setForm({ ...form, num_questions: Number(e.target.value) })} /></div>
               <div><Label>Duration (min)</Label><Input type="number" value={form.duration_minutes} onChange={(e) => setForm({ ...form, duration_minutes: Number(e.target.value) })} /></div>
               <div className="col-span-2"><Label>Max participants</Label><Input type="number" min={1} value={form.max_participants} onChange={(e) => setForm({ ...form, max_participants: Number(e.target.value) })} /></div>
+              <div><Label>Start time</Label><Input type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} /></div>
+              <div><Label>End time</Label><Input type="datetime-local" value={form.ends_at} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} /></div>
+              <p className="col-span-2 text-[11px] text-muted-foreground">Quiz is only playable between start and end time. Leave blank to allow anytime.</p>
             </div>
             <div className="flex items-center justify-between"><Label>Active</Label><Switch checked={form.active} onCheckedChange={(v) => setForm({ ...form, active: v })} /></div>
             <Button onClick={save} className="w-full">Save</Button>
