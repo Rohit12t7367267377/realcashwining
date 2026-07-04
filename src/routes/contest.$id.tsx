@@ -122,12 +122,23 @@ function ContestPage() {
       </section>
 
       <div className="sticky bottom-24 mt-6">
-        <Button onClick={join} disabled={joining || !c.active} size="lg" className="h-14 w-full bg-gradient-primary text-base font-bold shadow-glow">
-          {joining ? "Joining…" :
+        {(() => {
+          const now = Date.now();
+          const notStarted = c.starts_at && new Date(c.starts_at).getTime() > now;
+          const ended = c.ends_at && new Date(c.ends_at).getTime() < now;
+          const disabled = joining || !c.active || !!notStarted || !!ended;
+          let label = joining ? "Joining…" :
             !c.active ? "Waiting for admin approval" :
             c.results_status === "declared" ? "View Results" :
-            Number(c.entry_fee) > 0 ? `Pay ₹${c.entry_fee} & Join Contest` : "Start Free Quiz"}
-        </Button>
+            notStarted ? `Starts at ${new Date(c.starts_at!).toLocaleString()}` :
+            ended ? "Contest ended" :
+            Number(c.entry_fee) > 0 ? `Pay ₹${c.entry_fee} & Join Contest` : "Start Free Quiz";
+          return (
+            <Button onClick={join} disabled={disabled} size="lg" className="h-14 w-full bg-gradient-primary text-base font-bold shadow-glow">
+              {label}
+            </Button>
+          );
+        })()}
         {Number(c.entry_fee) > 0 && (
           <p className="mt-2 text-center text-[11px] text-muted-foreground">
             Wallet balance: ₹{state.wallet.toFixed(0)}
