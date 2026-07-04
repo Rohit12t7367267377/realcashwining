@@ -52,6 +52,8 @@ function Page() {
       title: r.title, category_id: r.category_id ?? "", entry_fee: Number(r.entry_fee), prize_pool: Number(r.prize_pool),
       first_prize: Number(r.first_prize), duration_minutes: r.duration_minutes, num_questions: r.num_questions,
       contest_type: r.contest_type, active: r.active, max_participants: r.max_participants ?? 100,
+      starts_at: r.starts_at ? toLocalInput(r.starts_at) : "",
+      ends_at: r.ends_at ? toLocalInput(r.ends_at) : "",
     });
     setOpen(true);
   }
