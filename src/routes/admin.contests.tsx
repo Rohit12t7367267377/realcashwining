@@ -18,12 +18,14 @@ export const Route = createFileRoute("/admin/contests")({ component: Page });
 type Contest = {
   id: string; title: string; category_id: string | null; entry_fee: number; prize_pool: number; first_prize: number;
   duration_minutes: number; num_questions: number; contest_type: string; active: boolean; max_participants: number;
+  starts_at: string | null; ends_at: string | null;
 };
 type Cat = { id: string; name: string };
 
 const empty = {
   title: "", category_id: "", entry_fee: 20, prize_pool: 200, first_prize: 100,
   duration_minutes: 10, num_questions: 10, contest_type: "paid", active: true, max_participants: 100,
+  starts_at: "", ends_at: "",
 };
 
 function Page() {
