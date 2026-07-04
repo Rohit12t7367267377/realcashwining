@@ -1,11 +1,13 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { CATEGORIES } from "@/lib/quiz-data";
 import { useUser } from "@/lib/user-store";
+import { getMyWallet } from "@/lib/wallet.functions";
 import { Button } from "@/components/ui/button";
-import { Flame, Gift, Trophy, Users, Clock, Zap } from "lucide-react";
-import { toast } from "sonner";
+import { Flame, Trophy } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,10 +22,17 @@ export const Route = createFileRoute("/")({
 });
 
 function Home() {
-  const { state, claimDaily } = useUser();
-  const navigate = useNavigate();
+  const { state } = useUser();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
+
+  const fetchWallet = useServerFn(getMyWallet);
+  const { data: wallet } = useQuery({
+    queryKey: ["wallet"],
+    queryFn: () => fetchWallet(),
+    enabled: mounted && state.loggedIn,
+    staleTime: 15_000,
+  });
 
   if (!mounted || !state.loggedIn) {
     return (
@@ -33,46 +42,22 @@ function Home() {
     );
   }
 
-  const claimToday = () => {
-    const r = claimDaily();
-    if (r === 0) toast.info("You've already claimed today's reward 🎁");
-    else toast.success(`+₹${r} added to your wallet!`);
-  };
-
-  
+  const balance = Number(wallet?.balance ?? 0);
 
   return (
     <AppShell>
       {/* Hero greeting */}
       <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-widest opacity-80">Welcome back</p>
-            <h1 className="mt-1 text-2xl font-black">Hey {state.name.split(" ")[0]} 👋</h1>
-            <p className="mt-1 text-sm opacity-90">Ready to win some cash today?</p>
-          </div>
-          <button onClick={claimToday} className="flex flex-col items-center rounded-2xl bg-white/15 px-3 py-2 backdrop-blur transition hover:bg-white/25">
-            <Gift className="h-5 w-5" />
-            <span className="mt-0.5 text-[10px] font-bold uppercase">Daily</span>
-          </button>
+        <div>
+          <p className="text-xs uppercase tracking-widest opacity-80">Welcome back</p>
+          <h1 className="mt-1 text-2xl font-black">Hey {state.name.split(" ")[0]} 👋</h1>
+          <p className="mt-1 text-sm opacity-90">Ready to win some cash today?</p>
         </div>
         <div className="mt-5 grid grid-cols-3 gap-2 text-center">
-          <Stat label="Wallet" value={`₹${state.wallet.toFixed(0)}`} />
-          <Stat label="Won" value={`₹${state.winnings.toFixed(0)}`} />
+          <Stat label="Wallet" value={`₹${balance.toFixed(0)}`} />
+          <Stat label="Won" value={`₹${Number(wallet?.balance != null ? state.winnings : state.winnings).toFixed(0)}`} />
           <Stat label="Played" value={state.contestsPlayed.toString()} />
         </div>
-      </section>
-
-      {/* Live banner */}
-      <section className="mt-5 flex items-center justify-between rounded-2xl border border-primary/20 bg-gradient-card px-4 py-3 shadow-soft">
-        <div className="flex items-center gap-2">
-          <span className="flex h-2 w-2 rounded-full bg-destructive">
-            <span className="h-full w-full animate-ping rounded-full bg-destructive" />
-          </span>
-          <span className="text-xs font-semibold uppercase tracking-wider text-destructive">Live now</span>
-          <span className="text-sm font-medium">2,340 players online</span>
-        </div>
-        <Trophy className="h-4 w-4 text-primary" />
       </section>
 
       {/* Live scores quick link */}
