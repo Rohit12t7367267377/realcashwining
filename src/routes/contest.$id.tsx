@@ -24,6 +24,8 @@ type Contest = {
   max_participants: number;
   active: boolean;
   results_status: string;
+  starts_at: string | null;
+  ends_at: string | null;
 };
 
 function ContestPage() {
