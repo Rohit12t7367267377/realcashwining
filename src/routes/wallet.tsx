@@ -139,7 +139,7 @@ function RequestRow({ amount, status, sub, at }: { amount: number; status: strin
 
 function DepositForm({ settings, onDone }: { settings: any; onDone: () => void }) {
   const submit = useServerFn(submitDeposit);
-  const [amt, setAmt] = useState<number>(Math.max(100, settings.min_deposit));
+  const [amt, setAmt] = useState<number>(Math.max(20, settings.min_deposit));
   const [utr, setUtr] = useState("");
   const [payer, setPayer] = useState("");
   const [busy, setBusy] = useState(false);
@@ -151,6 +151,7 @@ function DepositForm({ settings, onDone }: { settings: any; onDone: () => void }
 
   const handle = async () => {
     if (amt < settings.min_deposit) return toast.error(`Minimum ₹${settings.min_deposit}`);
+    if (amt > settings.max_deposit) return toast.error(`Maximum ₹${settings.max_deposit}`);
     if (utr.trim().length < 6) return toast.error("Enter the 12-digit UTR/reference from your UPI app");
     setBusy(true);
     try {
@@ -173,15 +174,23 @@ function DepositForm({ settings, onDone }: { settings: any; onDone: () => void }
           <div className="font-mono text-lg font-bold break-all">{settings.admin_upi_id}</div>
           <Button type="button" size="sm" variant="outline" onClick={copy}><Copy className="h-3.5 w-3.5" /></Button>
         </div>
-        <p className="mt-2 text-[11px] text-muted-foreground">
-          Open any UPI app (GPay, PhonePe, Paytm) → Pay → enter the UPI ID above → pay the amount below.
-        </p>
+        {settings.admin_upi_qr ? (
+          <div className="mt-3 flex flex-col items-center gap-1">
+            <img src={settings.admin_upi_qr} alt="Admin UPI QR" className="h-48 w-48 rounded-lg border bg-white object-contain p-2" />
+            <p className="text-[11px] text-muted-foreground">Scan this QR with any UPI app (GPay, PhonePe, Paytm)</p>
+          </div>
+        ) : (
+          <p className="mt-2 text-[11px] text-muted-foreground">
+            Open any UPI app (GPay, PhonePe, Paytm) → Pay → enter the UPI ID above → pay the amount below.
+          </p>
+        )}
       </div>
 
       <label className="mt-4 block text-xs font-bold uppercase tracking-wider text-muted-foreground">Amount (₹)</label>
-      <Input type="number" value={amt} onChange={(e) => setAmt(Number(e.target.value))} className="h-12 mt-1.5 text-lg font-bold" min={settings.min_deposit} />
+      <Input type="number" value={amt} onChange={(e) => setAmt(Number(e.target.value))} className="h-12 mt-1.5 text-lg font-bold" min={settings.min_deposit} max={settings.max_deposit} />
+      <div className="mt-1 text-[11px] text-muted-foreground">Min ₹{settings.min_deposit} · Max ₹{settings.max_deposit}</div>
       <div className="mt-2 flex flex-wrap gap-2">
-        {[100, 200, 500, 1000, 2000].map((v) => (
+        {[20, 50, 100, 500, 1000, 2000, 5000].filter((v) => v >= settings.min_deposit && v <= settings.max_deposit).map((v) => (
           <button key={v} type="button" onClick={() => setAmt(v)} className={cn("rounded-full border px-3 py-1 text-xs font-bold transition", amt === v ? "border-primary bg-primary text-primary-foreground" : "border-border bg-background hover:border-primary/50")}>
             ₹{v}
           </button>
