@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RefreshCw, Radio } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/live-scores")({
   ssr: false,
@@ -58,8 +59,32 @@ type Match = {
   isLive: boolean;
 };
 
+// ---------- Admin-managed scores (from live_scores table) ----------
+async function fetchAdminScores(sport: string): Promise<Match[]> {
+  const { data } = await supabase
+    .from("live_scores")
+    .select("*")
+    .eq("is_live", true)
+    .ilike("sport", sport)
+    .order("sort_order")
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    league: r.league ?? r.sport ?? sport,
+    home: r.home_team,
+    away: r.away_team,
+    homeScore: r.home_score,
+    awayScore: r.away_score,
+    status: r.status,
+    time: r.match_time ?? "",
+    isLive: true,
+  }));
+}
+
 // ---------- Cricket (via CricAPI-style free public feed) ----------
 async function fetchCricket(): Promise<Match[]> {
+  // Admin-managed matches first — they're always shown
+  const admin = await fetchAdminScores("Cricket");
   // Try disect.in free cricket API (no key required, CORS enabled)
   try {
     const r = await fetch("https://api.disect.in/cricket/live");
