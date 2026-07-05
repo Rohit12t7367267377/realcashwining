@@ -117,7 +117,14 @@ function Page() {
             </Select>
           </div>
           {currentContest && (
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
+              <Button variant="outline" onClick={async () => {
+                try {
+                  const r = await autoScoreContest({ data: { contest_id: selected } });
+                  toast.success(`Auto-scored ${r.updated} submission(s)`);
+                  loadAttempts(selected);
+                } catch (e: any) { toast.error(e?.message ?? "Failed to auto-score"); }
+              }}>Auto-Score All</Button>
               {currentContest.results_status !== "declared" ? (
                 <Button onClick={() => publish("declared")} className="bg-gradient-primary">
                   <ShieldCheck className="w-4 h-4 mr-1" /> Publish Results to Users
