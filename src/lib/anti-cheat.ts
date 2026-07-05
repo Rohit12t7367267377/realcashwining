@@ -36,7 +36,7 @@ export function useAntiCheat(opts: {
   /** If provided, use this attempt row instead of inserting a new one. */
   attemptId?: string | null;
 }) {
-  const { contestId, enabled, onAlreadyAttempted, attemptId } = opts;
+  const { contestId, enabled, onAlreadyAttempted, attemptId, onForceSubmit } = opts;
   const maxViolations = opts.maxViolations ?? 3;
   const [violations, setViolations] = useState(0);
   const attemptIdRef = useRef<string | null>(attemptId ?? null);
