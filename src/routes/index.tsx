@@ -6,8 +6,10 @@ import { AppShell } from "@/components/AppShell";
 import { CATEGORIES } from "@/lib/quiz-data";
 import { useUser } from "@/lib/user-store";
 import { getMyWallet } from "@/lib/wallet.functions";
+import { getMyContestStats } from "@/lib/stats.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy } from "lucide-react";
+import { Flame, Trophy, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,31 +23,77 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
+type LiveContest = { id: string; title: string; entry_fee: number; first_prize: number; starts_at: string | null };
+
 function Home() {
   const { state } = useUser();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
   const fetchWallet = useServerFn(getMyWallet);
+  const fetchStats = useServerFn(getMyContestStats);
   const { data: wallet } = useQuery({
     queryKey: ["wallet"],
     queryFn: () => fetchWallet(),
     enabled: mounted && state.loggedIn,
     staleTime: 15_000,
   });
+  const { data: stats } = useQuery({
+    queryKey: ["my-stats"],
+    queryFn: () => fetchStats(),
+    enabled: mounted && state.loggedIn,
+    staleTime: 15_000,
+  });
+
+  const [live, setLive] = useState<LiveContest[]>([]);
+  useEffect(() => {
+    if (!mounted) return;
+    let cancelled = false;
+    async function load() {
+      const { data } = await supabase
+        .from("contests")
+        .select("id, title, entry_fee, first_prize, starts_at")
+        .eq("active", true)
+        .eq("results_status", "pending")
+        .order("created_at", { ascending: false })
+        .limit(10);
+      if (!cancelled) setLive((data ?? []) as LiveContest[]);
+    }
+    load();
+    const t = setInterval(load, 30_000);
+    return () => { cancelled = true; clearInterval(t); };
+  }, [mounted]);
 
   if (!mounted || !state.loggedIn) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Landing />
-      </div>
-    );
+    return <div className="min-h-screen bg-background"><Landing /></div>;
   }
 
   const balance = Number(wallet?.balance ?? 0);
+  const won = Number(stats?.totalWon ?? 0);
+  const played = Number(stats?.played ?? 0);
 
   return (
     <AppShell>
+      {/* Live contest marquee */}
+      {live.length > 0 && (
+        <div className="mb-3 overflow-hidden rounded-2xl border border-primary/30 bg-gradient-to-r from-primary/10 via-secondary/10 to-primary/10 py-2">
+          <div className="flex animate-[marquee_28s_linear_infinite] whitespace-nowrap gap-8 pl-4">
+            {[...live, ...live].map((c, i) => (
+              <Link key={i} to="/contest/$id" params={{ id: c.id }} className="inline-flex items-center gap-2 text-sm font-bold">
+                <span className="inline-flex h-2 w-2 rounded-full bg-destructive"><span className="h-full w-full animate-ping rounded-full bg-destructive" /></span>
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-primary">LIVE</span>
+                <span>{c.title}</span>
+                {Number(c.first_prize) > 0 && <span className="text-success">· Win ₹{c.first_prize}</span>}
+                {Number(c.entry_fee) > 0 ? <span className="text-muted-foreground">· Entry ₹{c.entry_fee}</span> : <span className="text-success">· FREE</span>}
+                <span className="text-muted-foreground">→</span>
+              </Link>
+            ))}
+          </div>
+          <style>{`@keyframes marquee { from { transform: translateX(0);} to { transform: translateX(-50%);} }`}</style>
+        </div>
+      )}
+
       {/* Hero greeting */}
       <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
         <div>
@@ -55,8 +103,8 @@ function Home() {
         </div>
         <div className="mt-5 grid grid-cols-3 gap-2 text-center">
           <Stat label="Wallet" value={`₹${balance.toFixed(0)}`} />
-          <Stat label="Won" value={`₹${Number(wallet?.balance != null ? state.winnings : state.winnings).toFixed(0)}`} />
-          <Stat label="Played" value={state.contestsPlayed.toString()} />
+          <Stat label="Won" value={`₹${won.toFixed(0)}`} />
+          <Stat label="Played" value={String(played)} />
         </div>
       </section>
 
@@ -96,17 +144,39 @@ function Home() {
       {/* Real contests link */}
       <section className="mt-6">
         <SectionHeader title="🔥 Live Contests" subtitle="Real quizzes created by admin" />
-        <Link to="/category/$id" params={{ id: "sports" }} className="mt-3 block rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft hover:shadow-glow transition">
-          <div className="flex items-center justify-between">
-            <div>
-              <div className="text-sm font-bold">Browse Sports Contests</div>
-              <div className="text-[11px] opacity-90">Cricket · Football · Tennis & more</div>
+        <div className="mt-3 grid gap-2">
+          {live.length === 0 && (
+            <div className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">
+              No contests are live right now. Please check back later.
             </div>
-            <Trophy className="h-5 w-5" />
-          </div>
-        </Link>
+          )}
+          {live.slice(0, 5).map((c) => (
+            <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="flex items-center justify-between rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft hover:shadow-glow transition">
+              <div className="min-w-0">
+                <div className="truncate text-sm font-bold">{c.title}</div>
+                <div className="text-[11px] opacity-90">
+                  {Number(c.entry_fee) > 0 ? `Entry ₹${c.entry_fee}` : "FREE"}
+                  {Number(c.first_prize) > 0 && ` · 1st ₹${c.first_prize}`}
+                  {c.starts_at && ` · Starts ${new Date(c.starts_at).toLocaleString()}`}
+                </div>
+              </div>
+              <Trophy className="h-5 w-5 shrink-0" />
+            </Link>
+          ))}
+        </div>
       </section>
 
+      {/* Leaderboard link */}
+      <Link to="/leaderboard" className="mt-4 flex items-center justify-between rounded-2xl bg-card p-4 shadow-soft hover:shadow-glow transition">
+        <div className="flex items-center gap-3">
+          <Trophy className="h-5 w-5 text-primary" />
+          <div>
+            <div className="text-sm font-bold">Winners Leaderboard</div>
+            <div className="text-[11px] text-muted-foreground">See rankings from all declared contests</div>
+          </div>
+        </div>
+        <span className="text-xs text-primary">View →</span>
+      </Link>
 
       {/* Promo */}
       <section className="mt-6 rounded-2xl bg-gradient-success p-4 text-success-foreground shadow-soft">
@@ -153,7 +223,7 @@ function Landing() {
       <div className="mx-auto flex max-w-2xl flex-col items-center px-6 pt-20 text-center">
         <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/60 px-4 py-1.5 text-xs font-semibold backdrop-blur">
           <span className="h-2 w-2 animate-pulse rounded-full bg-success" />
-          12,000+ players winning daily
+          Play. Win. Repeat.
         </div>
         <h1 className="text-5xl font-black leading-tight tracking-tight sm:text-6xl">
           Play Quiz.<br />Win <span className="text-gradient-primary">Real Cash.</span>
@@ -192,15 +262,6 @@ function Landing() {
           <Link to="/books" className="hover:text-primary hover:underline">Study Books</Link>
         </div>
       </div>
-    </div>
-  );
-}
-
-function LandStat({ v, l }: { v: string; l: string }) {
-  return (
-    <div className="rounded-2xl bg-card/80 p-3 text-center shadow-soft backdrop-blur">
-      <div className="text-xl font-black text-gradient-primary">{v}</div>
-      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{l}</div>
     </div>
   );
 }
