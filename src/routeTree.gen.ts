@@ -34,6 +34,7 @@ import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminBooksRouteImport } from './routes/admin.books'
@@ -163,6 +164,11 @@ const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminLiveScoresRoute = AdminLiveScoresRouteImport.update({
+  id: '/live-scores',
+  path: '/live-scores',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminContestsRoute = AdminContestsRouteImport.update({
   id: '/contests',
   path: '/contests',
@@ -196,6 +202,7 @@ export interface FileRoutesByFullPath {
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
@@ -225,6 +232,7 @@ export interface FileRoutesByTo {
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
@@ -256,6 +264,7 @@ export interface FileRoutesById {
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
@@ -288,6 +297,7 @@ export interface FileRouteTypes {
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/live-scores'
     | '/admin/payments'
     | '/admin/questions'
     | '/admin/results'
@@ -317,6 +327,7 @@ export interface FileRouteTypes {
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/live-scores'
     | '/admin/payments'
     | '/admin/questions'
     | '/admin/results'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/live-scores'
     | '/admin/payments'
     | '/admin/questions'
     | '/admin/results'
@@ -558,6 +570,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPaymentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/live-scores': {
+      id: '/admin/live-scores'
+      path: '/live-scores'
+      fullPath: '/admin/live-scores'
+      preLoaderRoute: typeof AdminLiveScoresRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/contests': {
       id: '/admin/contests'
       path: '/contests'
@@ -586,6 +605,7 @@ interface AdminRouteChildren {
   AdminBooksRoute: typeof AdminBooksRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminContestsRoute: typeof AdminContestsRoute
+  AdminLiveScoresRoute: typeof AdminLiveScoresRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminResultsRoute: typeof AdminResultsRoute
@@ -599,6 +619,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBooksRoute: AdminBooksRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminContestsRoute: AdminContestsRoute,
+  AdminLiveScoresRoute: AdminLiveScoresRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminResultsRoute: AdminResultsRoute,

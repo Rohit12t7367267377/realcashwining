@@ -8,6 +8,7 @@ import { useAntiCheat } from "@/lib/anti-cheat";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/play/$id")({
+  validateSearch: (s: Record<string, unknown>) => ({ a: typeof s.a === "string" ? s.a : undefined }),
   component: PlayPage,
 });
 
@@ -88,10 +89,12 @@ function PlayPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers, c, nav, submitted]);
 
+  const search = Route.useSearch();
   const anti = useAntiCheat({
     contestId: c?.id ?? "",
     enabled: !submitted && !!c,
     maxViolations: 3,
+    attemptId: (search as any)?.a ?? null,
     onAlreadyAttempted: () => {
       toast.error("You have already attempted this contest.");
       if (c) nav({ to: "/result/$id", params: { id: c.id } });

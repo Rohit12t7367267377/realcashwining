@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RefreshCw, Radio } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/live-scores")({
   ssr: false,
@@ -58,8 +59,32 @@ type Match = {
   isLive: boolean;
 };
 
+// ---------- Admin-managed scores (from live_scores table) ----------
+async function fetchAdminScores(sport: string): Promise<Match[]> {
+  const { data } = await supabase
+    .from("live_scores")
+    .select("*")
+    .eq("is_live", true)
+    .ilike("sport", sport)
+    .order("sort_order")
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((r: any) => ({
+    id: r.id,
+    league: r.league ?? r.sport ?? sport,
+    home: r.home_team,
+    away: r.away_team,
+    homeScore: r.home_score,
+    awayScore: r.away_score,
+    status: r.status,
+    time: r.match_time ?? "",
+    isLive: true,
+  }));
+}
+
 // ---------- Cricket (via CricAPI-style free public feed) ----------
 async function fetchCricket(): Promise<Match[]> {
+  // Admin-managed matches first — they're always shown
+  const admin = await fetchAdminScores("Cricket");
   // Try disect.in free cricket API (no key required, CORS enabled)
   try {
     const r = await fetch("https://api.disect.in/cricket/live");
@@ -67,7 +92,7 @@ async function fetchCricket(): Promise<Match[]> {
       const j = await r.json();
       const list: any[] = Array.isArray(j) ? j : j?.data ?? j?.matches ?? [];
       if (list.length) {
-        return list.slice(0, 15).map((m: any, i: number) => ({
+        return [...admin, ...list.slice(0, 15).map((m: any, i: number) => ({
           id: String(m.id ?? m.matchId ?? i),
           league: String(m.series ?? m.tournament ?? m.competition ?? "Cricket"),
           home: String(m.team1 ?? m.teamA ?? m.homeTeam ?? "Team A"),
@@ -77,7 +102,7 @@ async function fetchCricket(): Promise<Match[]> {
           status: String(m.status ?? m.matchStatus ?? "Live"),
           time: String(m.time ?? m.matchTime ?? ""),
           isLive: true,
-        }));
+        }))];
       }
     }
   } catch { /* fall through */ }
@@ -87,7 +112,7 @@ async function fetchCricket(): Promise<Match[]> {
     const r = await fetch("https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=Cricket");
     const j = await r.json();
     const list: any[] = j?.events ?? j?.livescore ?? [];
-    return list.map((e) => ({
+    return [...admin, ...list.map((e) => ({
       id: String(e.idEvent),
       league: String(e.strLeague ?? "Cricket"),
       home: String(e.strHomeTeam),
@@ -97,9 +122,9 @@ async function fetchCricket(): Promise<Match[]> {
       status: String(e.strStatus ?? e.strProgress ?? "Live"),
       time: `${e.dateEvent ?? ""} ${(e.strTime ?? "").slice(0, 5)}`,
       isLive: (e.strStatus ?? "").toLowerCase() !== "ns",
-    }));
+    }))];
   } catch {
-    return [];
+    return admin;
   }
 }
 
@@ -146,10 +171,11 @@ function SportFeed({ sport, active }: { sport: string; active: boolean }) {
   async function load() {
     setLoading(true);
     try {
+      const admin = await fetchAdminScores(sport);
       const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=${sport}`);
       const j = await r.json();
       const list: any[] = j?.events ?? j?.livescore ?? [];
-      setMatches(list.map((e) => ({
+      setMatches([...admin, ...list.map((e) => ({
         id: String(e.idEvent),
         league: String(e.strLeague ?? sport),
         home: String(e.strHomeTeam),
@@ -159,9 +185,9 @@ function SportFeed({ sport, active }: { sport: string; active: boolean }) {
         status: String(e.strStatus ?? e.strProgress ?? "Live"),
         time: `${e.dateEvent ?? ""} ${(e.strTime ?? "").slice(0, 5)}`,
         isLive: (e.strStatus ?? "").toLowerCase() !== "ns",
-      })));
+      }))]);
     } catch {
-      setMatches([]);
+      try { setMatches(await fetchAdminScores(sport)); } catch { setMatches([]); }
     } finally {
       setLoading(false);
     }

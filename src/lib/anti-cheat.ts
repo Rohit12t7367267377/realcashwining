@@ -33,19 +33,21 @@ export function useAntiCheat(opts: {
   maxViolations?: number;
   onAlreadyAttempted: () => void;
   onForceSubmit: (reason: string) => void;
+  /** If provided, use this attempt row instead of inserting a new one. */
+  attemptId?: string | null;
 }) {
-  const { contestId, enabled, onAlreadyAttempted, onForceSubmit } = opts;
+  const { contestId, enabled, onAlreadyAttempted, attemptId, onForceSubmit } = opts;
   const maxViolations = opts.maxViolations ?? 3;
   const [violations, setViolations] = useState(0);
-  const attemptIdRef = useRef<string | null>(null);
+  const attemptIdRef = useRef<string | null>(attemptId ?? null);
   const startedRef = useRef(false);
 
-  // Register attempt
   useEffect(() => {
     if (!enabled || startedRef.current) return;
     startedRef.current = true;
+    if (attemptId) { attemptIdRef.current = attemptId; return; }
     (async () => {
-      if (!UUID_RE.test(contestId)) return; // local demo contest – no DB tracking
+      if (!UUID_RE.test(contestId)) return;
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) return;
       const { data, error } = await supabase
@@ -59,7 +61,6 @@ export function useAntiCheat(opts: {
         .select("id")
         .single();
       if (error) {
-        // unique violation = already attempted
         if (error.code === "23505" || /duplicate|unique/i.test(error.message)) {
           toast.error("You have already attempted this contest.");
           onAlreadyAttempted();
@@ -68,7 +69,7 @@ export function useAntiCheat(opts: {
       }
       attemptIdRef.current = data.id;
     })();
-  }, [contestId, enabled, onAlreadyAttempted]);
+  }, [contestId, enabled, onAlreadyAttempted, attemptId]);
 
   // Tab / focus / context-menu violation tracking
   useEffect(() => {

@@ -6,7 +6,7 @@ import { useUser } from "@/lib/user-store";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Trophy, Users, Zap, CheckCircle2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { joinContestPay } from "@/lib/contests.functions";
+import { joinContest } from "@/lib/contests.functions";
 
 export const Route = createFileRoute("/contest/$id")({
   component: ContestPage,
@@ -62,10 +62,10 @@ function ContestPage() {
     }
     setJoining(true);
     try {
-      if (Number(c.entry_fee) > 0) {
-        await joinContestPay({ data: { contest_id: c.id } });
-      }
-      nav({ to: "/play/$id", params: { id: c.id } });
+      const res = await joinContest({ data: { contest_id: c.id } });
+      if (res.already) toast.info("Resuming your attempt");
+      else if (res.charged > 0) toast.success(`Joined — ₹${res.charged} deducted from wallet`);
+      nav({ to: "/play/$id", params: { id: c.id }, search: { a: res.attempt_id } as any });
     } catch (e: any) {
       toast.error(e?.message ?? "Could not join contest");
     } finally {
@@ -91,6 +91,23 @@ function ContestPage() {
           <Pill icon={<Users className="h-4 w-4" />} label="Max Players" value={`${c.max_participants}`} />
         </div>
       </section>
+
+      {(c.starts_at || c.ends_at) && (
+        <section className="mt-3 grid grid-cols-2 gap-2">
+          {c.starts_at && (
+            <div className="rounded-2xl bg-card p-3 shadow-soft">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Starts</div>
+              <div className="mt-0.5 text-sm font-bold">{new Date(c.starts_at).toLocaleString()}</div>
+            </div>
+          )}
+          {c.ends_at && (
+            <div className="rounded-2xl bg-card p-3 shadow-soft">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Ends</div>
+              <div className="mt-0.5 text-sm font-bold">{new Date(c.ends_at).toLocaleString()}</div>
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="mt-5 rounded-2xl bg-card p-4 shadow-soft">
         <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">How it works</h2>

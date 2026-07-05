@@ -1,66 +1,53 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { supabase } from "@/integrations/supabase/client";
 import { Trophy, Crown } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { getWinnersLeaderboard, getContestLeaderboard } from "@/lib/stats.functions";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({ meta: [{ title: "Leaderboard — Cash Winning League" }] }),
   component: LeaderboardPage,
 });
 
-type Winner = {
-  attempt_id: string;
-  user_id: string;
-  name: string;
-  rank: number;
-  prize: number;
-  contest_title: string;
-};
+type DeclaredContest = { id: string; title: string };
 
 function LeaderboardPage() {
-  const [rows, setRows] = useState<Winner[] | null>(null);
+  const fetchWinners = useServerFn(getWinnersLeaderboard);
+  const { data: winners } = useQuery({
+    queryKey: ["leaderboard-winners"],
+    queryFn: () => fetchWinners(),
+    staleTime: 30_000,
+  });
+
+  const [declared, setDeclared] = useState<DeclaredContest[]>([]);
+  const [selected, setSelected] = useState<string>("");
 
   useEffect(() => {
     (async () => {
-      // Only declared contests contribute to the leaderboard.
-      const { data: contests } = await supabase
+      const { data } = await supabase
         .from("contests")
-        .select("id, title, results_status")
-        .eq("results_status", "declared");
-      const ids = (contests ?? []).map((c) => c.id);
-      if (!ids.length) { setRows([]); return; }
-      const titles = Object.fromEntries((contests ?? []).map((c) => [c.id, c.title]));
-
-      const { data: attempts } = await supabase
-        .from("contest_attempts")
-        .select("id, user_id, contest_id, rank, prize_awarded, is_winner")
-        .in("contest_id", ids)
-        .eq("is_winner", true)
-        .order("prize_awarded", { ascending: false })
-        .limit(50);
-
-      const userIds = Array.from(new Set((attempts ?? []).map((a) => a.user_id)));
-      let names: Record<string, string> = {};
-      if (userIds.length) {
-        const { data: profs } = await supabase
-          .from("profiles")
-          .select("id, full_name")
-          .in("id", userIds);
-        names = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name || "Player"]));
-      }
-
-      const winners: Winner[] = (attempts ?? []).map((a) => ({
-        attempt_id: a.id,
-        user_id: a.user_id,
-        name: names[a.user_id] || "Player",
-        rank: a.rank ?? 0,
-        prize: Number(a.prize_awarded) || 0,
-        contest_title: titles[a.contest_id] || "",
-      }));
-      setRows(winners);
+        .select("id, title")
+        .eq("results_status", "declared")
+        .order("created_at", { ascending: false });
+      const list = (data ?? []) as DeclaredContest[];
+      setDeclared(list);
+      if (!selected && list.length) setSelected(list[0].id);
     })();
   }, []);
+
+  const fetchContest = useServerFn(getContestLeaderboard);
+  const { data: contestBoard } = useQuery({
+    queryKey: ["leaderboard-contest", selected],
+    queryFn: () => fetchContest({ data: { contest_id: selected } }),
+    enabled: !!selected,
+    staleTime: 30_000,
+  });
+
+  const rows = winners ?? [];
 
   return (
     <AppShell>
@@ -70,9 +57,7 @@ function LeaderboardPage() {
         <p className="text-xs opacity-90">Only official winners declared by admin</p>
       </section>
 
-      {rows === null && <p className="mt-6 text-sm text-muted-foreground">Loading…</p>}
-
-      {rows && rows.length === 0 && (
+      {rows.length === 0 && (
         <div className="mt-6 rounded-2xl bg-card p-8 text-center shadow-soft">
           <p className="text-sm text-muted-foreground">
             No winners yet. The leaderboard will fill up as the admin declares contest results.
@@ -80,7 +65,7 @@ function LeaderboardPage() {
         </div>
       )}
 
-      {rows && rows.length > 0 && (
+      {rows.length > 0 && (
         <>
           <section className="mt-6 grid grid-cols-3 items-end gap-2">
             {rows[1] && <Podium place={2} name={rows[1].name} prize={rows[1].prize} height="h-28" />}
@@ -93,7 +78,7 @@ function LeaderboardPage() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted font-black text-muted-foreground">#{i + 4}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-bold truncate">{w.name}</div>
-                  <div className="text-[11px] text-muted-foreground truncate">{w.contest_title} · Rank #{w.rank}</div>
+                  <div className="text-[11px] text-muted-foreground truncate">{w.contest_title} · Rank #{w.rank} · Score {w.score}</div>
                 </div>
                 <div className="text-right">
                   <div className="font-black">₹{w.prize.toFixed(0)}</div>
@@ -104,6 +89,39 @@ function LeaderboardPage() {
           </section>
         </>
       )}
+
+      {declared.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Contest Rankings</h2>
+          <Select value={selected} onValueChange={setSelected}>
+            <SelectTrigger><SelectValue placeholder="Choose contest" /></SelectTrigger>
+            <SelectContent>
+              {declared.map((c) => <SelectItem key={c.id} value={c.id}>{c.title}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <div className="mt-3 space-y-2">
+            {(contestBoard?.rows ?? []).length === 0 && (
+              <p className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">No entries.</p>
+            )}
+            {(contestBoard?.rows ?? []).map((r, i) => (
+              <div key={r.attempt_id} className={`flex items-center gap-3 rounded-2xl p-3 shadow-soft ${r.isWinner ? "bg-gradient-gold text-amber-950" : "bg-card"}`}>
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-black/10 font-black">#{r.rank ?? i + 1}</div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-bold truncate">{r.name}</div>
+                  <div className="text-[11px] opacity-80 truncate">
+                    ✔ {r.correct} · ✖ {r.wrong} · − {r.unanswered} · Score {r.score}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="font-black">{r.prize > 0 ? `₹${r.prize.toFixed(0)}` : "—"}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <Link to="/" className="mt-6 block text-center text-xs text-primary hover:underline">← Back to home</Link>
     </AppShell>
   );
 }
