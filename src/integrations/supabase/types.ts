@@ -256,6 +256,54 @@ export type Database = {
         }
         Relationships: []
       }
+      live_scores: {
+        Row: {
+          away_score: string
+          away_team: string
+          created_at: string
+          home_score: string
+          home_team: string
+          id: string
+          is_live: boolean
+          league: string | null
+          match_time: string | null
+          sort_order: number
+          sport: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          away_score?: string
+          away_team: string
+          created_at?: string
+          home_score?: string
+          home_team: string
+          id?: string
+          is_live?: boolean
+          league?: string | null
+          match_time?: string | null
+          sort_order?: number
+          sport?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          away_score?: string
+          away_team?: string
+          created_at?: string
+          home_score?: string
+          home_team?: string
+          id?: string
+          is_live?: boolean
+          league?: string | null
+          match_time?: string | null
+          sort_order?: number
+          sport?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           attempts: number
@@ -467,6 +515,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      auto_score_contest: { Args: { _contest_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -477,6 +526,14 @@ export type Database = {
       increment_book_download: {
         Args: { _book_id: string }
         Returns: undefined
+      }
+      join_contest: {
+        Args: { _contest_id: string }
+        Returns: {
+          already: boolean
+          attempt_id: string
+          charged: number
+        }[]
       }
     }
     Enums: {
