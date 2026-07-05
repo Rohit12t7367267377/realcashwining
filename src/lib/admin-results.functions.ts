@@ -66,3 +66,18 @@ export const setContestResultsDeclared = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/**
+ * Auto-computes score for every submission of a contest using
+ * questions.correct_index and the admin's correct/wrong point settings.
+ */
+export const autoScoreContest = createServerFn({ method: "POST" })
+  .middleware([requireAdminPassword])
+  .inputValidator((d) => z.object({ contest_id: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    const { data: updated, error } = await supabaseAdmin.rpc("auto_score_contest", {
+      _contest_id: data.contest_id,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true, updated: Number(updated) || 0 };
+  });
