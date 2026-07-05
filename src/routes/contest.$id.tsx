@@ -6,7 +6,7 @@ import { useUser } from "@/lib/user-store";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Clock, Trophy, Users, Zap, CheckCircle2, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { joinContestPay } from "@/lib/contests.functions";
+import { joinContest } from "@/lib/contests.functions";
 
 export const Route = createFileRoute("/contest/$id")({
   component: ContestPage,
@@ -62,9 +62,9 @@ function ContestPage() {
     }
     setJoining(true);
     try {
-      if (Number(c.entry_fee) > 0) {
-        await joinContestPay({ data: { contest_id: c.id } });
-      }
+      const res = await joinContest({ data: { contest_id: c.id } });
+      if (res.already) toast.info("Resuming your attempt");
+      else if (res.charged > 0) toast.success(`Joined — ₹${res.charged} deducted from wallet`);
       nav({ to: "/play/$id", params: { id: c.id } });
     } catch (e: any) {
       toast.error(e?.message ?? "Could not join contest");
