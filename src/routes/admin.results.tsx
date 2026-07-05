@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trophy, Check, RefreshCw, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
-import { listContestAttempts, declareContestResult, setContestResultsDeclared } from "@/lib/admin-results.functions";
+import { listContestAttempts, declareContestResult, setContestResultsDeclared, autoScoreContest } from "@/lib/admin-results.functions";
 
 export const Route = createFileRoute("/admin/results")({ component: Page });
 

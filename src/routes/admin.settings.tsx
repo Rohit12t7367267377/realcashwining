@@ -18,6 +18,8 @@ function Page() {
   const [maxDeposit, setMaxDeposit] = useState(5000);
   const [minWithdrawal, setMinWithdrawal] = useState(100);
   const [newUserBonus, setNewUserBonus] = useState(0);
+  const [correctPoints, setCorrectPoints] = useState(1);
+  const [wrongPoints, setWrongPoints] = useState(0);
   const [prizePoolPct, setPrizePoolPct] = useState(50);
   const [prizePoolTotal, setPrizePoolTotal] = useState(0);
   const [branding, setBranding] = useState({ siteName: "Cash Winning League", tagline: "Play. Win. Repeat." });
@@ -34,6 +36,8 @@ function Page() {
         if (r.key === "max_deposit") setMaxDeposit(Number(r.value) || 5000);
         if (r.key === "min_withdrawal") setMinWithdrawal(Number(r.value) || 100);
         if (r.key === "new_user_bonus") setNewUserBonus(Number(r.value) || 0);
+        if (r.key === "correct_points") setCorrectPoints(Number(r.value) || 1);
+        if (r.key === "wrong_points") setWrongPoints(Number(r.value) || 0);
         if (r.key === "prize_pool_pct") setPrizePoolPct(Number(r.value) || 0);
         if (r.key === "prize_pool_total") setPrizePoolTotal(Number(r.value) || 0);
         if (r.key === "branding" && r.value && typeof r.value === "object") setBranding({ siteName: "Cash Winning League", tagline: "Play. Win. Repeat.", ...r.value });
@@ -68,11 +72,20 @@ function Page() {
           <Button className="mt-3" onClick={() => save("admin_upi_id", adminUpi.trim())}>Save UPI ID</Button>
 
           <div className="mt-5 border-t pt-4">
-            <Label>UPI QR image URL (PhonePe / GPay / Paytm)</Label>
-            <p className="text-[11px] text-muted-foreground mb-1.5">Paste the URL of your UPI QR code image. Users will see this QR on the deposit page.</p>
-            <Input value={adminUpiQr} onChange={(e) => setAdminUpiQr(e.target.value)} placeholder="https://…/upi-qr.png" />
+            <Label>UPI QR image (PhonePe / GPay / Paytm)</Label>
+            <p className="text-[11px] text-muted-foreground mb-1.5">Upload your UPI QR image from PhonePe / GPay / Paytm. Users will see this QR on the deposit page.</p>
+            <Input type="file" accept="image/*" onChange={async (e) => {
+              const f = e.target.files?.[0]; if (!f) return;
+              if (f.size > 500_000) return toast.error("Please choose an image under 500 KB");
+              const reader = new FileReader();
+              reader.onload = () => setAdminUpiQr(String(reader.result || ""));
+              reader.readAsDataURL(f);
+            }} />
             {adminUpiQr && <img src={adminUpiQr} alt="QR preview" className="mt-2 h-32 w-32 rounded border bg-white object-contain p-1" />}
-            <Button className="mt-3" onClick={() => save("admin_upi_qr", adminUpiQr.trim())}>Save QR</Button>
+            <div className="mt-2 flex gap-2">
+              <Button onClick={() => save("admin_upi_qr", adminUpiQr)}>Save QR</Button>
+              {adminUpiQr && <Button variant="outline" onClick={() => { setAdminUpiQr(""); save("admin_upi_qr", ""); }}>Remove</Button>}
+            </div>
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-3 border-t pt-4">
@@ -120,6 +133,22 @@ function Page() {
           <div className="mt-4 rounded-lg bg-muted/40 p-3 text-sm">
             Current prize pool: <span className="font-bold">₹{prizePoolTotal.toFixed(2)}</span>
           </div>
+        </Card>
+
+        <Card className="p-5">
+          <h2 className="font-semibold mb-1">Scoring</h2>
+          <p className="text-xs text-muted-foreground mb-3">Points awarded when the admin auto-scores contest submissions.</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label>Points for correct answer</Label>
+              <Input type="number" step="0.5" value={correctPoints} onChange={(e) => setCorrectPoints(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label>Points for wrong answer (−ve for penalty)</Label>
+              <Input type="number" step="0.5" value={wrongPoints} onChange={(e) => setWrongPoints(Number(e.target.value))} />
+            </div>
+          </div>
+          <Button className="mt-3" onClick={async () => { await save("correct_points", correctPoints); await save("wrong_points", wrongPoints); }}>Save scoring</Button>
         </Card>
 
         <Card className="p-5">

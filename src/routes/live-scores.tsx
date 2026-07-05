@@ -171,10 +171,11 @@ function SportFeed({ sport, active }: { sport: string; active: boolean }) {
   async function load() {
     setLoading(true);
     try {
+      const admin = await fetchAdminScores(sport);
       const r = await fetch(`https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=${sport}`);
       const j = await r.json();
       const list: any[] = j?.events ?? j?.livescore ?? [];
-      setMatches(list.map((e) => ({
+      setMatches([...admin, ...list.map((e) => ({
         id: String(e.idEvent),
         league: String(e.strLeague ?? sport),
         home: String(e.strHomeTeam),
@@ -184,9 +185,9 @@ function SportFeed({ sport, active }: { sport: string; active: boolean }) {
         status: String(e.strStatus ?? e.strProgress ?? "Live"),
         time: `${e.dateEvent ?? ""} ${(e.strTime ?? "").slice(0, 5)}`,
         isLive: (e.strStatus ?? "").toLowerCase() !== "ns",
-      })));
+      }))]);
     } catch {
-      setMatches([]);
+      try { setMatches(await fetchAdminScores(sport)); } catch { setMatches([]); }
     } finally {
       setLoading(false);
     }
