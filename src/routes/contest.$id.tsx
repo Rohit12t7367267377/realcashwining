@@ -65,7 +65,7 @@ function ContestPage() {
       const res = await joinContest({ data: { contest_id: c.id } });
       if (res.already) toast.info("Resuming your attempt");
       else if (res.charged > 0) toast.success(`Joined — ₹${res.charged} deducted from wallet`);
-      nav({ to: "/play/$id", params: { id: c.id } });
+      nav({ to: "/play/$id", params: { id: c.id }, search: { a: res.attempt_id } as any });
     } catch (e: any) {
       toast.error(e?.message ?? "Could not join contest");
     } finally {
