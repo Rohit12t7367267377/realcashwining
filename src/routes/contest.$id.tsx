@@ -92,6 +92,23 @@ function ContestPage() {
         </div>
       </section>
 
+      {(c.starts_at || c.ends_at) && (
+        <section className="mt-3 grid grid-cols-2 gap-2">
+          {c.starts_at && (
+            <div className="rounded-2xl bg-card p-3 shadow-soft">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Starts</div>
+              <div className="mt-0.5 text-sm font-bold">{new Date(c.starts_at).toLocaleString()}</div>
+            </div>
+          )}
+          {c.ends_at && (
+            <div className="rounded-2xl bg-card p-3 shadow-soft">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Ends</div>
+              <div className="mt-0.5 text-sm font-bold">{new Date(c.ends_at).toLocaleString()}</div>
+            </div>
+          )}
+        </section>
+      )}
+
       <section className="mt-5 rounded-2xl bg-card p-4 shadow-soft">
         <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">How it works</h2>
         <ul className="mt-3 space-y-2 text-sm">
