@@ -92,7 +92,7 @@ async function fetchCricket(): Promise<Match[]> {
       const j = await r.json();
       const list: any[] = Array.isArray(j) ? j : j?.data ?? j?.matches ?? [];
       if (list.length) {
-        return list.slice(0, 15).map((m: any, i: number) => ({
+        return [...admin, ...list.slice(0, 15).map((m: any, i: number) => ({
           id: String(m.id ?? m.matchId ?? i),
           league: String(m.series ?? m.tournament ?? m.competition ?? "Cricket"),
           home: String(m.team1 ?? m.teamA ?? m.homeTeam ?? "Team A"),
@@ -102,7 +102,7 @@ async function fetchCricket(): Promise<Match[]> {
           status: String(m.status ?? m.matchStatus ?? "Live"),
           time: String(m.time ?? m.matchTime ?? ""),
           isLive: true,
-        }));
+        }))];
       }
     }
   } catch { /* fall through */ }
@@ -112,7 +112,7 @@ async function fetchCricket(): Promise<Match[]> {
     const r = await fetch("https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=Cricket");
     const j = await r.json();
     const list: any[] = j?.events ?? j?.livescore ?? [];
-    return list.map((e) => ({
+    return [...admin, ...list.map((e) => ({
       id: String(e.idEvent),
       league: String(e.strLeague ?? "Cricket"),
       home: String(e.strHomeTeam),
@@ -122,9 +122,9 @@ async function fetchCricket(): Promise<Match[]> {
       status: String(e.strStatus ?? e.strProgress ?? "Live"),
       time: `${e.dateEvent ?? ""} ${(e.strTime ?? "").slice(0, 5)}`,
       isLive: (e.strStatus ?? "").toLowerCase() !== "ns",
-    }));
+    }))];
   } catch {
-    return [];
+    return admin;
   }
 }
 
