@@ -60,10 +60,10 @@ export const getWinnersLeaderboard = createServerFn({ method: "GET" }).handler(a
 
   const { data: attempts } = await supabaseAdmin
     .from("contest_attempts")
-    .select("id, user_id, contest_id, rank, prize_awarded, score")
+    .select("id, user_id, contest_id, rank, prize_awarded, score, answers")
     .in("contest_id", ids)
     .eq("is_winner", true)
-    .order("prize_awarded", { ascending: false })
+    .order("rank", { ascending: true, nullsFirst: false })
     .limit(100);
 
   const userIds = Array.from(new Set((attempts ?? []).map((a) => a.user_id)));
@@ -72,14 +72,20 @@ export const getWinnersLeaderboard = createServerFn({ method: "GET" }).handler(a
     const { data: profs } = await supabaseAdmin.from("profiles").select("id, full_name").in("id", userIds);
     names = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name || "Player"]));
   }
-  return (attempts ?? []).map((a) => ({
-    attempt_id: a.id,
-    name: names[a.user_id] || "Player",
-    rank: a.rank ?? 0,
-    prize: Number(a.prize_awarded) || 0,
-    score: Number(a.score) || 0,
-    contest_title: titles[a.contest_id] || "",
-  }));
+  return (attempts ?? []).map((a) => {
+    const ans: any = a.answers;
+    return {
+      attempt_id: a.id,
+      name: names[a.user_id] || "Player",
+      rank: a.rank ?? 0,
+      prize: Number(a.prize_awarded) || 0,
+      score: Number(a.score) || 0,
+      correct: Number(ans?._correct ?? 0),
+      wrong: Number(ans?._wrong ?? 0),
+      unanswered: Number(ans?._unanswered ?? 0),
+      contest_title: titles[a.contest_id] || "",
+    };
+  });
 });
 
 /**
