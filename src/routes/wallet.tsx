@@ -174,10 +174,14 @@ function DepositForm({ settings, onDone }: { settings: any; onDone: () => void }
           <div className="font-mono text-lg font-bold break-all">{settings.admin_upi_id}</div>
           <Button type="button" size="sm" variant="outline" onClick={copy}><Copy className="h-3.5 w-3.5" /></Button>
         </div>
-        {settings.admin_upi_qr ? (
+        {settings.admin_upi_id ? (
           <div className="mt-3 flex flex-col items-center gap-1">
-            <img src={settings.admin_upi_qr} alt="Admin UPI QR" className="h-48 w-48 rounded-lg border bg-white object-contain p-2" />
-            <p className="text-[11px] text-muted-foreground">Scan this QR with any UPI app (GPay, PhonePe, Paytm)</p>
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&data=${encodeURIComponent(`upi://pay?pa=${settings.admin_upi_id}&pn=CWL&cu=INR`)}`}
+              alt="Admin UPI QR"
+              className="h-64 w-64 rounded-lg border bg-white object-contain p-2"
+            />
+            <p className="text-[11px] text-muted-foreground text-center">Scan with any UPI app (GPay, PhonePe, Paytm) or pay to the UPI ID above.</p>
           </div>
         ) : (
           <p className="mt-2 text-[11px] text-muted-foreground">
