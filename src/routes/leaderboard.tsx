@@ -128,15 +128,16 @@ function LeaderboardPage() {
   );
 }
 
-function Podium({ place, name, prize, height }: { place: number; name: string; prize: number; height: string }) {
-  const colors = place === 1 ? "bg-gradient-gold text-amber-950" : place === 2 ? "bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900" : "bg-gradient-to-br from-orange-300 to-orange-500 text-orange-950";
+function Podium({ rank, name, prize, correct, wrong, height, tone }: { rank: number; name: string; prize: number; correct: number; wrong: number; height: string; tone: "gold" | "silver" | "bronze" }) {
+  const colors = tone === "gold" ? "bg-gradient-gold text-amber-950" : tone === "silver" ? "bg-gradient-to-br from-slate-300 to-slate-400 text-slate-900" : "bg-gradient-to-br from-orange-300 to-orange-500 text-orange-950";
   return (
     <div className="flex flex-col items-center">
       <div className="mt-1 line-clamp-1 max-w-full text-xs font-bold">{name}</div>
       <div className="text-[11px] text-muted-foreground">₹{prize.toFixed(0)}</div>
+      <div className="text-[10px] text-muted-foreground">✔{correct} ✖{wrong}</div>
       <div className={`mt-2 flex w-full flex-col items-center justify-end rounded-t-2xl ${colors} ${height} px-2 py-3 shadow-lift`}>
-        {place === 1 && <Crown className="h-5 w-5" />}
-        <div className="text-2xl font-black">#{place}</div>
+        {tone === "gold" && <Crown className="h-5 w-5" />}
+        <div className="text-2xl font-black">#{rank}</div>
       </div>
     </div>
   );
