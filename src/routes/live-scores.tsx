@@ -81,33 +81,12 @@ async function fetchAdminScores(sport: string): Promise<Match[]> {
   }));
 }
 
-// ---------- Cricket (via CricAPI-style free public feed) ----------
+// ---------- Cricket (admin-managed + TheSportsDB fallback) ----------
 async function fetchCricket(): Promise<Match[]> {
-  // Admin-managed matches first — they're always shown
+  // Admin-managed matches always shown first
   const admin = await fetchAdminScores("Cricket");
-  // Try disect.in free cricket API (no key required, CORS enabled)
-  try {
-    const r = await fetch("https://api.disect.in/cricket/live");
-    if (r.ok) {
-      const j = await r.json();
-      const list: any[] = Array.isArray(j) ? j : j?.data ?? j?.matches ?? [];
-      if (list.length) {
-        return [...admin, ...list.slice(0, 15).map((m: any, i: number) => ({
-          id: String(m.id ?? m.matchId ?? i),
-          league: String(m.series ?? m.tournament ?? m.competition ?? "Cricket"),
-          home: String(m.team1 ?? m.teamA ?? m.homeTeam ?? "Team A"),
-          away: String(m.team2 ?? m.teamB ?? m.awayTeam ?? "Team B"),
-          homeScore: String(m.score1 ?? m.team1Score ?? m.homeScore ?? "-"),
-          awayScore: String(m.score2 ?? m.team2Score ?? m.awayScore ?? "-"),
-          status: String(m.status ?? m.matchStatus ?? "Live"),
-          time: String(m.time ?? m.matchTime ?? ""),
-          isLive: true,
-        }))];
-      }
-    }
-  } catch { /* fall through */ }
 
-  // Fallback: TheSportsDB free public key "3"
+  // TheSportsDB free public feed (key "3") — silent fail
   try {
     const r = await fetch("https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=Cricket");
     const j = await r.json();
