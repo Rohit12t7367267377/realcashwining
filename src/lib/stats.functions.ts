@@ -60,10 +60,10 @@ export const getWinnersLeaderboard = createServerFn({ method: "GET" }).handler(a
 
   const { data: attempts } = await supabaseAdmin
     .from("contest_attempts")
-    .select("id, user_id, contest_id, rank, prize_awarded, score")
+    .select("id, user_id, contest_id, rank, prize_awarded, score, answers")
     .in("contest_id", ids)
     .eq("is_winner", true)
-    .order("prize_awarded", { ascending: false })
+    .order("rank", { ascending: true, nullsFirst: false })
     .limit(100);
 
   const userIds = Array.from(new Set((attempts ?? []).map((a) => a.user_id)));
@@ -72,14 +72,21 @@ export const getWinnersLeaderboard = createServerFn({ method: "GET" }).handler(a
     const { data: profs } = await supabaseAdmin.from("profiles").select("id, full_name").in("id", userIds);
     names = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name || "Player"]));
   }
-  return (attempts ?? []).map((a) => ({
-    attempt_id: a.id,
-    name: names[a.user_id] || "Player",
-    rank: a.rank ?? 0,
-    prize: Number(a.prize_awarded) || 0,
-    score: Number(a.score) || 0,
-    contest_title: titles[a.contest_id] || "",
-  }));
+  return (attempts ?? []).map((a) => {
+    const raw = Array.isArray(a.answers) ? (a.answers as any[]) : [];
+    const last = raw.length && typeof raw[raw.length - 1] === "object" && raw[raw.length - 1] !== null ? raw[raw.length - 1] : null;
+    return {
+      attempt_id: a.id,
+      name: names[a.user_id] || "Player",
+      rank: a.rank ?? 0,
+      prize: Number(a.prize_awarded) || 0,
+      score: Number(a.score) || 0,
+      correct: Number(last?._correct ?? 0),
+      wrong: Number(last?._wrong ?? 0),
+      unanswered: Number(last?._unanswered ?? 0),
+      contest_title: titles[a.contest_id] || "",
+    };
+  });
 });
 
 /**
@@ -111,10 +118,8 @@ export const getContestLeaderboard = createServerFn({ method: "GET" })
       names = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name || "Player"]));
     }
     const rows = (attempts ?? []).map((a) => {
-      const ans: any = a.answers;
-      const correct = Number(ans?._correct ?? 0);
-      const wrong = Number(ans?._wrong ?? 0);
-      const unanswered = Number(ans?._unanswered ?? 0);
+      const raw = Array.isArray(a.answers) ? (a.answers as any[]) : [];
+      const last = raw.length && typeof raw[raw.length - 1] === "object" && raw[raw.length - 1] !== null ? raw[raw.length - 1] : null;
       return {
         attempt_id: a.id,
         name: names[a.user_id] || "Player",
@@ -122,9 +127,9 @@ export const getContestLeaderboard = createServerFn({ method: "GET" })
         rank: a.rank,
         prize: Number(a.prize_awarded) || 0,
         isWinner: a.is_winner,
-        correct,
-        wrong,
-        unanswered,
+        correct: Number(last?._correct ?? 0),
+        wrong: Number(last?._wrong ?? 0),
+        unanswered: Number(last?._unanswered ?? 0),
       };
     });
     return { contest, rows };

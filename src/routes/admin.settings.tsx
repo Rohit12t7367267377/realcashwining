@@ -72,20 +72,17 @@ function Page() {
           <Button className="mt-3" onClick={() => save("admin_upi_id", adminUpi.trim())}>Save UPI ID</Button>
 
           <div className="mt-5 border-t pt-4">
-            <Label>UPI QR image (PhonePe / GPay / Paytm)</Label>
-            <p className="text-[11px] text-muted-foreground mb-1.5">Upload your UPI QR image from PhonePe / GPay / Paytm. Users will see this QR on the deposit page.</p>
-            <Input type="file" accept="image/*" onChange={async (e) => {
-              const f = e.target.files?.[0]; if (!f) return;
-              if (f.size > 500_000) return toast.error("Please choose an image under 500 KB");
-              const reader = new FileReader();
-              reader.onload = () => setAdminUpiQr(String(reader.result || ""));
-              reader.readAsDataURL(f);
-            }} />
-            {adminUpiQr && <img src={adminUpiQr} alt="QR preview" className="mt-2 h-32 w-32 rounded border bg-white object-contain p-1" />}
-            <div className="mt-2 flex gap-2">
-              <Button onClick={() => save("admin_upi_qr", adminUpiQr)}>Save QR</Button>
-              {adminUpiQr && <Button variant="outline" onClick={() => { setAdminUpiQr(""); save("admin_upi_qr", ""); }}>Remove</Button>}
-            </div>
+            <Label>UPI QR (auto-generated)</Label>
+            <p className="text-[11px] text-muted-foreground mb-1.5">A large scannable UPI QR is auto-generated from the UPI ID above and shown to users on the deposit page. No image upload needed.</p>
+            {adminUpi.trim() ? (
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=${encodeURIComponent(`upi://pay?pa=${adminUpi.trim()}&pn=${encodeURIComponent(branding.siteName || "Admin")}&cu=INR`)}`}
+                alt="UPI QR preview"
+                className="mt-2 h-48 w-48 rounded border bg-white object-contain p-2"
+              />
+            ) : (
+              <p className="text-xs text-muted-foreground">Enter and save a UPI ID to generate the QR.</p>
+            )}
           </div>
 
           <div className="mt-5 grid grid-cols-3 gap-3 border-t pt-4">

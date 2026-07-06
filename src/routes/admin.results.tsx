@@ -153,7 +153,12 @@ function Page() {
 
       <div className="space-y-3">
         {attempts.map((a) => {
-          const ans = Array.isArray(a.answers) ? (a.answers as (number | null)[]) : [];
+          const raw = Array.isArray(a.answers) ? (a.answers as any[]) : [];
+          const last = raw.length && typeof raw[raw.length - 1] === "object" && raw[raw.length - 1] !== null ? raw[raw.length - 1] : null;
+          const ans = (last ? raw.slice(0, -1) : raw) as (number | null)[];
+          const correct = Number(last?._correct ?? 0);
+          const wrong = Number(last?._wrong ?? 0);
+          const unanswered = Number(last?._unanswered ?? 0);
           return (
             <Card key={a.id} className="p-4">
               <div className="flex items-start justify-between gap-4 flex-wrap">
@@ -165,6 +170,16 @@ function Page() {
                     Status: {a.status} · Violations: {a.violations}
                     {a.submitted_at && <> · Submitted {new Date(a.submitted_at).toLocaleString()}</>}
                   </div>
+                  {(correct || wrong || unanswered) ? (
+                    <div className="mt-1 flex flex-wrap gap-1.5 text-xs">
+                      <span className="rounded-full bg-success/15 px-2 py-0.5 font-bold text-success">✔ Correct: {correct}</span>
+                      <span className="rounded-full bg-destructive/15 px-2 py-0.5 font-bold text-destructive">✖ Wrong: {wrong}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 font-bold text-muted-foreground">− Unanswered: {unanswered}</span>
+                      <span className="rounded-full bg-primary/15 px-2 py-0.5 font-bold text-primary">Score: {Number(a.score ?? 0)}</span>
+                    </div>
+                  ) : (
+                    <div className="mt-1 text-[11px] text-amber-600">Run <b>Auto-Score All</b> above to compute correct/wrong counts.</div>
+                  )}
                   <div className="mt-2 text-xs">
                     <strong>Answers:</strong>{" "}
                     {ans.length ? ans.map((v, i) => (
