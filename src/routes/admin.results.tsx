@@ -170,6 +170,16 @@ function Page() {
                     Status: {a.status} · Violations: {a.violations}
                     {a.submitted_at && <> · Submitted {new Date(a.submitted_at).toLocaleString()}</>}
                   </div>
+                  {(correct || wrong || unanswered) ? (
+                    <div className="mt-1 flex flex-wrap gap-1.5 text-xs">
+                      <span className="rounded-full bg-success/15 px-2 py-0.5 font-bold text-success">✔ Correct: {correct}</span>
+                      <span className="rounded-full bg-destructive/15 px-2 py-0.5 font-bold text-destructive">✖ Wrong: {wrong}</span>
+                      <span className="rounded-full bg-muted px-2 py-0.5 font-bold text-muted-foreground">− Unanswered: {unanswered}</span>
+                      <span className="rounded-full bg-primary/15 px-2 py-0.5 font-bold text-primary">Score: {Number(a.score ?? 0)}</span>
+                    </div>
+                  ) : (
+                    <div className="mt-1 text-[11px] text-amber-600">Run <b>Auto-Score All</b> above to compute correct/wrong counts.</div>
+                  )}
                   <div className="mt-2 text-xs">
                     <strong>Answers:</strong>{" "}
                     {ans.length ? ans.map((v, i) => (
