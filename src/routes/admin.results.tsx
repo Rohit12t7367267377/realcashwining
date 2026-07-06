@@ -153,11 +153,12 @@ function Page() {
 
       <div className="space-y-3">
         {attempts.map((a) => {
-          const ans = Array.isArray(a.answers) ? (a.answers as (number | null)[]) : [];
-          const meta: any = a.answers && !Array.isArray(a.answers) ? a.answers : (a.answers as any);
-          const correct = Number((meta as any)?._correct ?? 0);
-          const wrong = Number((meta as any)?._wrong ?? 0);
-          const unanswered = Number((meta as any)?._unanswered ?? 0);
+          const raw = Array.isArray(a.answers) ? (a.answers as any[]) : [];
+          const last = raw.length && typeof raw[raw.length - 1] === "object" && raw[raw.length - 1] !== null ? raw[raw.length - 1] : null;
+          const ans = (last ? raw.slice(0, -1) : raw) as (number | null)[];
+          const correct = Number(last?._correct ?? 0);
+          const wrong = Number(last?._wrong ?? 0);
+          const unanswered = Number(last?._unanswered ?? 0);
           return (
             <Card key={a.id} className="p-4">
               <div className="flex items-start justify-between gap-4 flex-wrap">
