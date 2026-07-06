@@ -68,17 +68,19 @@ function LeaderboardPage() {
       {rows.length > 0 && (
         <>
           <section className="mt-6 grid grid-cols-3 items-end gap-2">
-            {rows[1] && <Podium place={2} name={rows[1].name} prize={rows[1].prize} height="h-28" />}
-            {rows[0] && <Podium place={1} name={rows[0].name} prize={rows[0].prize} height="h-36" />}
-            {rows[2] && <Podium place={3} name={rows[2].name} prize={rows[2].prize} height="h-24" />}
+            {rows[1] && <Podium rank={rows[1].rank} name={rows[1].name} prize={rows[1].prize} correct={rows[1].correct} wrong={rows[1].wrong} height="h-28" tone="silver" />}
+            {rows[0] && <Podium rank={rows[0].rank} name={rows[0].name} prize={rows[0].prize} correct={rows[0].correct} wrong={rows[0].wrong} height="h-36" tone="gold" />}
+            {rows[2] && <Podium rank={rows[2].rank} name={rows[2].name} prize={rows[2].prize} correct={rows[2].correct} wrong={rows[2].wrong} height="h-24" tone="bronze" />}
           </section>
           <section className="mt-6 space-y-2">
-            {rows.slice(3).map((w, i) => (
+            {rows.slice(3).map((w) => (
               <div key={w.attempt_id} className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-soft">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted font-black text-muted-foreground">#{i + 4}</div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted font-black text-muted-foreground">#{w.rank}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-bold truncate">{w.name}</div>
-                  <div className="text-[11px] text-muted-foreground truncate">{w.contest_title} · Rank #{w.rank} · Score {w.score}</div>
+                  <div className="text-[11px] text-muted-foreground truncate">
+                    {w.contest_title} · ✔ {w.correct} · ✖ {w.wrong} · − {w.unanswered} · Score {w.score}
+                  </div>
                 </div>
                 <div className="text-right">
                   <div className="font-black">₹{w.prize.toFixed(0)}</div>
