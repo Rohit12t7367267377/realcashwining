@@ -117,10 +117,8 @@ export const getContestLeaderboard = createServerFn({ method: "GET" })
       names = Object.fromEntries((profs ?? []).map((p) => [p.id, p.full_name || "Player"]));
     }
     const rows = (attempts ?? []).map((a) => {
-      const ans: any = a.answers;
-      const correct = Number(ans?._correct ?? 0);
-      const wrong = Number(ans?._wrong ?? 0);
-      const unanswered = Number(ans?._unanswered ?? 0);
+      const raw = Array.isArray(a.answers) ? (a.answers as any[]) : [];
+      const last = raw.length && typeof raw[raw.length - 1] === "object" && raw[raw.length - 1] !== null ? raw[raw.length - 1] : null;
       return {
         attempt_id: a.id,
         name: names[a.user_id] || "Player",
@@ -128,9 +126,9 @@ export const getContestLeaderboard = createServerFn({ method: "GET" })
         rank: a.rank,
         prize: Number(a.prize_awarded) || 0,
         isWinner: a.is_winner,
-        correct,
-        wrong,
-        unanswered,
+        correct: Number(last?._correct ?? 0),
+        wrong: Number(last?._wrong ?? 0),
+        unanswered: Number(last?._unanswered ?? 0),
       };
     });
     return { contest, rows };
