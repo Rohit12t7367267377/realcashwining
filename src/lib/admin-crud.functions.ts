@@ -27,11 +27,12 @@ export const adminUpsertRow = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const table = data.table as Table;
+    const client = supabaseAdmin as any;
     if (data.id) {
-      const { error } = await supabaseAdmin.from(table).update(data.values).eq("id", data.id);
+      const { error } = await client.from(table).update(data.values).eq("id", data.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await supabaseAdmin.from(table).insert(data.values);
+      const { error } = await client.from(table).insert(data.values);
       if (error) throw new Error(error.message);
     }
     return { ok: true };
