@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, FolderTree, HelpCircle, Trophy, Users, Settings, LogOut, Home, ShieldCheck, Banknote, BookOpen, Gavel, Radio, Award, Target, Sparkles, Zap, Wand2 } from "lucide-react";
+import { LayoutDashboard, FolderTree, HelpCircle, Trophy, Users, Settings, LogOut, Home, ShieldCheck, Banknote, BookOpen, Gavel, Radio, Award, Target, Sparkles, Zap, Wand2, Crown, Ticket, Image, Bell, Download, AlertTriangle, MessageSquare, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
@@ -12,10 +12,21 @@ const NAV = [
   { to: "/admin/contests", label: "Contests", icon: Trophy },
   { to: "/admin/results", label: "Declare Results", icon: Gavel },
   { to: "/admin/live-scores", label: "Live Scores", icon: Radio },
+  { to: "/admin/cricket", label: "Cricket API", icon: Radio },
   { to: "/admin/missions", label: "Missions", icon: Target },
   { to: "/admin/events", label: "Seasonal Events", icon: Sparkles },
   { to: "/admin/xp", label: "XP & Levels", icon: Zap },
   { to: "/leaderboard", label: "Leaderboard", icon: Award },
+  { to: "/admin/memberships", label: "VIP Plans", icon: Crown },
+  { to: "/admin/coupons", label: "Coupons", icon: Ticket },
+  { to: "/admin/banners", label: "Banners", icon: Image },
+  { to: "/admin/broadcasts", label: "Notifications", icon: Bell },
+  { to: "/admin/app-updates", label: "App Updates", icon: Download },
+  { to: "/admin/faqs", label: "FAQs", icon: HelpCircle },
+  { to: "/admin/feedback", label: "Feedback", icon: MessageSquare },
+  { to: "/admin/kyc", label: "KYC", icon: ShieldCheck },
+  { to: "/admin/fraud", label: "Fraud & Anti-Cheat", icon: AlertTriangle },
+  { to: "/admin/comments", label: "Moderation", icon: Eye },
   { to: "/admin/books", label: "Books", icon: BookOpen },
   { to: "/admin/users", label: "Users & Wallets", icon: Users },
   { to: "/admin/roles", label: "Roles", icon: ShieldCheck },
