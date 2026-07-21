@@ -144,13 +144,16 @@ export const askAiDoubt = createServerFn({ method: "POST" })
     ];
 
     // Persist user message first so it's visible even if AI fails
-    await context.supabase.from("ai_chat_messages" as never).insert({
+    const db = context.supabase as unknown as {
+      from: (t: string) => { insert: (v: Record<string, unknown>) => Promise<{ error: unknown }> };
+    };
+    await db.from("ai_chat_messages").insert({
       user_id: context.userId, role: "user", content: data.message,
     });
 
     const reply = await callAiChat(messages, { model: settings.model, temperature: 0.5 });
 
-    await context.supabase.from("ai_chat_messages" as never).insert({
+    await db.from("ai_chat_messages").insert({
       user_id: context.userId, role: "assistant", content: reply,
     });
     return { reply };
