@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
 import { getMyContestStats } from "@/lib/stats.functions";
 import { getMyWallet } from "@/lib/wallet.functions";
-import { LogOut, Trophy, Target, Award, Phone, Hash, History, LifeBuoy, FileText, BookOpen } from "lucide-react";
+import { getMyXp } from "@/lib/gamification.functions";
+import { LogOut, Trophy, Target, Award, Phone, Hash, History, LifeBuoy, FileText, BookOpen, Zap, Gift } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profile")({
