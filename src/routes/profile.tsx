@@ -20,6 +20,7 @@ function ProfilePage() {
   const nav = useNavigate();
   const fetchStats = useServerFn(getMyContestStats);
   const fetchWallet = useServerFn(getMyWallet);
+  const fetchXp = useServerFn(getMyXp);
   const { data: stats } = useQuery({
     queryKey: ["my-stats"],
     queryFn: () => fetchStats(),
@@ -29,6 +30,12 @@ function ProfilePage() {
   const { data: wallet } = useQuery({
     queryKey: ["wallet"],
     queryFn: () => fetchWallet(),
+    enabled: state.loggedIn,
+    staleTime: 15_000,
+  });
+  const { data: xp } = useQuery({
+    queryKey: ["my-xp"],
+    queryFn: () => fetchXp(),
     enabled: state.loggedIn,
     staleTime: 15_000,
   });
