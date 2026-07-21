@@ -304,6 +304,63 @@ export type Database = {
         }
         Relationships: []
       }
+      missions: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          goal_type: string
+          goal_value: number
+          id: string
+          kind: string
+          reward_box_tier: string | null
+          reward_coins: number
+          reward_xp: number
+          sort_order: number
+          starts_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          goal_type: string
+          goal_value?: number
+          id?: string
+          kind: string
+          reward_box_tier?: string | null
+          reward_coins?: number
+          reward_xp?: number
+          sort_order?: number
+          starts_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          goal_type?: string
+          goal_value?: number
+          id?: string
+          kind?: string
+          reward_box_tier?: string | null
+          reward_coins?: number
+          reward_xp?: number
+          sort_order?: number
+          starts_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       otp_codes: {
         Row: {
           attempts: number
@@ -417,6 +474,84 @@ export type Database = {
           },
         ]
       }
+      reward_boxes: {
+        Row: {
+          created_at: string
+          id: string
+          opened: boolean
+          opened_at: string | null
+          reward_coins: number | null
+          reward_xp: number | null
+          source: string
+          tier: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opened?: boolean
+          opened_at?: string | null
+          reward_coins?: number | null
+          reward_xp?: number | null
+          source: string
+          tier?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opened?: boolean
+          opened_at?: string | null
+          reward_coins?: number | null
+          reward_xp?: number | null
+          source?: string
+          tier?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seasonal_events: {
+        Row: {
+          active: boolean
+          banner_url: string | null
+          bonus_xp_multiplier: number
+          created_at: string
+          description: string | null
+          ends_at: string
+          id: string
+          name: string
+          reward_pool: number
+          starts_at: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          banner_url?: string | null
+          bonus_xp_multiplier?: number
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          id?: string
+          name: string
+          reward_pool?: number
+          starts_at: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          banner_url?: string | null
+          bonus_xp_multiplier?: number
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          id?: string
+          name?: string
+          reward_pool?: number
+          starts_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -444,6 +579,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_missions: {
+        Row: {
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          mission_id: string
+          period_key: string
+          progress: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mission_id: string
+          period_key: string
+          progress?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          mission_id?: string
+          period_key?: string
+          progress?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_missions_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "missions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -459,6 +638,33 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_xp: {
+        Row: {
+          boxes_earned: number
+          created_at: string
+          level: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          boxes_earned?: number
+          created_at?: string
+          level?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          boxes_earned?: number
+          created_at?: string
+          level?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
         }
         Relationships: []
       }
@@ -501,6 +707,36 @@ export type Database = {
         }
         Relationships: []
       }
+      xp_events: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          meta: Json | null
+          ref_id: string | null
+          source: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          ref_id?: string | null
+          source: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          meta?: Json | null
+          ref_id?: string | null
+          source?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -516,6 +752,27 @@ export type Database = {
         Returns: undefined
       }
       auto_score_contest: { Args: { _contest_id: string }; Returns: number }
+      claim_mission: {
+        Args: { _user_mission_id: string }
+        Returns: {
+          reward_coins: number
+          reward_xp: number
+        }[]
+      }
+      grant_xp: {
+        Args: {
+          _amount: number
+          _meta?: Json
+          _ref?: string
+          _source: string
+          _user_id: string
+        }
+        Returns: {
+          leveled_up: boolean
+          new_level: number
+          new_xp: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -535,6 +792,16 @@ export type Database = {
           charged: number
         }[]
       }
+      open_reward_box: {
+        Args: { _box_id: string }
+        Returns: {
+          reward_coins: number
+          reward_xp: number
+          tier: string
+        }[]
+      }
+      refresh_user_missions: { Args: { _user_id?: string }; Returns: number }
+      xp_to_level: { Args: { _xp: number }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "user" | "editor" | "moderator"

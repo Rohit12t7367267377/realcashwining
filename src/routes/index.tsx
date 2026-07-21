@@ -166,6 +166,19 @@ function Home() {
         </div>
       </section>
 
+      {/* Gamification quick links */}
+      <section className="mt-4 grid grid-cols-3 gap-2">
+        <Link to="/missions" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
+          <span className="text-2xl">🎯</span> Missions
+        </Link>
+        <Link to="/rewards" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
+          <span className="text-2xl">🎁</span> Rewards
+        </Link>
+        <Link to="/hall-of-fame" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
+          <span className="text-2xl">👑</span> Hall of Fame
+        </Link>
+      </section>
+
       {/* Leaderboard link */}
       <Link to="/leaderboard" className="mt-4 flex items-center justify-between rounded-2xl bg-card p-4 shadow-soft hover:shadow-glow transition">
         <div className="flex items-center gap-3">
@@ -173,6 +186,18 @@ function Home() {
           <div>
             <div className="text-sm font-bold">Winners Leaderboard</div>
             <div className="text-[11px] text-muted-foreground">See rankings from all declared contests</div>
+          </div>
+        </div>
+        <span className="text-xs text-primary">View →</span>
+      </Link>
+
+      {/* Events */}
+      <Link to="/events" className="mt-3 flex items-center justify-between rounded-2xl border border-primary/30 bg-gradient-card p-4 shadow-soft hover:shadow-glow transition">
+        <div className="flex items-center gap-3">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <div>
+            <div className="text-sm font-bold">Seasonal Events</div>
+            <div className="text-[11px] text-muted-foreground">Boosted XP · limited-time prize pools</div>
           </div>
         </div>
         <span className="text-xs text-primary">View →</span>
