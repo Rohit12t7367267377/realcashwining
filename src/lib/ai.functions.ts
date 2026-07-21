@@ -69,7 +69,7 @@ Pick the top 3 contests from the list below, best-matched to the user's recent a
 If the user has no history, prioritise free entry and biggest first prize.
 
 Active contests:
-${contests.map((c) => `- id=${c.id} title="${c.title}" entry=${c.entry_fee} prize=${c.first_prize} category=${catName.get(c.category_id) ?? "?"}`).join("\n")}
+${contests.map((c) => `- id=${c.id} title="${c.title}" entry=${c.entry_fee} prize=${c.first_prize} category=${(c.category_id && catName.get(c.category_id)) || "?"}`).join("\n")}
 
 Recent activity: ${(recent ?? []).length} attempts, ${(recent ?? []).filter((r) => r.is_winner).length} wins.`;
 

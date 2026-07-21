@@ -24,6 +24,7 @@ import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
@@ -45,6 +46,7 @@ import { Route as AdminEventsRouteImport } from './routes/admin.events'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminBooksRouteImport } from './routes/admin.books'
+import { Route as AdminAiRouteImport } from './routes/admin.ai'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
@@ -119,6 +121,11 @@ const BooksRoute = BooksRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiTutorRoute = AiTutorRouteImport.update({
+  id: '/ai-tutor',
+  path: '/ai-tutor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -226,10 +233,16 @@ const AdminBooksRoute = AdminBooksRouteImport.update({
   path: '/books',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAiRoute = AdminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
   '/events': typeof EventsRoute
@@ -245,6 +258,7 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ai': typeof AdminAiRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
@@ -267,6 +281,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
   '/events': typeof EventsRoute
@@ -282,6 +297,7 @@ export interface FileRoutesByTo {
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ai': typeof AdminAiRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
@@ -306,6 +322,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
   '/events': typeof EventsRoute
@@ -321,6 +338,7 @@ export interface FileRoutesById {
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ai': typeof AdminAiRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
@@ -346,6 +364,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/ai-tutor'
     | '/auth'
     | '/books'
     | '/events'
@@ -361,6 +380,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/terms'
     | '/wallet'
+    | '/admin/ai'
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
@@ -383,6 +403,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-tutor'
     | '/auth'
     | '/books'
     | '/events'
@@ -398,6 +419,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/terms'
     | '/wallet'
+    | '/admin/ai'
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
@@ -421,6 +443,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/ai-tutor'
     | '/auth'
     | '/books'
     | '/events'
@@ -436,6 +459,7 @@ export interface FileRouteTypes {
     | '/support'
     | '/terms'
     | '/wallet'
+    | '/admin/ai'
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
@@ -460,6 +484,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AiTutorRoute: typeof AiTutorRoute
   AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRoute
   EventsRoute: typeof EventsRoute
@@ -586,6 +611,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-tutor': {
+      id: '/ai-tutor'
+      path: '/ai-tutor'
+      fullPath: '/ai-tutor'
+      preLoaderRoute: typeof AiTutorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -735,10 +767,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBooksRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ai': {
+      id: '/admin/ai'
+      path: '/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof AdminAiRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminAiRoute: typeof AdminAiRoute
   AdminBooksRoute: typeof AdminBooksRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminContestsRoute: typeof AdminContestsRoute
@@ -756,6 +796,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAiRoute: AdminAiRoute,
   AdminBooksRoute: AdminBooksRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminContestsRoute: AdminContestsRoute,
@@ -788,6 +829,7 @@ const WalletRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AiTutorRoute: AiTutorRoute,
   AuthRoute: AuthRoute,
   BooksRoute: BooksRoute,
   EventsRoute: EventsRoute,

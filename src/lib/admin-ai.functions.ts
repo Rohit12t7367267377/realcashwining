@@ -106,8 +106,17 @@ export const readAiSettingsAdmin = createServerFn({ method: "GET" })
       "ai_enabled", "ai_model", "ai_gen_enabled", "ai_recs_enabled",
       "ai_doubt_enabled", "ai_doubt_system_prompt",
     ]);
-    const map = Object.fromEntries((data ?? []).map((r) => [r.key, r.value]));
-    return map as Record<string, unknown>;
+    const asBool = (v: unknown, d: boolean) => (v === false || v === "false" ? false : v === true || v === "true" ? true : d);
+    const asStr = (v: unknown, d: string) => (typeof v === "string" ? v : d);
+    const map = new Map<string, unknown>((data ?? []).map((r) => [r.key, r.value]));
+    return {
+      ai_enabled: asBool(map.get("ai_enabled"), true),
+      ai_model: asStr(map.get("ai_model"), "google/gemini-3-flash-preview"),
+      ai_gen_enabled: asBool(map.get("ai_gen_enabled"), true),
+      ai_recs_enabled: asBool(map.get("ai_recs_enabled"), true),
+      ai_doubt_enabled: asBool(map.get("ai_doubt_enabled"), true),
+      ai_doubt_system_prompt: asStr(map.get("ai_doubt_system_prompt"), ""),
+    };
   });
 
 export const listAllCategories = createServerFn({ method: "GET" })
