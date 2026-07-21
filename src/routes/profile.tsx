@@ -83,6 +83,24 @@ function ProfilePage() {
         <Stat icon={<Award />} label="Win %" value={`${winRate}%`} />
       </section>
 
+      {/* XP / Level card */}
+      <section className="mt-5 rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft">
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest opacity-80">Rank</div>
+            <div className="text-lg font-black">{xp?.rankTitle ?? "Bronze"} · Level {xp?.level ?? 1}</div>
+            <div className="text-[11px] opacity-90">{xp?.xp ?? 0} XP · {xp?.boxesEarned ?? 0} boxes</div>
+          </div>
+          <div className="flex gap-2">
+            <Link to="/missions" className="rounded-xl bg-white/20 px-3 py-2 text-xs font-bold hover:bg-white/30"><Zap className="mr-1 inline h-3 w-3" />Missions</Link>
+            <Link to="/rewards" className="rounded-xl bg-white/20 px-3 py-2 text-xs font-bold hover:bg-white/30"><Gift className="mr-1 inline h-3 w-3" />Rewards</Link>
+          </div>
+        </div>
+        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/20">
+          <div className="h-full bg-white/80" style={{ width: `${Math.round((xp?.progress ?? 0) * 100)}%` }} />
+        </div>
+      </section>
+
       <section className="mt-6">
         <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
           <History className="h-4 w-4" /> Contest History
