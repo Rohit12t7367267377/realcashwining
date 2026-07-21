@@ -12,12 +12,16 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as MissionsRouteImport } from './routes/missions'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LiveScoresRouteImport } from './routes/live-scores'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
+import { Route as EventsRouteImport } from './routes/events'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -28,13 +32,16 @@ import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
+import { Route as AdminXpRouteImport } from './routes/admin.xp'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
 import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
+import { Route as AdminEventsRouteImport } from './routes/admin.events'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminBooksRouteImport } from './routes/admin.books'
@@ -54,6 +61,11 @@ const SupportRoute = SupportRouteImport.update({
   path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RewardsRoute = RewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -69,6 +81,11 @@ const ProfileRoute = ProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MissionsRoute = MissionsRouteImport.update({
+  id: '/missions',
+  path: '/missions',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -82,6 +99,16 @@ const LiveScoresRoute = LiveScoresRouteImport.update({
 const LeaderboardRoute = LeaderboardRouteImport.update({
   id: '/leaderboard',
   path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HallOfFameRoute = HallOfFameRouteImport.update({
+  id: '/hall-of-fame',
+  path: '/hall-of-fame',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksRoute = BooksRouteImport.update({
@@ -134,6 +161,11 @@ const CategoryIdRoute = CategoryIdRouteImport.update({
   path: '/category/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminXpRoute = AdminXpRouteImport.update({
+  id: '/xp',
+  path: '/xp',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -164,9 +196,19 @@ const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMissionsRoute = AdminMissionsRouteImport.update({
+  id: '/missions',
+  path: '/missions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLiveScoresRoute = AdminLiveScoresRouteImport.update({
   id: '/live-scores',
   path: '/live-scores',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEventsRoute = AdminEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminContestsRoute = AdminContestsRouteImport.update({
@@ -190,25 +232,32 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/events': typeof EventsRoute
+  '/hall-of-fame': typeof HallOfFameRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
+  '/missions': typeof MissionsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/rewards': typeof RewardsRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/events': typeof AdminEventsRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
+  '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
@@ -220,25 +269,32 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/events': typeof EventsRoute
+  '/hall-of-fame': typeof HallOfFameRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
+  '/missions': typeof MissionsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/rewards': typeof RewardsRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/events': typeof AdminEventsRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
+  '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
@@ -252,25 +308,32 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/events': typeof EventsRoute
+  '/hall-of-fame': typeof HallOfFameRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
+  '/missions': typeof MissionsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/rewards': typeof RewardsRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/books': typeof AdminBooksRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/events': typeof AdminEventsRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
+  '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
@@ -285,25 +348,32 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/books'
+    | '/events'
+    | '/hall-of-fame'
     | '/leaderboard'
     | '/live-scores'
     | '/login'
+    | '/missions'
     | '/profile'
     | '/refer'
     | '/reset-password'
+    | '/rewards'
     | '/support'
     | '/terms'
     | '/wallet'
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/events'
     | '/admin/live-scores'
+    | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/users'
+    | '/admin/xp'
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
@@ -315,25 +385,32 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/books'
+    | '/events'
+    | '/hall-of-fame'
     | '/leaderboard'
     | '/live-scores'
     | '/login'
+    | '/missions'
     | '/profile'
     | '/refer'
     | '/reset-password'
+    | '/rewards'
     | '/support'
     | '/terms'
     | '/wallet'
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/events'
     | '/admin/live-scores'
+    | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/users'
+    | '/admin/xp'
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
@@ -346,25 +423,32 @@ export interface FileRouteTypes {
     | '/admin'
     | '/auth'
     | '/books'
+    | '/events'
+    | '/hall-of-fame'
     | '/leaderboard'
     | '/live-scores'
     | '/login'
+    | '/missions'
     | '/profile'
     | '/refer'
     | '/reset-password'
+    | '/rewards'
     | '/support'
     | '/terms'
     | '/wallet'
     | '/admin/books'
     | '/admin/categories'
     | '/admin/contests'
+    | '/admin/events'
     | '/admin/live-scores'
+    | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/users'
+    | '/admin/xp'
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
@@ -378,12 +462,16 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRoute
+  EventsRoute: typeof EventsRoute
+  HallOfFameRoute: typeof HallOfFameRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LiveScoresRoute: typeof LiveScoresRoute
   LoginRoute: typeof LoginRoute
+  MissionsRoute: typeof MissionsRoute
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  RewardsRoute: typeof RewardsRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   WalletRoute: typeof WalletRouteWithChildren
@@ -416,6 +504,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/rewards': {
+      id: '/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof RewardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -437,6 +532,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/missions': {
+      id: '/missions'
+      path: '/missions'
+      fullPath: '/missions'
+      preLoaderRoute: typeof MissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -456,6 +558,20 @@ declare module '@tanstack/react-router' {
       path: '/leaderboard'
       fullPath: '/leaderboard'
       preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hall-of-fame': {
+      id: '/hall-of-fame'
+      path: '/hall-of-fame'
+      fullPath: '/hall-of-fame'
+      preLoaderRoute: typeof HallOfFameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books': {
@@ -528,6 +644,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoryIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/xp': {
+      id: '/admin/xp'
+      path: '/xp'
+      fullPath: '/admin/xp'
+      preLoaderRoute: typeof AdminXpRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/users': {
       id: '/admin/users'
       path: '/users'
@@ -570,11 +693,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPaymentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/missions': {
+      id: '/admin/missions'
+      path: '/missions'
+      fullPath: '/admin/missions'
+      preLoaderRoute: typeof AdminMissionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/live-scores': {
       id: '/admin/live-scores'
       path: '/live-scores'
       fullPath: '/admin/live-scores'
       preLoaderRoute: typeof AdminLiveScoresRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/events': {
+      id: '/admin/events'
+      path: '/events'
+      fullPath: '/admin/events'
+      preLoaderRoute: typeof AdminEventsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/contests': {
@@ -605,13 +742,16 @@ interface AdminRouteChildren {
   AdminBooksRoute: typeof AdminBooksRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminContestsRoute: typeof AdminContestsRoute
+  AdminEventsRoute: typeof AdminEventsRoute
   AdminLiveScoresRoute: typeof AdminLiveScoresRoute
+  AdminMissionsRoute: typeof AdminMissionsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminResultsRoute: typeof AdminResultsRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminUsersRoute: typeof AdminUsersRoute
+  AdminXpRoute: typeof AdminXpRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
@@ -619,13 +759,16 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBooksRoute: AdminBooksRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminContestsRoute: AdminContestsRoute,
+  AdminEventsRoute: AdminEventsRoute,
   AdminLiveScoresRoute: AdminLiveScoresRoute,
+  AdminMissionsRoute: AdminMissionsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminResultsRoute: AdminResultsRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminUsersRoute: AdminUsersRoute,
+  AdminXpRoute: AdminXpRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
 
@@ -647,12 +790,16 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AuthRoute: AuthRoute,
   BooksRoute: BooksRoute,
+  EventsRoute: EventsRoute,
+  HallOfFameRoute: HallOfFameRoute,
   LeaderboardRoute: LeaderboardRoute,
   LiveScoresRoute: LiveScoresRoute,
   LoginRoute: LoginRoute,
+  MissionsRoute: MissionsRoute,
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  RewardsRoute: RewardsRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   WalletRoute: WalletRouteWithChildren,

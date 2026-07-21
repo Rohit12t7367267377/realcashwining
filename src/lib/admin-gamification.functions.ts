@@ -114,8 +114,6 @@ export const adminGrantXp = createServerFn({ method: "POST" })
       _user_id: data.user_id,
       _amount: data.amount,
       _source: `admin:${data.note}`,
-      _ref: null,
-      _meta: {},
     });
     if (error) throw new Error(error.message);
     return { ok: true };
