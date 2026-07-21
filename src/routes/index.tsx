@@ -7,9 +7,10 @@ import { CATEGORIES } from "@/lib/quiz-data";
 import { useUser } from "@/lib/user-store";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyContestStats } from "@/lib/stats.functions";
+import { aiRecommendContests } from "@/lib/ai.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, Sparkles } from "lucide-react";
+import { Flame, Trophy, Sparkles, Bot } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -43,6 +44,14 @@ function Home() {
     queryFn: () => fetchStats(),
     enabled: mounted && state.loggedIn,
     staleTime: 15_000,
+  });
+  const fetchRecs = useServerFn(aiRecommendContests);
+  const { data: recs } = useQuery({
+    queryKey: ["ai-recs"],
+    queryFn: () => fetchRecs(),
+    enabled: mounted && state.loggedIn,
+    staleTime: 5 * 60_000,
+    retry: false,
   });
 
   const [live, setLive] = useState<LiveContest[]>([]);
@@ -166,8 +175,31 @@ function Home() {
         </div>
       </section>
 
+      {/* AI Recommendations */}
+      {recs?.enabled && recs.items && recs.items.length > 0 && (
+        <section className="mt-6">
+          <SectionHeader title="✨ Recommended for You" subtitle="AI-picked contests based on your play" />
+          <div className="mt-3 grid gap-2">
+            {recs.items.map((r) => (
+              <Link key={r.contest_id} to="/contest/$id" params={{ id: r.contest_id }} className="rounded-2xl border border-primary/30 bg-card p-3 shadow-soft hover:shadow-glow transition">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-bold">{r.title}</div>
+                    <div className="mt-0.5 truncate text-[11px] text-muted-foreground">{r.reason}</div>
+                  </div>
+                  <div className="shrink-0 text-right text-[11px]">
+                    {r.entry_fee > 0 ? <span>Entry ₹{r.entry_fee}</span> : <span className="font-bold text-success">FREE</span>}
+                    {r.first_prize > 0 && <div className="font-bold text-success">Win ₹{r.first_prize}</div>}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Gamification quick links */}
-      <section className="mt-4 grid grid-cols-3 gap-2">
+      <section className="mt-4 grid grid-cols-4 gap-2">
         <Link to="/missions" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
           <span className="text-2xl">🎯</span> Missions
         </Link>
@@ -176,6 +208,9 @@ function Home() {
         </Link>
         <Link to="/hall-of-fame" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
           <span className="text-2xl">👑</span> Hall of Fame
+        </Link>
+        <Link to="/ai-tutor" className="flex flex-col items-center gap-1 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
+          <Bot className="h-6 w-6 text-primary" /> AI Tutor
         </Link>
       </section>
 
