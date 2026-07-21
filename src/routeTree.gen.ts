@@ -41,11 +41,22 @@ import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
+import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
 import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
+import { Route as AdminKycRouteImport } from './routes/admin.kyc'
+import { Route as AdminFraudRouteImport } from './routes/admin.fraud'
+import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
+import { Route as AdminFaqsRouteImport } from './routes/admin.faqs'
 import { Route as AdminEventsRouteImport } from './routes/admin.events'
+import { Route as AdminCricketRouteImport } from './routes/admin.cricket'
+import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
+import { Route as AdminCommentsRouteImport } from './routes/admin.comments'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminBroadcastsRouteImport } from './routes/admin.broadcasts'
 import { Route as AdminBooksRouteImport } from './routes/admin.books'
+import { Route as AdminBannersRouteImport } from './routes/admin.banners'
+import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 
 const WalletRoute = WalletRouteImport.update({
@@ -208,9 +219,34 @@ const AdminMissionsRoute = AdminMissionsRouteImport.update({
   path: '/missions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMembershipsRoute = AdminMembershipsRouteImport.update({
+  id: '/memberships',
+  path: '/memberships',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLiveScoresRoute = AdminLiveScoresRouteImport.update({
   id: '/live-scores',
   path: '/live-scores',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminKycRoute = AdminKycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFraudRoute = AdminFraudRouteImport.update({
+  id: '/fraud',
+  path: '/fraud',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFaqsRoute = AdminFaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminEventsRoute = AdminEventsRouteImport.update({
@@ -218,9 +254,24 @@ const AdminEventsRoute = AdminEventsRouteImport.update({
   path: '/events',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCricketRoute = AdminCricketRouteImport.update({
+  id: '/cricket',
+  path: '/cricket',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCouponsRoute = AdminCouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminContestsRoute = AdminContestsRouteImport.update({
   id: '/contests',
   path: '/contests',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCommentsRoute = AdminCommentsRouteImport.update({
+  id: '/comments',
+  path: '/comments',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
@@ -228,9 +279,24 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBroadcastsRoute = AdminBroadcastsRouteImport.update({
+  id: '/broadcasts',
+  path: '/broadcasts',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBooksRoute = AdminBooksRouteImport.update({
   id: '/books',
   path: '/books',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBannersRoute = AdminBannersRouteImport.update({
+  id: '/banners',
+  path: '/banners',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAppUpdatesRoute = AdminAppUpdatesRouteImport.update({
+  id: '/app-updates',
+  path: '/app-updates',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAiRoute = AdminAiRouteImport.update({
@@ -259,11 +325,22 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/ai': typeof AdminAiRoute
+  '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
+  '/admin/broadcasts': typeof AdminBroadcastsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
+  '/admin/faqs': typeof AdminFaqsRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/fraud': typeof AdminFraudRoute
+  '/admin/kyc': typeof AdminKycRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
+  '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -298,11 +375,22 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/ai': typeof AdminAiRoute
+  '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
+  '/admin/broadcasts': typeof AdminBroadcastsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
+  '/admin/faqs': typeof AdminFaqsRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/fraud': typeof AdminFraudRoute
+  '/admin/kyc': typeof AdminKycRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
+  '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -339,11 +427,22 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/ai': typeof AdminAiRoute
+  '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
+  '/admin/broadcasts': typeof AdminBroadcastsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/comments': typeof AdminCommentsRoute
   '/admin/contests': typeof AdminContestsRoute
+  '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
+  '/admin/faqs': typeof AdminFaqsRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
+  '/admin/fraud': typeof AdminFraudRoute
+  '/admin/kyc': typeof AdminKycRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
+  '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -381,11 +480,22 @@ export interface FileRouteTypes {
     | '/terms'
     | '/wallet'
     | '/admin/ai'
+    | '/admin/app-updates'
+    | '/admin/banners'
     | '/admin/books'
+    | '/admin/broadcasts'
     | '/admin/categories'
+    | '/admin/comments'
     | '/admin/contests'
+    | '/admin/coupons'
+    | '/admin/cricket'
     | '/admin/events'
+    | '/admin/faqs'
+    | '/admin/feedback'
+    | '/admin/fraud'
+    | '/admin/kyc'
     | '/admin/live-scores'
+    | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
@@ -420,11 +530,22 @@ export interface FileRouteTypes {
     | '/terms'
     | '/wallet'
     | '/admin/ai'
+    | '/admin/app-updates'
+    | '/admin/banners'
     | '/admin/books'
+    | '/admin/broadcasts'
     | '/admin/categories'
+    | '/admin/comments'
     | '/admin/contests'
+    | '/admin/coupons'
+    | '/admin/cricket'
     | '/admin/events'
+    | '/admin/faqs'
+    | '/admin/feedback'
+    | '/admin/fraud'
+    | '/admin/kyc'
     | '/admin/live-scores'
+    | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
@@ -460,11 +581,22 @@ export interface FileRouteTypes {
     | '/terms'
     | '/wallet'
     | '/admin/ai'
+    | '/admin/app-updates'
+    | '/admin/banners'
     | '/admin/books'
+    | '/admin/broadcasts'
     | '/admin/categories'
+    | '/admin/comments'
     | '/admin/contests'
+    | '/admin/coupons'
+    | '/admin/cricket'
     | '/admin/events'
+    | '/admin/faqs'
+    | '/admin/feedback'
+    | '/admin/fraud'
+    | '/admin/kyc'
     | '/admin/live-scores'
+    | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
@@ -732,11 +864,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMissionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/memberships': {
+      id: '/admin/memberships'
+      path: '/memberships'
+      fullPath: '/admin/memberships'
+      preLoaderRoute: typeof AdminMembershipsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/live-scores': {
       id: '/admin/live-scores'
       path: '/live-scores'
       fullPath: '/admin/live-scores'
       preLoaderRoute: typeof AdminLiveScoresRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/kyc': {
+      id: '/admin/kyc'
+      path: '/kyc'
+      fullPath: '/admin/kyc'
+      preLoaderRoute: typeof AdminKycRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/fraud': {
+      id: '/admin/fraud'
+      path: '/fraud'
+      fullPath: '/admin/fraud'
+      preLoaderRoute: typeof AdminFraudRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/feedback': {
+      id: '/admin/feedback'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/faqs': {
+      id: '/admin/faqs'
+      path: '/faqs'
+      fullPath: '/admin/faqs'
+      preLoaderRoute: typeof AdminFaqsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/events': {
@@ -746,11 +913,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminEventsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cricket': {
+      id: '/admin/cricket'
+      path: '/cricket'
+      fullPath: '/admin/cricket'
+      preLoaderRoute: typeof AdminCricketRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/coupons': {
+      id: '/admin/coupons'
+      path: '/coupons'
+      fullPath: '/admin/coupons'
+      preLoaderRoute: typeof AdminCouponsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/contests': {
       id: '/admin/contests'
       path: '/contests'
       fullPath: '/admin/contests'
       preLoaderRoute: typeof AdminContestsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/comments': {
+      id: '/admin/comments'
+      path: '/comments'
+      fullPath: '/admin/comments'
+      preLoaderRoute: typeof AdminCommentsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/categories': {
@@ -760,11 +948,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/broadcasts': {
+      id: '/admin/broadcasts'
+      path: '/broadcasts'
+      fullPath: '/admin/broadcasts'
+      preLoaderRoute: typeof AdminBroadcastsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/books': {
       id: '/admin/books'
       path: '/books'
       fullPath: '/admin/books'
       preLoaderRoute: typeof AdminBooksRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/banners': {
+      id: '/admin/banners'
+      path: '/banners'
+      fullPath: '/admin/banners'
+      preLoaderRoute: typeof AdminBannersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/app-updates': {
+      id: '/admin/app-updates'
+      path: '/app-updates'
+      fullPath: '/admin/app-updates'
+      preLoaderRoute: typeof AdminAppUpdatesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/ai': {
@@ -779,11 +988,22 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAiRoute: typeof AdminAiRoute
+  AdminAppUpdatesRoute: typeof AdminAppUpdatesRoute
+  AdminBannersRoute: typeof AdminBannersRoute
   AdminBooksRoute: typeof AdminBooksRoute
+  AdminBroadcastsRoute: typeof AdminBroadcastsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminCommentsRoute: typeof AdminCommentsRoute
   AdminContestsRoute: typeof AdminContestsRoute
+  AdminCouponsRoute: typeof AdminCouponsRoute
+  AdminCricketRoute: typeof AdminCricketRoute
   AdminEventsRoute: typeof AdminEventsRoute
+  AdminFaqsRoute: typeof AdminFaqsRoute
+  AdminFeedbackRoute: typeof AdminFeedbackRoute
+  AdminFraudRoute: typeof AdminFraudRoute
+  AdminKycRoute: typeof AdminKycRoute
   AdminLiveScoresRoute: typeof AdminLiveScoresRoute
+  AdminMembershipsRoute: typeof AdminMembershipsRoute
   AdminMissionsRoute: typeof AdminMissionsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
@@ -797,11 +1017,22 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAiRoute: AdminAiRoute,
+  AdminAppUpdatesRoute: AdminAppUpdatesRoute,
+  AdminBannersRoute: AdminBannersRoute,
   AdminBooksRoute: AdminBooksRoute,
+  AdminBroadcastsRoute: AdminBroadcastsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminCommentsRoute: AdminCommentsRoute,
   AdminContestsRoute: AdminContestsRoute,
+  AdminCouponsRoute: AdminCouponsRoute,
+  AdminCricketRoute: AdminCricketRoute,
   AdminEventsRoute: AdminEventsRoute,
+  AdminFaqsRoute: AdminFaqsRoute,
+  AdminFeedbackRoute: AdminFeedbackRoute,
+  AdminFraudRoute: AdminFraudRoute,
+  AdminKycRoute: AdminKycRoute,
   AdminLiveScoresRoute: AdminLiveScoresRoute,
+  AdminMembershipsRoute: AdminMembershipsRoute,
   AdminMissionsRoute: AdminMissionsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
