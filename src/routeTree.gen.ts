@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as VipRouteImport } from './routes/vip'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
 import { Route as RewardsRouteImport } from './routes/rewards'
@@ -20,8 +21,13 @@ import { Route as MissionsRouteImport } from './routes/missions'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LiveScoresRouteImport } from './routes/live-scores'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as KycRouteImport } from './routes/kyc'
 import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
+import { Route as FeedbackRouteImport } from './routes/feedback'
+import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
+import { Route as CricketRouteImport } from './routes/cricket'
+import { Route as CouponsRouteImport } from './routes/coupons'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
@@ -62,6 +68,11 @@ import { Route as AdminAiRouteImport } from './routes/admin.ai'
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
   path: '/wallet',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VipRoute = VipRouteImport.update({
+  id: '/vip',
+  path: '/vip',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TermsRoute = TermsRouteImport.update({
@@ -114,14 +125,39 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
   path: '/leaderboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KycRoute = KycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HallOfFameRoute = HallOfFameRouteImport.update({
   id: '/hall-of-fame',
   path: '/hall-of-fame',
   getParentRoute: () => rootRouteImport,
 } as any)
+const FeedbackRoute = FeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsRoute = EventsRouteImport.update({
   id: '/events',
   path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CricketRoute = CricketRouteImport.update({
+  id: '/cricket',
+  path: '/cricket',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CouponsRoute = CouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksRoute = BooksRouteImport.update({
@@ -311,8 +347,13 @@ export interface FileRoutesByFullPath {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/coupons': typeof CouponsRoute
+  '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
+  '/feedback': typeof FeedbackRoute
   '/hall-of-fame': typeof HallOfFameRoute
+  '/kyc': typeof KycRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
@@ -323,6 +364,7 @@ export interface FileRoutesByFullPath {
   '/rewards': typeof RewardsRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
@@ -361,8 +403,13 @@ export interface FileRoutesByTo {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/coupons': typeof CouponsRoute
+  '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
+  '/feedback': typeof FeedbackRoute
   '/hall-of-fame': typeof HallOfFameRoute
+  '/kyc': typeof KycRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
@@ -373,6 +420,7 @@ export interface FileRoutesByTo {
   '/rewards': typeof RewardsRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
@@ -413,8 +461,13 @@ export interface FileRoutesById {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/coupons': typeof CouponsRoute
+  '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
+  '/faq': typeof FaqRoute
+  '/feedback': typeof FeedbackRoute
   '/hall-of-fame': typeof HallOfFameRoute
+  '/kyc': typeof KycRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
@@ -425,6 +478,7 @@ export interface FileRoutesById {
   '/rewards': typeof RewardsRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
+  '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
@@ -466,8 +520,13 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/auth'
     | '/books'
+    | '/coupons'
+    | '/cricket'
     | '/events'
+    | '/faq'
+    | '/feedback'
     | '/hall-of-fame'
+    | '/kyc'
     | '/leaderboard'
     | '/live-scores'
     | '/login'
@@ -478,6 +537,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/support'
     | '/terms'
+    | '/vip'
     | '/wallet'
     | '/admin/ai'
     | '/admin/app-updates'
@@ -516,8 +576,13 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/auth'
     | '/books'
+    | '/coupons'
+    | '/cricket'
     | '/events'
+    | '/faq'
+    | '/feedback'
     | '/hall-of-fame'
+    | '/kyc'
     | '/leaderboard'
     | '/live-scores'
     | '/login'
@@ -528,6 +593,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/support'
     | '/terms'
+    | '/vip'
     | '/wallet'
     | '/admin/ai'
     | '/admin/app-updates'
@@ -567,8 +633,13 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/auth'
     | '/books'
+    | '/coupons'
+    | '/cricket'
     | '/events'
+    | '/faq'
+    | '/feedback'
     | '/hall-of-fame'
+    | '/kyc'
     | '/leaderboard'
     | '/live-scores'
     | '/login'
@@ -579,6 +650,7 @@ export interface FileRouteTypes {
     | '/rewards'
     | '/support'
     | '/terms'
+    | '/vip'
     | '/wallet'
     | '/admin/ai'
     | '/admin/app-updates'
@@ -619,8 +691,13 @@ export interface RootRouteChildren {
   AiTutorRoute: typeof AiTutorRoute
   AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRoute
+  CouponsRoute: typeof CouponsRoute
+  CricketRoute: typeof CricketRoute
   EventsRoute: typeof EventsRoute
+  FaqRoute: typeof FaqRoute
+  FeedbackRoute: typeof FeedbackRoute
   HallOfFameRoute: typeof HallOfFameRoute
+  KycRoute: typeof KycRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LiveScoresRoute: typeof LiveScoresRoute
   LoginRoute: typeof LoginRoute
@@ -631,6 +708,7 @@ export interface RootRouteChildren {
   RewardsRoute: typeof RewardsRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
+  VipRoute: typeof VipRoute
   WalletRoute: typeof WalletRouteWithChildren
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
@@ -645,6 +723,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/wallet'
       preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vip': {
+      id: '/vip'
+      path: '/vip'
+      fullPath: '/vip'
+      preLoaderRoute: typeof VipRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/terms': {
@@ -717,6 +802,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LeaderboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kyc': {
+      id: '/kyc'
+      path: '/kyc'
+      fullPath: '/kyc'
+      preLoaderRoute: typeof KycRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/hall-of-fame': {
       id: '/hall-of-fame'
       path: '/hall-of-fame'
@@ -724,11 +816,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HallOfFameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/feedback': {
+      id: '/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof FeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events': {
       id: '/events'
       path: '/events'
       fullPath: '/events'
       preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cricket': {
+      id: '/cricket'
+      path: '/cricket'
+      fullPath: '/cricket'
+      preLoaderRoute: typeof CricketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coupons': {
+      id: '/coupons'
+      path: '/coupons'
+      fullPath: '/coupons'
+      preLoaderRoute: typeof CouponsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books': {
@@ -1063,8 +1183,13 @@ const rootRouteChildren: RootRouteChildren = {
   AiTutorRoute: AiTutorRoute,
   AuthRoute: AuthRoute,
   BooksRoute: BooksRoute,
+  CouponsRoute: CouponsRoute,
+  CricketRoute: CricketRoute,
   EventsRoute: EventsRoute,
+  FaqRoute: FaqRoute,
+  FeedbackRoute: FeedbackRoute,
   HallOfFameRoute: HallOfFameRoute,
+  KycRoute: KycRoute,
   LeaderboardRoute: LeaderboardRoute,
   LiveScoresRoute: LiveScoresRoute,
   LoginRoute: LoginRoute,
@@ -1075,6 +1200,7 @@ const rootRouteChildren: RootRouteChildren = {
   RewardsRoute: RewardsRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
+  VipRoute: VipRoute,
   WalletRoute: WalletRouteWithChildren,
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
