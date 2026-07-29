@@ -58,23 +58,62 @@ function Home() {
   });
 
   const [live, setLive] = useState<LiveContest[]>([]);
+  const [upcoming, setUpcoming] = useState<LiveContest[]>([]);
+  const [completed, setCompleted] = useState<LiveContest[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
+  const [plans, setPlans] = useState<Membership[]>([]);
+  const [bannerIdx, setBannerIdx] = useState(0);
+
   useEffect(() => {
     if (!mounted) return;
     let cancelled = false;
+    const nowIso = () => new Date().toISOString();
     async function load() {
-      const { data } = await supabase
-        .from("contests")
-        .select("id, title, entry_fee, first_prize, starts_at")
-        .eq("active", true)
-        .eq("results_status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(10);
-      if (!cancelled) setLive((data ?? []) as LiveContest[]);
+      const now = nowIso();
+      const [liveRes, upRes, doneRes, banRes, bcRes, memRes] = await Promise.all([
+        supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
+          .eq("active", true).eq("results_status", "pending")
+          .or(`starts_at.is.null,starts_at.lte.${now}`)
+          .order("created_at", { ascending: false }).limit(10),
+        supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
+          .eq("active", true).gt("starts_at", now)
+          .order("starts_at", { ascending: true }).limit(6),
+        supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
+          .eq("results_status", "declared")
+          .order("created_at", { ascending: false }).limit(4),
+        supabase.from("banners").select("id, title, subtitle, image_url, link_url, cta_label, starts_at, ends_at")
+          .eq("active", true).order("sort_order", { ascending: true }).limit(10),
+        supabase.from("broadcasts").select("id, title, body").eq("active", true)
+          .order("created_at", { ascending: false }).limit(3),
+        supabase.from("memberships").select("id, name, price, duration_days, description")
+          .eq("active", true).order("sort_order", { ascending: true }).limit(3),
+      ]);
+      if (cancelled) return;
+      setLive((liveRes.data ?? []) as LiveContest[]);
+      setUpcoming((upRes.data ?? []) as LiveContest[]);
+      setCompleted((doneRes.data ?? []) as LiveContest[]);
+      // Filter banners by date window
+      const bans = ((banRes.data ?? []) as any[]).filter((b) => {
+        if (b.starts_at && new Date(b.starts_at) > new Date()) return false;
+        if (b.ends_at && new Date(b.ends_at) < new Date()) return false;
+        return true;
+      });
+      setBanners(bans as Banner[]);
+      setBroadcasts((bcRes.data ?? []) as Broadcast[]);
+      setPlans((memRes.data ?? []) as Membership[]);
     }
     load();
-    const t = setInterval(load, 30_000);
+    const t = setInterval(load, 45_000);
     return () => { cancelled = true; clearInterval(t); };
   }, [mounted]);
+
+  // Banner auto-rotate
+  useEffect(() => {
+    if (banners.length < 2) return;
+    const t = setInterval(() => setBannerIdx((i) => (i + 1) % banners.length), 5000);
+    return () => clearInterval(t);
+  }, [banners.length]);
 
   if (!mounted || !state.loggedIn) {
     return <div className="min-h-screen bg-background"><Landing /></div>;
