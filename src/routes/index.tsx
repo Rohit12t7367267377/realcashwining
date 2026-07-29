@@ -24,7 +24,10 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-type LiveContest = { id: string; title: string; entry_fee: number; first_prize: number; starts_at: string | null };
+type LiveContest = { id: string; title: string; entry_fee: number; first_prize: number; starts_at: string | null; ends_at?: string | null; results_status?: string };
+type Banner = { id: string; title: string; subtitle: string | null; image_url: string | null; link_url: string | null; cta_label: string | null };
+type Broadcast = { id: string; title: string; body: string };
+type Membership = { id: string; name: string; price: number; duration_days: number; description: string | null };
 
 function Home() {
   const { state } = useUser();
