@@ -145,6 +145,45 @@ function Home() {
         </div>
       )}
 
+      {/* Admin-managed banners (auto rotate) */}
+      {banners.length > 0 && (() => {
+        const b = banners[bannerIdx % banners.length];
+        const inner = (
+          <div className="relative overflow-hidden rounded-2xl shadow-soft" style={{ minHeight: 120 }}>
+            {b.image_url ? (
+              <img src={b.image_url} alt={b.title} className="h-32 w-full object-cover" loading="lazy" />
+            ) : (
+              <div className="h-32 w-full bg-gradient-to-r from-primary via-secondary to-accent" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col justify-end text-white">
+              <div className="text-sm font-black leading-tight">{b.title}</div>
+              {b.subtitle && <div className="text-[11px] opacity-90 line-clamp-2">{b.subtitle}</div>}
+              {b.cta_label && <span className="mt-1 inline-block text-[11px] font-bold text-primary-foreground bg-primary/80 rounded px-2 py-0.5 w-fit">{b.cta_label}</span>}
+            </div>
+            {banners.length > 1 && (
+              <div className="absolute bottom-1 right-2 flex gap-1">
+                {banners.map((_, i) => <span key={i} className={`h-1.5 w-1.5 rounded-full ${i === bannerIdx ? "bg-white" : "bg-white/50"}`} />)}
+              </div>
+            )}
+          </div>
+        );
+        return <div className="mb-3">{b.link_url ? <a href={b.link_url} target="_blank" rel="noopener noreferrer">{inner}</a> : inner}</div>;
+      })()}
+
+      {/* Admin broadcasts / announcements */}
+      {broadcasts.length > 0 && (
+        <div className="mb-3 space-y-2">
+          {broadcasts.map((b) => (
+            <div key={b.id} className="rounded-2xl border border-primary/30 bg-primary/5 p-3 shadow-soft">
+              <div className="text-xs font-bold uppercase tracking-wider text-primary">📣 {b.title}</div>
+              <div className="mt-0.5 text-sm">{b.body}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+
+
       {/* Hero greeting */}
       <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
         <div>
