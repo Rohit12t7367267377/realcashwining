@@ -24,7 +24,10 @@ export const Route = createFileRoute("/")({
   component: Home,
 });
 
-type LiveContest = { id: string; title: string; entry_fee: number; first_prize: number; starts_at: string | null };
+type LiveContest = { id: string; title: string; entry_fee: number; first_prize: number; starts_at: string | null; ends_at?: string | null; results_status?: string };
+type Banner = { id: string; title: string; subtitle: string | null; image_url: string | null; link_url: string | null; cta_label: string | null };
+type Broadcast = { id: string; title: string; body: string };
+type Membership = { id: string; name: string; price: number; duration_days: number; description: string | null };
 
 function Home() {
   const { state } = useUser();
@@ -55,23 +58,62 @@ function Home() {
   });
 
   const [live, setLive] = useState<LiveContest[]>([]);
+  const [upcoming, setUpcoming] = useState<LiveContest[]>([]);
+  const [completed, setCompleted] = useState<LiveContest[]>([]);
+  const [banners, setBanners] = useState<Banner[]>([]);
+  const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
+  const [plans, setPlans] = useState<Membership[]>([]);
+  const [bannerIdx, setBannerIdx] = useState(0);
+
   useEffect(() => {
     if (!mounted) return;
     let cancelled = false;
+    const nowIso = () => new Date().toISOString();
     async function load() {
-      const { data } = await supabase
-        .from("contests")
-        .select("id, title, entry_fee, first_prize, starts_at")
-        .eq("active", true)
-        .eq("results_status", "pending")
-        .order("created_at", { ascending: false })
-        .limit(10);
-      if (!cancelled) setLive((data ?? []) as LiveContest[]);
+      const now = nowIso();
+      const [liveRes, upRes, doneRes, banRes, bcRes, memRes] = await Promise.all([
+        supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
+          .eq("active", true).eq("results_status", "pending")
+          .or(`starts_at.is.null,starts_at.lte.${now}`)
+          .order("created_at", { ascending: false }).limit(10),
+        supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
+          .eq("active", true).gt("starts_at", now)
+          .order("starts_at", { ascending: true }).limit(6),
+        supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
+          .eq("results_status", "declared")
+          .order("created_at", { ascending: false }).limit(4),
+        supabase.from("banners").select("id, title, subtitle, image_url, link_url, cta_label, starts_at, ends_at")
+          .eq("active", true).order("sort_order", { ascending: true }).limit(10),
+        supabase.from("broadcasts").select("id, title, body").eq("active", true)
+          .order("created_at", { ascending: false }).limit(3),
+        supabase.from("memberships").select("id, name, price, duration_days, description")
+          .eq("active", true).order("sort_order", { ascending: true }).limit(3),
+      ]);
+      if (cancelled) return;
+      setLive((liveRes.data ?? []) as LiveContest[]);
+      setUpcoming((upRes.data ?? []) as LiveContest[]);
+      setCompleted((doneRes.data ?? []) as LiveContest[]);
+      // Filter banners by date window
+      const bans = ((banRes.data ?? []) as any[]).filter((b) => {
+        if (b.starts_at && new Date(b.starts_at) > new Date()) return false;
+        if (b.ends_at && new Date(b.ends_at) < new Date()) return false;
+        return true;
+      });
+      setBanners(bans as Banner[]);
+      setBroadcasts((bcRes.data ?? []) as Broadcast[]);
+      setPlans((memRes.data ?? []) as Membership[]);
     }
     load();
-    const t = setInterval(load, 30_000);
+    const t = setInterval(load, 45_000);
     return () => { cancelled = true; clearInterval(t); };
   }, [mounted]);
+
+  // Banner auto-rotate
+  useEffect(() => {
+    if (banners.length < 2) return;
+    const t = setInterval(() => setBannerIdx((i) => (i + 1) % banners.length), 5000);
+    return () => clearInterval(t);
+  }, [banners.length]);
 
   if (!mounted || !state.loggedIn) {
     return <div className="min-h-screen bg-background"><Landing /></div>;
@@ -102,6 +144,45 @@ function Home() {
           <style>{`@keyframes marquee { from { transform: translateX(0);} to { transform: translateX(-50%);} }`}</style>
         </div>
       )}
+
+      {/* Admin-managed banners (auto rotate) */}
+      {banners.length > 0 && (() => {
+        const b = banners[bannerIdx % banners.length];
+        const inner = (
+          <div className="relative overflow-hidden rounded-2xl shadow-soft" style={{ minHeight: 120 }}>
+            {b.image_url ? (
+              <img src={b.image_url} alt={b.title} className="h-32 w-full object-cover" loading="lazy" />
+            ) : (
+              <div className="h-32 w-full bg-gradient-to-r from-primary via-secondary to-accent" />
+            )}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent p-3 flex flex-col justify-end text-white">
+              <div className="text-sm font-black leading-tight">{b.title}</div>
+              {b.subtitle && <div className="text-[11px] opacity-90 line-clamp-2">{b.subtitle}</div>}
+              {b.cta_label && <span className="mt-1 inline-block text-[11px] font-bold text-primary-foreground bg-primary/80 rounded px-2 py-0.5 w-fit">{b.cta_label}</span>}
+            </div>
+            {banners.length > 1 && (
+              <div className="absolute bottom-1 right-2 flex gap-1">
+                {banners.map((_, i) => <span key={i} className={`h-1.5 w-1.5 rounded-full ${i === bannerIdx ? "bg-white" : "bg-white/50"}`} />)}
+              </div>
+            )}
+          </div>
+        );
+        return <div className="mb-3">{b.link_url ? <a href={b.link_url} target="_blank" rel="noopener noreferrer">{inner}</a> : inner}</div>;
+      })()}
+
+      {/* Admin broadcasts / announcements */}
+      {broadcasts.length > 0 && (
+        <div className="mb-3 space-y-2">
+          {broadcasts.map((b) => (
+            <div key={b.id} className="rounded-2xl border border-primary/30 bg-primary/5 p-3 shadow-soft">
+              <div className="text-xs font-bold uppercase tracking-wider text-primary">📣 {b.title}</div>
+              <div className="mt-0.5 text-sm">{b.body}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
+
 
       {/* Hero greeting */}
       <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
@@ -175,6 +256,30 @@ function Home() {
         </div>
       </section>
 
+      {/* Upcoming contests */}
+      {upcoming.length > 0 && (
+        <section className="mt-6">
+          <SectionHeader title="⏰ Upcoming Contests" subtitle="Starting soon — set a reminder" />
+          <div className="mt-3 grid gap-2">
+            {upcoming.map((c) => (
+              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft hover:shadow-glow transition">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold">{c.title}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {c.starts_at && `Starts ${new Date(c.starts_at).toLocaleString()}`}
+                    {Number(c.entry_fee) > 0 ? ` · Entry ₹${c.entry_fee}` : " · FREE"}
+                    {Number(c.first_prize) > 0 && ` · 1st ₹${c.first_prize}`}
+                  </div>
+                </div>
+                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary">Upcoming</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+
+
       {/* AI Recommendations */}
       {recs?.enabled && recs.items && recs.items.length > 0 && (
         <section className="mt-6">
@@ -197,6 +302,64 @@ function Home() {
           </div>
         </section>
       )}
+
+      {/* Completed contests */}
+      {completed.length > 0 && (
+        <section className="mt-6">
+          <SectionHeader title="🏁 Recently Completed" subtitle="Results declared — see who won" />
+          <div className="mt-3 grid gap-2">
+            {completed.map((c) => (
+              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="flex items-center justify-between rounded-2xl bg-muted/40 p-3 shadow-soft hover:bg-muted/60 transition">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold">{c.title}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {Number(c.first_prize) > 0 && `1st Prize ₹${c.first_prize} · `}Results out
+                  </div>
+                </div>
+                <span className="shrink-0 rounded-full bg-success/15 px-2 py-1 text-[10px] font-bold text-success">Declared</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* VIP Plans */}
+      {plans.length > 0 && (
+        <section className="mt-6">
+          <SectionHeader title="👑 Premium Plans" subtitle="Unlock exclusive perks & higher prize pools" />
+          <div className="mt-3 grid gap-2">
+            {plans.map((p) => (
+              <Link key={p.id} to="/vip" className="flex items-center justify-between rounded-2xl border border-amber-300/40 bg-gradient-to-r from-amber-400/10 to-yellow-400/10 p-3 shadow-soft hover:shadow-glow transition">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold">{p.name}</div>
+                  {p.description && <div className="truncate text-[11px] text-muted-foreground">{p.description}</div>}
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className="text-sm font-black">₹{Number(p.price).toFixed(0)}</div>
+                  <div className="text-[10px] text-muted-foreground">/{p.duration_days}d</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Explore quick nav — all admin-managed feature pages */}
+      <section className="mt-6">
+        <SectionHeader title="Explore" subtitle="More features" />
+        <div className="mt-3 grid grid-cols-4 gap-2">
+          <Link to="/cricket" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🏏</span>Cricket</Link>
+          <Link to="/vip" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">👑</span>VIP</Link>
+          <Link to="/coupons" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🎟️</span>Coupons</Link>
+          <Link to="/books" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">📚</span>Library</Link>
+          <Link to="/kyc" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🪪</span>KYC</Link>
+          <Link to="/feedback" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">💬</span>Feedback</Link>
+          <Link to="/faq" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">❓</span>FAQ</Link>
+          <Link to="/support" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🛟</span>Support</Link>
+        </div>
+      </section>
+
+
 
       {/* Gamification quick links */}
       <section className="mt-4 grid grid-cols-4 gap-2">
