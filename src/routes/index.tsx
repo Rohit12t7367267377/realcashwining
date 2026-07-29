@@ -256,6 +256,30 @@ function Home() {
         </div>
       </section>
 
+      {/* Upcoming contests */}
+      {upcoming.length > 0 && (
+        <section className="mt-6">
+          <SectionHeader title="⏰ Upcoming Contests" subtitle="Starting soon — set a reminder" />
+          <div className="mt-3 grid gap-2">
+            {upcoming.map((c) => (
+              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft hover:shadow-glow transition">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold">{c.title}</div>
+                  <div className="text-[11px] text-muted-foreground">
+                    {c.starts_at && `Starts ${new Date(c.starts_at).toLocaleString()}`}
+                    {Number(c.entry_fee) > 0 ? ` · Entry ₹${c.entry_fee}` : " · FREE"}
+                    {Number(c.first_prize) > 0 && ` · 1st ₹${c.first_prize}`}
+                  </div>
+                </div>
+                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary">Upcoming</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+
+
       {/* AI Recommendations */}
       {recs?.enabled && recs.items && recs.items.length > 0 && (
         <section className="mt-6">
