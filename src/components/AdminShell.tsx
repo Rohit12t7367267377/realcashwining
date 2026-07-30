@@ -27,6 +27,8 @@ const NAV = [
   { to: "/admin/kyc", label: "KYC", icon: ShieldCheck },
   { to: "/admin/fraud", label: "Fraud & Anti-Cheat", icon: AlertTriangle },
   { to: "/admin/comments", label: "Moderation", icon: Eye },
+  { to: "/admin/community", label: "Community", icon: Users },
+
   { to: "/admin/books", label: "Books", icon: BookOpen },
   { to: "/admin/users", label: "Users & Wallets", icon: Users },
   { to: "/admin/roles", label: "Roles", icon: ShieldCheck },

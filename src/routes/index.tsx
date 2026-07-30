@@ -348,7 +348,9 @@ function Home() {
       <section className="mt-6">
         <SectionHeader title="Explore" subtitle="More features" />
         <div className="mt-3 grid grid-cols-4 gap-2">
+          <Link to="/community" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">👥</span>Community</Link>
           <Link to="/cricket" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🏏</span>Cricket</Link>
+
           <Link to="/vip" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">👑</span>VIP</Link>
           <Link to="/coupons" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🎟️</span>Coupons</Link>
           <Link to="/books" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">📚</span>Library</Link>
