@@ -127,3 +127,32 @@ export const adminHideComment = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+// Community moderation
+export const adminSetPostHidden = createServerFn({ method: "POST" })
+  .middleware([requireAdminPassword])
+  .inputValidator((d) => z.object({ id: z.string().uuid(), hidden: z.boolean() }).parse(d))
+  .handler(async ({ data }) => {
+    const { error } = await (supabaseAdmin as any).from("community_posts").update({ hidden: data.hidden }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminDeletePost = createServerFn({ method: "POST" })
+  .middleware([requireAdminPassword])
+  .inputValidator((d) => z.object({ id: z.string().uuid() }).parse(d))
+  .handler(async ({ data }) => {
+    const { error } = await (supabaseAdmin as any).from("community_posts").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const adminSetPostCommentHidden = createServerFn({ method: "POST" })
+  .middleware([requireAdminPassword])
+  .inputValidator((d) => z.object({ id: z.string().uuid(), hidden: z.boolean() }).parse(d))
+  .handler(async ({ data }) => {
+    const { error } = await (supabaseAdmin as any).from("post_comments").update({ hidden: data.hidden }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+

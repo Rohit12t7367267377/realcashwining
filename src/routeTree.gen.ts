@@ -28,6 +28,7 @@ import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as CricketRouteImport } from './routes/cricket'
 import { Route as CouponsRouteImport } from './routes/coupons'
+import { Route as CommunityRouteImport } from './routes/community'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
@@ -57,6 +58,7 @@ import { Route as AdminEventsRouteImport } from './routes/admin.events'
 import { Route as AdminCricketRouteImport } from './routes/admin.cricket'
 import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
+import { Route as AdminCommunityRouteImport } from './routes/admin.community'
 import { Route as AdminCommentsRouteImport } from './routes/admin.comments'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminBroadcastsRouteImport } from './routes/admin.broadcasts'
@@ -158,6 +160,11 @@ const CricketRoute = CricketRouteImport.update({
 const CouponsRoute = CouponsRouteImport.update({
   id: '/coupons',
   path: '/coupons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BooksRoute = BooksRouteImport.update({
@@ -305,6 +312,11 @@ const AdminContestsRoute = AdminContestsRouteImport.update({
   path: '/contests',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCommunityRoute = AdminCommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCommentsRoute = AdminCommentsRouteImport.update({
   id: '/comments',
   path: '/comments',
@@ -347,6 +359,7 @@ export interface FileRoutesByFullPath {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/community': typeof CommunityRoute
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -373,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/admin/broadcasts': typeof AdminBroadcastsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/cricket': typeof AdminCricketRoute
@@ -403,6 +417,7 @@ export interface FileRoutesByTo {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/community': typeof CommunityRoute
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -429,6 +444,7 @@ export interface FileRoutesByTo {
   '/admin/broadcasts': typeof AdminBroadcastsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/cricket': typeof AdminCricketRoute
@@ -461,6 +477,7 @@ export interface FileRoutesById {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
+  '/community': typeof CommunityRoute
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -487,6 +504,7 @@ export interface FileRoutesById {
   '/admin/broadcasts': typeof AdminBroadcastsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
+  '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
   '/admin/cricket': typeof AdminCricketRoute
@@ -520,6 +538,7 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/auth'
     | '/books'
+    | '/community'
     | '/coupons'
     | '/cricket'
     | '/events'
@@ -546,6 +565,7 @@ export interface FileRouteTypes {
     | '/admin/broadcasts'
     | '/admin/categories'
     | '/admin/comments'
+    | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
     | '/admin/cricket'
@@ -576,6 +596,7 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/auth'
     | '/books'
+    | '/community'
     | '/coupons'
     | '/cricket'
     | '/events'
@@ -602,6 +623,7 @@ export interface FileRouteTypes {
     | '/admin/broadcasts'
     | '/admin/categories'
     | '/admin/comments'
+    | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
     | '/admin/cricket'
@@ -633,6 +655,7 @@ export interface FileRouteTypes {
     | '/ai-tutor'
     | '/auth'
     | '/books'
+    | '/community'
     | '/coupons'
     | '/cricket'
     | '/events'
@@ -659,6 +682,7 @@ export interface FileRouteTypes {
     | '/admin/broadcasts'
     | '/admin/categories'
     | '/admin/comments'
+    | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
     | '/admin/cricket'
@@ -691,6 +715,7 @@ export interface RootRouteChildren {
   AiTutorRoute: typeof AiTutorRoute
   AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRoute
+  CommunityRoute: typeof CommunityRoute
   CouponsRoute: typeof CouponsRoute
   CricketRoute: typeof CricketRoute
   EventsRoute: typeof EventsRoute
@@ -849,6 +874,13 @@ declare module '@tanstack/react-router' {
       path: '/coupons'
       fullPath: '/coupons'
       preLoaderRoute: typeof CouponsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/books': {
@@ -1054,6 +1086,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminContestsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/community': {
+      id: '/admin/community'
+      path: '/community'
+      fullPath: '/admin/community'
+      preLoaderRoute: typeof AdminCommunityRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/comments': {
       id: '/admin/comments'
       path: '/comments'
@@ -1114,6 +1153,7 @@ interface AdminRouteChildren {
   AdminBroadcastsRoute: typeof AdminBroadcastsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
+  AdminCommunityRoute: typeof AdminCommunityRoute
   AdminContestsRoute: typeof AdminContestsRoute
   AdminCouponsRoute: typeof AdminCouponsRoute
   AdminCricketRoute: typeof AdminCricketRoute
@@ -1143,6 +1183,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBroadcastsRoute: AdminBroadcastsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminCommentsRoute: AdminCommentsRoute,
+  AdminCommunityRoute: AdminCommunityRoute,
   AdminContestsRoute: AdminContestsRoute,
   AdminCouponsRoute: AdminCouponsRoute,
   AdminCricketRoute: AdminCricketRoute,
@@ -1183,6 +1224,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiTutorRoute: AiTutorRoute,
   AuthRoute: AuthRoute,
   BooksRoute: BooksRoute,
+  CommunityRoute: CommunityRoute,
   CouponsRoute: CouponsRoute,
   CricketRoute: CricketRoute,
   EventsRoute: EventsRoute,

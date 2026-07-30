@@ -262,6 +262,45 @@ export type Database = {
         }
         Relationships: []
       }
+      community_posts: {
+        Row: {
+          body: string
+          comment_count: number
+          created_at: string
+          hidden: boolean
+          id: string
+          like_count: number
+          media_type: string | null
+          media_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          body?: string
+          comment_count?: number
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          like_count?: number
+          media_type?: string | null
+          media_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          comment_count?: number
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          like_count?: number
+          media_type?: string | null
+          media_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       contest_attempts: {
         Row: {
           answers: Json | null
@@ -961,6 +1000,67 @@ export type Database = {
         }
         Relationships: []
       }
+      post_comments: {
+        Row: {
+          body: string
+          created_at: string
+          hidden: boolean
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          hidden?: boolean
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           banned: boolean
@@ -1386,6 +1486,7 @@ export type Database = {
         Args: { _book_id: string }
         Returns: undefined
       }
+      is_mutual_follow: { Args: { _a: string; _b: string }; Returns: boolean }
       join_contest: {
         Args: { _contest_id: string }
         Returns: {
