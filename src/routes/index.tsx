@@ -218,6 +218,75 @@ function Home() {
         </div>
       </section>
 
+      {/* Level · XP progress · today's mission preview */}
+      <section className="mt-3 surface p-4">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Your progress</div>
+            <div className="truncate text-base font-black">
+              {xp?.rankTitle ?? "Bronze"} · Level {xp?.level ?? 1}
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {xp?.xp ?? 0} XP · {xp?.boxesEarned ?? 0} reward boxes
+            </div>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <Link to="/missions" className="press flex items-center gap-1 rounded-xl bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+              <Zap className="h-3.5 w-3.5" /> Missions
+            </Link>
+            <Link to="/rewards" className="press flex items-center gap-1 rounded-xl bg-secondary/10 px-3 py-2 text-xs font-bold text-secondary">
+              <Gift className="h-3.5 w-3.5" /> Claim
+            </Link>
+          </div>
+        </div>
+        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-gradient-primary transition-all duration-500" style={{ width: `${Math.round((xp?.progress ?? 0) * 100)}%` }} />
+        </div>
+      </section>
+
+      {/* Featured contest */}
+      {featured && (
+        <section className="mt-3 overflow-hidden rounded-3xl bg-gradient-primary p-5 text-primary-foreground shadow-lift animate-rise-in">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
+            <Sparkles className="h-3.5 w-3.5" /> Featured contest
+          </div>
+          <h2 className="mt-1 text-xl font-black leading-tight">{featured.title}</h2>
+          <div className="mt-1 text-sm opacity-90">
+            {Number(featured.entry_fee) > 0 ? `Entry ₹${featured.entry_fee}` : "FREE entry"}
+            {Number(featured.first_prize) > 0 && ` · 1st prize ₹${featured.first_prize}`}
+          </div>
+          <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <div className="flex min-w-0 items-center gap-1.5 rounded-xl bg-white/15 px-3 py-2 text-xs font-bold backdrop-blur">
+              <Timer className="h-3.5 w-3.5 shrink-0" />
+              <Countdown target={featured.ends_at ?? featured.starts_at ?? null} />
+            </div>
+            <Link to="/contest/$id" params={{ id: featured.id }} className="shrink-0">
+              <Button size="lg" className="press h-11 bg-white font-black text-primary hover:bg-white/90">
+                Join Now
+              </Button>
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* Continue playing */}
+      {inProgress.length > 0 && (
+        <section className="mt-3">
+          <SectionHeader title="▶️ Continue Playing" subtitle="Pick up where you left off" />
+          <div className="mt-3 grid gap-2">
+            {inProgress.slice(0, 3).map((h) => (
+              <Link key={h.id} to="/contest/$id" params={{ id: h.contestId }} className="card-lift flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold">{h.title}</div>
+                  <div className="text-[11px] text-muted-foreground">In progress · Score {h.score}</div>
+                </div>
+                <PlayCircle className="h-6 w-6 shrink-0 text-primary" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Live scores quick link */}
       <Link to="/live-scores" className="mt-3 block rounded-2xl border border-destructive/30 bg-gradient-card px-4 py-3 shadow-soft hover:shadow-glow transition">
         <div className="flex items-center justify-between">
