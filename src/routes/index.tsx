@@ -73,6 +73,7 @@ function Home() {
     staleTime: 60_000,
   });
 
+  const [live, setLive] = useState<LiveContest[]>([]);
   const [upcoming, setUpcoming] = useState<LiveContest[]>([]);
   const [completed, setCompleted] = useState<LiveContest[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
