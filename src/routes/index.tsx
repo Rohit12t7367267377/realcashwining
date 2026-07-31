@@ -492,6 +492,28 @@ function Home() {
         <span className="text-xs text-primary">View →</span>
       </Link>
 
+      {/* Latest winners */}
+      {winnerRows.length > 0 && (
+        <section className="mt-6">
+          <SectionHeader title="🏆 Latest Winners" subtitle="Declared by admin" />
+          <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
+            {winnerRows.map((w) => (
+              <div key={w.attempt_id} className="card-lift min-w-[9.5rem] shrink-0 rounded-2xl bg-gradient-gold p-3 text-amber-950 shadow-soft">
+                <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest">
+                  <Crown className="h-3.5 w-3.5" /> Rank #{w.rank}
+                </div>
+                <div className="mt-1 truncate text-sm font-black">{w.name}</div>
+                <div className="truncate text-[10px] opacity-80">{w.contest_title}</div>
+                <div className="mt-1 text-lg font-black">₹{w.prize.toFixed(0)}</div>
+              </div>
+            ))}
+          </div>
+          <Link to="/leaderboard" className="mt-1 block text-center text-xs font-bold text-primary hover:underline">
+            View full leaderboard →
+          </Link>
+        </section>
+      )}
+
       {/* Promo */}
       <section className="mt-6 rounded-2xl bg-gradient-success p-4 text-success-foreground shadow-soft">
         <div className="flex items-center justify-between">
