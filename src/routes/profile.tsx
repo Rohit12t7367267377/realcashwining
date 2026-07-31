@@ -7,7 +7,7 @@ import { useUser } from "@/lib/user-store";
 import { getMyContestStats } from "@/lib/stats.functions";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyXp } from "@/lib/gamification.functions";
-import { LogOut, Trophy, Target, Award, Phone, Hash, History, LifeBuoy, FileText, BookOpen, Zap, Gift } from "lucide-react";
+import { LogOut, Trophy, Target, Award, Phone, Hash, History, LifeBuoy, FileText, BookOpen, Zap, Gift, Users, HelpCircle, MessageSquare } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profile")({
@@ -56,6 +56,9 @@ function ProfilePage() {
   const winRate = played ? Math.round((wins / played) * 100) : 0;
   const initials = state.name.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
   const history = stats?.history ?? [];
+  const highestWin = history.reduce((max, h) => Math.max(max, Number(h.prize ?? 0)), 0);
+  const ranked = history.map((h) => Number(h.rank ?? 0)).filter((r) => r > 0);
+  const bestRank = ranked.length ? Math.min(...ranked) : 0;
 
   return (
     <AppShell>
@@ -81,6 +84,25 @@ function ProfilePage() {
         <Stat icon={<Trophy />} label="Wins" value={wins} />
         <Stat icon={<Target />} label="Played" value={played} />
         <Stat icon={<Award />} label="Win %" value={`${winRate}%`} />
+      </section>
+
+      <section className="mt-3 grid grid-cols-2 gap-3">
+        <div className="surface p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Total earnings</div>
+          <div className="text-lg font-black">₹{won.toFixed(0)}</div>
+        </div>
+        <div className="surface p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Best rank</div>
+          <div className="text-lg font-black">{bestRank ? `#${bestRank}` : "—"}</div>
+        </div>
+        <div className="surface p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Highest win</div>
+          <div className="text-lg font-black">₹{highestWin.toFixed(0)}</div>
+        </div>
+        <div className="surface p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Losses</div>
+          <div className="text-lg font-black">{Math.max(played - wins, 0)}</div>
+        </div>
       </section>
 
       {/* XP / Level card */}
@@ -130,17 +152,61 @@ function ProfilePage() {
         </div>
       </section>
 
-      <div className="mt-6 grid grid-cols-3 gap-2">
-        <Link to="/books" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
-          <BookOpen className="h-5 w-5 text-primary" /> Books
+      {/* Social hub */}
+      <section className="mt-6">
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Social</h2>
+        <Link to="/community" className="card-lift flex items-center justify-between rounded-2xl bg-gradient-card p-4 shadow-soft">
+          <div className="flex items-center gap-3">
+            <Users className="h-5 w-5 text-primary" />
+            <div>
+              <div className="text-sm font-bold">Community</div>
+              <div className="text-[11px] text-muted-foreground">Posts, friends, follows & discussions</div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-primary">Open →</span>
         </Link>
-        <Link to="/support" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
-          <LifeBuoy className="h-5 w-5 text-primary" /> Support
-        </Link>
-        <Link to="/terms" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
-          <FileText className="h-5 w-5 text-primary" /> Terms
-        </Link>
-      </div>
+      </section>
+
+      {/* Everything else */}
+      <section className="mt-6">
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">More</h2>
+        <div className="grid grid-cols-4 gap-2">
+          <QuickLink to="/refer" emoji="🎁" label="Refer" />
+          <QuickLink to="/missions" emoji="🎯" label="Missions" />
+          <QuickLink to="/rewards" emoji="🎉" label="Rewards" />
+          <QuickLink to="/wallet" emoji="💰" label="Wallet" />
+          <QuickLink to="/hall-of-fame" emoji="👑" label="Hall of Fame" />
+          <QuickLink to="/events" emoji="✨" label="Events" />
+          <QuickLink to="/vip" emoji="⭐" label="VIP" />
+          <QuickLink to="/coupons" emoji="🎟️" label="Coupons" />
+          <QuickLink to="/kyc" emoji="🪪" label="KYC" />
+          <QuickLink to="/ai-tutor" emoji="🤖" label="AI Tutor" />
+          <QuickLink to="/cricket" emoji="🏏" label="Cricket" />
+          <QuickLink to="/live-scores" emoji="⚡" label="Scores" />
+        </div>
+      </section>
+
+      <section className="mt-4">
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Help & Settings</h2>
+        <div className="grid grid-cols-4 gap-2">
+          <Link to="/books" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <BookOpen className="h-5 w-5 text-primary" /> Books
+          </Link>
+          <Link to="/support" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <LifeBuoy className="h-5 w-5 text-primary" /> Support
+          </Link>
+          <Link to="/faq" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <HelpCircle className="h-5 w-5 text-primary" /> FAQ
+          </Link>
+          <Link to="/terms" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <FileText className="h-5 w-5 text-primary" /> Terms
+          </Link>
+          <Link to="/feedback" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <MessageSquare className="h-5 w-5 text-primary" /> Feedback
+          </Link>
+        </div>
+      </section>
+
 
       <Button
         onClick={() => { logout(); nav({ to: "/" }); }}
@@ -150,6 +216,15 @@ function ProfilePage() {
         <LogOut className="mr-2 h-4 w-4" /> Logout
       </Button>
     </AppShell>
+  );
+}
+
+function QuickLink({ to, emoji, label }: { to: React.ComponentProps<typeof Link>["to"]; emoji: string; label: string }) {
+  return (
+    <Link to={to} className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-[11px] font-bold shadow-soft">
+      <span className="text-2xl leading-none">{emoji}</span>
+      {label}
+    </Link>
   );
 }
 

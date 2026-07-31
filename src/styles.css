@@ -154,3 +154,41 @@
   100% { box-shadow: 0 0 0 0 oklch(0.68 0.22 18 / 0); }
 }
 .animate-pulse-ring { animation: pulse-ring 2s infinite; }
+
+/* ---- Premium UI micro-interaction utilities (presentation only) ---- */
+@utility press {
+  transition: transform 140ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 200ms ease;
+  &:active { transform: scale(0.97); }
+}
+@utility card-lift {
+  transition: transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 200ms ease;
+  &:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift); }
+  &:active { transform: scale(0.985); }
+}
+@utility glass {
+  background-color: color-mix(in oklab, var(--card) 65%, transparent);
+  backdrop-filter: blur(16px) saturate(140%);
+  border: 1px solid color-mix(in oklab, var(--border) 70%, transparent);
+}
+@utility surface {
+  border-radius: var(--radius-2xl);
+  background-image: var(--gradient-card);
+  box-shadow: var(--shadow-soft);
+  border: 1px solid color-mix(in oklab, var(--border) 60%, transparent);
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-rise-in { animation: rise-in 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+
+@keyframes shine {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.animate-shine {
+  background-image: linear-gradient(100deg, transparent 35%, color-mix(in oklab, var(--card) 45%, white) 50%, transparent 65%);
+  background-size: 200% 100%;
+  animation: shine 1.6s linear infinite;
+}

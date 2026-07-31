@@ -35,22 +35,25 @@ export function AppHeader() {
     (n) => !lastSeen || new Date(n.created_at).getTime() > new Date(lastSeen).getTime(),
   ).length;
 
+  const initials = (user?.email ?? "P").slice(0, 2).toUpperCase();
+
   return (
-    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur">
-      <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-3">
-        <Link to="/" className="flex items-center gap-2">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground font-black shadow-glow">
+    <header className="sticky top-0 z-30 border-b border-border/60 glass">
+      <div className="mx-auto grid max-w-2xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5">
+        <Link to="/" className="press flex min-w-0 items-center gap-2">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground font-black shadow-glow">
             ₹
           </span>
-          <div className="leading-tight">
-            <div className="text-sm font-bold tracking-tight">Cash Winning</div>
+          <div className="min-w-0 leading-tight">
+            <div className="truncate text-sm font-bold tracking-tight">Cash Winning</div>
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">League</div>
           </div>
         </Link>
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-1.5">
           <Link
             to="/wallet"
-            className="flex items-center gap-1.5 rounded-full bg-gradient-gold px-3 py-1.5 text-sm font-bold text-amber-950 shadow-soft"
+            aria-label="Wallet balance"
+            className="press flex items-center gap-1.5 rounded-full bg-gradient-gold px-3 py-1.5 text-sm font-black text-amber-950 shadow-soft"
           >
             <Coins className="h-3.5 w-3.5" />
             ₹{balance.toFixed(0)}
@@ -58,14 +61,14 @@ export function AppHeader() {
           <Link
             to="/search"
             aria-label="Search"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/70"
+            className="press flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/70"
           >
             <Search className="h-4 w-4" />
           </Link>
           <Link
             to="/notifications"
             aria-label="Notifications"
-            className="relative flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/70"
+            className="press relative flex h-9 w-9 items-center justify-center rounded-full bg-muted text-foreground hover:bg-muted/70"
           >
             <Bell className="h-4 w-4" />
             {unread > 0 && (
@@ -73,6 +76,13 @@ export function AppHeader() {
                 {unread > 9 ? "9+" : unread}
               </span>
             )}
+          </Link>
+          <Link
+            to="/profile"
+            aria-label="Profile"
+            className="press flex h-9 w-9 items-center justify-center rounded-full bg-gradient-primary text-[11px] font-black text-primary-foreground shadow-soft"
+          >
+            {initials}
           </Link>
         </div>
       </div>

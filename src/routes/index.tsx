@@ -8,9 +8,11 @@ import { useUser } from "@/lib/user-store";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyContestStats } from "@/lib/stats.functions";
 import { aiRecommendContests } from "@/lib/ai.functions";
+import { getMyXp } from "@/lib/gamification.functions";
+import { getWinnersLeaderboard } from "@/lib/stats.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, Sparkles, Bot } from "lucide-react";
+import { Flame, Trophy, Sparkles, Bot, Zap, Gift, Timer, Crown, PlayCircle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -55,6 +57,20 @@ function Home() {
     enabled: mounted && state.loggedIn,
     staleTime: 5 * 60_000,
     retry: false,
+  });
+  const fetchXp = useServerFn(getMyXp);
+  const { data: xp } = useQuery({
+    queryKey: ["my-xp"],
+    queryFn: () => fetchXp(),
+    enabled: mounted && state.loggedIn,
+    staleTime: 30_000,
+  });
+  const fetchWinners = useServerFn(getWinnersLeaderboard);
+  const { data: latestWinners } = useQuery({
+    queryKey: ["leaderboard-winners"],
+    queryFn: () => fetchWinners(),
+    enabled: mounted,
+    staleTime: 60_000,
   });
 
   const [live, setLive] = useState<LiveContest[]>([]);
@@ -122,6 +138,10 @@ function Home() {
   const balance = Number(wallet?.balance ?? 0);
   const won = Number(stats?.totalWon ?? 0);
   const played = Number(stats?.played ?? 0);
+  const history = stats?.history ?? [];
+  const inProgress = history.filter((h) => h.status === "in_progress");
+  const featured = live[0];
+  const winnerRows = (latestWinners ?? []).slice(0, 5);
 
   return (
     <AppShell>
@@ -197,6 +217,75 @@ function Home() {
           <Stat label="Played" value={String(played)} />
         </div>
       </section>
+
+      {/* Level · XP progress · today's mission preview */}
+      <section className="mt-3 surface p-4">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="min-w-0">
+            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Your progress</div>
+            <div className="truncate text-base font-black">
+              {xp?.rankTitle ?? "Bronze"} · Level {xp?.level ?? 1}
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {xp?.xp ?? 0} XP · {xp?.boxesEarned ?? 0} reward boxes
+            </div>
+          </div>
+          <div className="flex shrink-0 gap-2">
+            <Link to="/missions" className="press flex items-center gap-1 rounded-xl bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
+              <Zap className="h-3.5 w-3.5" /> Missions
+            </Link>
+            <Link to="/rewards" className="press flex items-center gap-1 rounded-xl bg-secondary/10 px-3 py-2 text-xs font-bold text-secondary">
+              <Gift className="h-3.5 w-3.5" /> Claim
+            </Link>
+          </div>
+        </div>
+        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
+          <div className="h-full rounded-full bg-gradient-primary transition-all duration-500" style={{ width: `${Math.round((xp?.progress ?? 0) * 100)}%` }} />
+        </div>
+      </section>
+
+      {/* Featured contest */}
+      {featured && (
+        <section className="mt-3 overflow-hidden rounded-3xl bg-gradient-primary p-5 text-primary-foreground shadow-lift animate-rise-in">
+          <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
+            <Sparkles className="h-3.5 w-3.5" /> Featured contest
+          </div>
+          <h2 className="mt-1 text-xl font-black leading-tight">{featured.title}</h2>
+          <div className="mt-1 text-sm opacity-90">
+            {Number(featured.entry_fee) > 0 ? `Entry ₹${featured.entry_fee}` : "FREE entry"}
+            {Number(featured.first_prize) > 0 && ` · 1st prize ₹${featured.first_prize}`}
+          </div>
+          <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+            <div className="flex min-w-0 items-center gap-1.5 rounded-xl bg-white/15 px-3 py-2 text-xs font-bold backdrop-blur">
+              <Timer className="h-3.5 w-3.5 shrink-0" />
+              <Countdown target={featured.ends_at ?? featured.starts_at ?? null} />
+            </div>
+            <Link to="/contest/$id" params={{ id: featured.id }} className="shrink-0">
+              <Button size="lg" className="press h-11 bg-white font-black text-primary hover:bg-white/90">
+                Join Now
+              </Button>
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* Continue playing */}
+      {inProgress.length > 0 && (
+        <section className="mt-3">
+          <SectionHeader title="▶️ Continue Playing" subtitle="Pick up where you left off" />
+          <div className="mt-3 grid gap-2">
+            {inProgress.slice(0, 3).map((h) => (
+              <Link key={h.id} to="/contest/$id" params={{ id: h.contestId }} className="card-lift flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-bold">{h.title}</div>
+                  <div className="text-[11px] text-muted-foreground">In progress · Score {h.score}</div>
+                </div>
+                <PlayCircle className="h-6 w-6 shrink-0 text-primary" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Live scores quick link */}
       <Link to="/live-scores" className="mt-3 block rounded-2xl border border-destructive/30 bg-gradient-card px-4 py-3 shadow-soft hover:shadow-glow transition">
@@ -403,6 +492,28 @@ function Home() {
         <span className="text-xs text-primary">View →</span>
       </Link>
 
+      {/* Latest winners */}
+      {winnerRows.length > 0 && (
+        <section className="mt-6">
+          <SectionHeader title="🏆 Latest Winners" subtitle="Declared by admin" />
+          <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
+            {winnerRows.map((w) => (
+              <div key={w.attempt_id} className="card-lift min-w-[9.5rem] shrink-0 rounded-2xl bg-gradient-gold p-3 text-amber-950 shadow-soft">
+                <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest">
+                  <Crown className="h-3.5 w-3.5" /> Rank #{w.rank}
+                </div>
+                <div className="mt-1 truncate text-sm font-black">{w.name}</div>
+                <div className="truncate text-[10px] opacity-80">{w.contest_title}</div>
+                <div className="mt-1 text-lg font-black">₹{w.prize.toFixed(0)}</div>
+              </div>
+            ))}
+          </div>
+          <Link to="/leaderboard" className="mt-1 block text-center text-xs font-bold text-primary hover:underline">
+            View full leaderboard →
+          </Link>
+        </section>
+      )}
+
       {/* Promo */}
       <section className="mt-6 rounded-2xl bg-gradient-success p-4 text-success-foreground shadow-soft">
         <div className="flex items-center justify-between">
@@ -414,6 +525,28 @@ function Home() {
         </div>
       </section>
     </AppShell>
+  );
+}
+
+function Countdown({ target }: { target: string | null }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  if (!target) return <span className="truncate">Live now</span>;
+  const diff = new Date(target).getTime() - now;
+  if (!Number.isFinite(diff) || diff <= 0) return <span className="truncate">Live now</span>;
+  const s = Math.floor(diff / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return (
+    <span className="truncate tabular-nums">
+      {d > 0 ? `${d}d ` : ""}
+      {String(h).padStart(2, "0")}:{String(m).padStart(2, "0")}:{String(sec).padStart(2, "0")} left
+    </span>
   );
 }
 
