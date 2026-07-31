@@ -8,9 +8,11 @@ import { useUser } from "@/lib/user-store";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyContestStats } from "@/lib/stats.functions";
 import { aiRecommendContests } from "@/lib/ai.functions";
+import { getMyXp } from "@/lib/gamification.functions";
+import { getWinnersLeaderboard } from "@/lib/stats.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, Sparkles, Bot } from "lucide-react";
+import { Flame, Trophy, Sparkles, Bot, Zap, Gift, Timer, Crown, PlayCircle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
