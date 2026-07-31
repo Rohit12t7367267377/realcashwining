@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, Megaphone, Trophy, Wallet, Gift, Target, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { listMyNotifications, type AppNotification } from "@/lib/notifications.functions";
 import { useAuthSession } from "@/hooks/use-auth-session";
-
-export const LAST_SEEN_KEY = "cwl_notifications_last_seen";
+import { LAST_SEEN_KEY } from "@/lib/notifications-seen";
 
 export const Route = createFileRoute("/notifications")({
   ssr: false,

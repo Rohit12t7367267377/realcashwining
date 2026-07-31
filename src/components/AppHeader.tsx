@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { listMyNotifications } from "@/lib/notifications.functions";
-import { LAST_SEEN_KEY } from "@/routes/notifications";
+import { LAST_SEEN_KEY } from "@/lib/notifications-seen";
 import { useAuthSession } from "@/hooks/use-auth-session";
 
 export function AppHeader() {
