@@ -528,6 +528,28 @@ function Home() {
   );
 }
 
+function Countdown({ target }: { target: string | null }) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  if (!target) return <span className="truncate">Live now</span>;
+  const diff = new Date(target).getTime() - now;
+  if (!Number.isFinite(diff) || diff <= 0) return <span className="truncate">Live now</span>;
+  const s = Math.floor(diff / 1000);
+  const d = Math.floor(s / 86400);
+  const h = Math.floor((s % 86400) / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  return (
+    <span className="truncate tabular-nums">
+      {d > 0 ? `${d}d ` : ""}
+      {String(h).padStart(2, "0")}:{String(m).padStart(2, "0")}:{String(sec).padStart(2, "0")} left
+    </span>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
