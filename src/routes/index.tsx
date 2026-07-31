@@ -58,8 +58,21 @@ function Home() {
     staleTime: 5 * 60_000,
     retry: false,
   });
+  const fetchXp = useServerFn(getMyXp);
+  const { data: xp } = useQuery({
+    queryKey: ["my-xp"],
+    queryFn: () => fetchXp(),
+    enabled: mounted && state.loggedIn,
+    staleTime: 30_000,
+  });
+  const fetchWinners = useServerFn(getWinnersLeaderboard);
+  const { data: latestWinners } = useQuery({
+    queryKey: ["leaderboard-winners"],
+    queryFn: () => fetchWinners(),
+    enabled: mounted,
+    staleTime: 60_000,
+  });
 
-  const [live, setLive] = useState<LiveContest[]>([]);
   const [upcoming, setUpcoming] = useState<LiveContest[]>([]);
   const [completed, setCompleted] = useState<LiveContest[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
