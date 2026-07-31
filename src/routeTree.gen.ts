@@ -17,6 +17,7 @@ import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MissionsRouteImport } from './routes/missions'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LiveScoresRouteImport } from './routes/live-scores'
@@ -105,6 +106,11 @@ const ReferRoute = ReferRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MissionsRoute = MissionsRouteImport.update({
@@ -371,6 +377,7 @@ export interface FileRoutesByFullPath {
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -429,6 +436,7 @@ export interface FileRoutesByTo {
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -489,6 +497,7 @@ export interface FileRoutesById {
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -550,6 +559,7 @@ export interface FileRouteTypes {
     | '/live-scores'
     | '/login'
     | '/missions'
+    | '/notifications'
     | '/profile'
     | '/refer'
     | '/reset-password'
@@ -608,6 +618,7 @@ export interface FileRouteTypes {
     | '/live-scores'
     | '/login'
     | '/missions'
+    | '/notifications'
     | '/profile'
     | '/refer'
     | '/reset-password'
@@ -667,6 +678,7 @@ export interface FileRouteTypes {
     | '/live-scores'
     | '/login'
     | '/missions'
+    | '/notifications'
     | '/profile'
     | '/refer'
     | '/reset-password'
@@ -727,6 +739,7 @@ export interface RootRouteChildren {
   LiveScoresRoute: typeof LiveScoresRoute
   LoginRoute: typeof LoginRoute
   MissionsRoute: typeof MissionsRoute
+  NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -797,6 +810,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/missions': {
@@ -1236,6 +1256,7 @@ const rootRouteChildren: RootRouteChildren = {
   LiveScoresRoute: LiveScoresRoute,
   LoginRoute: LoginRoute,
   MissionsRoute: MissionsRoute,
+  NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -1252,13 +1273,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
