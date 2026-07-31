@@ -56,6 +56,9 @@ function ProfilePage() {
   const winRate = played ? Math.round((wins / played) * 100) : 0;
   const initials = state.name.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
   const history = stats?.history ?? [];
+  const highestWin = history.reduce((max, h) => Math.max(max, Number(h.prize ?? 0)), 0);
+  const ranked = history.map((h) => Number(h.rank ?? 0)).filter((r) => r > 0);
+  const bestRank = ranked.length ? Math.min(...ranked) : 0;
 
   return (
     <AppShell>
