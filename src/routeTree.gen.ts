@@ -13,10 +13,12 @@ import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as VipRouteImport } from './routes/vip'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as SearchRouteImport } from './routes/search'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MissionsRouteImport } from './routes/missions'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LiveScoresRouteImport } from './routes/live-scores'
@@ -87,6 +89,11 @@ const SupportRoute = SupportRouteImport.update({
   path: '/support',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RewardsRoute = RewardsRouteImport.update({
   id: '/rewards',
   path: '/rewards',
@@ -105,6 +112,11 @@ const ReferRoute = ReferRouteImport.update({
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MissionsRoute = MissionsRouteImport.update({
@@ -371,10 +383,12 @@ export interface FileRoutesByFullPath {
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
+  '/search': typeof SearchRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
@@ -429,10 +443,12 @@ export interface FileRoutesByTo {
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
+  '/search': typeof SearchRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
@@ -489,10 +505,12 @@ export interface FileRoutesById {
   '/live-scores': typeof LiveScoresRoute
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
+  '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
+  '/search': typeof SearchRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
@@ -550,10 +568,12 @@ export interface FileRouteTypes {
     | '/live-scores'
     | '/login'
     | '/missions'
+    | '/notifications'
     | '/profile'
     | '/refer'
     | '/reset-password'
     | '/rewards'
+    | '/search'
     | '/support'
     | '/terms'
     | '/vip'
@@ -608,10 +628,12 @@ export interface FileRouteTypes {
     | '/live-scores'
     | '/login'
     | '/missions'
+    | '/notifications'
     | '/profile'
     | '/refer'
     | '/reset-password'
     | '/rewards'
+    | '/search'
     | '/support'
     | '/terms'
     | '/vip'
@@ -667,10 +689,12 @@ export interface FileRouteTypes {
     | '/live-scores'
     | '/login'
     | '/missions'
+    | '/notifications'
     | '/profile'
     | '/refer'
     | '/reset-password'
     | '/rewards'
+    | '/search'
     | '/support'
     | '/terms'
     | '/vip'
@@ -727,10 +751,12 @@ export interface RootRouteChildren {
   LiveScoresRoute: typeof LiveScoresRoute
   LoginRoute: typeof LoginRoute
   MissionsRoute: typeof MissionsRoute
+  NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
+  SearchRoute: typeof SearchRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   VipRoute: typeof VipRoute
@@ -771,6 +797,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SupportRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/rewards': {
       id: '/rewards'
       path: '/rewards'
@@ -797,6 +830,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/missions': {
@@ -1236,10 +1276,12 @@ const rootRouteChildren: RootRouteChildren = {
   LiveScoresRoute: LiveScoresRoute,
   LoginRoute: LoginRoute,
   MissionsRoute: MissionsRoute,
+  NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
+  SearchRoute: SearchRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   VipRoute: VipRoute,
