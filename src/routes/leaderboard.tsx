@@ -47,7 +47,11 @@ function LeaderboardPage() {
     staleTime: 30_000,
   });
 
-  const rows = winners ?? [];
+  const [q, setQ] = useState("");
+  const allRows = winners ?? [];
+  const rows = q.trim()
+    ? allRows.filter((w) => w.name.toLowerCase().includes(q.trim().toLowerCase()))
+    : allRows;
 
   return (
     <AppShell>
@@ -56,6 +60,16 @@ function LeaderboardPage() {
         <h1 className="mt-2 text-2xl font-black">Winners Leaderboard</h1>
         <p className="text-xs opacity-90">Only official winners declared by admin</p>
       </section>
+
+      <div className="mt-4">
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search player…"
+          aria-label="Search player"
+          className="h-11 w-full rounded-2xl border border-border bg-card px-4 text-sm shadow-soft outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
+        />
+      </div>
 
       {rows.length === 0 && (
         <div className="mt-6 rounded-2xl bg-card p-8 text-center shadow-soft">
