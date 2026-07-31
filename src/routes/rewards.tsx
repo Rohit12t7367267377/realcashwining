@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { listMyRewardBoxes, openRewardBox } from "@/lib/gamification.functions";
 import { useUser } from "@/lib/user-store";
 import { toast } from "sonner";
-import { Gift } from "lucide-react";
+import { Gift, Share2, Target, Sparkles, Ticket, Medal, Crown } from "lucide-react";
 
 export const Route = createFileRoute("/rewards")({
   head: () => ({
@@ -49,6 +49,8 @@ function RewardsPage() {
 
   const unopened = boxes.filter((b) => !b.opened);
   const opened = boxes.filter((b) => b.opened);
+  const unopenedCount = unopened.length;
+  const openedCount = opened.length;
 
   return (
     <AppShell>
