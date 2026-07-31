@@ -83,6 +83,25 @@ function ProfilePage() {
         <Stat icon={<Award />} label="Win %" value={`${winRate}%`} />
       </section>
 
+      <section className="mt-3 grid grid-cols-2 gap-3">
+        <div className="surface p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Total earnings</div>
+          <div className="text-lg font-black">₹{won.toFixed(0)}</div>
+        </div>
+        <div className="surface p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Best rank</div>
+          <div className="text-lg font-black">{bestRank ? `#${bestRank}` : "—"}</div>
+        </div>
+        <div className="surface p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Highest win</div>
+          <div className="text-lg font-black">₹{highestWin.toFixed(0)}</div>
+        </div>
+        <div className="surface p-3">
+          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Losses</div>
+          <div className="text-lg font-black">{Math.max(played - wins, 0)}</div>
+        </div>
+      </section>
+
       {/* XP / Level card */}
       <section className="mt-5 rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft">
         <div className="flex items-center justify-between">
