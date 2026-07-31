@@ -52,8 +52,61 @@ function RewardsPage() {
 
   return (
     <AppShell>
-      <h1 className="text-xl font-black">🎁 Reward Boxes</h1>
-      <p className="text-xs text-muted-foreground">Earn boxes by leveling up and completing missions.</p>
+      <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
+        <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
+          <Gift className="h-3.5 w-3.5" /> Reward hub
+        </div>
+        <h1 className="mt-1 text-2xl font-black">Claim your rewards</h1>
+        <p className="mt-1 text-sm opacity-90">Boxes, missions, referrals and seasonal events — all in one place.</p>
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-lg font-black">{unopenedCount}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">To open</div>
+          </div>
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-lg font-black">{openedCount}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">Opened</div>
+          </div>
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-lg font-black">{boxes.length}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">Total</div>
+          </div>
+        </div>
+      </section>
+
+      <section className="mt-4 grid grid-cols-2 gap-3">
+        <Link to="/refer" className="card-lift rounded-2xl bg-gradient-success p-4 text-success-foreground shadow-soft">
+          <Share2 className="h-5 w-5" />
+          <div className="mt-2 text-sm font-black">Refer &amp; Earn</div>
+          <div className="text-[11px] opacity-90">Invite friends, earn cash</div>
+        </Link>
+        <Link to="/missions" className="card-lift surface p-4">
+          <Target className="h-5 w-5 text-primary" />
+          <div className="mt-2 text-sm font-black">Missions</div>
+          <div className="text-[11px] text-muted-foreground">Daily · weekly · monthly</div>
+        </Link>
+        <Link to="/events" className="card-lift surface p-4">
+          <Sparkles className="h-5 w-5 text-primary" />
+          <div className="mt-2 text-sm font-black">Seasonal Events</div>
+          <div className="text-[11px] text-muted-foreground">Limited-time rewards</div>
+        </Link>
+        <Link to="/coupons" className="card-lift surface p-4">
+          <Ticket className="h-5 w-5 text-primary" />
+          <div className="mt-2 text-sm font-black">Coupons</div>
+          <div className="text-[11px] text-muted-foreground">Redeem bonus codes</div>
+        </Link>
+        <Link to="/hall-of-fame" className="card-lift surface p-4">
+          <Medal className="h-5 w-5 text-primary" />
+          <div className="mt-2 text-sm font-black">Achievements</div>
+          <div className="text-[11px] text-muted-foreground">Badges &amp; hall of fame</div>
+        </Link>
+        <Link to="/vip" className="card-lift rounded-2xl bg-gradient-gold p-4 text-amber-950 shadow-soft">
+          <Crown className="h-5 w-5" />
+          <div className="mt-2 text-sm font-black">VIP Perks</div>
+          <div className="text-[11px] opacity-80">Extra rewards for members</div>
+        </Link>
+      </section>
+
 
       <section className="mt-4">
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Unopened ({unopened.length})</h2>
