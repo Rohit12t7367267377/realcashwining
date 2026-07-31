@@ -152,17 +152,61 @@ function ProfilePage() {
         </div>
       </section>
 
-      <div className="mt-6 grid grid-cols-3 gap-2">
-        <Link to="/books" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
-          <BookOpen className="h-5 w-5 text-primary" /> Books
+      {/* Social hub */}
+      <section className="mt-6">
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Social</h2>
+        <Link to="/community" className="card-lift flex items-center justify-between rounded-2xl bg-gradient-card p-4 shadow-soft">
+          <div className="flex items-center gap-3">
+            <Users className="h-5 w-5 text-primary" />
+            <div>
+              <div className="text-sm font-bold">Community</div>
+              <div className="text-[11px] text-muted-foreground">Posts, friends, follows & discussions</div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-primary">Open →</span>
         </Link>
-        <Link to="/support" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
-          <LifeBuoy className="h-5 w-5 text-primary" /> Support
-        </Link>
-        <Link to="/terms" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft hover:shadow-glow">
-          <FileText className="h-5 w-5 text-primary" /> Terms
-        </Link>
-      </div>
+      </section>
+
+      {/* Everything else */}
+      <section className="mt-6">
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">More</h2>
+        <div className="grid grid-cols-4 gap-2">
+          <QuickLink to="/refer" emoji="🎁" label="Refer" />
+          <QuickLink to="/missions" emoji="🎯" label="Missions" />
+          <QuickLink to="/rewards" emoji="🎉" label="Rewards" />
+          <QuickLink to="/wallet" emoji="💰" label="Wallet" />
+          <QuickLink to="/hall-of-fame" emoji="👑" label="Hall of Fame" />
+          <QuickLink to="/events" emoji="✨" label="Events" />
+          <QuickLink to="/vip" emoji="⭐" label="VIP" />
+          <QuickLink to="/coupons" emoji="🎟️" label="Coupons" />
+          <QuickLink to="/kyc" emoji="🪪" label="KYC" />
+          <QuickLink to="/ai-tutor" emoji="🤖" label="AI Tutor" />
+          <QuickLink to="/cricket" emoji="🏏" label="Cricket" />
+          <QuickLink to="/live-scores" emoji="⚡" label="Scores" />
+        </div>
+      </section>
+
+      <section className="mt-4">
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Help & Settings</h2>
+        <div className="grid grid-cols-4 gap-2">
+          <Link to="/books" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <BookOpen className="h-5 w-5 text-primary" /> Books
+          </Link>
+          <Link to="/support" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <LifeBuoy className="h-5 w-5 text-primary" /> Support
+          </Link>
+          <Link to="/faq" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <HelpCircle className="h-5 w-5 text-primary" /> FAQ
+          </Link>
+          <Link to="/terms" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <FileText className="h-5 w-5 text-primary" /> Terms
+          </Link>
+          <Link to="/feedback" className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <MessageSquare className="h-5 w-5 text-primary" /> Feedback
+          </Link>
+        </div>
+      </section>
+
 
       <Button
         onClick={() => { logout(); nav({ to: "/" }); }}
