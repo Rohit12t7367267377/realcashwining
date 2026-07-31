@@ -138,6 +138,10 @@ function Home() {
   const balance = Number(wallet?.balance ?? 0);
   const won = Number(stats?.totalWon ?? 0);
   const played = Number(stats?.played ?? 0);
+  const history = stats?.history ?? [];
+  const inProgress = history.filter((h) => h.status === "in_progress");
+  const featured = live[0];
+  const winnerRows = (latestWinners ?? []).slice(0, 5);
 
   return (
     <AppShell>
