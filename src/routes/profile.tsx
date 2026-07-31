@@ -7,7 +7,7 @@ import { useUser } from "@/lib/user-store";
 import { getMyContestStats } from "@/lib/stats.functions";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyXp } from "@/lib/gamification.functions";
-import { LogOut, Trophy, Target, Award, Phone, Hash, History, LifeBuoy, FileText, BookOpen, Zap, Gift } from "lucide-react";
+import { LogOut, Trophy, Target, Award, Phone, Hash, History, LifeBuoy, FileText, BookOpen, Zap, Gift, Users, HelpCircle, MessageSquare } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/profile")({
@@ -216,6 +216,15 @@ function ProfilePage() {
         <LogOut className="mr-2 h-4 w-4" /> Logout
       </Button>
     </AppShell>
+  );
+}
+
+function QuickLink({ to, emoji, label }: { to: React.ComponentProps<typeof Link>["to"]; emoji: string; label: string }) {
+  return (
+    <Link to={to} className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-[11px] font-bold shadow-soft">
+      <span className="text-2xl leading-none">{emoji}</span>
+      {label}
+    </Link>
   );
 }
 
