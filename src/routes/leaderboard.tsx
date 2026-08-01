@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { Trophy, Crown } from "lucide-react";
+import { Trophy, Crown, Search } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getWinnersLeaderboard, getContestLeaderboard } from "@/lib/stats.functions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
