@@ -4,7 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { BookOpenCheck, Timer, Clock } from "lucide-react";
 
-export const Route = createFileRoute("/reading")({
+export const Route = createFileRoute("/reading/")({
   head: () => ({
     meta: [
       { title: "Reading Comprehension Quizzes — Cash Winning League" },

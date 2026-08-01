@@ -17,6 +17,7 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
+import { Route as ReadingRouteImport } from './routes/reading'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MissionsRouteImport } from './routes/missions'
@@ -108,6 +109,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ReferRoute = ReferRouteImport.update({
   id: '/refer',
   path: '/refer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadingRoute = ReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -391,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/reading': typeof ReadingRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
@@ -452,6 +459,7 @@ export interface FileRoutesByTo {
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/reading': typeof ReadingRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
@@ -515,6 +523,7 @@ export interface FileRoutesById {
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
+  '/reading': typeof ReadingRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
@@ -579,6 +588,7 @@ export interface FileRouteTypes {
     | '/missions'
     | '/notifications'
     | '/profile'
+    | '/reading'
     | '/refer'
     | '/reset-password'
     | '/rewards'
@@ -640,6 +650,7 @@ export interface FileRouteTypes {
     | '/missions'
     | '/notifications'
     | '/profile'
+    | '/reading'
     | '/refer'
     | '/reset-password'
     | '/rewards'
@@ -702,6 +713,7 @@ export interface FileRouteTypes {
     | '/missions'
     | '/notifications'
     | '/profile'
+    | '/reading'
     | '/refer'
     | '/reset-password'
     | '/rewards'
@@ -765,6 +777,7 @@ export interface RootRouteChildren {
   MissionsRoute: typeof MissionsRoute
   NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
+  ReadingRoute: typeof ReadingRoute
   ReferRoute: typeof ReferRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
@@ -835,6 +848,13 @@ declare module '@tanstack/react-router' {
       path: '/refer'
       fullPath: '/refer'
       preLoaderRoute: typeof ReferRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reading': {
+      id: '/reading'
+      path: '/reading'
+      fullPath: '/reading'
+      preLoaderRoute: typeof ReadingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -1299,6 +1319,7 @@ const rootRouteChildren: RootRouteChildren = {
   MissionsRoute: MissionsRoute,
   NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
+  ReadingRoute: ReadingRoute,
   ReferRoute: ReferRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
