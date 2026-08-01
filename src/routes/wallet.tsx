@@ -134,7 +134,43 @@ function WalletInner() {
           View Full History →
         </Link>
       </Section>
+
+      <section className="mt-6 space-y-2">
+        <div className="surface flex items-start gap-3 p-4">
+          <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <div className="min-w-0">
+            <div className="text-sm font-bold">Secure payments</div>
+            <p className="text-[11px] text-muted-foreground">Pay only to the UPI ID shown above. Never share OTPs or your UPI PIN with anyone.</p>
+          </div>
+        </div>
+        <div className="surface flex items-start gap-3 p-4">
+          <Info className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
+          <div className="min-w-0">
+            <div className="text-sm font-bold">Wallet tips</div>
+            <p className="text-[11px] text-muted-foreground">Deposits are credited after admin verifies your UTR. Withdrawals are held from your balance and paid out by admin.</p>
+          </div>
+        </div>
+        <Link to="/support" className="card-lift flex items-center justify-between rounded-2xl bg-gradient-card p-4 shadow-soft">
+          <div className="flex items-center gap-3">
+            <LifeBuoy className="h-5 w-5 text-primary" />
+            <div>
+              <div className="text-sm font-bold">Need help with a payment?</div>
+              <div className="text-[11px] text-muted-foreground">Raise a support ticket</div>
+            </div>
+          </div>
+          <span className="text-xs font-bold text-primary">Open →</span>
+        </Link>
+      </section>
     </AppShell>
+  );
+}
+
+function QuickTile({ to, emoji, label }: { to: React.ComponentProps<typeof Link>["to"]; emoji: string; label: string }) {
+  return (
+    <Link to={to} className="card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-[11px] font-bold shadow-soft">
+      <span className="text-2xl leading-none">{emoji}</span>
+      {label}
+    </Link>
   );
 }
 
@@ -146,6 +182,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     </section>
   );
 }
+
 
 function RequestRow({ amount, status, sub, at }: { amount: number; status: string; sub: string; at: string }) {
   const Icon = status === "pending" ? Clock : status === "approved" || status === "paid" ? CheckCircle2 : XCircle;
