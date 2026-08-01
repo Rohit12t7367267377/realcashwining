@@ -47,6 +47,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
+import { Route as AdminReadingRouteImport } from './routes/admin.reading'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
@@ -259,6 +260,11 @@ const AdminResultsRoute = AdminResultsRouteImport.update({
   path: '/results',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminReadingRoute = AdminReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
   id: '/questions',
   path: '/questions',
@@ -414,6 +420,7 @@ export interface FileRoutesByFullPath {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -474,6 +481,7 @@ export interface FileRoutesByTo {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -536,6 +544,7 @@ export interface FileRoutesById {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -599,6 +608,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
@@ -659,6 +669,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
@@ -720,6 +731,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
@@ -1035,6 +1047,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminResultsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/reading': {
+      id: '/admin/reading'
+      path: '/reading'
+      fullPath: '/admin/reading'
+      preLoaderRoute: typeof AdminReadingRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/questions': {
       id: '/admin/questions'
       path: '/questions'
@@ -1207,6 +1226,7 @@ interface AdminRouteChildren {
   AdminMissionsRoute: typeof AdminMissionsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
+  AdminReadingRoute: typeof AdminReadingRoute
   AdminResultsRoute: typeof AdminResultsRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -1237,6 +1257,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMissionsRoute: AdminMissionsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
+  AdminReadingRoute: AdminReadingRoute,
   AdminResultsRoute: AdminResultsRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
