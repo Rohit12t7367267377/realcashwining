@@ -40,6 +40,7 @@ import { Route as ReadingIndexRouteImport } from './routes/reading.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
+import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
@@ -224,6 +225,11 @@ const WalletHistoryRoute = WalletHistoryRouteImport.update({
 const ResultIdRoute = ResultIdRouteImport.update({
   id: '/result/$id',
   path: '/result/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadingIdRoute = ReadingIdRouteImport.update({
+  id: '/reading/$id',
+  path: '/reading/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlayIdRoute = PlayIdRouteImport.update({
@@ -435,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
@@ -497,6 +504,7 @@ export interface FileRoutesByTo {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
@@ -561,6 +569,7 @@ export interface FileRoutesById {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
@@ -626,6 +635,7 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
+    | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin/'
@@ -688,6 +698,7 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
+    | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin'
@@ -751,6 +762,7 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
+    | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin/'
@@ -788,6 +800,7 @@ export interface RootRouteChildren {
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
   PlayIdRoute: typeof PlayIdRoute
+  ReadingIdRoute: typeof ReadingIdRoute
   ResultIdRoute: typeof ResultIdRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
 }
@@ -1009,6 +1022,13 @@ declare module '@tanstack/react-router' {
       path: '/result/$id'
       fullPath: '/result/$id'
       preLoaderRoute: typeof ResultIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reading/$id': {
+      id: '/reading/$id'
+      path: '/reading/$id'
+      fullPath: '/reading/$id'
+      preLoaderRoute: typeof ReadingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/play/$id': {
@@ -1330,6 +1350,7 @@ const rootRouteChildren: RootRouteChildren = {
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
   PlayIdRoute: PlayIdRoute,
+  ReadingIdRoute: ReadingIdRoute,
   ResultIdRoute: ResultIdRoute,
   ReadingIndexRoute: ReadingIndexRoute,
 }
