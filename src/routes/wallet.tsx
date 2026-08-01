@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { getMyWallet, submitDeposit, submitWithdrawal } from "@/lib/wallet.functions";
 import { useAuthSession } from "@/hooks/use-auth-session";
-import { Wallet as WalletIcon, ArrowDownToLine, ArrowUpFromLine, Smartphone, Copy, CheckCircle2, Clock, XCircle } from "lucide-react";
+import { Wallet as WalletIcon, ArrowDownToLine, ArrowUpFromLine, Smartphone, Copy, CheckCircle2, Clock, XCircle, ShieldCheck, Info, LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
