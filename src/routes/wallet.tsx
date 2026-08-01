@@ -52,21 +52,39 @@ function WalletInner() {
 
   const refresh = () => qc.invalidateQueries({ queryKey: ["wallet"] });
 
+  const pendingDeposits = data.deposits.filter((d) => d.status === "pending").reduce((s, d) => s + Number(d.amount), 0);
+  const pendingWithdrawals = data.withdrawals.filter((w) => w.status === "pending" || w.status === "approved").reduce((s, w) => s + Number(w.amount), 0);
+  const credited = data.txns.filter((t) => t.type === "credit").reduce((s, t) => s + Number(t.amount), 0);
+
   return (
     <AppShell>
-      <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
+      <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift animate-rise-in">
         <div className="flex items-center gap-2 text-xs uppercase tracking-widest opacity-80">
           <WalletIcon className="h-3.5 w-3.5" /> Wallet Balance
         </div>
         <div className="mt-1 text-4xl font-black">₹{data.balance.toFixed(2)}</div>
         <p className="mt-2 text-xs opacity-80">{data.fullName || "Welcome"}</p>
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-base font-black">₹{credited.toFixed(0)}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">Credited</div>
+          </div>
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-base font-black">₹{pendingDeposits.toFixed(0)}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">In review</div>
+          </div>
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-base font-black">₹{pendingWithdrawals.toFixed(0)}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">Payout</div>
+          </div>
+        </div>
       </section>
 
       <section className="mt-5 grid grid-cols-2 gap-2">
-        <button onClick={() => setMode("add")} className={cn("flex items-center justify-center gap-2 rounded-2xl py-3 font-bold transition", mode === "add" ? "bg-gradient-primary text-primary-foreground shadow-glow" : "bg-card text-foreground shadow-soft")}>
+        <button onClick={() => setMode("add")} className={cn("press flex items-center justify-center gap-2 rounded-2xl py-3 font-bold transition", mode === "add" ? "bg-gradient-primary text-primary-foreground shadow-glow" : "bg-card text-foreground shadow-soft")}>
           <ArrowDownToLine className="h-4 w-4" /> Add Money
         </button>
-        <button onClick={() => setMode("withdraw")} className={cn("flex items-center justify-center gap-2 rounded-2xl py-3 font-bold transition", mode === "withdraw" ? "bg-gradient-primary text-primary-foreground shadow-glow" : "bg-card text-foreground shadow-soft")}>
+        <button onClick={() => setMode("withdraw")} className={cn("press flex items-center justify-center gap-2 rounded-2xl py-3 font-bold transition", mode === "withdraw" ? "bg-gradient-primary text-primary-foreground shadow-glow" : "bg-card text-foreground shadow-soft")}>
           <ArrowUpFromLine className="h-4 w-4" /> Withdraw
         </button>
       </section>
@@ -74,6 +92,14 @@ function WalletInner() {
       {mode === "add"
         ? <DepositForm settings={data.settings} onDone={refresh} />
         : <WithdrawForm balance={data.balance} settings={data.settings} onDone={refresh} />}
+
+      <section className="mt-5 grid grid-cols-4 gap-2">
+        <QuickTile to="/wallet/history" emoji="🧾" label="History" />
+        <QuickTile to="/kyc" emoji="🪪" label="KYC" />
+        <QuickTile to="/coupons" emoji="🎟️" label="Coupons" />
+        <QuickTile to="/support" emoji="💬" label="Support" />
+      </section>
+
 
       {/* Pending requests */}
       {data.deposits.some((d) => d.status === "pending") && (
