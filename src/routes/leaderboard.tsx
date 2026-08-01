@@ -53,21 +53,39 @@ function LeaderboardPage() {
     ? allRows.filter((w) => w.name.toLowerCase().includes(q.trim().toLowerCase()))
     : allRows;
 
+  const totalPrize = allRows.reduce((s, w) => s + Number(w.prize ?? 0), 0);
+  const topPrize = allRows.reduce((m, w) => Math.max(m, Number(w.prize ?? 0)), 0);
+
   return (
     <AppShell>
-      <section className="rounded-3xl bg-gradient-hero p-5 text-center text-primary-foreground shadow-lift">
+      <section className="rounded-3xl bg-gradient-hero p-5 text-center text-primary-foreground shadow-lift animate-rise-in">
         <Trophy className="mx-auto h-10 w-10" />
         <h1 className="mt-2 text-2xl font-black">Winners Leaderboard</h1>
         <p className="text-xs opacity-90">Only official winners declared by admin</p>
+        <div className="mt-4 grid grid-cols-3 gap-2 text-center">
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-base font-black">{allRows.length}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">Winners</div>
+          </div>
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-base font-black">₹{totalPrize.toFixed(0)}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">Paid out</div>
+          </div>
+          <div className="rounded-xl bg-white/15 px-2 py-2 backdrop-blur">
+            <div className="text-base font-black">₹{topPrize.toFixed(0)}</div>
+            <div className="text-[10px] uppercase tracking-wider opacity-80">Top prize</div>
+          </div>
+        </div>
       </section>
 
-      <div className="mt-4">
+      <div className="relative mt-4">
+        <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search player…"
           aria-label="Search player"
-          className="h-11 w-full rounded-2xl border border-border bg-card px-4 text-sm shadow-soft outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
+          className="h-11 w-full rounded-2xl border border-border bg-card pl-10 pr-4 text-sm shadow-soft outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
         />
       </div>
 
@@ -81,22 +99,24 @@ function LeaderboardPage() {
 
       {rows.length > 0 && (
         <>
-          <section className="mt-6 grid grid-cols-3 items-end gap-2">
+          <h2 className="mt-6 text-sm font-bold uppercase tracking-wider text-muted-foreground">Top 3 Podium</h2>
+          <section className="mt-3 grid grid-cols-3 items-end gap-2">
             {rows[1] && <Podium rank={rows[1].rank} name={rows[1].name} prize={rows[1].prize} correct={rows[1].correct} wrong={rows[1].wrong} height="h-28" tone="silver" />}
             {rows[0] && <Podium rank={rows[0].rank} name={rows[0].name} prize={rows[0].prize} correct={rows[0].correct} wrong={rows[0].wrong} height="h-36" tone="gold" />}
             {rows[2] && <Podium rank={rows[2].rank} name={rows[2].name} prize={rows[2].prize} correct={rows[2].correct} wrong={rows[2].wrong} height="h-24" tone="bronze" />}
           </section>
-          <section className="mt-6 space-y-2">
+          <h2 className="mt-6 text-sm font-bold uppercase tracking-wider text-muted-foreground">Recent Winners</h2>
+          <section className="mt-3 space-y-2">
             {rows.slice(3).map((w) => (
-              <div key={w.attempt_id} className="flex items-center gap-3 rounded-2xl bg-card p-3 shadow-soft">
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-muted font-black text-muted-foreground">#{w.rank}</div>
+              <div key={w.attempt_id} className="card-lift flex items-center gap-3 rounded-2xl bg-card p-3 shadow-soft">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-muted font-black text-muted-foreground">#{w.rank}</div>
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-bold truncate">{w.name}</div>
                   <div className="text-[11px] text-muted-foreground truncate">
                     {w.contest_title} · ✔ {w.correct} · ✖ {w.wrong} · − {w.unanswered} · Score {w.score}
                   </div>
                 </div>
-                <div className="text-right">
+                <div className="shrink-0 text-right">
                   <div className="font-black">₹{w.prize.toFixed(0)}</div>
                   <div className="text-[10px] uppercase tracking-wider text-muted-foreground">won</div>
                 </div>
@@ -105,6 +125,7 @@ function LeaderboardPage() {
           </section>
         </>
       )}
+
 
       {declared.length > 0 && (
         <section className="mt-8">
