@@ -17,7 +17,6 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ReferRouteImport } from './routes/refer'
-import { Route as ReadingRouteImport } from './routes/reading'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as MissionsRouteImport } from './routes/missions'
@@ -37,6 +36,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReadingIndexRouteImport } from './routes/reading.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
@@ -109,11 +109,6 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const ReferRoute = ReferRouteImport.update({
   id: '/refer',
   path: '/refer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReadingRoute = ReadingRouteImport.update({
-  id: '/reading',
-  path: '/reading',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -209,6 +204,11 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadingIndexRoute = ReadingIndexRouteImport.update({
+  id: '/reading/',
+  path: '/reading/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -397,7 +397,6 @@ export interface FileRoutesByFullPath {
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
-  '/reading': typeof ReadingRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
@@ -439,6 +438,7 @@ export interface FileRoutesByFullPath {
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
+  '/reading/': typeof ReadingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -459,7 +459,6 @@ export interface FileRoutesByTo {
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
-  '/reading': typeof ReadingRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
@@ -501,6 +500,7 @@ export interface FileRoutesByTo {
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
+  '/reading': typeof ReadingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -523,7 +523,6 @@ export interface FileRoutesById {
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
   '/profile': typeof ProfileRoute
-  '/reading': typeof ReadingRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
@@ -565,6 +564,7 @@ export interface FileRoutesById {
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
+  '/reading/': typeof ReadingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -588,7 +588,6 @@ export interface FileRouteTypes {
     | '/missions'
     | '/notifications'
     | '/profile'
-    | '/reading'
     | '/refer'
     | '/reset-password'
     | '/rewards'
@@ -630,6 +629,7 @@ export interface FileRouteTypes {
     | '/result/$id'
     | '/wallet/history'
     | '/admin/'
+    | '/reading/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -650,7 +650,6 @@ export interface FileRouteTypes {
     | '/missions'
     | '/notifications'
     | '/profile'
-    | '/reading'
     | '/refer'
     | '/reset-password'
     | '/rewards'
@@ -692,6 +691,7 @@ export interface FileRouteTypes {
     | '/result/$id'
     | '/wallet/history'
     | '/admin'
+    | '/reading'
   id:
     | '__root__'
     | '/'
@@ -713,7 +713,6 @@ export interface FileRouteTypes {
     | '/missions'
     | '/notifications'
     | '/profile'
-    | '/reading'
     | '/refer'
     | '/reset-password'
     | '/rewards'
@@ -755,6 +754,7 @@ export interface FileRouteTypes {
     | '/result/$id'
     | '/wallet/history'
     | '/admin/'
+    | '/reading/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -777,7 +777,6 @@ export interface RootRouteChildren {
   MissionsRoute: typeof MissionsRoute
   NotificationsRoute: typeof NotificationsRoute
   ProfileRoute: typeof ProfileRoute
-  ReadingRoute: typeof ReadingRoute
   ReferRoute: typeof ReferRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
@@ -790,6 +789,7 @@ export interface RootRouteChildren {
   ContestIdRoute: typeof ContestIdRoute
   PlayIdRoute: typeof PlayIdRoute
   ResultIdRoute: typeof ResultIdRoute
+  ReadingIndexRoute: typeof ReadingIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -848,13 +848,6 @@ declare module '@tanstack/react-router' {
       path: '/refer'
       fullPath: '/refer'
       preLoaderRoute: typeof ReferRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reading': {
-      id: '/reading'
-      path: '/reading'
-      fullPath: '/reading'
-      preLoaderRoute: typeof ReadingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -988,6 +981,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reading/': {
+      id: '/reading/'
+      path: '/reading'
+      fullPath: '/reading/'
+      preLoaderRoute: typeof ReadingIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -1319,7 +1319,6 @@ const rootRouteChildren: RootRouteChildren = {
   MissionsRoute: MissionsRoute,
   NotificationsRoute: NotificationsRoute,
   ProfileRoute: ProfileRoute,
-  ReadingRoute: ReadingRoute,
   ReferRoute: ReferRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
@@ -1332,6 +1331,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContestIdRoute: ContestIdRoute,
   PlayIdRoute: PlayIdRoute,
   ResultIdRoute: ResultIdRoute,
+  ReadingIndexRoute: ReadingIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
