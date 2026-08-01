@@ -1063,33 +1063,42 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           banned: boolean
+          bio: string | null
           created_at: string
           full_name: string | null
           id: string
           phone: string | null
           phone_verified: boolean
           referral_code: string | null
+          username: string | null
           wallet_balance: number
         }
         Insert: {
+          avatar_url?: string | null
           banned?: boolean
+          bio?: string | null
           created_at?: string
           full_name?: string | null
           id: string
           phone?: string | null
           phone_verified?: boolean
           referral_code?: string | null
+          username?: string | null
           wallet_balance?: number
         }
         Update: {
+          avatar_url?: string | null
           banned?: boolean
+          bio?: string | null
           created_at?: string
           full_name?: string | null
           id?: string
           phone?: string | null
           phone_verified?: boolean
           referral_code?: string | null
+          username?: string | null
           wallet_balance?: number
         }
         Relationships: []
@@ -1134,6 +1143,204 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reading_attempts: {
+        Row: {
+          accuracy: number
+          answers: Json
+          correct_count: number
+          created_at: string
+          id: string
+          passage_id: string
+          question_order: Json | null
+          quiz_seconds_spent: number
+          reading_completed: boolean
+          reading_seconds_spent: number
+          score: number
+          started_at: string
+          status: string
+          submitted_at: string | null
+          unanswered_count: number
+          updated_at: string
+          user_id: string
+          wrong_count: number
+        }
+        Insert: {
+          accuracy?: number
+          answers?: Json
+          correct_count?: number
+          created_at?: string
+          id?: string
+          passage_id: string
+          question_order?: Json | null
+          quiz_seconds_spent?: number
+          reading_completed?: boolean
+          reading_seconds_spent?: number
+          score?: number
+          started_at?: string
+          status?: string
+          submitted_at?: string | null
+          unanswered_count?: number
+          updated_at?: string
+          user_id: string
+          wrong_count?: number
+        }
+        Update: {
+          accuracy?: number
+          answers?: Json
+          correct_count?: number
+          created_at?: string
+          id?: string
+          passage_id?: string
+          question_order?: Json | null
+          quiz_seconds_spent?: number
+          reading_completed?: boolean
+          reading_seconds_spent?: number
+          score?: number
+          started_at?: string
+          status?: string
+          submitted_at?: string | null
+          unanswered_count?: number
+          updated_at?: string
+          user_id?: string
+          wrong_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_attempts_passage_id_fkey"
+            columns: ["passage_id"]
+            isOneToOne: false
+            referencedRelation: "reading_passages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reading_passages: {
+        Row: {
+          active: boolean
+          category_id: string | null
+          created_at: string
+          difficulty: string
+          ends_at: string | null
+          entry_fee: number
+          id: string
+          keep_passage_visible: boolean
+          marks_per_question: number
+          negative_marks: number
+          num_questions: number
+          passage: string
+          prize_pool: number
+          quiz_seconds: number
+          reading_seconds: number
+          show_explanations: boolean
+          shuffle_options: boolean
+          shuffle_questions: boolean
+          starts_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          category_id?: string | null
+          created_at?: string
+          difficulty?: string
+          ends_at?: string | null
+          entry_fee?: number
+          id?: string
+          keep_passage_visible?: boolean
+          marks_per_question?: number
+          negative_marks?: number
+          num_questions?: number
+          passage: string
+          prize_pool?: number
+          quiz_seconds?: number
+          reading_seconds?: number
+          show_explanations?: boolean
+          shuffle_options?: boolean
+          shuffle_questions?: boolean
+          starts_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          category_id?: string | null
+          created_at?: string
+          difficulty?: string
+          ends_at?: string | null
+          entry_fee?: number
+          id?: string
+          keep_passage_visible?: boolean
+          marks_per_question?: number
+          negative_marks?: number
+          num_questions?: number
+          passage?: string
+          prize_pool?: number
+          quiz_seconds?: number
+          reading_seconds?: number
+          show_explanations?: boolean
+          shuffle_options?: boolean
+          shuffle_questions?: boolean
+          starts_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_passages_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reading_questions: {
+        Row: {
+          correct_index: number
+          created_at: string
+          explanation: string | null
+          id: string
+          marks: number | null
+          options: Json
+          passage_id: string
+          question: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          correct_index?: number
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          marks?: number | null
+          options?: Json
+          passage_id: string
+          question: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          correct_index?: number
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          marks?: number | null
+          options?: Json
+          passage_id?: string
+          question?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reading_questions_passage_id_fkey"
+            columns: ["passage_id"]
+            isOneToOne: false
+            referencedRelation: "reading_passages"
             referencedColumns: ["id"]
           },
         ]
@@ -1512,6 +1719,20 @@ export type Database = {
         }[]
       }
       refresh_user_missions: { Args: { _user_id?: string }; Returns: number }
+      submit_reading_attempt: {
+        Args: {
+          _answers: Json
+          _attempt_id: string
+          _quiz_seconds_spent: number
+        }
+        Returns: {
+          accuracy: number
+          correct_count: number
+          score: number
+          unanswered_count: number
+          wrong_count: number
+        }[]
+      }
       xp_to_level: { Args: { _xp: number }; Returns: number }
     }
     Enums: {

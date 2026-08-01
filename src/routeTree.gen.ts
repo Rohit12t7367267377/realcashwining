@@ -36,9 +36,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ReadingIndexRouteImport } from './routes/reading.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
+import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
@@ -47,6 +49,7 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
+import { Route as AdminReadingRouteImport } from './routes/admin.reading'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
@@ -204,6 +207,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReadingIndexRoute = ReadingIndexRouteImport.update({
+  id: '/reading/',
+  path: '/reading/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -217,6 +225,11 @@ const WalletHistoryRoute = WalletHistoryRouteImport.update({
 const ResultIdRoute = ResultIdRouteImport.update({
   id: '/result/$id',
   path: '/result/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadingIdRoute = ReadingIdRouteImport.update({
+  id: '/reading/$id',
+  path: '/reading/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlayIdRoute = PlayIdRouteImport.update({
@@ -257,6 +270,11 @@ const AdminRolesRoute = AdminRolesRouteImport.update({
 const AdminResultsRoute = AdminResultsRouteImport.update({
   id: '/results',
   path: '/results',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReadingRoute = AdminReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
@@ -414,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -422,9 +441,11 @@ export interface FileRoutesByFullPath {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
+  '/reading/': typeof ReadingIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -474,6 +495,7 @@ export interface FileRoutesByTo {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -482,9 +504,11 @@ export interface FileRoutesByTo {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
+  '/reading': typeof ReadingIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -536,6 +560,7 @@ export interface FileRoutesById {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/questions': typeof AdminQuestionsRoute
+  '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -544,9 +569,11 @@ export interface FileRoutesById {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
+  '/reading/': typeof ReadingIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -599,6 +626,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
@@ -607,9 +635,11 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
+    | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin/'
+    | '/reading/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -659,6 +689,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
@@ -667,9 +698,11 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
+    | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin'
+    | '/reading'
   id:
     | '__root__'
     | '/'
@@ -720,6 +753,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/payments'
     | '/admin/questions'
+    | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
@@ -728,9 +762,11 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/play/$id'
+    | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin/'
+    | '/reading/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -764,7 +800,9 @@ export interface RootRouteChildren {
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
   PlayIdRoute: typeof PlayIdRoute
+  ReadingIdRoute: typeof ReadingIdRoute
   ResultIdRoute: typeof ResultIdRoute
+  ReadingIndexRoute: typeof ReadingIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -958,6 +996,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reading/': {
+      id: '/reading/'
+      path: '/reading'
+      fullPath: '/reading/'
+      preLoaderRoute: typeof ReadingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -977,6 +1022,13 @@ declare module '@tanstack/react-router' {
       path: '/result/$id'
       fullPath: '/result/$id'
       preLoaderRoute: typeof ResultIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reading/$id': {
+      id: '/reading/$id'
+      path: '/reading/$id'
+      fullPath: '/reading/$id'
+      preLoaderRoute: typeof ReadingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/play/$id': {
@@ -1033,6 +1085,13 @@ declare module '@tanstack/react-router' {
       path: '/results'
       fullPath: '/admin/results'
       preLoaderRoute: typeof AdminResultsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reading': {
+      id: '/admin/reading'
+      path: '/reading'
+      fullPath: '/admin/reading'
+      preLoaderRoute: typeof AdminReadingRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/questions': {
@@ -1207,6 +1266,7 @@ interface AdminRouteChildren {
   AdminMissionsRoute: typeof AdminMissionsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
+  AdminReadingRoute: typeof AdminReadingRoute
   AdminResultsRoute: typeof AdminResultsRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -1237,6 +1297,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMissionsRoute: AdminMissionsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
+  AdminReadingRoute: AdminReadingRoute,
   AdminResultsRoute: AdminResultsRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
@@ -1289,7 +1350,9 @@ const rootRouteChildren: RootRouteChildren = {
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
   PlayIdRoute: PlayIdRoute,
+  ReadingIdRoute: ReadingIdRoute,
   ResultIdRoute: ResultIdRoute,
+  ReadingIndexRoute: ReadingIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

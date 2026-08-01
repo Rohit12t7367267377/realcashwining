@@ -8,6 +8,7 @@ const NAV = [
   { to: "/admin/payments", label: "Payments", icon: Banknote },
   { to: "/admin/categories", label: "Categories", icon: FolderTree },
   { to: "/admin/questions", label: "Questions", icon: HelpCircle },
+  { to: "/admin/reading", label: "Reading Comprehension", icon: BookOpen },
   { to: "/admin/ai", label: "AI Studio", icon: Wand2 },
   { to: "/admin/contests", label: "Contests", icon: Trophy },
   { to: "/admin/results", label: "Declare Results", icon: Gavel },
