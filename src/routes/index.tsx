@@ -29,7 +29,7 @@ export const Route = createFileRoute("/")({
 type LiveContest = { id: string; title: string; entry_fee: number; first_prize: number; starts_at: string | null; ends_at?: string | null; results_status?: string };
 type Banner = { id: string; title: string; subtitle: string | null; image_url: string | null; link_url: string | null; cta_label: string | null };
 type Broadcast = { id: string; title: string; body: string };
-type Membership = { id: string; name: string; price: number; duration_days: number; description: string | null };
+
 
 function Home() {
   const { state } = useUser();
@@ -78,7 +78,7 @@ function Home() {
   const [completed, setCompleted] = useState<LiveContest[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
-  const [plans, setPlans] = useState<Membership[]>([]);
+  
   const [bannerIdx, setBannerIdx] = useState(0);
 
   useEffect(() => {
@@ -87,7 +87,7 @@ function Home() {
     const nowIso = () => new Date().toISOString();
     async function load() {
       const now = nowIso();
-      const [liveRes, upRes, doneRes, banRes, bcRes, memRes] = await Promise.all([
+      const [liveRes, upRes, doneRes, banRes, bcRes] = await Promise.all([
         supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
           .eq("active", true).eq("results_status", "pending")
           .or(`starts_at.is.null,starts_at.lte.${now}`)
@@ -102,8 +102,6 @@ function Home() {
           .eq("active", true).order("sort_order", { ascending: true }).limit(10),
         supabase.from("broadcasts").select("id, title, body").eq("active", true)
           .order("created_at", { ascending: false }).limit(3),
-        supabase.from("memberships").select("id, name, price, duration_days, description")
-          .eq("active", true).order("sort_order", { ascending: true }).limit(3),
       ]);
       if (cancelled) return;
       setLive((liveRes.data ?? []) as LiveContest[]);
@@ -117,7 +115,6 @@ function Home() {
       });
       setBanners(bans as Banner[]);
       setBroadcasts((bcRes.data ?? []) as Broadcast[]);
-      setPlans((memRes.data ?? []) as Membership[]);
     }
     load();
     const t = setInterval(load, 45_000);
