@@ -14,6 +14,7 @@ export const Route = createFileRoute("/leaderboard")({
 });
 
 type DeclaredContest = { id: string; title: string };
+type SeasonalEvent = { id: string; name: string; description: string | null; starts_at: string; ends_at: string; reward_pool: number; bonus_xp_multiplier: number };
 
 function LeaderboardPage() {
   const fetchWinners = useServerFn(getWinnersLeaderboard);
@@ -25,16 +26,18 @@ function LeaderboardPage() {
 
   const [declared, setDeclared] = useState<DeclaredContest[]>([]);
   const [selected, setSelected] = useState<string>("");
+  const [events, setEvents] = useState<SeasonalEvent[]>([]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("contests")
-        .select("id, title")
-        .eq("results_status", "declared")
-        .order("created_at", { ascending: false });
+      const [{ data }, { data: evs }] = await Promise.all([
+        supabase.from("contests").select("id, title").eq("results_status", "declared").order("created_at", { ascending: false }),
+        supabase.from("seasonal_events").select("id, name, description, starts_at, ends_at, reward_pool, bonus_xp_multiplier")
+          .eq("active", true).order("starts_at", { ascending: false }).limit(5),
+      ]);
       const list = (data ?? []) as DeclaredContest[];
       setDeclared(list);
+      setEvents((evs ?? []) as SeasonalEvent[]);
       if (!selected && list.length) setSelected(list[0].id);
     })();
   }, []);
