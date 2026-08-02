@@ -12,7 +12,7 @@ import { getMyXp } from "@/lib/gamification.functions";
 import { getWinnersLeaderboard } from "@/lib/stats.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, Sparkles, Bot, Zap, Gift, Timer, Crown, PlayCircle } from "lucide-react";
+import { Flame, Trophy, Sparkles, Bot, Timer, Crown, PlayCircle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -220,23 +220,13 @@ function Home() {
 
       {/* Level · XP progress · today's mission preview */}
       <section className="mt-3 surface p-4">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-          <div className="min-w-0">
-            <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Your progress</div>
-            <div className="truncate text-base font-black">
-              {xp?.rankTitle ?? "Bronze"} · Level {xp?.level ?? 1}
-            </div>
-            <div className="text-[11px] text-muted-foreground">
-              {xp?.xp ?? 0} XP · {xp?.boxesEarned ?? 0} reward boxes
-            </div>
+        <div className="min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Your progress</div>
+          <div className="truncate text-base font-black">
+            {xp?.rankTitle ?? "Bronze"} · Level {xp?.level ?? 1}
           </div>
-          <div className="flex shrink-0 gap-2">
-            <Link to="/missions" className="press flex items-center gap-1 rounded-xl bg-primary/10 px-3 py-2 text-xs font-bold text-primary">
-              <Zap className="h-3.5 w-3.5" /> Missions
-            </Link>
-            <Link to="/rewards" className="press flex items-center gap-1 rounded-xl bg-secondary/10 px-3 py-2 text-xs font-bold text-secondary">
-              <Gift className="h-3.5 w-3.5" /> Claim
-            </Link>
+          <div className="text-[11px] text-muted-foreground">
+            {xp?.xp ?? 0} XP · {xp?.boxesEarned ?? 0} reward boxes
           </div>
         </div>
         <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
@@ -412,81 +402,26 @@ function Home() {
         </section>
       )}
 
-      {/* VIP Plans */}
-      {plans.length > 0 && (
-        <section className="mt-6">
-          <SectionHeader title="👑 Premium Plans" subtitle="Unlock exclusive perks & higher prize pools" />
-          <div className="mt-3 grid gap-2">
-            {plans.map((p) => (
-              <Link key={p.id} to="/vip" className="flex items-center justify-between rounded-2xl border border-amber-300/40 bg-gradient-to-r from-amber-400/10 to-yellow-400/10 p-3 shadow-soft hover:shadow-glow transition">
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-bold">{p.name}</div>
-                  {p.description && <div className="truncate text-[11px] text-muted-foreground">{p.description}</div>}
-                </div>
-                <div className="shrink-0 text-right">
-                  <div className="text-sm font-black">₹{Number(p.price).toFixed(0)}</div>
-                  <div className="text-[10px] text-muted-foreground">/{p.duration_days}d</div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Explore quick nav — all admin-managed feature pages */}
+      {/* Explore quick nav */}
       <section className="mt-6">
-        <SectionHeader title="Explore" subtitle="More features" />
+        <SectionHeader title="Explore" subtitle="More ways to play" />
         <div className="mt-3 grid grid-cols-4 gap-2">
-          <Link to="/community" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">👥</span>Community</Link>
+          <Link to="/reading" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">📖</span>Reading</Link>
           <Link to="/cricket" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🏏</span>Cricket</Link>
-
-          <Link to="/vip" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">👑</span>VIP</Link>
-          <Link to="/coupons" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🎟️</span>Coupons</Link>
-          <Link to="/books" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">📚</span>Library</Link>
-          <Link to="/kyc" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🪪</span>KYC</Link>
-          <Link to="/feedback" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">💬</span>Feedback</Link>
-          <Link to="/faq" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">❓</span>FAQ</Link>
-          <Link to="/support" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🛟</span>Support</Link>
+          <Link to="/live-scores" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">⚡</span>Scores</Link>
+          <Link to="/ai-tutor" className="flex flex-col items-center gap-1 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
+            <Bot className="h-6 w-6 text-primary" /> AI Tutor
+          </Link>
         </div>
       </section>
 
-
-
-      {/* Gamification quick links */}
-      <section className="mt-4 grid grid-cols-4 gap-2">
-        <Link to="/missions" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
-          <span className="text-2xl">🎯</span> Missions
-        </Link>
-        <Link to="/rewards" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
-          <span className="text-2xl">🎁</span> Rewards
-        </Link>
-        <Link to="/hall-of-fame" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
-          <span className="text-2xl">👑</span> Hall of Fame
-        </Link>
-        <Link to="/ai-tutor" className="flex flex-col items-center gap-1 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
-          <Bot className="h-6 w-6 text-primary" /> AI Tutor
-        </Link>
-      </section>
-
       {/* Leaderboard link */}
-      <Link to="/leaderboard" className="mt-4 flex items-center justify-between rounded-2xl bg-card p-4 shadow-soft hover:shadow-glow transition">
+      <Link to="/leaderboard" className="mt-4 flex items-center justify-between rounded-2xl bg-card p-4 shadow-soft transition hover:shadow-glow">
         <div className="flex items-center gap-3">
           <Trophy className="h-5 w-5 text-primary" />
           <div>
             <div className="text-sm font-bold">Winners Leaderboard</div>
-            <div className="text-[11px] text-muted-foreground">See rankings from all declared contests</div>
-          </div>
-        </div>
-        <span className="text-xs text-primary">View →</span>
-      </Link>
-
-      {/* Events */}
-      <Link to="/events" className="mt-3 flex items-center justify-between rounded-2xl border border-primary/30 bg-gradient-card p-4 shadow-soft hover:shadow-glow transition">
-        <div className="flex items-center gap-3">
-          <Sparkles className="h-5 w-5 text-primary" />
-          <div>
-            <div className="text-sm font-bold">Seasonal Events</div>
-            <div className="text-[11px] text-muted-foreground">Boosted XP · limited-time prize pools</div>
+            <div className="text-[11px] text-muted-foreground">Rankings &amp; seasonal events</div>
           </div>
         </div>
         <span className="text-xs text-primary">View →</span>
