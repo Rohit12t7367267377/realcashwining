@@ -244,9 +244,12 @@ function ProfilePage() {
 
       {/* Posts grid */}
       <section className="mt-4">
-        <h2 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          <Grid3X3 className="h-4 w-4" /> My posts
-        </h2>
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+            <Grid3X3 className="h-4 w-4" /> My posts
+          </h2>
+          <Link to="/community" className="text-xs font-bold text-primary hover:underline">Friends feed →</Link>
+        </div>
         {posts.length === 0 ? (
           <p className="rounded-2xl bg-card p-6 text-center text-sm text-muted-foreground shadow-soft">
             No posts yet. Share your first photo or video! 📸
