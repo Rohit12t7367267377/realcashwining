@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { AppShell } from "@/components/AppShell";
-import { Trophy, Crown, Search } from "lucide-react";
+import { Trophy, Crown, Search, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getWinnersLeaderboard, getContestLeaderboard } from "@/lib/stats.functions";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,6 +14,7 @@ export const Route = createFileRoute("/leaderboard")({
 });
 
 type DeclaredContest = { id: string; title: string };
+type SeasonalEvent = { id: string; name: string; description: string | null; starts_at: string; ends_at: string; reward_pool: number; bonus_xp_multiplier: number };
 
 function LeaderboardPage() {
   const fetchWinners = useServerFn(getWinnersLeaderboard);
@@ -25,16 +26,18 @@ function LeaderboardPage() {
 
   const [declared, setDeclared] = useState<DeclaredContest[]>([]);
   const [selected, setSelected] = useState<string>("");
+  const [events, setEvents] = useState<SeasonalEvent[]>([]);
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase
-        .from("contests")
-        .select("id, title")
-        .eq("results_status", "declared")
-        .order("created_at", { ascending: false });
+      const [{ data }, { data: evs }] = await Promise.all([
+        supabase.from("contests").select("id, title").eq("results_status", "declared").order("created_at", { ascending: false }),
+        supabase.from("seasonal_events").select("id, name, description, starts_at, ends_at, reward_pool, bonus_xp_multiplier")
+          .eq("active", true).order("starts_at", { ascending: false }).limit(5),
+      ]);
       const list = (data ?? []) as DeclaredContest[];
       setDeclared(list);
+      setEvents((evs ?? []) as SeasonalEvent[]);
       if (!selected && list.length) setSelected(list[0].id);
     })();
   }, []);
@@ -157,6 +160,36 @@ function LeaderboardPage() {
           </div>
         </section>
       )}
+
+      {/* Seasonal events */}
+      <section className="mt-8">
+        <h2 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+          <Sparkles className="h-4 w-4" /> Seasonal Events
+        </h2>
+        {events.length === 0 ? (
+          <p className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">No active events right now.</p>
+        ) : (
+          <div className="space-y-2">
+            {events.map((e) => (
+              <Link key={e.id} to="/events" className="card-lift block rounded-2xl border border-primary/30 bg-gradient-card p-4 shadow-soft">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-sm font-black">{e.name}</div>
+                    {e.description && <div className="truncate text-[11px] text-muted-foreground">{e.description}</div>}
+                    <div className="mt-1 text-[10px] text-muted-foreground">
+                      {new Date(e.starts_at).toLocaleDateString()} – {new Date(e.ends_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="shrink-0 text-right">
+                    <div className="text-sm font-black text-success">₹{Number(e.reward_pool).toFixed(0)}</div>
+                    <div className="text-[10px] font-bold text-primary">{Number(e.bonus_xp_multiplier).toFixed(1)}× XP</div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
 
       <Link to="/" className="mt-6 block text-center text-xs text-primary hover:underline">← Back to home</Link>
     </AppShell>
