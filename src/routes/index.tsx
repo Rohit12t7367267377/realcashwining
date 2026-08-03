@@ -201,37 +201,30 @@ function Home() {
 
 
 
-      {/* Hero greeting */}
-      <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
-        <div>
-          <p className="text-xs uppercase tracking-widest opacity-80">Welcome back</p>
-          <h1 className="mt-1 text-2xl font-black">Hey {state.name.split(" ")[0]} 👋</h1>
-          <p className="mt-1 text-sm opacity-90">Ready to win some cash today?</p>
+      {/* 1 · Welcome card */}
+      <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift animate-rise-in">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
+          <div className="min-w-0">
+            <p className="text-xs uppercase tracking-widest opacity-80">Welcome back</p>
+            <h1 className="mt-1 truncate text-2xl font-black">Hey {state.name.split(" ")[0]} 👋</h1>
+            <p className="mt-1 text-sm opacity-90">Ready to win some cash today?</p>
+          </div>
+          <Link to="/wallet" className="press shrink-0 rounded-xl bg-white/15 px-3 py-2 text-[11px] font-bold backdrop-blur">
+            Wallet →
+          </Link>
         </div>
-        <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+        <div className="mt-5 grid grid-cols-4 gap-2 text-center">
           <Stat label="Wallet" value={`₹${balance.toFixed(0)}`} />
           <Stat label="Won" value={`₹${won.toFixed(0)}`} />
           <Stat label="Played" value={String(played)} />
+          <Stat label={xp?.rankTitle ?? "Bronze"} value={`Lv ${xp?.level ?? 1}`} />
+        </div>
+        <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-white/20">
+          <div className="h-full rounded-full bg-white/80 transition-all duration-500" style={{ width: `${Math.round((xp?.progress ?? 0) * 100)}%` }} />
         </div>
       </section>
 
-      {/* Level · XP progress · today's mission preview */}
-      <section className="mt-3 surface p-4">
-        <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Your progress</div>
-          <div className="truncate text-base font-black">
-            {xp?.rankTitle ?? "Bronze"} · Level {xp?.level ?? 1}
-          </div>
-          <div className="text-[11px] text-muted-foreground">
-            {xp?.xp ?? 0} XP · {xp?.boxesEarned ?? 0} reward boxes
-          </div>
-        </div>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-muted">
-          <div className="h-full rounded-full bg-gradient-primary transition-all duration-500" style={{ width: `${Math.round((xp?.progress ?? 0) * 100)}%` }} />
-        </div>
-      </section>
-
-      {/* Featured contest */}
+      {/* 2 · Contest banner (featured) */}
       {featured && (
         <section className="mt-3 overflow-hidden rounded-3xl bg-gradient-primary p-5 text-primary-foreground shadow-lift animate-rise-in">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
@@ -248,9 +241,7 @@ function Home() {
               <Countdown target={featured.ends_at ?? featured.starts_at ?? null} />
             </div>
             <Link to="/contest/$id" params={{ id: featured.id }} className="shrink-0">
-              <Button size="lg" className="press h-11 bg-white font-black text-primary hover:bg-white/90">
-                Join Now
-              </Button>
+              <Button size="lg" className="press h-11 bg-white font-black text-primary hover:bg-white/90">Join Now</Button>
             </Link>
           </div>
         </section>
@@ -258,7 +249,7 @@ function Home() {
 
       {/* Continue playing */}
       {inProgress.length > 0 && (
-        <section className="mt-3">
+        <section className="mt-4">
           <SectionHeader title="▶️ Continue Playing" subtitle="Pick up where you left off" />
           <div className="mt-3 grid gap-2">
             {inProgress.slice(0, 3).map((h) => (
@@ -274,42 +265,9 @@ function Home() {
         </section>
       )}
 
-      {/* Live scores quick link */}
-      <Link to="/live-scores" className="mt-3 block rounded-2xl border border-destructive/30 bg-gradient-card px-4 py-3 shadow-soft hover:shadow-glow transition">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <span className="flex h-2 w-2 rounded-full bg-destructive"><span className="h-full w-full animate-ping rounded-full bg-destructive" /></span>
-            <span className="text-xs font-bold uppercase tracking-wider text-destructive">Live Scores</span>
-            <span className="text-sm font-medium">Cricket · Football · Tennis</span>
-          </div>
-          <span className="text-xs text-primary">View →</span>
-        </div>
-      </Link>
-
-      {/* Categories */}
+      {/* 3 · Live contests */}
       <section className="mt-6">
-        <SectionHeader title="Quiz Categories" subtitle="Sports · GK · Coding" />
-        <div className="mt-3 grid grid-cols-3 gap-3">
-          {CATEGORIES.map((c) => (
-            <Link
-              key={c.id}
-              to="/category/$id"
-              params={{ id: c.id }}
-              className="group flex flex-col items-center rounded-2xl bg-card p-4 text-center shadow-soft transition-all hover:-translate-y-1 hover:shadow-glow"
-            >
-              <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-3xl shadow-md`}>
-                {c.emoji}
-              </div>
-              <div className="mt-2 text-sm font-bold leading-tight">{c.name}</div>
-              <div className="mt-0.5 text-[10px] text-muted-foreground leading-tight">{c.short}</div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Real contests link */}
-      <section className="mt-6">
-        <SectionHeader title="🔥 Live Contests" subtitle="Real quizzes created by admin" />
+        <SectionHeader title="🔥 Live Contests" subtitle="Open now — join and play" />
         <div className="mt-3 grid gap-2">
           {live.length === 0 && (
             <div className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">
@@ -317,13 +275,13 @@ function Home() {
             </div>
           )}
           {live.slice(0, 5).map((c) => (
-            <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="flex items-center justify-between rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft hover:shadow-glow transition">
+            <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="card-lift flex items-center justify-between rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft">
               <div className="min-w-0">
                 <div className="truncate text-sm font-bold">{c.title}</div>
                 <div className="text-[11px] opacity-90">
                   {Number(c.entry_fee) > 0 ? `Entry ₹${c.entry_fee}` : "FREE"}
                   {Number(c.first_prize) > 0 && ` · 1st ₹${c.first_prize}`}
-                  {c.starts_at && ` · Starts ${new Date(c.starts_at).toLocaleString()}`}
+                  {c.ends_at && ` · Ends ${new Date(c.ends_at).toLocaleString()}`}
                 </div>
               </div>
               <Trophy className="h-5 w-5 shrink-0" />
@@ -335,16 +293,15 @@ function Home() {
       {/* Upcoming contests */}
       {upcoming.length > 0 && (
         <section className="mt-6">
-          <SectionHeader title="⏰ Upcoming Contests" subtitle="Starting soon — set a reminder" />
+          <SectionHeader title="⏰ Upcoming Contests" subtitle="Starting soon — be ready" />
           <div className="mt-3 grid gap-2">
             {upcoming.map((c) => (
-              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft hover:shadow-glow transition">
+              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="card-lift flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-bold">{c.title}</div>
                   <div className="text-[11px] text-muted-foreground">
                     {c.starts_at && `Starts ${new Date(c.starts_at).toLocaleString()}`}
                     {Number(c.entry_fee) > 0 ? ` · Entry ₹${c.entry_fee}` : " · FREE"}
-                    {Number(c.first_prize) > 0 && ` · 1st ₹${c.first_prize}`}
                   </div>
                 </div>
                 <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary">Upcoming</span>
@@ -354,38 +311,46 @@ function Home() {
         </section>
       )}
 
+      {/* 4 · Quiz categories */}
+      <section className="mt-6">
+        <SectionHeader title="Quiz Categories" subtitle="Sports · GK · Coding" />
+        <div className="mt-3 grid grid-cols-3 gap-3">
+          {CATEGORIES.map((c) => (
+            <Link
+              key={c.id}
+              to="/category/$id"
+              params={{ id: c.id }}
+              className="card-lift group flex flex-col items-center rounded-2xl bg-card p-4 text-center shadow-soft"
+            >
+              <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-3xl shadow-md`}>
+                {c.emoji}
+              </div>
+              <div className="mt-2 text-sm font-bold leading-tight">{c.name}</div>
+              <div className="mt-0.5 text-[10px] leading-tight text-muted-foreground">{c.short}</div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
-
-      {/* AI Recommendations */}
-      {recs?.enabled && recs.items && recs.items.length > 0 && (
-        <section className="mt-6">
-          <SectionHeader title="✨ Recommended for You" subtitle="AI-picked contests based on your play" />
-          <div className="mt-3 grid gap-2">
-            {recs.items.map((r) => (
-              <Link key={r.contest_id} to="/contest/$id" params={{ id: r.contest_id }} className="rounded-2xl border border-primary/30 bg-card p-3 shadow-soft hover:shadow-glow transition">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="truncate text-sm font-bold">{r.title}</div>
-                    <div className="mt-0.5 truncate text-[11px] text-muted-foreground">{r.reason}</div>
-                  </div>
-                  <div className="shrink-0 text-right text-[11px]">
-                    {r.entry_fee > 0 ? <span>Entry ₹{r.entry_fee}</span> : <span className="font-bold text-success">FREE</span>}
-                    {r.first_prize > 0 && <div className="font-bold text-success">Win ₹{r.first_prize}</div>}
-                  </div>
-                </div>
-              </Link>
-            ))}
+      {/* 5 · Live scores */}
+      <Link to="/live-scores" className="press mt-6 block rounded-2xl border border-destructive/30 bg-gradient-card px-4 py-3 shadow-soft transition hover:shadow-glow">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex h-2 w-2 shrink-0 rounded-full bg-destructive"><span className="h-full w-full animate-ping rounded-full bg-destructive" /></span>
+            <span className="text-xs font-bold uppercase tracking-wider text-destructive">Live Scores</span>
+            <span className="truncate text-sm font-medium">Cricket · Football · Tennis</span>
           </div>
-        </section>
-      )}
+          <span className="shrink-0 text-xs text-primary">View →</span>
+        </div>
+      </Link>
 
-      {/* Completed contests */}
+      {/* 6 · Recently completed */}
       {completed.length > 0 && (
         <section className="mt-6">
           <SectionHeader title="🏁 Recently Completed" subtitle="Results declared — see who won" />
           <div className="mt-3 grid gap-2">
             {completed.map((c) => (
-              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="flex items-center justify-between rounded-2xl bg-muted/40 p-3 shadow-soft hover:bg-muted/60 transition">
+              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="card-lift flex items-center justify-between rounded-2xl bg-muted/40 p-3 shadow-soft">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-bold">{c.title}</div>
                   <div className="text-[11px] text-muted-foreground">
@@ -399,35 +364,25 @@ function Home() {
         </section>
       )}
 
-      {/* Explore quick nav */}
+      {/* 7 · Explore shortcuts */}
       <section className="mt-6">
-        <SectionHeader title="Explore" subtitle="More ways to play" />
+        <SectionHeader title="Explore" subtitle="Jump straight in" />
         <div className="mt-3 grid grid-cols-4 gap-2">
-          <Link to="/reading" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">📖</span>Reading</Link>
-          <Link to="/cricket" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">🏏</span>Cricket</Link>
-          <Link to="/live-scores" className="flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow"><span className="text-2xl">⚡</span>Scores</Link>
-          <Link to="/ai-tutor" className="flex flex-col items-center gap-1 rounded-2xl bg-gradient-to-br from-primary/10 to-secondary/10 p-3 text-center text-xs font-bold shadow-soft hover:shadow-glow">
-            <Bot className="h-6 w-6 text-primary" /> AI Tutor
+          <ExploreTile to="/reading" emoji="📖" label="Reading" />
+          <ExploreTile to="/cricket" emoji="🏏" label="Cricket" />
+          <Link to="/category/$id" params={{ id: "gk" }} className="press card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <span className="text-2xl">🌍</span>GK
+          </Link>
+          <Link to="/category/$id" params={{ id: "coding" }} className="press card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+            <span className="text-2xl">💻</span>Coding
           </Link>
         </div>
       </section>
 
-      {/* Leaderboard link */}
-      <Link to="/leaderboard" className="mt-4 flex items-center justify-between rounded-2xl bg-card p-4 shadow-soft transition hover:shadow-glow">
-        <div className="flex items-center gap-3">
-          <Trophy className="h-5 w-5 text-primary" />
-          <div>
-            <div className="text-sm font-bold">Winners Leaderboard</div>
-            <div className="text-[11px] text-muted-foreground">Rankings &amp; seasonal events</div>
-          </div>
-        </div>
-        <span className="text-xs text-primary">View →</span>
-      </Link>
-
-      {/* Latest winners */}
+      {/* Latest winners preview */}
       {winnerRows.length > 0 && (
         <section className="mt-6">
-          <SectionHeader title="🏆 Latest Winners" subtitle="Declared by admin" />
+          <SectionHeader title="🏆 Latest Winners" subtitle="Top 5 declared by admin" />
           <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
             {winnerRows.map((w) => (
               <div key={w.attempt_id} className="card-lift min-w-[9.5rem] shrink-0 rounded-2xl bg-gradient-gold p-3 text-amber-950 shadow-soft">
@@ -440,22 +395,21 @@ function Home() {
               </div>
             ))}
           </div>
-          <Link to="/leaderboard" className="mt-1 block text-center text-xs font-bold text-primary hover:underline">
-            View full leaderboard →
-          </Link>
         </section>
       )}
 
-      {/* Promo */}
-      <section className="mt-6 rounded-2xl bg-gradient-success p-4 text-success-foreground shadow-soft">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-2"><Flame className="h-4 w-4" /><span className="text-xs font-bold uppercase">Refer & Earn</span></div>
-            <p className="mt-1 text-sm font-semibold">Invite friends, get ₹50 each!</p>
+      {/* Leaderboard preview → Ranks */}
+      <Link to="/leaderboard" className="press mt-4 flex items-center justify-between rounded-2xl bg-card p-4 shadow-soft transition hover:shadow-glow">
+        <div className="flex min-w-0 items-center gap-3">
+          <Trophy className="h-5 w-5 shrink-0 text-primary" />
+          <div className="min-w-0">
+            <div className="text-sm font-bold">Leaderboard &amp; Ranks</div>
+            <div className="text-[11px] text-muted-foreground">Podium, missions, Hall of Fame &amp; events</div>
           </div>
-          <Link to="/refer"><Button size="sm" variant="secondary" className="bg-white text-emerald-700 hover:bg-white/90">Invite</Button></Link>
         </div>
-      </section>
+        <span className="shrink-0 text-xs font-bold text-primary">View All →</span>
+      </Link>
+
     </AppShell>
   );
 }
