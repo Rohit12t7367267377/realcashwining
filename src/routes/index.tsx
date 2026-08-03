@@ -7,12 +7,11 @@ import { CATEGORIES } from "@/lib/quiz-data";
 import { useUser } from "@/lib/user-store";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyContestStats } from "@/lib/stats.functions";
-import { aiRecommendContests } from "@/lib/ai.functions";
 import { getMyXp } from "@/lib/gamification.functions";
 import { getWinnersLeaderboard } from "@/lib/stats.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, Sparkles, Bot, Timer, Crown, PlayCircle } from "lucide-react";
+import { Trophy, Sparkles, Timer, Crown, PlayCircle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,14 +48,6 @@ function Home() {
     queryFn: () => fetchStats(),
     enabled: mounted && state.loggedIn,
     staleTime: 15_000,
-  });
-  const fetchRecs = useServerFn(aiRecommendContests);
-  const { data: recs } = useQuery({
-    queryKey: ["ai-recs"],
-    queryFn: () => fetchRecs(),
-    enabled: mounted && state.loggedIn,
-    staleTime: 5 * 60_000,
-    retry: false,
   });
   const fetchXp = useServerFn(getMyXp);
   const { data: xp } = useQuery({
@@ -442,6 +433,14 @@ function Stat({ label, value }: { label: string; value: string }) {
       <div className="text-lg font-black">{value}</div>
       <div className="text-[10px] uppercase tracking-wider opacity-80">{label}</div>
     </div>
+  );
+}
+
+function ExploreTile({ to, emoji, label }: { to: React.ComponentProps<typeof Link>["to"]; emoji: string; label: string }) {
+  return (
+    <Link to={to} className="press card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
+      <span className="text-2xl">{emoji}</span>{label}
+    </Link>
   );
 }
 
