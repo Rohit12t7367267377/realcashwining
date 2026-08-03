@@ -35,6 +35,7 @@ import { Route as CommunityRouteImport } from './routes/community'
 import { Route as BooksRouteImport } from './routes/books'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AiTutorRouteImport } from './routes/ai-tutor'
+import { Route as AiRouteImport } from './routes/ai'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReadingIndexRouteImport } from './routes/reading.index'
@@ -201,6 +202,11 @@ const AuthRoute = AuthRouteImport.update({
 const AiTutorRoute = AiTutorRouteImport.update({
   id: '/ai-tutor',
   path: '/ai-tutor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiRoute = AiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -392,6 +398,7 @@ const AdminAiRoute = AdminAiRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ai': typeof AiRoute
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
@@ -456,6 +463,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai': typeof AiRoute
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
@@ -522,6 +530,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ai': typeof AiRoute
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
@@ -589,6 +598,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/admin'
+    | '/ai'
     | '/ai-tutor'
     | '/auth'
     | '/books'
@@ -653,6 +663,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai'
     | '/ai-tutor'
     | '/auth'
     | '/books'
@@ -718,6 +729,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/admin'
+    | '/ai'
     | '/ai-tutor'
     | '/auth'
     | '/books'
@@ -784,6 +796,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AiRoute: typeof AiRoute
   AiTutorRoute: typeof AiTutorRoute
   AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRoute
@@ -1000,6 +1013,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-tutor'
       fullPath: '/ai-tutor'
       preLoaderRoute: typeof AiTutorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai': {
+      id: '/ai'
+      path: '/ai'
+      fullPath: '/ai'
+      preLoaderRoute: typeof AiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -1342,6 +1362,7 @@ const WalletRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  AiRoute: AiRoute,
   AiTutorRoute: AiTutorRoute,
   AuthRoute: AuthRoute,
   BooksRoute: BooksRoute,
