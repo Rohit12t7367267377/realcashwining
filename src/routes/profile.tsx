@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import {
   LogOut, Trophy, Target, Award, History, Camera, Grid3X3, Play,
   Crown, BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2,
+  Wallet, Settings, Bell, Shield, Globe,
 } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -189,7 +190,6 @@ function ProfilePage() {
     <AppShell>
       {/* Feature row (top) */}
       <section className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
-        <TopLink to="/vip" icon={<Crown className="h-4 w-4" />} label="VIP" />
         <TopLink to="/books" icon={<BookOpen className="h-4 w-4" />} label="Library" />
         <TopLink to="/kyc" icon={<IdCard className="h-4 w-4" />} label="KYC" />
         <TopLink to="/feedback" icon={<MessageSquare className="h-4 w-4" />} label="Feedback" />
@@ -304,6 +304,22 @@ function ProfilePage() {
         </div>
       </section>
 
+      {/* Wallet */}
+      <section className="mt-5 rounded-3xl bg-card p-4 shadow-soft">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="min-w-0">
+            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Wallet balance</div>
+            <div className="text-2xl font-black">₹{Number(wallet?.balance ?? 0).toFixed(0)}</div>
+          </div>
+          <Wallet className="h-7 w-7 shrink-0 text-primary" />
+        </div>
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          <Link to="/wallet" className="press rounded-xl bg-gradient-primary px-2 py-2 text-center text-xs font-bold text-primary-foreground">Add money</Link>
+          <Link to="/wallet" className="press rounded-xl bg-muted px-2 py-2 text-center text-xs font-bold">Withdraw</Link>
+          <Link to="/wallet/history" className="press rounded-xl bg-muted px-2 py-2 text-center text-xs font-bold">History</Link>
+        </div>
+      </section>
+
       {/* XP / Level card */}
       <section className="mt-5 rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft">
         <div className="text-[10px] uppercase tracking-widest opacity-80">Rank</div>
@@ -341,6 +357,25 @@ function ProfilePage() {
               )}
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Settings */}
+      <section className="mt-6">
+        <h2 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+          <Settings className="h-4 w-4" /> Settings &amp; more
+        </h2>
+        <div className="grid grid-cols-2 gap-2">
+          <SettingLink to="/kyc" icon={<IdCard className="h-4 w-4" />} label="KYC verification" />
+          <SettingLink to="/notifications" icon={<Bell className="h-4 w-4" />} label="Notifications" />
+          <SettingLink to="/reading" icon={<BookOpen className="h-4 w-4" />} label="Reading history" />
+          <SettingLink to="/leaderboard" icon={<Award className="h-4 w-4" />} label="Badges & ranks" />
+          <SettingLink to="/terms" icon={<Shield className="h-4 w-4" />} label="Privacy & terms" />
+          <SettingLink to="/support" icon={<LifeBuoy className="h-4 w-4" />} label="Help & support" />
+        </div>
+        <div className="mt-2 flex items-center justify-between rounded-2xl bg-card p-3 text-sm shadow-soft">
+          <span className="flex items-center gap-2 font-bold"><Globe className="h-4 w-4 text-primary" /> Language</span>
+          <span className="text-xs text-muted-foreground">English · हिन्दी (in AI Hub)</span>
         </div>
       </section>
 
@@ -389,6 +424,15 @@ function TopLink({ to, icon, label }: { to: React.ComponentProps<typeof Link>["t
   return (
     <Link to={to} className="press flex shrink-0 items-center gap-1.5 rounded-full bg-card px-3 py-2 text-xs font-bold shadow-soft">
       <span className="text-primary">{icon}</span> {label}
+    </Link>
+  );
+}
+
+function SettingLink({ to, icon, label }: { to: React.ComponentProps<typeof Link>["to"]; icon: React.ReactNode; label: string }) {
+  return (
+    <Link to={to} className="press card-lift flex items-center gap-2 rounded-2xl bg-card p-3 text-xs font-bold shadow-soft">
+      <span className="text-primary">{icon}</span>
+      <span className="truncate">{label}</span>
     </Link>
   );
 }
