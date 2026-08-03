@@ -60,7 +60,7 @@ export const getWinnersLeaderboard = createServerFn({ method: "GET" }).handler(a
 
   const { data: attempts } = await supabaseAdmin
     .from("contest_attempts")
-    .select("id, user_id, contest_id, rank, prize_awarded, score, answers")
+    .select("id, user_id, contest_id, rank, prize_awarded, score, answers, submitted_at")
     .in("contest_id", ids)
     .eq("is_winner", true)
     .order("rank", { ascending: true, nullsFirst: false })
@@ -85,6 +85,7 @@ export const getWinnersLeaderboard = createServerFn({ method: "GET" }).handler(a
       wrong: Number(last?._wrong ?? 0),
       unanswered: Number(last?._unanswered ?? 0),
       contest_title: titles[a.contest_id] || "",
+      won_at: a.submitted_at as string | null,
     };
   });
 });

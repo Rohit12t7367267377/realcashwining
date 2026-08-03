@@ -1,14 +1,15 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Trophy, Wallet, Gift, User } from "lucide-react";
+import { Home, Trophy, Gem, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { to: "/", label: "Home", icon: Home, center: false },
   { to: "/leaderboard", label: "Ranks", icon: Trophy, center: false },
-  { to: "/wallet", label: "Wallet", icon: Wallet, center: true },
-  { to: "/rewards", label: "Rewards", icon: Gift, center: false },
+  { to: "/hub", label: "Elite Hub", icon: Gem, center: true },
+  { to: "/ai", label: "AI", icon: Sparkles, center: false },
   { to: "/profile", label: "Profile", icon: User, center: false },
 ] as const;
+
 
 export function BottomNav() {
   const { location } = useRouterState();
