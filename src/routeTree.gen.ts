@@ -24,6 +24,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as LiveScoresRouteImport } from './routes/live-scores'
 import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as KycRouteImport } from './routes/kyc'
+import { Route as HubRouteImport } from './routes/hub'
 import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
 import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -145,6 +146,11 @@ const LeaderboardRoute = LeaderboardRouteImport.update({
 const KycRoute = KycRouteImport.update({
   id: '/kyc',
   path: '/kyc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubRoute = HubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HallOfFameRoute = HallOfFameRouteImport.update({
@@ -396,6 +402,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/feedback': typeof FeedbackRoute
   '/hall-of-fame': typeof HallOfFameRoute
+  '/hub': typeof HubRoute
   '/kyc': typeof KycRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
@@ -459,6 +466,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/feedback': typeof FeedbackRoute
   '/hall-of-fame': typeof HallOfFameRoute
+  '/hub': typeof HubRoute
   '/kyc': typeof KycRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
@@ -524,6 +532,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/feedback': typeof FeedbackRoute
   '/hall-of-fame': typeof HallOfFameRoute
+  '/hub': typeof HubRoute
   '/kyc': typeof KycRoute
   '/leaderboard': typeof LeaderboardRoute
   '/live-scores': typeof LiveScoresRoute
@@ -590,6 +599,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/feedback'
     | '/hall-of-fame'
+    | '/hub'
     | '/kyc'
     | '/leaderboard'
     | '/live-scores'
@@ -653,6 +663,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/feedback'
     | '/hall-of-fame'
+    | '/hub'
     | '/kyc'
     | '/leaderboard'
     | '/live-scores'
@@ -717,6 +728,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/feedback'
     | '/hall-of-fame'
+    | '/hub'
     | '/kyc'
     | '/leaderboard'
     | '/live-scores'
@@ -782,6 +794,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   FeedbackRoute: typeof FeedbackRoute
   HallOfFameRoute: typeof HallOfFameRoute
+  HubRoute: typeof HubRoute
   KycRoute: typeof KycRoute
   LeaderboardRoute: typeof LeaderboardRoute
   LiveScoresRoute: typeof LiveScoresRoute
@@ -910,6 +923,13 @@ declare module '@tanstack/react-router' {
       path: '/kyc'
       fullPath: '/kyc'
       preLoaderRoute: typeof KycRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hub': {
+      id: '/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof HubRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/hall-of-fame': {
@@ -1332,6 +1352,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   FeedbackRoute: FeedbackRoute,
   HallOfFameRoute: HallOfFameRoute,
+  HubRoute: HubRoute,
   KycRoute: KycRoute,
   LeaderboardRoute: LeaderboardRoute,
   LiveScoresRoute: LiveScoresRoute,
