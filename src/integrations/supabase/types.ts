@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_targets: {
+        Row: {
+          ad_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_targets_ad_id_fkey"
+            columns: ["ad_id"]
+            isOneToOne: false
+            referencedRelation: "ads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ads: {
+        Row: {
+          active: boolean
+          audience: string
+          body: string | null
+          created_at: string
+          cta_label: string | null
+          ends_at: string | null
+          id: string
+          image_url: string | null
+          link_url: string | null
+          starts_at: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          audience?: string
+          body?: string | null
+          created_at?: string
+          cta_label?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          starts_at?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          audience?: string
+          body?: string | null
+          created_at?: string
+          cta_label?: string | null
+          ends_at?: string | null
+          id?: string
+          image_url?: string | null
+          link_url?: string | null
+          starts_at?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_chat_messages: {
         Row: {
           content: string
@@ -526,6 +597,51 @@ export type Database = {
           per_user_limit?: number | null
           redemptions?: number
           xp_amount?: number | null
+        }
+        Relationships: []
+      }
+      creator_profiles: {
+        Row: {
+          admin_note: string | null
+          applied_at: string | null
+          avg_rating: number
+          created_at: string
+          followers_count: number
+          monetized: boolean
+          ratings_count: number
+          status: string
+          total_views: number
+          updated_at: string
+          user_id: string
+          watch_seconds: number
+        }
+        Insert: {
+          admin_note?: string | null
+          applied_at?: string | null
+          avg_rating?: number
+          created_at?: string
+          followers_count?: number
+          monetized?: boolean
+          ratings_count?: number
+          status?: string
+          total_views?: number
+          updated_at?: string
+          user_id: string
+          watch_seconds?: number
+        }
+        Update: {
+          admin_note?: string | null
+          applied_at?: string | null
+          avg_rating?: number
+          created_at?: string
+          followers_count?: number
+          monetized?: boolean
+          ratings_count?: number
+          status?: string
+          total_views?: number
+          updated_at?: string
+          user_id?: string
+          watch_seconds?: number
         }
         Relationships: []
       }
@@ -1061,6 +1177,106 @@ export type Database = {
           },
         ]
       }
+      post_ratings: {
+        Row: {
+          created_at: string
+          post_id: string
+          stars: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          post_id: string
+          stars: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          post_id?: string
+          stars?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_ratings_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_views: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string | null
+          watch_seconds: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id?: string | null
+          watch_seconds?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string | null
+          watch_seconds?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_views_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      prize_awards: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          kind: string
+          period: string
+          period_key: string
+          rank: number | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          period: string
+          period_key: string
+          rank?: number | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          kind?: string
+          period?: string
+          period_key?: string
+          rank?: number | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1419,6 +1635,101 @@ export type Database = {
           name?: string
           reward_pool?: number
           starts_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      store_orders: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          note: string | null
+          product_id: string
+          quantity: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          note?: string | null
+          product_id: string
+          quantity?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          note?: string | null
+          product_id?: string
+          quantity?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "store_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_products: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string
+          description: string | null
+          id: string
+          image_url: string | null
+          price: number
+          sort_order: number
+          stock: number
+          title: string
+          unlimited_stock: boolean
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          price?: number
+          sort_order?: number
+          stock?: number
+          title: string
+          unlimited_stock?: boolean
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          price?: number
+          sort_order?: number
+          stock?: number
+          title?: string
+          unlimited_stock?: boolean
           updated_at?: string
         }
         Relationships: []

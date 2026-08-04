@@ -48,11 +48,13 @@ import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
 import { Route as AdminXpRouteImport } from './routes/admin.xp'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminStoreRouteImport } from './routes/admin.store'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminReadingRouteImport } from './routes/admin.reading'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
+import { Route as AdminPrizesRouteImport } from './routes/admin.prizes'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
 import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
@@ -63,6 +65,7 @@ import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminFaqsRouteImport } from './routes/admin.faqs'
 import { Route as AdminEventsRouteImport } from './routes/admin.events'
 import { Route as AdminCricketRouteImport } from './routes/admin.cricket'
+import { Route as AdminCreatorsRouteImport } from './routes/admin.creators'
 import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
 import { Route as AdminCommunityRouteImport } from './routes/admin.community'
@@ -73,6 +76,7 @@ import { Route as AdminBooksRouteImport } from './routes/admin.books'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
+import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
@@ -269,6 +273,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminStoreRoute = AdminStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -292,6 +301,11 @@ const AdminReadingRoute = AdminReadingRouteImport.update({
 const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
   id: '/questions',
   path: '/questions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPrizesRoute = AdminPrizesRouteImport.update({
+  id: '/prizes',
+  path: '/prizes',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
@@ -344,6 +358,11 @@ const AdminCricketRoute = AdminCricketRouteImport.update({
   path: '/cricket',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCreatorsRoute = AdminCreatorsRouteImport.update({
+  id: '/creators',
+  path: '/creators',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCouponsRoute = AdminCouponsRouteImport.update({
   id: '/coupons',
   path: '/coupons',
@@ -394,6 +413,11 @@ const AdminAiRoute = AdminAiRouteImport.update({
   path: '/ai',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdsRoute = AdminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -425,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -435,6 +460,7 @@ export interface FileRoutesByFullPath {
   '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/creators': typeof AdminCreatorsRoute
   '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/faqs': typeof AdminFaqsRoute
@@ -445,11 +471,13 @@ export interface FileRoutesByFullPath {
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/store': typeof AdminStoreRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -490,6 +518,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -500,6 +529,7 @@ export interface FileRoutesByTo {
   '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/creators': typeof AdminCreatorsRoute
   '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/faqs': typeof AdminFaqsRoute
@@ -510,11 +540,13 @@ export interface FileRoutesByTo {
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/store': typeof AdminStoreRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -557,6 +589,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -567,6 +600,7 @@ export interface FileRoutesById {
   '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/creators': typeof AdminCreatorsRoute
   '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/faqs': typeof AdminFaqsRoute
@@ -577,11 +611,13 @@ export interface FileRoutesById {
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/store': typeof AdminStoreRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -625,6 +661,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
     | '/admin/banners'
@@ -635,6 +672,7 @@ export interface FileRouteTypes {
     | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
+    | '/admin/creators'
     | '/admin/cricket'
     | '/admin/events'
     | '/admin/faqs'
@@ -645,11 +683,13 @@ export interface FileRouteTypes {
     | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
+    | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
+    | '/admin/store'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -690,6 +730,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
     | '/admin/banners'
@@ -700,6 +741,7 @@ export interface FileRouteTypes {
     | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
+    | '/admin/creators'
     | '/admin/cricket'
     | '/admin/events'
     | '/admin/faqs'
@@ -710,11 +752,13 @@ export interface FileRouteTypes {
     | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
+    | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
+    | '/admin/store'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -756,6 +800,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
     | '/admin/banners'
@@ -766,6 +811,7 @@ export interface FileRouteTypes {
     | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
+    | '/admin/creators'
     | '/admin/cricket'
     | '/admin/events'
     | '/admin/faqs'
@@ -776,11 +822,13 @@ export interface FileRouteTypes {
     | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
+    | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
     | '/admin/results'
     | '/admin/roles'
     | '/admin/settings'
+    | '/admin/store'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -1106,6 +1154,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/store': {
+      id: '/admin/store'
+      path: '/store'
+      fullPath: '/admin/store'
+      preLoaderRoute: typeof AdminStoreRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/settings': {
       id: '/admin/settings'
       path: '/settings'
@@ -1139,6 +1194,13 @@ declare module '@tanstack/react-router' {
       path: '/questions'
       fullPath: '/admin/questions'
       preLoaderRoute: typeof AdminQuestionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/prizes': {
+      id: '/admin/prizes'
+      path: '/prizes'
+      fullPath: '/admin/prizes'
+      preLoaderRoute: typeof AdminPrizesRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/payments': {
@@ -1211,6 +1273,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCricketRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/creators': {
+      id: '/admin/creators'
+      path: '/creators'
+      fullPath: '/admin/creators'
+      preLoaderRoute: typeof AdminCreatorsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/coupons': {
       id: '/admin/coupons'
       path: '/coupons'
@@ -1281,10 +1350,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAiRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ads': {
+      id: '/admin/ads'
+      path: '/ads'
+      fullPath: '/admin/ads'
+      preLoaderRoute: typeof AdminAdsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminAdsRoute: typeof AdminAdsRoute
   AdminAiRoute: typeof AdminAiRoute
   AdminAppUpdatesRoute: typeof AdminAppUpdatesRoute
   AdminBannersRoute: typeof AdminBannersRoute
@@ -1295,6 +1372,7 @@ interface AdminRouteChildren {
   AdminCommunityRoute: typeof AdminCommunityRoute
   AdminContestsRoute: typeof AdminContestsRoute
   AdminCouponsRoute: typeof AdminCouponsRoute
+  AdminCreatorsRoute: typeof AdminCreatorsRoute
   AdminCricketRoute: typeof AdminCricketRoute
   AdminEventsRoute: typeof AdminEventsRoute
   AdminFaqsRoute: typeof AdminFaqsRoute
@@ -1305,17 +1383,20 @@ interface AdminRouteChildren {
   AdminMembershipsRoute: typeof AdminMembershipsRoute
   AdminMissionsRoute: typeof AdminMissionsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
+  AdminPrizesRoute: typeof AdminPrizesRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminReadingRoute: typeof AdminReadingRoute
   AdminResultsRoute: typeof AdminResultsRoute
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminStoreRoute: typeof AdminStoreRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminXpRoute: typeof AdminXpRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdsRoute: AdminAdsRoute,
   AdminAiRoute: AdminAiRoute,
   AdminAppUpdatesRoute: AdminAppUpdatesRoute,
   AdminBannersRoute: AdminBannersRoute,
@@ -1326,6 +1407,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommunityRoute: AdminCommunityRoute,
   AdminContestsRoute: AdminContestsRoute,
   AdminCouponsRoute: AdminCouponsRoute,
+  AdminCreatorsRoute: AdminCreatorsRoute,
   AdminCricketRoute: AdminCricketRoute,
   AdminEventsRoute: AdminEventsRoute,
   AdminFaqsRoute: AdminFaqsRoute,
@@ -1336,11 +1418,13 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMembershipsRoute: AdminMembershipsRoute,
   AdminMissionsRoute: AdminMissionsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
+  AdminPrizesRoute: AdminPrizesRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminReadingRoute: AdminReadingRoute,
   AdminResultsRoute: AdminResultsRoute,
   AdminRolesRoute: AdminRolesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminStoreRoute: AdminStoreRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminXpRoute: AdminXpRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -1399,13 +1483,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

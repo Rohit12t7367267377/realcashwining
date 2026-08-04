@@ -1,0 +1,38 @@
+import { createServerFn } from "@tanstack/react-start";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { z } from "zod";
+
+/**
+ * Voice assistant: answers a study question and returns spoken audio.
+ * Uses ElevenLabs when the connector key is available, otherwise falls back to
+ * the Lovable AI text-to-speech models so voice always works.
+ */
+export const speakAnswer = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        question: z.string().trim().min(2).max(600),
+        voiceId: z.string().trim().max(60).optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { callAiChat } = await import("@/lib/ai-gateway.server");
+    const { synthesizeSpeech } = await import("@/lib/tts.server");
+
+    const answer = await callAiChat(
+      [
+        {
+          role: "system",
+          content:
+            "You are Guru.AI, a friendly study voice assistant for an Indian quiz app. Answer in at most 4 short sentences, plain spoken language, no markdown.",
+        },
+        { role: "user", content: data.question },
+      ],
+      { temperature: 0.6 },
+    );
+
+    const audio = await synthesizeSpeech(answer, data.voiceId);
+    return { answer, audioBase64: audio.base64, mimeType: audio.mimeType, provider: audio.provider };
+  });
