@@ -75,6 +75,7 @@ import { Route as AdminBooksRouteImport } from './routes/admin.books'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
+import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
@@ -406,6 +407,11 @@ const AdminAiRoute = AdminAiRouteImport.update({
   path: '/ai',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdsRoute = AdminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -437,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -504,6 +511,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -573,6 +581,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
   '/admin/banners': typeof AdminBannersRoute
@@ -643,6 +652,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
     | '/admin/banners'
@@ -710,6 +720,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
     | '/admin/banners'
@@ -778,6 +789,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
     | '/admin/banners'
@@ -1319,10 +1331,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAiRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ads': {
+      id: '/admin/ads'
+      path: '/ads'
+      fullPath: '/admin/ads'
+      preLoaderRoute: typeof AdminAdsRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminAdsRoute: typeof AdminAdsRoute
   AdminAiRoute: typeof AdminAiRoute
   AdminAppUpdatesRoute: typeof AdminAppUpdatesRoute
   AdminBannersRoute: typeof AdminBannersRoute
@@ -1356,6 +1376,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdsRoute: AdminAdsRoute,
   AdminAiRoute: AdminAiRoute,
   AdminAppUpdatesRoute: AdminAppUpdatesRoute,
   AdminBannersRoute: AdminBannersRoute,
