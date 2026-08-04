@@ -54,6 +54,7 @@ import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminResultsRouteImport } from './routes/admin.results'
 import { Route as AdminReadingRouteImport } from './routes/admin.reading'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
+import { Route as AdminPrizesRouteImport } from './routes/admin.prizes'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
 import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
@@ -300,6 +301,11 @@ const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
   path: '/questions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPrizesRoute = AdminPrizesRouteImport.update({
+  id: '/prizes',
+  path: '/prizes',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
   id: '/payments',
   path: '/payments',
@@ -451,6 +457,7 @@ export interface FileRoutesByFullPath {
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
@@ -517,6 +524,7 @@ export interface FileRoutesByTo {
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
@@ -585,6 +593,7 @@ export interface FileRoutesById {
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
   '/admin/results': typeof AdminResultsRoute
@@ -654,6 +663,7 @@ export interface FileRouteTypes {
     | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
+    | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
     | '/admin/results'
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
+    | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
     | '/admin/results'
@@ -787,6 +798,7 @@ export interface FileRouteTypes {
     | '/admin/memberships'
     | '/admin/missions'
     | '/admin/payments'
+    | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
     | '/admin/results'
@@ -1160,6 +1172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminQuestionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/prizes': {
+      id: '/admin/prizes'
+      path: '/prizes'
+      fullPath: '/admin/prizes'
+      preLoaderRoute: typeof AdminPrizesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/payments': {
       id: '/admin/payments'
       path: '/payments'
@@ -1324,6 +1343,7 @@ interface AdminRouteChildren {
   AdminMembershipsRoute: typeof AdminMembershipsRoute
   AdminMissionsRoute: typeof AdminMissionsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
+  AdminPrizesRoute: typeof AdminPrizesRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminReadingRoute: typeof AdminReadingRoute
   AdminResultsRoute: typeof AdminResultsRoute
@@ -1356,6 +1376,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMembershipsRoute: AdminMembershipsRoute,
   AdminMissionsRoute: AdminMissionsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
+  AdminPrizesRoute: AdminPrizesRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminReadingRoute: AdminReadingRoute,
   AdminResultsRoute: AdminResultsRoute,
