@@ -1,47 +1,50 @@
-## Scope
+# Full Admin Control + Guru.AI + Creator Monetization
 
-Six items in one pass.
+This is a large request, so it ships in batches. Nothing existing gets removed except the items you explicitly asked to move or delete.
 
-### 1. Fix "SSC / UPSC click does nothing" on home
+## Batch 1 — Navigation, renaming & page cleanup
 
-The category links on the home page use `<Link to="/category/$id" params={{ id: c.id }}>`. The route file exists. Most likely cause: the home page on the logged-in landing was actually the **logged-out** Landing component (which only shows category *cards*, not links). I'll wrap those tiles in `<Link>` too so they navigate.
+- Rename the AI tab and page to **Guru.AI** (route stays `/ai`, all labels/titles updated).
+- Move **Library (books)** inside Guru.AI as a section; `/books` keeps working but is reached from Guru.AI.
+- **Home**: remove Latest Winners and the Leaderboard preview. Upgrade the existing top wallet block into a full wallet control centre: balance, Add Money (UPI + QR), Withdraw, History, KYC status, pending deposit/withdrawal chips.
+- **Profile**: remove the wallet block and all wallet shortcuts (history, deposits, withdraw) — wallet lives only on Home.
+- **Profile**: remove the standalone KYC tile; add a small badge-style tile next to it for **Creator Status** (monetization progress). KYC only appears once the user is approved for monetization.
 
-### 2. Forgot Password
+## Batch 2 — Admin control centre (one section per app area)
 
-- Add "Forgot password?" link on `/auth` login form → opens a small dialog → calls `supabase.auth.resetPasswordForEmail(email, { redirectTo: origin + "/reset-password" })`.
-- Create `/reset-password` route (public) → reads recovery token from URL → form to set new password → `supabase.auth.updateUser({ password })`.
+Restructure the admin dashboard into grouped sections matching the app tabs, so every user-facing function has an admin owner:
 
-### 3. Sports Live Quiz (cricket / football)
+```text
+Admin
+├── Home        banners, marquee, categories, live scores, featured contest
+├── Ranks       leaderboards, seasonal events, missions, hall of fame, XP
+├── Elite Hub   store products, coupons, memberships, reward boxes, prizes
+├── Guru.AI     prompts, quiz generation, library/books, voice assistant
+├── Profile     users, roles, community moderation, creator/monetization, ads
+└── System      wallet approvals, KYC, fraud, feedback, settings, updates
+```
 
-Per your choice: admin creates a "live match" contest with pre-added questions; users join during the match window.
+New admin pages in this batch:
 
-- Add two new categories to the **DB** `categories` table: Cricket 🏏, Football ⚽ (so the existing admin Contests + Questions tooling works as-is — admin can add questions & contests under these categories).
-- Add a **Sports** section on the home page that lists active contests in those two categories with a "🔴 LIVE" badge when `starts_at <= now <= ends_at`.
-- No new schema — reuses your `contests` + `questions` tables and existing admin UI.
+- **Elite Hub Store**: admin creates products (title, image, description, price in coins/₹, stock, active). Users buy from Elite Hub; orders land in an admin order queue with fulfil/reject.
+- **Prize Distribution**: pick a period (week / month / year), see the leaderboard winners for that period, and award a prize (cash to wallet, coins, XP, reward box, or a free-text physical prize). Awards are logged and shown to the winner.
 
-### 4. Terms & Conditions
+## Batch 3 — Creator platform (Instagram + YouTube style)
 
-Static `/terms` route with standard quiz/contest T&C content. Link from bottom of home + auth pages.
+- Profile gains creator analytics: post views, watch minutes, average rating, follower count, and monetization progress toward the thresholds (500 followers, 3.5★ average from 500+ ratings, watch-hours target).
+- Short video posts with view counting, star ratings, and study-only content policy notice.
+- Per-user creator settings page (visibility, comments, ratings, monetization opt-in).
+- Admin **Creators** page: review applications, approve/revoke monetization, adjust thresholds, view analytics. KYC is required only after approval and is requested automatically then.
+- Admin **Ads** page: create an ad (image, copy, link) and target it to specific users, segments, or everyone; ads render in-app for targeted users only.
 
-### 5. Help & Support
+## Batch 4 — Voice assistant + error sweep
 
-Static `/support` route with FAQ + "Email us" mailto button → `my5270970@gmail.com`. Link from profile page.
+- ElevenLabs voice assistant inside Guru.AI (speak questions, hear answers), enabled/disabled and voice-selected by admin.
+- Sweep every admin page and user page for runtime errors and fix them.
 
-### 6. PDF Books library
+## Technical notes
 
-- Create storage bucket `books` (public read).
-- New table `books` (title, description, category, file_path, uploaded_by, downloads).
-- Admin-only upload via new admin page `/admin/books`.
-- Public `/books` route: searchable grid of all books with category filter + download button. Increments download counter.
-
-## Technical Notes
-
-- DB migration: add 2 sports categories + create `books` table with RLS (public read, admin write via `has_role`).
-- Storage: create `books` bucket (public).
-- Routes added: `/reset-password`, `/terms`, `/support`, `/books`, `/admin/books`.
-- Routes edited: `/auth` (forgot password link), `/` (sports section, footer links, fixed landing category links), `/admin` sidebar (Books link), `/profile` (support link).
-
-## Out of scope (ask if you want them)
-
-- Real-time "push next question now" admin control during a live match (you chose the simpler join-during-window flow).
-- PDF preview in browser (just download links).
+- New tables: `store_products`, `store_orders`, `prize_awards`, `ads`, `ad_targets`, `creator_profiles`, `post_views`, `post_ratings` — each with RLS, grants, and admin-only write policies.
+- All admin writes continue to go through password-gated server functions (`requireAdminPassword`) with the service-role client, matching the existing admin pattern.
+- ElevenLabs needs its connector linked so the API key is available server-side; I'll request that when Batch 4 starts.
+- Existing routes are preserved with redirects where things move, so no links break.
