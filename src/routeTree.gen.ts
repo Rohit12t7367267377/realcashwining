@@ -65,6 +65,7 @@ import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminFaqsRouteImport } from './routes/admin.faqs'
 import { Route as AdminEventsRouteImport } from './routes/admin.events'
 import { Route as AdminCricketRouteImport } from './routes/admin.cricket'
+import { Route as AdminCreatorsRouteImport } from './routes/admin.creators'
 import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
 import { Route as AdminContestsRouteImport } from './routes/admin.contests'
 import { Route as AdminCommunityRouteImport } from './routes/admin.community'
@@ -357,6 +358,11 @@ const AdminCricketRoute = AdminCricketRouteImport.update({
   path: '/cricket',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCreatorsRoute = AdminCreatorsRouteImport.update({
+  id: '/creators',
+  path: '/creators',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCouponsRoute = AdminCouponsRouteImport.update({
   id: '/coupons',
   path: '/coupons',
@@ -454,6 +460,7 @@ export interface FileRoutesByFullPath {
   '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/creators': typeof AdminCreatorsRoute
   '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/faqs': typeof AdminFaqsRoute
@@ -522,6 +529,7 @@ export interface FileRoutesByTo {
   '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/creators': typeof AdminCreatorsRoute
   '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/faqs': typeof AdminFaqsRoute
@@ -592,6 +600,7 @@ export interface FileRoutesById {
   '/admin/community': typeof AdminCommunityRoute
   '/admin/contests': typeof AdminContestsRoute
   '/admin/coupons': typeof AdminCouponsRoute
+  '/admin/creators': typeof AdminCreatorsRoute
   '/admin/cricket': typeof AdminCricketRoute
   '/admin/events': typeof AdminEventsRoute
   '/admin/faqs': typeof AdminFaqsRoute
@@ -663,6 +672,7 @@ export interface FileRouteTypes {
     | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
+    | '/admin/creators'
     | '/admin/cricket'
     | '/admin/events'
     | '/admin/faqs'
@@ -731,6 +741,7 @@ export interface FileRouteTypes {
     | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
+    | '/admin/creators'
     | '/admin/cricket'
     | '/admin/events'
     | '/admin/faqs'
@@ -800,6 +811,7 @@ export interface FileRouteTypes {
     | '/admin/community'
     | '/admin/contests'
     | '/admin/coupons'
+    | '/admin/creators'
     | '/admin/cricket'
     | '/admin/events'
     | '/admin/faqs'
@@ -1261,6 +1273,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCricketRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/creators': {
+      id: '/admin/creators'
+      path: '/creators'
+      fullPath: '/admin/creators'
+      preLoaderRoute: typeof AdminCreatorsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/coupons': {
       id: '/admin/coupons'
       path: '/coupons'
@@ -1353,6 +1372,7 @@ interface AdminRouteChildren {
   AdminCommunityRoute: typeof AdminCommunityRoute
   AdminContestsRoute: typeof AdminContestsRoute
   AdminCouponsRoute: typeof AdminCouponsRoute
+  AdminCreatorsRoute: typeof AdminCreatorsRoute
   AdminCricketRoute: typeof AdminCricketRoute
   AdminEventsRoute: typeof AdminEventsRoute
   AdminFaqsRoute: typeof AdminFaqsRoute
@@ -1387,6 +1407,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommunityRoute: AdminCommunityRoute,
   AdminContestsRoute: AdminContestsRoute,
   AdminCouponsRoute: AdminCouponsRoute,
+  AdminCreatorsRoute: AdminCreatorsRoute,
   AdminCricketRoute: AdminCricketRoute,
   AdminEventsRoute: AdminEventsRoute,
   AdminFaqsRoute: AdminFaqsRoute,
