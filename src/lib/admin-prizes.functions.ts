@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { requireAdminPassword } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
+import { periodKeyFor } from "@/lib/period-key";
 
 const PERIOD = z.enum(["week", "month", "year"]);
 
@@ -61,15 +62,6 @@ export const adminPeriodLeaderboard = createServerFn({ method: "POST" })
     };
   });
 
-function periodKeyFor(period: "week" | "month" | "year", d: Date) {
-  const y = d.getUTCFullYear();
-  if (period === "year") return String(y);
-  if (period === "month") return `${y}-${String(d.getUTCMonth() + 1).padStart(2, "0")}`;
-  const start = new Date(Date.UTC(y, 0, 1));
-  const week = Math.ceil(((d.getTime() - start.getTime()) / 86400000 + start.getUTCDay() + 1) / 7);
-  return `${y}-W${String(week).padStart(2, "0")}`;
-}
-
 export const adminListPrizeAwards = createServerFn({ method: "GET" })
   .middleware([requireAdminPassword])
   .handler(async () => {
@@ -126,7 +118,6 @@ export const adminAwardPrize = createServerFn({ method: "POST" })
         _user_id: data.userId,
         _amount: Math.round(data.amount),
         _source: `prize_${data.period}`,
-        _ref: null,
         _meta: { rank: data.rank, periodKey: data.periodKey },
       });
     }
