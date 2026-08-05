@@ -14,11 +14,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { getMyContestStats } from "@/lib/stats.functions";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyXp } from "@/lib/gamification.functions";
+import { CreatorPanel } from "@/components/CreatorPanel";
 import { toast } from "sonner";
 import {
   LogOut, Trophy, Target, Award, History, Camera, Grid3X3, Play,
-  Crown, BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2,
-  Wallet, Settings, Bell, Shield, Globe,
+  BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2,
+  Settings, Bell, Shield, Globe,
+
 } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -191,7 +193,6 @@ function ProfilePage() {
       {/* Feature row (top) */}
       <section className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
         <TopLink to="/books" icon={<BookOpen className="h-4 w-4" />} label="Library" />
-        <TopLink to="/kyc" icon={<IdCard className="h-4 w-4" />} label="KYC" />
         <TopLink to="/feedback" icon={<MessageSquare className="h-4 w-4" />} label="Feedback" />
         <TopLink to="/faq" icon={<HelpCircle className="h-4 w-4" />} label="FAQ" />
         <TopLink to="/support" icon={<LifeBuoy className="h-4 w-4" />} label="Support" />
@@ -278,6 +279,8 @@ function ProfilePage() {
         )}
       </section>
 
+      <CreatorPanel />
+
       {/* Stats */}
       <section className="mt-5 grid grid-cols-3 gap-3">
         <Stat icon={<Trophy />} label="Wins" value={wins} />
@@ -286,10 +289,6 @@ function ProfilePage() {
       </section>
 
       <section className="mt-3 grid grid-cols-2 gap-3">
-        <div className="surface p-3">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Wallet</div>
-          <div className="text-lg font-black">₹{Number(wallet?.balance ?? 0).toFixed(0)}</div>
-        </div>
         <div className="surface p-3">
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Total earnings</div>
           <div className="text-lg font-black">₹{won.toFixed(0)}</div>
@@ -301,22 +300,6 @@ function ProfilePage() {
         <div className="surface p-3">
           <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Highest win</div>
           <div className="text-lg font-black">₹{highestWin.toFixed(0)}</div>
-        </div>
-      </section>
-
-      {/* Wallet */}
-      <section className="mt-5 rounded-3xl bg-card p-4 shadow-soft">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-          <div className="min-w-0">
-            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Wallet balance</div>
-            <div className="text-2xl font-black">₹{Number(wallet?.balance ?? 0).toFixed(0)}</div>
-          </div>
-          <Wallet className="h-7 w-7 shrink-0 text-primary" />
-        </div>
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          <Link to="/wallet" className="press rounded-xl bg-gradient-primary px-2 py-2 text-center text-xs font-bold text-primary-foreground">Add money</Link>
-          <Link to="/wallet" className="press rounded-xl bg-muted px-2 py-2 text-center text-xs font-bold">Withdraw</Link>
-          <Link to="/wallet/history" className="press rounded-xl bg-muted px-2 py-2 text-center text-xs font-bold">History</Link>
         </div>
       </section>
 
@@ -366,7 +349,7 @@ function ProfilePage() {
           <Settings className="h-4 w-4" /> Settings &amp; more
         </h2>
         <div className="grid grid-cols-2 gap-2">
-          <SettingLink to="/kyc" icon={<IdCard className="h-4 w-4" />} label="KYC verification" />
+          <SettingLink to="/community" icon={<IdCard className="h-4 w-4" />} label="Creator community" />
           <SettingLink to="/notifications" icon={<Bell className="h-4 w-4" />} label="Notifications" />
           <SettingLink to="/reading" icon={<BookOpen className="h-4 w-4" />} label="Reading history" />
           <SettingLink to="/leaderboard" icon={<Award className="h-4 w-4" />} label="Badges & ranks" />
