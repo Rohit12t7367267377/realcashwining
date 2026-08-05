@@ -18,8 +18,9 @@ import { CreatorPanel } from "@/components/CreatorPanel";
 import { toast } from "sonner";
 import {
   LogOut, Trophy, Target, Award, History, Camera, Grid3X3, Play,
-  Crown, BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2,
-  Wallet, Settings, Bell, Shield, Globe,
+  BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2,
+  Settings, Bell, Shield, Globe,
+
 } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
