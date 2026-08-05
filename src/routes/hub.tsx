@@ -131,6 +131,9 @@ function HubPage() {
         </div>
       </section>
 
+      <StoreSection />
+
+
       {/* Claim history */}
       {opened.length > 0 && (
         <section className="mt-6">
