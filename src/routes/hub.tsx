@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { listMyRewardBoxes, openRewardBox, getMyXp } from "@/lib/gamification.functions";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { useUser } from "@/lib/user-store";
+import { StoreSection } from "@/components/StoreSection";
 import { toast } from "sonner";
+
 import {
   Gift, Share2, Ticket, Crown, Gem, Zap, Coins, CreditCard, Shield,
   Frame, Palette, Disc3, ShoppingBag, Sparkles,
