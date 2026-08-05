@@ -12,14 +12,16 @@ import {
   Sparkles, Send, Trash2, Bot, User as UserIcon, GraduationCap, HelpCircle,
   ListChecks, BookOpen, Code2, Briefcase, CalendarClock, LineChart,
 } from "lucide-react";
+import { VoiceAssistant } from "@/components/VoiceAssistant";
+import { LibrarySection } from "@/components/LibrarySection";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/ai")({
   head: () => ({
     meta: [
-      { title: "AI Study Hub — Tutor, Doubt Solver & Planner | Cash Winning League" },
-      { name: "description", content: "One place for every AI tool: tutor, doubt solver, quiz generator, reading assistant, coding mentor, interview practice, study planner and performance analysis." },
-      { property: "og:title", content: "AI Study Hub — Cash Winning League" },
+      { title: "Guru.AI — Tutor, Doubt Solver, Library & Voice | Cash Winning League" },
+      { name: "description", content: "Guru.AI: one place for every AI tool — tutor, doubt solver, quiz generator, reading assistant, coding mentor, interview practice, study planner and performance analysis." },
+      { property: "og:title", content: "Guru.AI — Cash Winning League" },
       { property: "og:description", content: "Your personal AI tutor, doubt solver, planner and performance analyst — in English or Hindi." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -76,7 +78,7 @@ function AiHubPage() {
     return (
       <AppShell>
         <div className="rounded-3xl bg-card p-6 text-center shadow-soft">
-          <h1 className="text-xl font-bold">Sign in to use the AI Hub</h1>
+          <h1 className="text-xl font-bold">Sign in to use Guru.AI</h1>
           <Link to="/login"><Button className="mt-4 bg-gradient-primary">Sign In</Button></Link>
         </div>
       </AppShell>
@@ -114,15 +116,15 @@ function AiHubPage() {
       {/* Hero */}
       <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift animate-rise-in">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
-          <Sparkles className="h-3.5 w-3.5" /> AI Hub
+          <Sparkles className="h-3.5 w-3.5" /> Guru.AI
         </div>
-        <h1 className="mt-1 text-2xl font-black">Your personal AI coach</h1>
-        <p className="mt-1 text-sm opacity-90">Tutor, doubt solver, planner and analyst — English या हिन्दी.</p>
+        <h1 className="mt-1 text-2xl font-black">Guru.AI — your personal coach</h1>
+        <p className="mt-1 text-sm opacity-90">Tutor, doubt solver, library, voice and analyst — English या हिन्दी.</p>
       </section>
 
       {/* Tools */}
       <section className="mt-4">
-        <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">AI tools</h2>
+        <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Guru.AI tools</h2>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {TOOLS.map((t) => (
             <button
@@ -222,6 +224,8 @@ function AiHubPage() {
           </div>
         </section>
       )}
+      <VoiceAssistant />
+      <LibrarySection />
     </AppShell>
   );
 }
