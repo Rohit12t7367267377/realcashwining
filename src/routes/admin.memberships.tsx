@@ -11,6 +11,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Pencil, Trash2, Crown } from "lucide-react";
 import { toast } from "sonner";
 import { adminUpsertRow, adminDeleteRow } from "@/lib/admin-crud.functions";
+import { saveAppSetting } from "@/lib/admin-settings.functions";
+import { SUBSCRIBE_SETTING_KEY, SUBSCRIBE_DEFAULTS, type SubscribeConfig } from "@/routes/subscribe";
 
 export const Route = createFileRoute("/admin/memberships")({ component: Page });
 
@@ -22,9 +24,23 @@ function Page() {
   const [edit, setEdit] = useState<any>(null);
   const [f, setF] = useState<any>(empty);
 
+  const [sub, setSub] = useState<SubscribeConfig>(SUBSCRIBE_DEFAULTS);
+  const [subSaving, setSubSaving] = useState(false);
+
   async function load() {
     const { data } = await supabase.from("memberships").select("*").order("sort_order");
     setRows(data ?? []);
+    const { data: s } = await supabase.from("app_settings").select("value").eq("key", SUBSCRIBE_SETTING_KEY).maybeSingle();
+    if (s?.value) setSub({ ...SUBSCRIBE_DEFAULTS, ...(s.value as Partial<SubscribeConfig>) });
+  }
+
+  async function saveSub() {
+    setSubSaving(true);
+    try {
+      await saveAppSetting({ data: { key: SUBSCRIBE_SETTING_KEY, value: sub } });
+      toast.success("Subscription page saved");
+    } catch (e: any) { toast.error(e?.message ?? "Failed"); }
+    finally { setSubSaving(false); }
   }
   useEffect(() => { load(); }, []);
 
@@ -56,6 +72,39 @@ function Page() {
         </div>
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-1" /> New plan</Button>
       </div>
+
+      <Card className="p-4 mb-6 space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-bold text-lg">Subscription page</h2>
+            <p className="text-xs text-muted-foreground">Shown automatically to the selected users at /subscribe.</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="sub-on" className="text-xs">Enabled</Label>
+            <Switch id="sub-on" checked={sub.enabled} onCheckedChange={(v) => setSub({ ...sub, enabled: v })} />
+          </div>
+        </div>
+        <div className="grid gap-3 md:grid-cols-2">
+          <div><Label>Title</Label><Input value={sub.title} onChange={(e) => setSub({ ...sub, title: e.target.value })} /></div>
+          <div><Label>CTA label</Label><Input value={sub.ctaLabel} onChange={(e) => setSub({ ...sub, ctaLabel: e.target.value })} /></div>
+          <div className="md:col-span-2"><Label>Subtitle</Label><Input value={sub.subtitle} onChange={(e) => setSub({ ...sub, subtitle: e.target.value })} /></div>
+          <div className="md:col-span-2">
+            <Label>Highlights (one per line)</Label>
+            <Textarea rows={4} value={sub.highlights.join("\n")} onChange={(e) => setSub({ ...sub, highlights: e.target.value.split("\n").map((x) => x.trim()).filter(Boolean) })} />
+          </div>
+          <div>
+            <Label>Audience</Label>
+            <div className="flex gap-2 mt-1">
+              {(["new", "all"] as const).map((a) => (
+                <Button key={a} type="button" size="sm" variant={sub.audience === a ? "default" : "outline"} onClick={() => setSub({ ...sub, audience: a })}>
+                  {a === "new" ? "New users only" : "All users"}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </div>
+        <Button onClick={saveSub} disabled={subSaving}>{subSaving ? "Saving…" : "Save subscription page"}</Button>
+      </Card>
 
       <div className="grid md:grid-cols-2 gap-4">
         {rows.map((r) => (

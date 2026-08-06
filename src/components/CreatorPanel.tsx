@@ -5,10 +5,14 @@ import { Button } from "@/components/ui/button";
 import { getMyCreatorStats, applyForMonetization } from "@/lib/creator.functions";
 import { BadgeCheck, Eye, Star, Clock, Users, IdCard } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
+import { ScrollText } from "lucide-react";
 
 /** Creator dashboard: YouTube-style analytics + monetization progress. */
 export function CreatorPanel() {
   const qc = useQueryClient();
+  const [agreed, setAgreed] = useState(false);
+  const [showTerms, setShowTerms] = useState(false);
   const fetchStats = useServerFn(getMyCreatorStats);
   const apply = useServerFn(applyForMonetization);
   const { data } = useQuery({ queryKey: ["my-creator"], queryFn: () => fetchStats(), staleTime: 60_000 });
@@ -51,6 +55,28 @@ export function CreatorPanel() {
 
       {data.adminNote && <p className="mt-2 text-[11px] text-muted-foreground">Admin note: {data.adminNote}</p>}
 
+      <div className="mt-3 rounded-2xl bg-muted/50 p-3">
+        <button type="button" onClick={() => setShowTerms((v) => !v)} className="flex w-full items-center justify-between text-xs font-bold">
+          <span className="flex items-center gap-2"><ScrollText className="h-4 w-4 text-primary" /> Creator terms & conditions</span>
+          <span className="text-muted-foreground">{showTerms ? "Hide" : "Read"}</span>
+        </button>
+        {showTerms && (
+          <ul className="mt-2 space-y-1 text-[11px] leading-relaxed text-muted-foreground">
+            <li>• Post only study-related and informative content (notes, explainers, exam tips, short study reels).</li>
+            <li>• No copyrighted, adult, violent, hateful, gambling-promoting or misleading content.</li>
+            <li>• Reach {rules.followers} followers, {rules.watchHours} watch hours and {rules.avgRating}★ average from {rules.ratingsCount} ratings to become eligible.</li>
+            <li>• Monetization is granted, paused or revoked by the admin at their discretion.</li>
+            <li>• KYC verification is mandatory before any payout is released.</li>
+            <li>• Engagement farming, fake views/followers or multiple accounts lead to permanent removal.</li>
+            <li>• Earnings are paid to the verified UPI ID only, after the admin approves the payout.</li>
+          </ul>
+        )}
+        <label className="mt-2 flex items-center gap-2 text-[11px] font-bold">
+          <input type="checkbox" checked={agreed} onChange={(e) => setAgreed(e.target.checked)} className="h-3.5 w-3.5 accent-primary" />
+          I have read and accept the creator terms
+        </label>
+      </div>
+
       {data.monetized ? (
         <Link to="/kyc" className="press mt-3 flex items-center justify-center gap-2 rounded-xl bg-gradient-gold px-3 py-2 text-xs font-black text-amber-950">
           <IdCard className="h-4 w-4" /> Complete KYC to receive payouts
@@ -58,10 +84,10 @@ export function CreatorPanel() {
       ) : (
         <Button
           className="press mt-3 w-full bg-gradient-primary font-bold"
-          disabled={!data.eligible || data.status === "pending" || applyMut.isPending}
+          disabled={!agreed || !data.eligible || data.status === "pending" || applyMut.isPending}
           onClick={() => applyMut.mutate()}
         >
-          {data.status === "pending" ? "Application in review" : data.eligible ? "Apply for monetization" : "Keep creating to unlock"}
+          {data.status === "pending" ? "Application in review" : !agreed ? "Accept the terms to continue" : data.eligible ? "Apply for monetization" : "Keep creating to unlock"}
         </Button>
       )}
     </section>

@@ -13,6 +13,7 @@ import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as VipRouteImport } from './routes/vip'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as SupportRouteImport } from './routes/support'
+import { Route as SubscribeRouteImport } from './routes/subscribe'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as RewardsRouteImport } from './routes/rewards'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -96,6 +97,11 @@ const TermsRoute = TermsRouteImport.update({
 const SupportRoute = SupportRouteImport.update({
   id: '/support',
   path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscribeRoute = SubscribeRouteImport.update({
+  id: '/subscribe',
+  path: '/subscribe',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -445,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
+  '/subscribe': typeof SubscribeRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
@@ -514,6 +521,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
+  '/subscribe': typeof SubscribeRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
@@ -585,6 +593,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/rewards': typeof RewardsRoute
   '/search': typeof SearchRoute
+  '/subscribe': typeof SubscribeRoute
   '/support': typeof SupportRoute
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
@@ -657,6 +666,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/rewards'
     | '/search'
+    | '/subscribe'
     | '/support'
     | '/terms'
     | '/vip'
@@ -726,6 +736,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/rewards'
     | '/search'
+    | '/subscribe'
     | '/support'
     | '/terms'
     | '/vip'
@@ -796,6 +807,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/rewards'
     | '/search'
+    | '/subscribe'
     | '/support'
     | '/terms'
     | '/vip'
@@ -867,6 +879,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   RewardsRoute: typeof RewardsRoute
   SearchRoute: typeof SearchRoute
+  SubscribeRoute: typeof SubscribeRoute
   SupportRoute: typeof SupportRoute
   TermsRoute: typeof TermsRoute
   VipRoute: typeof VipRoute
@@ -907,6 +920,13 @@ declare module '@tanstack/react-router' {
       path: '/support'
       fullPath: '/support'
       preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscribe': {
+      id: '/subscribe'
+      path: '/subscribe'
+      fullPath: '/subscribe'
+      preLoaderRoute: typeof SubscribeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -1469,6 +1489,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   RewardsRoute: RewardsRoute,
   SearchRoute: SearchRoute,
+  SubscribeRoute: SubscribeRoute,
   SupportRoute: SupportRoute,
   TermsRoute: TermsRoute,
   VipRoute: VipRoute,

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ShieldCheck, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { adminReviewKyc } from "@/lib/admin-crud.functions";
+import { attachProfileNames } from "@/lib/admin-names";
 
 export const Route = createFileRoute("/admin/kyc")({ component: Page });
 
@@ -15,8 +16,8 @@ function Page() {
   const [notes, setNotes] = useState<Record<string, string>>({});
 
   async function load() {
-    const { data } = await supabase.from("kyc_submissions").select("*, profiles(full_name)").order("created_at", { ascending: false });
-    setRows(data ?? []);
+    const { data } = await supabase.from("kyc_submissions").select("*").order("created_at", { ascending: false });
+    setRows(await attachProfileNames(data ?? []));
   }
   useEffect(() => { load(); }, []);
 

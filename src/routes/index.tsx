@@ -1,17 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
+import { SUBSCRIBE_SETTING_KEY, SUBSCRIBE_SEEN_KEY } from "@/routes/subscribe";
 import { CATEGORIES } from "@/lib/quiz-data";
 import { useUser } from "@/lib/user-store";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyContestStats } from "@/lib/stats.functions";
 import { getMyXp } from "@/lib/gamification.functions";
-import { getWinnersLeaderboard } from "@/lib/stats.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Trophy, Sparkles, Timer, Crown, PlayCircle } from "lucide-react";
+import { Trophy, Sparkles, Timer, PlayCircle } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,6 +36,27 @@ function Home() {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
 
+  // Admin-managed subscription page: shown once to the targeted audience.
+  const nav = useNavigate();
+  useEffect(() => {
+    if (!mounted || !state.loggedIn) return;
+    if (localStorage.getItem(SUBSCRIBE_SEEN_KEY) === "1") return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase.from("app_settings").select("value").eq("key", SUBSCRIBE_SETTING_KEY).maybeSingle();
+      const cfg = data?.value as { enabled?: boolean; audience?: "all" | "new" } | undefined;
+      if (cancelled || !cfg?.enabled) return;
+      if (cfg.audience === "new") {
+        const { data: auth } = await supabase.auth.getUser();
+        const created = auth.user?.created_at ? new Date(auth.user.created_at).getTime() : 0;
+        const isNew = created > 0 && Date.now() - created < 7 * 24 * 60 * 60 * 1000;
+        if (!isNew) return;
+      }
+      if (!cancelled) nav({ to: "/subscribe" });
+    })();
+    return () => { cancelled = true; };
+  }, [mounted, state.loggedIn, nav]);
+
   const fetchWallet = useServerFn(getMyWallet);
   const fetchStats = useServerFn(getMyContestStats);
   const { data: wallet } = useQuery({
@@ -55,13 +77,6 @@ function Home() {
     queryFn: () => fetchXp(),
     enabled: mounted && state.loggedIn,
     staleTime: 30_000,
-  });
-  const fetchWinners = useServerFn(getWinnersLeaderboard);
-  const { data: latestWinners } = useQuery({
-    queryKey: ["leaderboard-winners"],
-    queryFn: () => fetchWinners(),
-    enabled: mounted,
-    staleTime: 60_000,
   });
 
   const [live, setLive] = useState<LiveContest[]>([]);
@@ -129,7 +144,6 @@ function Home() {
   const history = stats?.history ?? [];
   const inProgress = history.filter((h) => h.status === "in_progress");
   const featured = live[0];
-  const winnerRows = (latestWinners ?? []).slice(0, 5);
 
   return (
     <AppShell>
@@ -370,36 +384,8 @@ function Home() {
         </div>
       </section>
 
-      {/* Latest winners preview */}
-      {winnerRows.length > 0 && (
-        <section className="mt-6">
-          <SectionHeader title="🏆 Latest Winners" subtitle="Top 5 declared by admin" />
-          <div className="mt-3 flex gap-3 overflow-x-auto pb-2">
-            {winnerRows.map((w) => (
-              <div key={w.attempt_id} className="card-lift min-w-[9.5rem] shrink-0 rounded-2xl bg-gradient-gold p-3 text-amber-950 shadow-soft">
-                <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest">
-                  <Crown className="h-3.5 w-3.5" /> Rank #{w.rank}
-                </div>
-                <div className="mt-1 truncate text-sm font-black">{w.name}</div>
-                <div className="truncate text-[10px] opacity-80">{w.contest_title}</div>
-                <div className="mt-1 text-lg font-black">₹{w.prize.toFixed(0)}</div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
 
-      {/* Leaderboard preview → Ranks */}
-      <Link to="/leaderboard" className="press mt-4 flex items-center justify-between rounded-2xl bg-card p-4 shadow-soft transition hover:shadow-glow">
-        <div className="flex min-w-0 items-center gap-3">
-          <Trophy className="h-5 w-5 shrink-0 text-primary" />
-          <div className="min-w-0">
-            <div className="text-sm font-bold">Leaderboard &amp; Ranks</div>
-            <div className="text-[11px] text-muted-foreground">Podium, missions, Hall of Fame &amp; events</div>
-          </div>
-        </div>
-        <span className="shrink-0 text-xs font-bold text-primary">View All →</span>
-      </Link>
+
 
     </AppShell>
   );
