@@ -15,12 +15,15 @@ import { getMyContestStats } from "@/lib/stats.functions";
 import { getMyWallet } from "@/lib/wallet.functions";
 import { getMyXp } from "@/lib/gamification.functions";
 import { CreatorPanel } from "@/components/CreatorPanel";
+import { useLang, LANGS } from "@/lib/i18n";
+import { useTheme } from "@/lib/theme";
 import { toast } from "sonner";
 import {
   LogOut, Trophy, Target, Award, History, Camera, Grid3X3, Play,
   BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2,
   Settings, Bell, Shield, Globe,
 
+  Sun, Moon,
 } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -65,6 +68,9 @@ function ProfilePage() {
   const [postOpen, setPostOpen] = useState(false);
   const [postBody, setPostBody] = useState("");
   const [postFile, setPostFile] = useState<File | null>(null);
+  const [reelMode, setReelMode] = useState(false);
+  const { lang, setLang } = useLang();
+  const { theme, toggle: toggleTheme } = useTheme();
   const [posting, setPosting] = useState(false);
   const avatarRef = useRef<HTMLInputElement>(null);
   const postFileRef = useRef<HTMLInputElement>(null);
@@ -158,7 +164,7 @@ function ProfilePage() {
       });
       if (error) throw new Error(error.message);
       toast.success("Shared!");
-      setPostBody(""); setPostFile(null); setPostOpen(false);
+      setPostBody(""); setPostFile(null); setPostOpen(false); setReelMode(false);
       if (postFileRef.current) postFileRef.current.value = "";
       await loadSocial();
     } catch (e) {
@@ -237,8 +243,11 @@ function ProfilePage() {
           >
             <Pencil className="mr-1 h-4 w-4" /> Edit profile
           </Button>
-          <Button className="flex-1 bg-gradient-primary font-bold" onClick={() => setPostOpen(true)}>
+          <Button className="flex-1 bg-gradient-primary font-bold" onClick={() => { setReelMode(false); setPostOpen(true); }}>
             <ImagePlus className="mr-1 h-4 w-4" /> New post
+          </Button>
+          <Button variant="outline" className="flex-1 font-bold" onClick={() => { setReelMode(true); setPostOpen(true); }}>
+            <Play className="mr-1 h-4 w-4" /> Share reel
           </Button>
         </div>
       </section>
@@ -281,68 +290,6 @@ function ProfilePage() {
 
       <CreatorPanel />
 
-      {/* Stats */}
-      <section className="mt-5 grid grid-cols-3 gap-3">
-        <Stat icon={<Trophy />} label="Wins" value={wins} />
-        <Stat icon={<Target />} label="Played" value={played} />
-        <Stat icon={<Award />} label="Win %" value={`${winRate}%`} />
-      </section>
-
-      <section className="mt-3 grid grid-cols-2 gap-3">
-        <div className="surface p-3">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Total earnings</div>
-          <div className="text-lg font-black">₹{won.toFixed(0)}</div>
-        </div>
-        <div className="surface p-3">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Best rank</div>
-          <div className="text-lg font-black">{bestRank ? `#${bestRank}` : "—"}</div>
-        </div>
-        <div className="surface p-3">
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Highest win</div>
-          <div className="text-lg font-black">₹{highestWin.toFixed(0)}</div>
-        </div>
-      </section>
-
-      {/* XP / Level card */}
-      <section className="mt-5 rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft">
-        <div className="text-[10px] uppercase tracking-widest opacity-80">Rank</div>
-        <div className="text-lg font-black">{xp?.rankTitle ?? "Bronze"} · Level {xp?.level ?? 1}</div>
-        <div className="text-[11px] opacity-90">{xp?.xp ?? 0} XP · {xp?.boxesEarned ?? 0} boxes</div>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/20">
-          <div className="h-full bg-white/80" style={{ width: `${Math.round((xp?.progress ?? 0) * 100)}%` }} />
-        </div>
-      </section>
-
-      {/* History */}
-      <section className="mt-6">
-        <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
-          <History className="h-4 w-4" /> Contest History
-        </h2>
-        <div className="mt-3 space-y-2">
-          {history.length === 0 && (
-            <p className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">
-              No contests played yet. Time to start! 🚀
-            </p>
-          )}
-          {history.map((h) => (
-            <Link key={h.id} to="/result/$id" params={{ id: h.contestId }} className="flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft transition hover:shadow-glow">
-              <div>
-                <div className="text-sm font-bold">{h.title}</div>
-                <div className="text-[10px] text-muted-foreground">
-                  {h.submittedAt ? new Date(h.submittedAt).toLocaleDateString() : "—"} · Score {h.score}
-                  {h.rank ? ` · Rank #${h.rank}` : ""}
-                </div>
-              </div>
-              {h.prize > 0 ? (
-                <div className="rounded-lg bg-gradient-gold px-2 py-1 text-xs font-black text-amber-950">+₹{h.prize.toFixed(0)}</div>
-              ) : (
-                <div className="text-xs font-bold text-muted-foreground">{h.status === "in_progress" ? "In progress" : "—"}</div>
-              )}
-            </Link>
-          ))}
-        </div>
-      </section>
-
       {/* Settings */}
       <section className="mt-6">
         <h2 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
@@ -358,7 +305,22 @@ function ProfilePage() {
         </div>
         <div className="mt-2 flex items-center justify-between rounded-2xl bg-card p-3 text-sm shadow-soft">
           <span className="flex items-center gap-2 font-bold"><Globe className="h-4 w-4 text-primary" /> Language</span>
-          <span className="text-xs text-muted-foreground">English · हिन्दी (in AI Hub)</span>
+          <div className="flex gap-1">
+            {LANGS.map((l) => (
+              <button key={l.code} type="button" onClick={() => setLang(l.code)}
+                className={`press rounded-full px-3 py-1 text-xs font-bold ${lang === l.code ? "bg-gradient-primary text-primary-foreground" : "bg-muted"}`}>
+                {l.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="mt-2 flex items-center justify-between rounded-2xl bg-card p-3 text-sm shadow-soft">
+          <span className="flex items-center gap-2 font-bold">
+            {theme === "dark" ? <Sun className="h-4 w-4 text-primary" /> : <Moon className="h-4 w-4 text-primary" />} Theme
+          </span>
+          <button type="button" onClick={toggleTheme} className="press rounded-full bg-muted px-3 py-1 text-xs font-bold">
+            {theme === "dark" ? "Dark → Light" : "Light → Dark"}
+          </button>
         </div>
       </section>
 
@@ -386,12 +348,12 @@ function ProfilePage() {
       {/* New post dialog */}
       <Dialog open={postOpen} onOpenChange={setPostOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>Share a photo or video</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{reelMode ? "Share a study reel" : "Share a photo or video"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Textarea rows={3} placeholder="Write a caption…" value={postBody} onChange={(e) => setPostBody(e.target.value)} maxLength={1000} />
-            <input ref={postFileRef} type="file" accept="image/*,video/*" className="hidden" onChange={(e) => setPostFile(e.target.files?.[0] ?? null)} />
+            <Textarea rows={3} placeholder={reelMode ? "Reel caption — keep it study related…" : "Write a caption…"} value={postBody} onChange={(e) => setPostBody(e.target.value)} maxLength={1000} />
+            <input ref={postFileRef} type="file" accept={reelMode ? "video/*" : "image/*,video/*"} className="hidden" onChange={(e) => setPostFile(e.target.files?.[0] ?? null)} />
             <Button variant="outline" className="w-full" onClick={() => postFileRef.current?.click()}>
-              <ImagePlus className="mr-1 h-4 w-4" /> {postFile ? postFile.name : "Choose photo / video"}
+              <ImagePlus className="mr-1 h-4 w-4" /> {postFile ? postFile.name : reelMode ? "Choose a short video" : "Choose photo / video"}
             </Button>
             <Button className="w-full" onClick={publishPost} disabled={posting || (!postBody.trim() && !postFile)}>
               {posting ? "Sharing…" : "Share"}

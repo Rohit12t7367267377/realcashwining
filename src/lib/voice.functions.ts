@@ -14,6 +14,7 @@ export const speakAnswer = createServerFn({ method: "POST" })
       .object({
         question: z.string().trim().min(2).max(600),
         voiceId: z.string().trim().max(60).optional(),
+        lang: z.enum(["en", "hi"]).optional(),
       })
       .parse(d),
   )
@@ -26,7 +27,9 @@ export const speakAnswer = createServerFn({ method: "POST" })
         {
           role: "system",
           content:
-            "You are Guru.AI, a friendly study voice assistant for an Indian quiz app. Answer in at most 4 short sentences, plain spoken language, no markdown.",
+            data.lang === "hi"
+              ? "आप Guru.AI हैं, एक भारतीय क्विज़ ऐप का दोस्ताना स्टडी वॉइस असिस्टेंट। अधिकतम 4 छोटे वाक्यों में, सरल बोलचाल की हिंदी में उत्तर दें। कोई markdown नहीं।"
+              : "You are Guru.AI, a friendly study voice assistant for an Indian quiz app. Answer in at most 4 short sentences, plain spoken language, no markdown.",
         },
         { role: "user", content: data.question },
       ],

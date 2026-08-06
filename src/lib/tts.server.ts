@@ -7,6 +7,7 @@ const GATEWAY_TTS_URL = "https://ai.gateway.lovable.dev/v1/audio/speech";
 export type SpeechResult = { base64: string; mimeType: string; provider: string };
 
 export async function synthesizeSpeech(text: string, voiceId?: string): Promise<SpeechResult> {
+  const clean = text.slice(0, 3000);
   const elevenKey = process.env.ELEVENLABS_API_KEY;
   if (elevenKey) {
     const voice = voiceId || ELEVEN_DEFAULT_VOICE;
@@ -15,7 +16,7 @@ export async function synthesizeSpeech(text: string, voiceId?: string): Promise<
       {
         method: "POST",
         headers: { "xi-api-key": elevenKey, "Content-Type": "application/json" },
-        body: JSON.stringify({ text, model_id: "eleven_multilingual_v2" }),
+        body: JSON.stringify({ text: clean, model_id: "eleven_multilingual_v2" }),
       },
     );
     if (res.ok) {
@@ -30,7 +31,12 @@ export async function synthesizeSpeech(text: string, voiceId?: string): Promise<
   const res = await fetch(GATEWAY_TTS_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
-    body: JSON.stringify({ model: "google/gemini-2.5-flash-tts", input: text, voice: "Kore" }),
+    body: JSON.stringify({
+      model: "openai/gpt-4o-mini-tts",
+      input: clean,
+      voice: "alloy",
+      response_format: "mp3",
+    }),
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");

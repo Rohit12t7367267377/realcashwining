@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { adminReplyFeedback } from "@/lib/admin-crud.functions";
+import { attachProfileNames } from "@/lib/admin-names";
 
 export const Route = createFileRoute("/admin/feedback")({ component: Page });
 
@@ -15,8 +16,8 @@ function Page() {
   const [reply, setReply] = useState<Record<string, string>>({});
 
   async function load() {
-    const { data } = await supabase.from("feedback").select("*, profiles(full_name)").order("created_at", { ascending: false });
-    setRows(data ?? []);
+    const { data } = await supabase.from("feedback").select("*").order("created_at", { ascending: false });
+    setRows(await attachProfileNames(data ?? []));
   }
   useEffect(() => { load(); }, []);
 
@@ -34,7 +35,7 @@ function Page() {
           <Card key={r.id} className="p-4">
             <div className="flex justify-between items-start gap-4">
               <div className="flex-1 min-w-0">
-                <div className="text-sm">{"★".repeat(r.rating ?? 0)}{"☆".repeat(5 - (r.rating ?? 0))} · <b>{r.profiles?.full_name ?? "Anon"}</b> · <span className="text-xs uppercase">{r.category ?? "general"}</span> · <span className="text-xs">{r.status}</span></div>
+                <div className="text-sm">{"★".repeat(r.rating ?? 0)}{"☆".repeat(5 - (r.rating ?? 0))} · <b>{r.profileName}</b> · <span className="text-xs uppercase">{r.category ?? "general"}</span> · <span className="text-xs">{r.status}</span></div>
                 <div className="text-sm mt-1">{r.body}</div>
                 {r.admin_reply && <div className="mt-2 text-sm bg-muted/40 rounded p-2"><b>Reply:</b> {r.admin_reply}</div>}
               </div>

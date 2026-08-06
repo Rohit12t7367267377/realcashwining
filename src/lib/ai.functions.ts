@@ -123,7 +123,12 @@ export const clearMyAiChat = createServerFn({ method: "POST" })
 
 export const askAiDoubt = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ message: z.string().trim().min(1).max(2000) }).parse(d))
+  .inputValidator((d) =>
+    z.object({
+      message: z.string().trim().min(1).max(2000),
+      lang: z.enum(["en", "hi"]).optional(),
+    }).parse(d),
+  )
   .handler(async ({ context, data }) => {
     const settings = await readAiSettings(context.supabase as never);
     if (!settings.enabled || !settings.doubtEnabled) throw new Error("AI Doubt Assistant is disabled by admin.");
@@ -138,7 +143,14 @@ export const askAiDoubt = createServerFn({ method: "POST" })
     const history = ((hist ?? []) as Array<{ role: string; content: string }>).reverse();
 
     const messages: ChatMessage[] = [
-      { role: "system", content: settings.doubtPrompt },
+      {
+        role: "system",
+        content:
+          settings.doubtPrompt +
+          (data.lang === "hi"
+            ? " Always reply in Hindi (Devanagari script)."
+            : " Always reply in English unless the user writes in another language."),
+      },
       ...history.map((m) => ({ role: (m.role === "assistant" ? "assistant" : "user") as "assistant" | "user", content: m.content })),
       { role: "user", content: data.message },
     ];

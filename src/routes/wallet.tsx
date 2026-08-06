@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { getMyWallet, submitDeposit, submitWithdrawal } from "@/lib/wallet.functions";
+import { getMyContestStats } from "@/lib/stats.functions";
 import { useAuthSession } from "@/hooks/use-auth-session";
 import { Wallet as WalletIcon, ArrowDownToLine, ArrowUpFromLine, Smartphone, Copy, CheckCircle2, Clock, XCircle, ShieldCheck, Info, LifeBuoy } from "lucide-react";
 import { toast } from "sonner";
@@ -100,6 +101,9 @@ function WalletInner() {
         <QuickTile to="/support" emoji="💬" label="Support" />
       </section>
 
+      <PlayStats />
+
+
 
       {/* Pending requests */}
       {data.deposits.some((d) => d.status === "pending") && (
@@ -162,6 +166,69 @@ function WalletInner() {
         </Link>
       </section>
     </AppShell>
+  );
+}
+
+/** Contest performance + history — lives in the wallet, not the profile. */
+function PlayStats() {
+  const fetchStats = useServerFn(getMyContestStats);
+  const { data: stats } = useQuery({ queryKey: ["my-stats"], queryFn: () => fetchStats(), staleTime: 15_000 });
+
+  const played = Number(stats?.played ?? 0);
+  const wins = Number(stats?.wins ?? 0);
+  const won = Number(stats?.totalWon ?? 0);
+  const winRate = played ? Math.round((wins / played) * 100) : 0;
+  const history = stats?.history ?? [];
+  const highestWin = history.reduce((max, h) => Math.max(max, Number(h.prize ?? 0)), 0);
+  const ranked = history.map((h) => Number(h.rank ?? 0)).filter((r) => r > 0);
+  const bestRank = ranked.length ? Math.min(...ranked) : 0;
+
+  return (
+    <>
+      <Section title="My contest performance">
+        <div className="grid grid-cols-3 gap-2">
+          <MiniStat label="Wins" value={String(wins)} />
+          <MiniStat label="Played" value={String(played)} />
+          <MiniStat label="Win %" value={`${winRate}%`} />
+          <MiniStat label="Total earnings" value={`₹${won.toFixed(0)}`} />
+          <MiniStat label="Best rank" value={bestRank ? `#${bestRank}` : "—"} />
+          <MiniStat label="Highest win" value={`₹${highestWin.toFixed(0)}`} />
+        </div>
+      </Section>
+
+      <Section title="Contest history">
+        {history.length === 0 && (
+          <p className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">
+            No contests played yet.
+          </p>
+        )}
+        {history.map((h) => (
+          <Link key={h.id} to="/result/$id" params={{ id: h.contestId }} className="flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft transition hover:shadow-glow">
+            <div className="min-w-0">
+              <div className="truncate text-sm font-bold">{h.title}</div>
+              <div className="text-[10px] text-muted-foreground">
+                {h.submittedAt ? new Date(h.submittedAt).toLocaleDateString() : "—"} · Score {h.score}
+                {h.rank ? ` · Rank #${h.rank}` : ""}
+              </div>
+            </div>
+            {h.prize > 0 ? (
+              <div className="shrink-0 rounded-lg bg-gradient-gold px-2 py-1 text-xs font-black text-amber-950">+₹{h.prize.toFixed(0)}</div>
+            ) : (
+              <div className="shrink-0 text-xs font-bold text-muted-foreground">{h.status === "in_progress" ? "In progress" : "—"}</div>
+            )}
+          </Link>
+        ))}
+      </Section>
+    </>
+  );
+}
+
+function MiniStat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="surface p-3 text-center">
+      <div className="text-base font-black">{value}</div>
+      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{label}</div>
+    </div>
   );
 }
 

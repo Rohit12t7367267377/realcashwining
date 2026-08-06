@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle, Check } from "lucide-react";
 import { toast } from "sonner";
 import { adminResolveFraud } from "@/lib/admin-crud.functions";
+import { attachProfileNames } from "@/lib/admin-names";
 
 export const Route = createFileRoute("/admin/fraud")({ component: Page });
 
@@ -16,10 +17,10 @@ function Page() {
   const [notes, setNotes] = useState<Record<string, string>>({});
 
   async function load() {
-    const { data: f } = await supabase.from("fraud_flags").select("*, profiles(full_name)").order("created_at", { ascending: false }).limit(50);
-    setFlags(f ?? []);
-    const { data: e } = await supabase.from("anticheat_events").select("*, profiles(full_name)").order("created_at", { ascending: false }).limit(50);
-    setEvents(e ?? []);
+    const { data: f } = await supabase.from("fraud_flags").select("*").order("created_at", { ascending: false }).limit(50);
+    setFlags(await attachProfileNames(f ?? []));
+    const { data: e } = await supabase.from("anticheat_events").select("*").order("created_at", { ascending: false }).limit(50);
+    setEvents(await attachProfileNames(e ?? []));
   }
   useEffect(() => { load(); }, []);
 
@@ -38,7 +39,7 @@ function Page() {
         {flags.map((r) => (
           <Card key={r.id} className={`p-3 ${r.resolved ? "opacity-60" : ""}`}>
             <div className="flex justify-between gap-4">
-              <div className="flex-1"><div className="text-sm"><b>{r.profiles?.full_name ?? r.user_id.slice(0, 8)}</b> · <span className="uppercase text-xs">{r.severity}</span></div><div className="text-sm">{r.reason}</div><div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div></div>
+              <div className="flex-1"><div className="text-sm"><b>{r.profileName}</b> · <span className="uppercase text-xs">{r.severity}</span></div><div className="text-sm">{r.reason}</div><div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div></div>
               {!r.resolved && <div className="w-56 space-y-1"><Textarea rows={1} placeholder="Note" value={notes[r.id] ?? ""} onChange={(e) => setNotes({ ...notes, [r.id]: e.target.value })} /><Button size="sm" onClick={() => resolve(r.id)}><Check className="w-4 h-4 mr-1" /> Resolve</Button></div>}
             </div>
           </Card>
@@ -53,7 +54,7 @@ function Page() {
           <tbody>
             {events.map((r) => (
               <tr key={r.id} className="border-b">
-                <td className="p-1">{r.profiles?.full_name ?? r.user_id?.slice(0, 8) ?? "—"}</td>
+                <td className="p-1">{r.profileName}</td>
                 <td>{r.event_type}</td>
                 <td className="uppercase">{r.severity}</td>
                 <td>{new Date(r.created_at).toLocaleString()}</td>

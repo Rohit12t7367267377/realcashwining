@@ -6,14 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { adminHideComment } from "@/lib/admin-crud.functions";
+import { attachProfileNames } from "@/lib/admin-names";
 
 export const Route = createFileRoute("/admin/comments")({ component: Page });
 
 function Page() {
   const [rows, setRows] = useState<any[]>([]);
   async function load() {
-    const { data } = await supabase.from("contest_comments").select("*, profiles(full_name), contests(title)").order("created_at", { ascending: false }).limit(100);
-    setRows(data ?? []);
+    const { data } = await supabase.from("contest_comments").select("*, contests(title)").order("created_at", { ascending: false }).limit(100);
+    setRows(await attachProfileNames(data ?? []));
   }
   useEffect(() => { load(); }, []);
   async function toggle(id: string, hidden: boolean) {
@@ -28,7 +29,7 @@ function Page() {
           <Card key={r.id} className={`p-3 ${r.hidden ? "opacity-50" : ""}`}>
             <div className="flex justify-between gap-3">
               <div className="flex-1 min-w-0">
-                <div className="text-xs text-muted-foreground">{r.profiles?.full_name ?? "?"} on <b>{r.contests?.title ?? "?"}</b> · {new Date(r.created_at).toLocaleString()}</div>
+                <div className="text-xs text-muted-foreground">{r.profileName} on <b>{r.contests?.title ?? "?"}</b> · {new Date(r.created_at).toLocaleString()}</div>
                 <div className="text-sm">{r.body}</div>
               </div>
               <Button size="sm" variant="ghost" onClick={() => toggle(r.id, !r.hidden)}>

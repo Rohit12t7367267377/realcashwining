@@ -15,6 +15,7 @@ import {
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { LibrarySection } from "@/components/LibrarySection";
 import { toast } from "sonner";
+import { useLang, t } from "@/lib/i18n";
 
 export const Route = createFileRoute("/ai")({
   head: () => ({
@@ -44,6 +45,7 @@ const TOOLS: Tool[] = [
 
 function AiHubPage() {
   const { state } = useUser();
+  const { lang } = useLang();
   const qc = useQueryClient();
   const list = useServerFn(listMyAiChat);
   const ask = useServerFn(askAiDoubt);
@@ -61,7 +63,7 @@ function AiHubPage() {
   const { data: stats } = useQuery({ queryKey: ["my-stats"], queryFn: () => fetchStats(), enabled: state.loggedIn, staleTime: 30_000 });
 
   const send = useMutation({
-    mutationFn: (message: string) => ask({ data: { message } }),
+    mutationFn: (message: string) => ask({ data: { message, lang } }),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["ai-chat"] }),
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Failed"),
   });
@@ -195,7 +197,7 @@ function AiHubPage() {
         </div>
 
         <form onSubmit={submit} className="mt-3 flex gap-2">
-          <Input ref={inputRef} value={text} onChange={(e) => setText(e.target.value)} placeholder="Type your question…" disabled={send.isPending} />
+          <Input ref={inputRef} value={text} onChange={(e) => setText(e.target.value)} placeholder={t("askPlaceholder", lang)} disabled={send.isPending} />
           <Button type="submit" disabled={send.isPending || !text.trim()} className="press bg-gradient-primary" aria-label="Send">
             <Send className="h-4 w-4" />
           </Button>
