@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, FolderTree, HelpCircle, Trophy, Users, Settings, LogOut, Home, ShieldCheck,
   Banknote, BookOpen, Gavel, Radio, Award, Target, Sparkles, Zap, Wand2, Crown, Ticket, Image,
-  Bell, Download, AlertTriangle, MessageSquare, Eye, ShoppingBag, Gift, Megaphone, Star,
+  Bell, Download, AlertTriangle, MessageSquare, Eye, ShoppingBag, Gift, Megaphone, Star, Cog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
