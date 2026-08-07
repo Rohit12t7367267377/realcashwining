@@ -75,9 +75,11 @@ import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminBroadcastsRouteImport } from './routes/admin.broadcasts'
 import { Route as AdminBooksRouteImport } from './routes/admin.books'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
+import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
+import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
@@ -409,6 +411,11 @@ const AdminBannersRoute = AdminBannersRouteImport.update({
   path: '/banners',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAutomationRoute = AdminAutomationRouteImport.update({
+  id: '/automation',
+  path: '/automation',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAppUpdatesRoute = AdminAppUpdatesRouteImport.update({
   id: '/app-updates',
   path: '/app-updates',
@@ -424,6 +431,12 @@ const AdminAdsRoute = AdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicHooksAutomationRoute =
+  ApiPublicHooksAutomationRouteImport.update({
+    id: '/api/public/hooks/automation',
+    path: '/api/public/hooks/automation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -459,6 +472,7 @@ export interface FileRoutesByFullPath {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/automation': typeof AdminAutomationRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
@@ -495,6 +509,7 @@ export interface FileRoutesByFullPath {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -529,6 +544,7 @@ export interface FileRoutesByTo {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/automation': typeof AdminAutomationRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
@@ -565,6 +581,7 @@ export interface FileRoutesByTo {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
   '/reading': typeof ReadingIndexRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -601,6 +618,7 @@ export interface FileRoutesById {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/automation': typeof AdminAutomationRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
@@ -637,6 +655,7 @@ export interface FileRoutesById {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -674,6 +693,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
+    | '/admin/automation'
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
@@ -710,6 +730,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin/'
     | '/reading/'
+    | '/api/public/hooks/automation'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -744,6 +765,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
+    | '/admin/automation'
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
@@ -780,6 +802,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin'
     | '/reading'
+    | '/api/public/hooks/automation'
   id:
     | '__root__'
     | '/'
@@ -815,6 +838,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
+    | '/admin/automation'
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
@@ -851,6 +875,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin/'
     | '/reading/'
+    | '/api/public/hooks/automation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -890,6 +915,7 @@ export interface RootRouteChildren {
   ReadingIdRoute: typeof ReadingIdRoute
   ResultIdRoute: typeof ResultIdRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
+  ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1356,6 +1382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBannersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/automation': {
+      id: '/admin/automation'
+      path: '/automation'
+      fullPath: '/admin/automation'
+      preLoaderRoute: typeof AdminAutomationRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/app-updates': {
       id: '/admin/app-updates'
       path: '/app-updates'
@@ -1377,6 +1410,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/hooks/automation': {
+      id: '/api/public/hooks/automation'
+      path: '/api/public/hooks/automation'
+      fullPath: '/api/public/hooks/automation'
+      preLoaderRoute: typeof ApiPublicHooksAutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1384,6 +1424,7 @@ interface AdminRouteChildren {
   AdminAdsRoute: typeof AdminAdsRoute
   AdminAiRoute: typeof AdminAiRoute
   AdminAppUpdatesRoute: typeof AdminAppUpdatesRoute
+  AdminAutomationRoute: typeof AdminAutomationRoute
   AdminBannersRoute: typeof AdminBannersRoute
   AdminBooksRoute: typeof AdminBooksRoute
   AdminBroadcastsRoute: typeof AdminBroadcastsRoute
@@ -1419,6 +1460,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdsRoute: AdminAdsRoute,
   AdminAiRoute: AdminAiRoute,
   AdminAppUpdatesRoute: AdminAppUpdatesRoute,
+  AdminAutomationRoute: AdminAutomationRoute,
   AdminBannersRoute: AdminBannersRoute,
   AdminBooksRoute: AdminBooksRoute,
   AdminBroadcastsRoute: AdminBroadcastsRoute,
@@ -1500,17 +1542,8 @@ const rootRouteChildren: RootRouteChildren = {
   ReadingIdRoute: ReadingIdRoute,
   ResultIdRoute: ResultIdRoute,
   ReadingIndexRoute: ReadingIndexRoute,
+  ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
