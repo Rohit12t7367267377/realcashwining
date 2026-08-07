@@ -78,6 +78,7 @@ import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
+import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
 
 const WalletRoute = WalletRouteImport.update({
   id: '/wallet',
@@ -424,6 +425,12 @@ const AdminAdsRoute = AdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicHooksAutomationRoute =
+  ApiPublicHooksAutomationRouteImport.update({
+    id: '/api/public/hooks/automation',
+    path: '/api/public/hooks/automation',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -495,6 +502,7 @@ export interface FileRoutesByFullPath {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -565,6 +573,7 @@ export interface FileRoutesByTo {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
   '/reading': typeof ReadingIndexRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -637,6 +646,7 @@ export interface FileRoutesById {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -710,6 +720,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin/'
     | '/reading/'
+    | '/api/public/hooks/automation'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -780,6 +791,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin'
     | '/reading'
+    | '/api/public/hooks/automation'
   id:
     | '__root__'
     | '/'
@@ -851,6 +863,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin/'
     | '/reading/'
+    | '/api/public/hooks/automation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -890,6 +903,7 @@ export interface RootRouteChildren {
   ReadingIdRoute: typeof ReadingIdRoute
   ResultIdRoute: typeof ResultIdRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
+  ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1377,6 +1391,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/hooks/automation': {
+      id: '/api/public/hooks/automation'
+      path: '/api/public/hooks/automation'
+      fullPath: '/api/public/hooks/automation'
+      preLoaderRoute: typeof ApiPublicHooksAutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1500,17 +1521,8 @@ const rootRouteChildren: RootRouteChildren = {
   ReadingIdRoute: ReadingIdRoute,
   ResultIdRoute: ResultIdRoute,
   ReadingIndexRoute: ReadingIndexRoute,
+  ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
