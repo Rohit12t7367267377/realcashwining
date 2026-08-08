@@ -12,12 +12,14 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   adminGenerateQuestions,
+  adminGenerateReadingPassage,
   saveAiSettings,
   readAiSettingsAdmin,
   listAllCategories,
 } from "@/lib/admin-ai.functions";
 import { toast } from "sonner";
-import { Sparkles, Wand2 } from "lucide-react";
+import { Sparkles, Wand2, BookOpen } from "lucide-react";
+
 
 export const Route = createFileRoute("/admin/ai")({
   head: () => ({ meta: [{ title: "Admin · AI Studio" }] }),
@@ -87,6 +89,36 @@ function AdminAiPage() {
     onSuccess: (r) => toast.success(`Inserted ${r.inserted} questions`),
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Generation failed"),
   });
+
+  // Reading comprehension generator
+  const genReading = useServerFn(adminGenerateReadingPassage);
+  const [rCategoryId, setRCategoryId] = useState<string>("");
+  const [rCount, setRCount] = useState(5);
+  const [rWords, setRWords] = useState(250);
+  const [rDifficulty, setRDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const [rRead, setRRead] = useState(120);
+  const [rQuiz, setRQuiz] = useState(180);
+  const [rTopic, setRTopic] = useState("");
+  useEffect(() => { if (!rCategoryId && cats.length) setRCategoryId(cats[0].id); }, [cats, rCategoryId]);
+
+  const readingMut = useMutation({
+    mutationFn: () =>
+      genReading({
+        data: {
+          category_id: rCategoryId || null,
+          num_questions: rCount,
+          word_count: rWords,
+          difficulty: rDifficulty,
+          reading_seconds: rRead,
+          quiz_seconds: rQuiz,
+          topic_hint: rTopic || undefined,
+        },
+      }),
+    onSuccess: (r) => toast.success(`Created "${r.title}" with ${r.questions} questions (inactive — publish it from Reading)`),
+    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Generation failed"),
+  });
+
+
 
   return (
     <AdminShell>
@@ -178,7 +210,68 @@ function AdminAiPage() {
           </Button>
           {(!enabled || !genEnabled) && <p className="text-xs text-destructive">AI generation is disabled. Enable it in the settings on the left.</p>}
         </Card>
+
+        <Card className="p-5 space-y-4 lg:col-span-2">
+          <div>
+            <h2 className="font-bold flex items-center gap-2"><BookOpen className="h-4 w-4 text-primary" /> Generate a Reading Comprehension set</h2>
+            <p className="text-xs text-muted-foreground">
+              Writes an original paragraph plus its MCQs for any category — Sports, General Knowledge, Coding and more.
+              The set is saved <b>inactive</b> so you can review and edit it in <b>Reading</b> before publishing.
+            </p>
+          </div>
+          <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            <div className="sm:col-span-1">
+              <Label>Category</Label>
+              <Select value={rCategoryId} onValueChange={setRCategoryId}>
+                <SelectTrigger><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectContent>
+                  {cats.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Questions</Label>
+              <Input type="number" min={2} max={15} value={rCount} onChange={(e) => setRCount(Math.max(2, Math.min(15, Number(e.target.value) || 2)))} />
+            </div>
+            <div>
+              <Label>Words</Label>
+              <Input type="number" min={80} max={700} step={10} value={rWords} onChange={(e) => setRWords(Math.max(80, Math.min(700, Number(e.target.value) || 80)))} />
+            </div>
+            <div>
+              <Label>Difficulty</Label>
+              <Select value={rDifficulty} onValueChange={(v) => setRDifficulty(v as typeof rDifficulty)}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="easy">Easy</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="hard">Hard</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Read secs</Label>
+              <Input type="number" min={15} max={3600} value={rRead} onChange={(e) => setRRead(Math.max(15, Math.min(3600, Number(e.target.value) || 15)))} />
+            </div>
+            <div>
+              <Label>Quiz secs</Label>
+              <Input type="number" min={30} max={7200} value={rQuiz} onChange={(e) => setRQuiz(Math.max(30, Math.min(7200, Number(e.target.value) || 30)))} />
+            </div>
+          </div>
+          <div>
+            <Label>Topic hint (optional)</Label>
+            <Input value={rTopic} onChange={(e) => setRTopic(e.target.value)} placeholder="e.g. IPL history, Big-O notation, Indian monuments" />
+          </div>
+          <Button
+            onClick={() => readingMut.mutate()}
+            disabled={readingMut.isPending || !enabled || !genEnabled}
+            className="bg-gradient-primary"
+          >
+            <BookOpen className="mr-1 h-4 w-4" />
+            {readingMut.isPending ? "Writing passage…" : "Generate reading set"}
+          </Button>
+        </Card>
       </div>
+
     </AdminShell>
   );
 }
