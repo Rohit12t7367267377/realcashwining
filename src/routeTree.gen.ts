@@ -49,6 +49,7 @@ import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
 import { Route as AdminXpRouteImport } from './routes/admin.xp'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
 import { Route as AdminStoreRouteImport } from './routes/admin.store'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminRolesRouteImport } from './routes/admin.roles'
@@ -79,6 +80,7 @@ import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
+import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
 
 const WalletRoute = WalletRouteImport.update({
@@ -281,6 +283,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminStoreRoute = AdminStoreRouteImport.update({
   id: '/store',
   path: '/store',
@@ -431,6 +438,11 @@ const AdminAdsRoute = AdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicHooksRazorpayRoute = ApiPublicHooksRazorpayRouteImport.update({
+  id: '/api/public/hooks/razorpay',
+  path: '/api/public/hooks/razorpay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksAutomationRoute =
   ApiPublicHooksAutomationRouteImport.update({
     id: '/api/public/hooks/automation',
@@ -499,6 +511,7 @@ export interface FileRoutesByFullPath {
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/store': typeof AdminStoreRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -510,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -571,6 +585,7 @@ export interface FileRoutesByTo {
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/store': typeof AdminStoreRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -582,6 +597,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/reading': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -645,6 +661,7 @@ export interface FileRoutesById {
   '/admin/roles': typeof AdminRolesRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/store': typeof AdminStoreRoute
+  '/admin/subscriptions': typeof AdminSubscriptionsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -656,6 +673,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -720,6 +738,7 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/store'
+    | '/admin/subscriptions'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -731,6 +750,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/reading/'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/razorpay'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -792,6 +812,7 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/store'
+    | '/admin/subscriptions'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -803,6 +824,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/reading'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/razorpay'
   id:
     | '__root__'
     | '/'
@@ -865,6 +887,7 @@ export interface FileRouteTypes {
     | '/admin/roles'
     | '/admin/settings'
     | '/admin/store'
+    | '/admin/subscriptions'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -876,6 +899,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/reading/'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/razorpay'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -916,6 +940,7 @@ export interface RootRouteChildren {
   ResultIdRoute: typeof ResultIdRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
   ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
+  ApiPublicHooksRazorpayRoute: typeof ApiPublicHooksRazorpayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1200,6 +1225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/subscriptions': {
+      id: '/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AdminSubscriptionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/store': {
       id: '/admin/store'
       path: '/store'
@@ -1410,6 +1442,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/hooks/razorpay': {
+      id: '/api/public/hooks/razorpay'
+      path: '/api/public/hooks/razorpay'
+      fullPath: '/api/public/hooks/razorpay'
+      preLoaderRoute: typeof ApiPublicHooksRazorpayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/automation': {
       id: '/api/public/hooks/automation'
       path: '/api/public/hooks/automation'
@@ -1451,6 +1490,7 @@ interface AdminRouteChildren {
   AdminRolesRoute: typeof AdminRolesRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminStoreRoute: typeof AdminStoreRoute
+  AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminXpRoute: typeof AdminXpRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1487,6 +1527,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminRolesRoute: AdminRolesRoute,
   AdminSettingsRoute: AdminSettingsRoute,
   AdminStoreRoute: AdminStoreRoute,
+  AdminSubscriptionsRoute: AdminSubscriptionsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminXpRoute: AdminXpRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -1543,6 +1584,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResultIdRoute: ResultIdRoute,
   ReadingIndexRoute: ReadingIndexRoute,
   ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
+  ApiPublicHooksRazorpayRoute: ApiPublicHooksRazorpayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

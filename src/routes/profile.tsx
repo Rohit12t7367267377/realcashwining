@@ -175,7 +175,16 @@ function ProfilePage() {
     } finally { setPosting(false); }
   }
 
+  if (!hydrated) {
+    return (
+      <AppShell>
+        <div className="rounded-3xl bg-card p-6 text-center text-sm text-muted-foreground shadow-soft">Loading profile…</div>
+      </AppShell>
+    );
+  }
+
   if (hydrated && !state.loggedIn) {
+
     return (
       <AppShell>
         <div className="rounded-3xl bg-card p-6 text-center shadow-soft">
