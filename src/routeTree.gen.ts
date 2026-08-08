@@ -79,6 +79,7 @@ import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
+import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
 
 const WalletRoute = WalletRouteImport.update({
@@ -431,6 +432,11 @@ const AdminAdsRoute = AdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicHooksRazorpayRoute = ApiPublicHooksRazorpayRouteImport.update({
+  id: '/api/public/hooks/razorpay',
+  path: '/api/public/hooks/razorpay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksAutomationRoute =
   ApiPublicHooksAutomationRouteImport.update({
     id: '/api/public/hooks/automation',
@@ -510,6 +516,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -582,6 +589,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/reading': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -656,6 +664,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -731,6 +740,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/reading/'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/razorpay'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -803,6 +813,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/reading'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/razorpay'
   id:
     | '__root__'
     | '/'
@@ -876,6 +887,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/reading/'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/razorpay'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -916,6 +928,7 @@ export interface RootRouteChildren {
   ResultIdRoute: typeof ResultIdRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
   ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
+  ApiPublicHooksRazorpayRoute: typeof ApiPublicHooksRazorpayRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1410,6 +1423,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/hooks/razorpay': {
+      id: '/api/public/hooks/razorpay'
+      path: '/api/public/hooks/razorpay'
+      fullPath: '/api/public/hooks/razorpay'
+      preLoaderRoute: typeof ApiPublicHooksRazorpayRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/automation': {
       id: '/api/public/hooks/automation'
       path: '/api/public/hooks/automation'
@@ -1543,17 +1563,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResultIdRoute: ResultIdRoute,
   ReadingIndexRoute: ReadingIndexRoute,
   ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
+  ApiPublicHooksRazorpayRoute: ApiPublicHooksRazorpayRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
