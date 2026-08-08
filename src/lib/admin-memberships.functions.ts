@@ -169,13 +169,17 @@ export const adminUpdateSubscription = createServerFn({ method: "POST" })
       .maybeSingle();
     if (!row) throw new Error("Subscription not found");
 
-    const patch: Record<string, unknown> = { admin_note: data.note ?? null };
-    if (data.action === "cancel") patch["status"] = "cancelled";
-    if (data.action === "reactivate") patch["status"] = "active";
+    const patch: {
+      admin_note: string | null;
+      status?: string;
+      ends_at?: string;
+    } = { admin_note: data.note ?? null };
+    if (data.action === "cancel") patch.status = "cancelled";
+    if (data.action === "reactivate") patch.status = "active";
     if (data.action === "extend") {
       const base = Math.max(Date.now(), row.ends_at ? new Date(row.ends_at).getTime() : Date.now());
-      patch["ends_at"] = new Date(base + (data.extra_days ?? 30) * 86400_000).toISOString();
-      patch["status"] = "active";
+      patch.ends_at = new Date(base + (data.extra_days ?? 30) * 86400_000).toISOString();
+      patch.status = "active";
     }
     const { error } = await supabaseAdmin.from("user_memberships").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
