@@ -46,6 +46,9 @@ const MAX_MB = 25;
 
 function ProfilePage() {
   const { state, logout } = useUser();
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => { setHydrated(true); }, []);
+
   const nav = useNavigate();
   const { user } = useAuthSession();
 
@@ -172,7 +175,7 @@ function ProfilePage() {
     } finally { setPosting(false); }
   }
 
-  if (!state.loggedIn) {
+  if (hydrated && !state.loggedIn) {
     return (
       <AppShell>
         <div className="rounded-3xl bg-card p-6 text-center shadow-soft">
