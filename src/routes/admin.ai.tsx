@@ -12,12 +12,14 @@ import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   adminGenerateQuestions,
+  adminGenerateReadingPassage,
   saveAiSettings,
   readAiSettingsAdmin,
   listAllCategories,
 } from "@/lib/admin-ai.functions";
 import { toast } from "sonner";
-import { Sparkles, Wand2 } from "lucide-react";
+import { Sparkles, Wand2, BookOpen } from "lucide-react";
+
 
 export const Route = createFileRoute("/admin/ai")({
   head: () => ({ meta: [{ title: "Admin · AI Studio" }] }),
