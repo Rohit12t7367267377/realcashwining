@@ -90,6 +90,36 @@ function AdminAiPage() {
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Generation failed"),
   });
 
+  // Reading comprehension generator
+  const genReading = useServerFn(adminGenerateReadingPassage);
+  const [rCategoryId, setRCategoryId] = useState<string>("");
+  const [rCount, setRCount] = useState(5);
+  const [rWords, setRWords] = useState(250);
+  const [rDifficulty, setRDifficulty] = useState<"easy" | "medium" | "hard">("medium");
+  const [rRead, setRRead] = useState(120);
+  const [rQuiz, setRQuiz] = useState(180);
+  const [rTopic, setRTopic] = useState("");
+  useEffect(() => { if (!rCategoryId && cats.length) setRCategoryId(cats[0].id); }, [cats, rCategoryId]);
+
+  const readingMut = useMutation({
+    mutationFn: () =>
+      genReading({
+        data: {
+          category_id: rCategoryId || null,
+          num_questions: rCount,
+          word_count: rWords,
+          difficulty: rDifficulty,
+          reading_seconds: rRead,
+          quiz_seconds: rQuiz,
+          topic_hint: rTopic || undefined,
+        },
+      }),
+    onSuccess: (r) => toast.success(`Created "${r.title}" with ${r.questions} questions (inactive — publish it from Reading)`),
+    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Generation failed"),
+  });
+
+
+
   return (
     <AdminShell>
       <div className="flex items-center gap-2">
