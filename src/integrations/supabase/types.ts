@@ -981,43 +981,88 @@ export type Database = {
         }
         Relationships: []
       }
+      membership_features: {
+        Row: {
+          created_at: string
+          feature_id: string
+          membership_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_id: string
+          membership_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_id?: string
+          membership_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_features_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "premium_features"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membership_features_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           active: boolean | null
+          audience: string
           code: string
           created_at: string
+          daily_quiz_limit: number | null
           description: string | null
           duration_days: number
+          highlight: string | null
           id: string
           name: string
           perks: Json
           price: number
+          recommended: boolean
           sort_order: number | null
           updated_at: string
         }
         Insert: {
           active?: boolean | null
+          audience?: string
           code: string
           created_at?: string
+          daily_quiz_limit?: number | null
           description?: string | null
           duration_days?: number
+          highlight?: string | null
           id?: string
           name: string
           perks?: Json
           price?: number
+          recommended?: boolean
           sort_order?: number | null
           updated_at?: string
         }
         Update: {
           active?: boolean | null
+          audience?: string
           code?: string
           created_at?: string
+          daily_quiz_limit?: number | null
           description?: string | null
           duration_days?: number
+          highlight?: string | null
           id?: string
           name?: string
           perks?: Json
           price?: number
+          recommended?: boolean
           sort_order?: number | null
           updated_at?: string
         }
@@ -1237,6 +1282,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      premium_features: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          name: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          name: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       prize_awards: {
         Row: {
@@ -1734,6 +1815,59 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          membership_id: string | null
+          order_id: string | null
+          payment_id: string | null
+          provider: string
+          raw: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          membership_id?: string | null
+          order_id?: string | null
+          payment_id?: string | null
+          provider?: string
+          raw?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          membership_id?: string | null
+          order_id?: string | null
+          payment_id?: string | null
+          provider?: string
+          raw?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payments_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
@@ -1763,28 +1897,40 @@ export type Database = {
       }
       user_memberships: {
         Row: {
+          admin_note: string | null
+          auto_renew: boolean
           created_at: string
           ends_at: string
           id: string
           membership_id: string
+          payment_id: string | null
+          source: string
           starts_at: string
           status: string
           user_id: string
         }
         Insert: {
+          admin_note?: string | null
+          auto_renew?: boolean
           created_at?: string
           ends_at: string
           id?: string
           membership_id: string
+          payment_id?: string | null
+          source?: string
           starts_at?: string
           status?: string
           user_id: string
         }
         Update: {
+          admin_note?: string | null
+          auto_renew?: boolean
           created_at?: string
           ends_at?: string
           id?: string
           membership_id?: string
+          payment_id?: string | null
+          source?: string
           starts_at?: string
           status?: string
           user_id?: string
@@ -1795,6 +1941,13 @@ export type Database = {
             columns: ["membership_id"]
             isOneToOne: false
             referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_memberships_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_payments"
             referencedColumns: ["id"]
           },
         ]
