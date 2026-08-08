@@ -172,7 +172,7 @@ function ProfilePage() {
     } finally { setPosting(false); }
   }
 
-  if (!state.loggedIn) {
+  if (hydrated && !state.loggedIn) {
     return (
       <AppShell>
         <div className="rounded-3xl bg-card p-6 text-center shadow-soft">
