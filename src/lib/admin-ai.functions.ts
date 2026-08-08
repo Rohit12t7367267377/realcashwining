@@ -125,3 +125,111 @@ export const listAllCategories = createServerFn({ method: "GET" })
     const { data } = await supabaseAdmin.from("categories").select("id, name").order("name");
     return data ?? [];
   });
+
+/**
+ * AI generator for Reading Comprehension: writes a passage for any category
+ * (Sports, General Knowledge, Coding, etc.) plus its MCQs in one shot.
+ * The passage is created INACTIVE so admin can review/edit before publishing.
+ */
+export const adminGenerateReadingPassage = createServerFn({ method: "POST" })
+  .middleware([requireAdminPassword])
+  .inputValidator((d) =>
+    z.object({
+      category_id: z.string().uuid().nullable().optional(),
+      topic_hint: z.string().max(200).optional(),
+      num_questions: z.number().int().min(2).max(15).default(5),
+      word_count: z.number().int().min(80).max(700).default(250),
+      difficulty: z.enum(["easy", "medium", "hard", "mixed"]).default("medium"),
+      reading_seconds: z.number().int().min(15).max(3600).default(120),
+      quiz_seconds: z.number().int().min(30).max(7200).default(180),
+    }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const cfg = await getAiConfig();
+    if (!cfg.enabled || !cfg.genEnabled) throw new Error("AI generation is disabled.");
+
+    let catName = "General Knowledge";
+    if (data.category_id) {
+      const { data: cat } = await supabaseAdmin
+        .from("categories").select("id, name").eq("id", data.category_id).maybeSingle();
+      if (!cat) throw new Error("Category not found");
+      catName = cat.name;
+    }
+
+    const prompt = `Write an original reading-comprehension exercise for the category "${catName}"${data.topic_hint ? ` about: ${data.topic_hint}` : ""}.
+Passage length: about ${data.word_count} words. Difficulty: ${data.difficulty}.
+Then write ${data.num_questions} multiple-choice questions answerable ONLY from the passage.
+Return STRICT minified JSON only, no prose, no code fences:
+{"title":"...","passage":"...","questions":[{"question":"...","options":["A","B","C","D"],"correct_index":0,"explanation":"one sentence citing the passage"}]}
+Rules:
+- Exactly 4 options per question, correct_index 0..3.
+- Factually accurate, self-contained, suitable for a general audience in India.
+- Do not use markdown inside the passage.`;
+
+    const raw = await callAiChat(
+      [
+        { role: "system", content: "You output only valid minified JSON. No prose, no code fences." },
+        { role: "user", content: prompt },
+      ],
+      { model: cfg.model, temperature: 0.8, responseFormat: "json_object" },
+    );
+
+    const parsed = extractJson(raw) as {
+      title?: string;
+      passage?: string;
+      questions?: Array<{ question?: string; options?: string[]; correct_index?: number; explanation?: string }>;
+    };
+
+    const passage = (parsed.passage ?? "").toString().trim();
+    if (passage.length < 50) throw new Error("AI produced no usable passage. Try again.");
+    const title = ((parsed.title ?? "").toString().trim() || `${catName} Reading Practice`).slice(0, 200);
+
+    const questions = (parsed.questions ?? [])
+      .filter((q) =>
+        typeof q.question === "string" && q.question.trim().length > 0 &&
+        Array.isArray(q.options) && q.options.length === 4 &&
+        q.options.every((o) => typeof o === "string" && o.trim().length > 0) &&
+        Number.isInteger(q.correct_index) && (q.correct_index as number) >= 0 && (q.correct_index as number) < 4,
+      )
+      .slice(0, data.num_questions);
+    if (questions.length < 2) throw new Error("AI produced too few valid questions. Try again.");
+
+    const { data: created, error: pErr } = await supabaseAdmin
+      .from("reading_passages")
+      .insert({
+        title,
+        passage: passage.slice(0, 20000),
+        category_id: data.category_id ?? null,
+        reading_seconds: data.reading_seconds,
+        quiz_seconds: data.quiz_seconds,
+        num_questions: questions.length,
+        difficulty: data.difficulty === "mixed" ? "medium" : data.difficulty,
+        marks_per_question: 1,
+        negative_marks: 0,
+        keep_passage_visible: true,
+        shuffle_questions: false,
+        shuffle_options: false,
+        show_explanations: true,
+        entry_fee: 0,
+        prize_pool: 0,
+        active: false,
+      })
+      .select("id, title")
+      .single();
+    if (pErr || !created) throw new Error(pErr?.message ?? "Failed to create passage");
+
+    const { error: qErr } = await supabaseAdmin.from("reading_questions").insert(
+      questions.map((q, i) => ({
+        passage_id: created.id,
+        question: q.question!.trim().slice(0, 2000),
+        options: q.options!.map((o) => o.trim().slice(0, 500)),
+        correct_index: q.correct_index as number,
+        explanation: (q.explanation ?? "").toString().slice(0, 2000) || null,
+        marks: 1,
+        sort_order: i,
+      })),
+    );
+    if (qErr) throw new Error(qErr.message);
+
+    return { passage_id: created.id, title: created.title, questions: questions.length };
+  });
