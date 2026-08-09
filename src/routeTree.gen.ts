@@ -58,6 +58,7 @@ import { Route as AdminReadingRouteImport } from './routes/admin.reading'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPrizesRouteImport } from './routes/admin.prizes'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
 import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
 import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
@@ -81,6 +82,8 @@ import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
+import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
+import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
 
 const WalletRoute = WalletRouteImport.update({
@@ -328,6 +331,11 @@ const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMissionsRoute = AdminMissionsRouteImport.update({
   id: '/missions',
   path: '/missions',
@@ -443,6 +451,18 @@ const ApiPublicHooksRazorpayRoute = ApiPublicHooksRazorpayRouteImport.update({
   path: '/api/public/hooks/razorpay',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksPushDispatchRoute =
+  ApiPublicHooksPushDispatchRouteImport.update({
+    id: '/api/public/hooks/push-dispatch',
+    path: '/api/public/hooks/push-dispatch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksPushConfigRoute =
+  ApiPublicHooksPushConfigRouteImport.update({
+    id: '/api/public/hooks/push-config',
+    path: '/api/public/hooks/push-config',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAutomationRoute =
   ApiPublicHooksAutomationRouteImport.update({
     id: '/api/public/hooks/automation',
@@ -503,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -523,6 +544,8 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
+  '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRoutesByTo {
@@ -577,6 +600,7 @@ export interface FileRoutesByTo {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -597,6 +621,8 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/reading': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
+  '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRoutesById {
@@ -653,6 +679,7 @@ export interface FileRoutesById {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -673,6 +700,8 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
+  '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
 export interface FileRouteTypes {
@@ -730,6 +759,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/notifications'
     | '/admin/payments'
     | '/admin/prizes'
     | '/admin/questions'
@@ -750,6 +780,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/reading/'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/push-config'
+    | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -804,6 +836,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/notifications'
     | '/admin/payments'
     | '/admin/prizes'
     | '/admin/questions'
@@ -824,6 +857,8 @@ export interface FileRouteTypes {
     | '/admin'
     | '/reading'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/push-config'
+    | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
   id:
     | '__root__'
@@ -879,6 +914,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/notifications'
     | '/admin/payments'
     | '/admin/prizes'
     | '/admin/questions'
@@ -899,6 +935,8 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/reading/'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/push-config'
+    | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
   fileRoutesById: FileRoutesById
 }
@@ -940,6 +978,8 @@ export interface RootRouteChildren {
   ResultIdRoute: typeof ResultIdRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
   ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
+  ApiPublicHooksPushConfigRoute: typeof ApiPublicHooksPushConfigRoute
+  ApiPublicHooksPushDispatchRoute: typeof ApiPublicHooksPushDispatchRoute
   ApiPublicHooksRazorpayRoute: typeof ApiPublicHooksRazorpayRoute
 }
 
@@ -1288,6 +1328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPaymentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/notifications': {
+      id: '/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AdminNotificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/missions': {
       id: '/admin/missions'
       path: '/missions'
@@ -1449,6 +1496,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksRazorpayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/push-dispatch': {
+      id: '/api/public/hooks/push-dispatch'
+      path: '/api/public/hooks/push-dispatch'
+      fullPath: '/api/public/hooks/push-dispatch'
+      preLoaderRoute: typeof ApiPublicHooksPushDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/push-config': {
+      id: '/api/public/hooks/push-config'
+      path: '/api/public/hooks/push-config'
+      fullPath: '/api/public/hooks/push-config'
+      preLoaderRoute: typeof ApiPublicHooksPushConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/automation': {
       id: '/api/public/hooks/automation'
       path: '/api/public/hooks/automation'
@@ -1482,6 +1543,7 @@ interface AdminRouteChildren {
   AdminLiveScoresRoute: typeof AdminLiveScoresRoute
   AdminMembershipsRoute: typeof AdminMembershipsRoute
   AdminMissionsRoute: typeof AdminMissionsRoute
+  AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminPrizesRoute: typeof AdminPrizesRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
@@ -1519,6 +1581,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLiveScoresRoute: AdminLiveScoresRoute,
   AdminMembershipsRoute: AdminMembershipsRoute,
   AdminMissionsRoute: AdminMissionsRoute,
+  AdminNotificationsRoute: AdminNotificationsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminPrizesRoute: AdminPrizesRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
@@ -1584,6 +1647,8 @@ const rootRouteChildren: RootRouteChildren = {
   ResultIdRoute: ResultIdRoute,
   ReadingIndexRoute: ReadingIndexRoute,
   ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
+  ApiPublicHooksPushConfigRoute: ApiPublicHooksPushConfigRoute,
+  ApiPublicHooksPushDispatchRoute: ApiPublicHooksPushDispatchRoute,
   ApiPublicHooksRazorpayRoute: ApiPublicHooksRazorpayRoute,
 }
 export const routeTree = rootRouteImport

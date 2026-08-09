@@ -70,7 +70,9 @@ const GROUPS: { title: string; items: Item[] }[] = [
   {
     title: "System",
     items: [
-      { to: "/admin/broadcasts", label: "Notifications", icon: Bell },
+      { to: "/admin/notifications", label: "Push Notifications", icon: Bell },
+      { to: "/admin/broadcasts", label: "In-App Alerts", icon: Megaphone },
+
       { to: "/admin/feedback", label: "Feedback", icon: MessageSquare },
       { to: "/admin/faqs", label: "FAQs", icon: HelpCircle },
       { to: "/admin/fraud", label: "Fraud & Anti-Cheat", icon: AlertTriangle },
