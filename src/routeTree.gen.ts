@@ -58,6 +58,7 @@ import { Route as AdminReadingRouteImport } from './routes/admin.reading'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminPrizesRouteImport } from './routes/admin.prizes'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
 import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
 import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
@@ -330,6 +331,11 @@ const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMissionsRoute = AdminMissionsRouteImport.update({
   id: '/missions',
   path: '/missions',
@@ -517,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -593,6 +600,7 @@ export interface FileRoutesByTo {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -671,6 +679,7 @@ export interface FileRoutesById {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
@@ -750,6 +759,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/notifications'
     | '/admin/payments'
     | '/admin/prizes'
     | '/admin/questions'
@@ -826,6 +836,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/notifications'
     | '/admin/payments'
     | '/admin/prizes'
     | '/admin/questions'
@@ -903,6 +914,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/notifications'
     | '/admin/payments'
     | '/admin/prizes'
     | '/admin/questions'
@@ -1316,6 +1328,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPaymentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/notifications': {
+      id: '/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AdminNotificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/missions': {
       id: '/admin/missions'
       path: '/missions'
@@ -1524,6 +1543,7 @@ interface AdminRouteChildren {
   AdminLiveScoresRoute: typeof AdminLiveScoresRoute
   AdminMembershipsRoute: typeof AdminMembershipsRoute
   AdminMissionsRoute: typeof AdminMissionsRoute
+  AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminPrizesRoute: typeof AdminPrizesRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
@@ -1561,6 +1581,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLiveScoresRoute: AdminLiveScoresRoute,
   AdminMembershipsRoute: AdminMembershipsRoute,
   AdminMissionsRoute: AdminMissionsRoute,
+  AdminNotificationsRoute: AdminNotificationsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminPrizesRoute: AdminPrizesRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
