@@ -1400,6 +1400,167 @@ export type Database = {
         }
         Relationships: []
       }
+      push_campaigns: {
+        Row: {
+          audience: string
+          body: string
+          category_id: string | null
+          contest_id: string | null
+          created_at: string
+          created_by: string | null
+          data: Json
+          deep_link: string | null
+          event_code: string | null
+          failed_count: number
+          id: string
+          image_url: string | null
+          last_error: string | null
+          recipients_count: number
+          scheduled_at: string | null
+          sent_at: string | null
+          sent_count: number
+          status: string
+          target_user_ids: string[]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audience?: string
+          body: string
+          category_id?: string | null
+          contest_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          deep_link?: string | null
+          event_code?: string | null
+          failed_count?: number
+          id?: string
+          image_url?: string | null
+          last_error?: string | null
+          recipients_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number
+          status?: string
+          target_user_ids?: string[]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audience?: string
+          body?: string
+          category_id?: string | null
+          contest_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          deep_link?: string | null
+          event_code?: string | null
+          failed_count?: number
+          id?: string
+          image_url?: string | null
+          last_error?: string | null
+          recipients_count?: number
+          scheduled_at?: string | null
+          sent_at?: string | null
+          sent_count?: number
+          status?: string
+          target_user_ids?: string[]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_campaigns_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_campaigns_contest_id_fkey"
+            columns: ["contest_id"]
+            isOneToOne: false
+            referencedRelation: "contests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_deliveries: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          error: string | null
+          id: string
+          status: string
+          token: string | null
+          user_id: string
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          status?: string
+          token?: string | null
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          error?: string | null
+          id?: string
+          status?: string
+          token?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_deliveries_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "push_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_tokens: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          last_seen_at: string
+          platform: string
+          token: string
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_seen_at?: string
+          platform?: string
+          token: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          last_seen_at?: string
+          platform?: string
+          token?: string
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       questions: {
         Row: {
           category_id: string
@@ -2173,6 +2334,19 @@ export type Database = {
           reward_xp: number
           tier: string
         }[]
+      }
+      queue_event_notification: {
+        Args: {
+          _audience?: string
+          _body: string
+          _category_id?: string
+          _contest_id?: string
+          _event_code: string
+          _link?: string
+          _target_user_ids?: string[]
+          _title: string
+        }
+        Returns: string
       }
       redeem_coupon: {
         Args: { _code: string }
