@@ -126,6 +126,26 @@ function Page() {
                   loadAttempts(selected);
                 } catch (e: any) { toast.error(e?.message ?? "Failed to auto-score"); }
               }}>Auto-Score All</Button>
+              <Button
+                variant="outline"
+                disabled={attempts.length === 0}
+                onClick={async () => {
+                  try {
+                    await exportContestResultsToWord(
+                      currentContest.title,
+                      currentContest.prize_pool,
+                      currentContest.first_prize,
+                      currentContest.results_status,
+                      attempts,
+                    );
+                    toast.success("Word document downloaded");
+                  } catch (e: any) {
+                    toast.error(e?.message ?? "Failed to export");
+                  }
+                }}
+              >
+                <FileText className="w-4 h-4 mr-1" /> Export to Word
+              </Button>
               {currentContest.results_status !== "declared" ? (
                 <Button onClick={() => publish("declared")} className="bg-gradient-primary">
                   <ShieldCheck className="w-4 h-4 mr-1" /> Publish Results to Users
