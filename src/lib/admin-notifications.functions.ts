@@ -111,13 +111,14 @@ export const adminCampaignDeliveries = createServerFn({ method: "POST" })
     const { data: profiles } = ids.length
       ? await admin.from("profiles").select("id,full_name,phone,username").in("id", ids)
       : { data: [] };
-    const byId = new Map((profiles ?? []).map((p: any) => [p.id, p]));
+    const byId = new Map<string, any>((profiles ?? []).map((p: any) => [p.id as string, p]));
     return {
-      rows: (rows ?? []).map((r: any) => ({
-        ...r,
-        name: byId.get(r.user_id)?.full_name || byId.get(r.user_id)?.username || byId.get(r.user_id)?.phone || "User",
-      })),
+      rows: (rows ?? []).map((r: any) => {
+        const p = byId.get(r.user_id);
+        return { ...r, name: p?.full_name || p?.username || p?.phone || "User" };
+      }),
     };
+
   });
 
 /** Search users for the "selected users" audience. */
