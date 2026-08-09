@@ -82,6 +82,7 @@ import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
 import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
+import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
 
 const WalletRoute = WalletRouteImport.update({
@@ -450,6 +451,12 @@ const ApiPublicHooksPushDispatchRoute =
     path: '/api/public/hooks/push-dispatch',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksPushConfigRoute =
+  ApiPublicHooksPushConfigRouteImport.update({
+    id: '/api/public/hooks/push-config',
+    path: '/api/public/hooks/push-config',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksAutomationRoute =
   ApiPublicHooksAutomationRouteImport.update({
     id: '/api/public/hooks/automation',
@@ -530,6 +537,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
@@ -605,6 +613,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/reading': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
@@ -682,6 +691,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
 }
@@ -760,6 +770,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/reading/'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
   fileRoutesByTo: FileRoutesByTo
@@ -835,6 +846,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/reading'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
   id:
@@ -911,6 +923,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/reading/'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
   fileRoutesById: FileRoutesById
@@ -953,6 +966,7 @@ export interface RootRouteChildren {
   ResultIdRoute: typeof ResultIdRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
   ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
+  ApiPublicHooksPushConfigRoute: typeof ApiPublicHooksPushConfigRoute
   ApiPublicHooksPushDispatchRoute: typeof ApiPublicHooksPushDispatchRoute
   ApiPublicHooksRazorpayRoute: typeof ApiPublicHooksRazorpayRoute
 }
@@ -1470,6 +1484,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPushDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/push-config': {
+      id: '/api/public/hooks/push-config'
+      path: '/api/public/hooks/push-config'
+      fullPath: '/api/public/hooks/push-config'
+      preLoaderRoute: typeof ApiPublicHooksPushConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/automation': {
       id: '/api/public/hooks/automation'
       path: '/api/public/hooks/automation'
@@ -1605,6 +1626,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResultIdRoute: ResultIdRoute,
   ReadingIndexRoute: ReadingIndexRoute,
   ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
+  ApiPublicHooksPushConfigRoute: ApiPublicHooksPushConfigRoute,
   ApiPublicHooksPushDispatchRoute: ApiPublicHooksPushDispatchRoute,
   ApiPublicHooksRazorpayRoute: ApiPublicHooksRazorpayRoute,
 }
