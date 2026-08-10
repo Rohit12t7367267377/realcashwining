@@ -27,12 +27,14 @@ export const Route = createFileRoute("/api/public/hooks/automation")({
         }
 
         const { runAutoResults, runAutoLeaderboardPrizes } = await import("@/lib/automation.server");
+        const { runSportsAutomation } = await import("@/lib/sports.server");
+        const sports = await runSportsAutomation().catch(() => null);
         const results = await runAutoResults();
         const week = await runAutoLeaderboardPrizes("week");
         const month = await runAutoLeaderboardPrizes("month");
         const year = await runAutoLeaderboardPrizes("year");
 
-        return Response.json({ ok: true, results, week, month, year });
+        return Response.json({ ok: true, sports, results, week, month, year });
       },
     },
   },

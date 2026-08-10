@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/AppShell";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -42,7 +42,8 @@ function Page() {
         <p className="text-muted-foreground mb-6">Real-time scores. Auto-refreshes every {refresh}s.</p>
         <div className="space-y-3">
           {rows.map((r) => (
-            <Card key={r.id} className="p-4">
+            <Link key={r.id} to="/cricket/$id" params={{ id: r.id }} className="block">
+            <Card className="p-4 transition hover:shadow-glow">
               <div className="flex items-center justify-between">
                 <div className="min-w-0">
                   <div className="text-[10px] uppercase text-muted-foreground">{r.match_type} · {r.venue}</div>
@@ -56,6 +57,7 @@ function Page() {
                 <div className="text-right"><b>{r.team_b}</b><div className="font-mono">{r.score_b || "—"}</div></div>
               </div>
             </Card>
+            </Link>
           ))}
           {!rows.length && <Card className="p-8 text-center text-muted-foreground">No matches available. Admin can refresh from Cricket API settings.</Card>}
         </div>
