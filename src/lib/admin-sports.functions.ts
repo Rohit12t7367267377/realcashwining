@@ -31,7 +31,7 @@ export const saveSportsConfig = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const now = new Date().toISOString();
-    const rows: { key: string; value: unknown; updated_at: string }[] = [
+    const rows: { key: string; value: boolean | number | string; updated_at: string }[] = [
       { key: "cricket_enabled", value: data.enabled, updated_at: now },
       { key: "cricket_refresh_seconds", value: data.refreshSeconds, updated_at: now },
       { key: "sports_auto_quiz", value: data.autoQuiz, updated_at: now },
