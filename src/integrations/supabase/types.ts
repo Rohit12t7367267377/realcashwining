@@ -461,6 +461,8 @@ export type Database = {
       contests: {
         Row: {
           active: boolean
+          auto_quiz: boolean
+          auto_result: boolean
           category_id: string | null
           contest_type: string
           created_at: string
@@ -469,15 +471,19 @@ export type Database = {
           entry_fee: number
           first_prize: number
           id: string
+          match_id: string | null
           max_participants: number
           num_questions: number
           prize_pool: number
           results_status: string
+          review_required: boolean
           starts_at: string | null
           title: string
         }
         Insert: {
           active?: boolean
+          auto_quiz?: boolean
+          auto_result?: boolean
           category_id?: string | null
           contest_type?: string
           created_at?: string
@@ -486,15 +492,19 @@ export type Database = {
           entry_fee?: number
           first_prize?: number
           id?: string
+          match_id?: string | null
           max_participants?: number
           num_questions?: number
           prize_pool?: number
           results_status?: string
+          review_required?: boolean
           starts_at?: string | null
           title: string
         }
         Update: {
           active?: boolean
+          auto_quiz?: boolean
+          auto_result?: boolean
           category_id?: string | null
           contest_type?: string
           created_at?: string
@@ -503,10 +513,12 @@ export type Database = {
           entry_fee?: number
           first_prize?: number
           id?: string
+          match_id?: string | null
           max_participants?: number
           num_questions?: number
           prize_pool?: number
           results_status?: string
+          review_required?: boolean
           starts_at?: string | null
           title?: string
         }
@@ -516,6 +528,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contests_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "cricket_matches"
             referencedColumns: ["id"]
           },
         ]
@@ -658,6 +677,8 @@ export type Database = {
           raw: Json | null
           score_a: string | null
           score_b: string | null
+          series: string | null
+          squads: Json
           status: string | null
           team_a: string | null
           team_b: string | null
@@ -676,6 +697,8 @@ export type Database = {
           raw?: Json | null
           score_a?: string | null
           score_b?: string | null
+          series?: string | null
+          squads?: Json
           status?: string | null
           team_a?: string | null
           team_b?: string | null
@@ -694,6 +717,8 @@ export type Database = {
           raw?: Json | null
           score_a?: string | null
           score_b?: string | null
+          series?: string | null
+          squads?: Json
           status?: string | null
           team_a?: string | null
           team_b?: string | null
@@ -1687,6 +1712,7 @@ export type Database = {
           id: string
           keep_passage_visible: boolean
           marks_per_question: number
+          match_id: string | null
           negative_marks: number
           num_questions: number
           passage: string
@@ -1710,6 +1736,7 @@ export type Database = {
           id?: string
           keep_passage_visible?: boolean
           marks_per_question?: number
+          match_id?: string | null
           negative_marks?: number
           num_questions?: number
           passage: string
@@ -1733,6 +1760,7 @@ export type Database = {
           id?: string
           keep_passage_visible?: boolean
           marks_per_question?: number
+          match_id?: string | null
           negative_marks?: number
           num_questions?: number
           passage?: string
@@ -1752,6 +1780,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reading_passages_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "cricket_matches"
             referencedColumns: ["id"]
           },
         ]
@@ -1880,6 +1915,79 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      sports_quiz_drafts: {
+        Row: {
+          category_id: string | null
+          contest_id: string | null
+          correct_index: number
+          created_at: string
+          difficulty: string
+          explanation: string | null
+          id: string
+          match_id: string | null
+          options: Json
+          published_question_id: string | null
+          question: string
+          source: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          contest_id?: string | null
+          correct_index: number
+          created_at?: string
+          difficulty?: string
+          explanation?: string | null
+          id?: string
+          match_id?: string | null
+          options: Json
+          published_question_id?: string | null
+          question: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          contest_id?: string | null
+          correct_index?: number
+          created_at?: string
+          difficulty?: string
+          explanation?: string | null
+          id?: string
+          match_id?: string | null
+          options?: Json
+          published_question_id?: string | null
+          question?: string
+          source?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sports_quiz_drafts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sports_quiz_drafts_contest_id_fkey"
+            columns: ["contest_id"]
+            isOneToOne: false
+            referencedRelation: "contests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sports_quiz_drafts_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "cricket_matches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_orders: {
         Row: {
