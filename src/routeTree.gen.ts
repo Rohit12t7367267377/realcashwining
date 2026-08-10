@@ -45,6 +45,7 @@ import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
+import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
 import { Route as AdminXpRouteImport } from './routes/admin.xp'
@@ -264,6 +265,11 @@ const ReadingIdRoute = ReadingIdRouteImport.update({
 const PlayIdRoute = PlayIdRouteImport.update({
   id: '/play/$id',
   path: '/play/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CricketIdRoute = CricketIdRouteImport.update({
+  id: '/cricket_/$id',
+  path: '/cricket/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContestIdRoute = ContestIdRouteImport.update({
@@ -537,6 +543,7 @@ export interface FileRoutesByFullPath {
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
+  '/cricket/$id': typeof CricketIdRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
@@ -614,6 +621,7 @@ export interface FileRoutesByTo {
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
+  '/cricket/$id': typeof CricketIdRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
@@ -693,6 +701,7 @@ export interface FileRoutesById {
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
+  '/cricket_/$id': typeof CricketIdRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
@@ -773,6 +782,7 @@ export interface FileRouteTypes {
     | '/admin/xp'
     | '/category/$id'
     | '/contest/$id'
+    | '/cricket/$id'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
@@ -850,6 +860,7 @@ export interface FileRouteTypes {
     | '/admin/xp'
     | '/category/$id'
     | '/contest/$id'
+    | '/cricket/$id'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
@@ -928,6 +939,7 @@ export interface FileRouteTypes {
     | '/admin/xp'
     | '/category/$id'
     | '/contest/$id'
+    | '/cricket_/$id'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
@@ -973,6 +985,7 @@ export interface RootRouteChildren {
   WalletRoute: typeof WalletRouteWithChildren
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
+  CricketIdRoute: typeof CricketIdRoute
   PlayIdRoute: typeof PlayIdRoute
   ReadingIdRoute: typeof ReadingIdRoute
   ResultIdRoute: typeof ResultIdRoute
@@ -1235,6 +1248,13 @@ declare module '@tanstack/react-router' {
       path: '/play/$id'
       fullPath: '/play/$id'
       preLoaderRoute: typeof PlayIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cricket_/$id': {
+      id: '/cricket_/$id'
+      path: '/cricket/$id'
+      fullPath: '/cricket/$id'
+      preLoaderRoute: typeof CricketIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contest/$id': {
@@ -1642,6 +1662,7 @@ const rootRouteChildren: RootRouteChildren = {
   WalletRoute: WalletRouteWithChildren,
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
+  CricketIdRoute: CricketIdRoute,
   PlayIdRoute: PlayIdRoute,
   ReadingIdRoute: ReadingIdRoute,
   ResultIdRoute: ResultIdRoute,

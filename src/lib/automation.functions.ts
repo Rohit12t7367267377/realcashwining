@@ -41,10 +41,12 @@ export const runAutomationNow = createServerFn({ method: "POST" })
   .middleware([requireAdminPassword])
   .handler(async () => {
     const { runAutoResults, runAutoLeaderboardPrizes } = await import("@/lib/automation.server");
+    const { runSportsAutomation } = await import("@/lib/sports.server");
+    const sports = await runSportsAutomation().catch(() => ({ enabled: false, drafted: 0, finalized: [], waiting: [] }));
     const results = await runAutoResults();
     const week = await runAutoLeaderboardPrizes("week");
     const month = await runAutoLeaderboardPrizes("month");
-    return { results, week, month };
+    return { results, week, month, sports };
   });
 
 /** Manual override: finalize one specific contest immediately. */
