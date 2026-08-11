@@ -377,7 +377,7 @@ function Home() {
             {matches.map((m) => (
               <Link
                 key={m.id}
-                to="/cricket_/$id"
+                to="/cricket/$id"
                 params={{ id: m.id }}
                 className="card-lift min-w-[240px] snap-start rounded-2xl bg-card p-3 shadow-soft"
               >
