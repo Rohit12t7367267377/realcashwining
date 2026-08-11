@@ -107,7 +107,7 @@ function Home() {
     const nowIso = () => new Date().toISOString();
     async function load() {
       const now = nowIso();
-      const [liveRes, upRes, doneRes, banRes, bcRes] = await Promise.all([
+      const [liveRes, upRes, doneRes, banRes, bcRes, matchRes] = await Promise.all([
         supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
           .eq("active", true).eq("results_status", "pending")
           .or(`starts_at.is.null,starts_at.lte.${now}`)
@@ -122,11 +122,17 @@ function Home() {
           .eq("active", true).order("sort_order", { ascending: true }).limit(10),
         supabase.from("broadcasts").select("id, title, body").eq("active", true)
           .order("created_at", { ascending: false }).limit(3),
+        supabase.from("cricket_matches")
+          .select("id, name, status, team_a, team_b, score_a, score_b, is_live, date_time")
+          .order("is_live", { ascending: false })
+          .order("date_time", { ascending: false })
+          .limit(6),
       ]);
       if (cancelled) return;
       setLive((liveRes.data ?? []) as LiveContest[]);
       setUpcoming((upRes.data ?? []) as LiveContest[]);
       setCompleted((doneRes.data ?? []) as LiveContest[]);
+      setMatches((matchRes.data ?? []) as CricketMatch[]);
       // Filter banners by date window
       const bans = ((banRes.data ?? []) as any[]).filter((b) => {
         if (b.starts_at && new Date(b.starts_at) > new Date()) return false;
@@ -135,6 +141,7 @@ function Home() {
       });
       setBanners(bans as Banner[]);
       setBroadcasts((bcRes.data ?? []) as Broadcast[]);
+
     }
     load();
     const t = setInterval(load, 45_000);
