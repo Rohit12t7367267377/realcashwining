@@ -34,6 +34,19 @@ const asStr = (v: unknown, d = "") =>
   typeof v === "string" ? v.replace(/^"|"$/g, "") : v == null ? d : String(v);
 const asNum = (v: unknown, d: number) => (Number.isFinite(Number(v)) ? Number(v) : d);
 
+/**
+ * Admins often paste the whole sample URL or the key with extra query params
+ * (e.g. "abc-123&offset=0"). Keep only the credential itself.
+ */
+export function sanitizeApiKey(raw: string) {
+  let k = raw.trim().replace(/^["']|["']$/g, "");
+  const m = k.match(/apikey=([^&\s]+)/i);
+  if (m) k = m[1];
+  k = k.split(/[?&\s]/)[0];
+  return k.trim();
+}
+
+
 export async function readSportsConfig(): Promise<SportsConfig> {
   const { data } = await supabaseAdmin
     .from("app_settings")
