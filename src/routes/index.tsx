@@ -370,6 +370,45 @@ function Home() {
         </div>
       </Link>
 
+      {/* 5b · Live cricket matches from the sports feed */}
+      {matches.length > 0 && (
+        <section className="mt-3">
+          <div className="flex snap-x gap-3 overflow-x-auto pb-1">
+            {matches.map((m) => (
+              <Link
+                key={m.id}
+                to="/cricket_/$id"
+                params={{ id: m.id }}
+                className="card-lift min-w-[240px] snap-start rounded-2xl bg-card p-3 shadow-soft"
+              >
+                <div className="flex items-center gap-2">
+                  {m.is_live ? (
+                    <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-bold text-destructive">● LIVE</span>
+                  ) : (
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                      {m.date_time ? new Date(m.date_time).toLocaleDateString() : "Match"}
+                    </span>
+                  )}
+                  <span className="truncate text-[11px] text-muted-foreground">🏏 Cricket</span>
+                </div>
+                <div className="mt-2 space-y-1 text-sm font-bold">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate">{m.team_a || "Team A"}</span>
+                    <span className="shrink-0 font-mono text-xs">{m.score_a || "—"}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate">{m.team_b || "Team B"}</span>
+                    <span className="shrink-0 font-mono text-xs">{m.score_b || "—"}</span>
+                  </div>
+                </div>
+                <div className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{m.status || m.name}</div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+
       {/* 6 · Recently completed */}
       {completed.length > 0 && (
         <section className="mt-6">
