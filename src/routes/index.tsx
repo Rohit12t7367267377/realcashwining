@@ -29,6 +29,18 @@ export const Route = createFileRoute("/")({
 type LiveContest = { id: string; title: string; entry_fee: number; first_prize: number; starts_at: string | null; ends_at?: string | null; results_status?: string };
 type Banner = { id: string; title: string; subtitle: string | null; image_url: string | null; link_url: string | null; cta_label: string | null };
 type Broadcast = { id: string; title: string; body: string };
+type CricketMatch = {
+  id: string;
+  name: string;
+  status: string | null;
+  team_a: string | null;
+  team_b: string | null;
+  score_a: string | null;
+  score_b: string | null;
+  is_live: boolean | null;
+  date_time: string | null;
+};
+
 
 
 function Home() {
@@ -84,6 +96,8 @@ function Home() {
   const [completed, setCompleted] = useState<LiveContest[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
+  const [matches, setMatches] = useState<CricketMatch[]>([]);
+
   
   const [bannerIdx, setBannerIdx] = useState(0);
 
