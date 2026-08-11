@@ -53,7 +53,7 @@ export async function readSportsConfig(): Promise<SportsConfig> {
     .select("key, value")
     .in("key", KEYS as unknown as string[]);
   const m = new Map<string, unknown>((data ?? []).map((r) => [r.key, r.value]));
-  const apiKey = asStr(m.get("cricket_api_key"));
+  const apiKey = sanitizeApiKey(asStr(m.get("cricket_api_key")));
   return {
     enabled: asBool(m.get("cricket_enabled"), true),
     hasKey: apiKey.length > 0,
