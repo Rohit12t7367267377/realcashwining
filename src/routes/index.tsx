@@ -29,6 +29,18 @@ export const Route = createFileRoute("/")({
 type LiveContest = { id: string; title: string; entry_fee: number; first_prize: number; starts_at: string | null; ends_at?: string | null; results_status?: string };
 type Banner = { id: string; title: string; subtitle: string | null; image_url: string | null; link_url: string | null; cta_label: string | null };
 type Broadcast = { id: string; title: string; body: string };
+type CricketMatch = {
+  id: string;
+  name: string;
+  status: string | null;
+  team_a: string | null;
+  team_b: string | null;
+  score_a: string | null;
+  score_b: string | null;
+  is_live: boolean | null;
+  date_time: string | null;
+};
+
 
 
 function Home() {
@@ -84,6 +96,8 @@ function Home() {
   const [completed, setCompleted] = useState<LiveContest[]>([]);
   const [banners, setBanners] = useState<Banner[]>([]);
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
+  const [matches, setMatches] = useState<CricketMatch[]>([]);
+
   
   const [bannerIdx, setBannerIdx] = useState(0);
 
@@ -93,7 +107,7 @@ function Home() {
     const nowIso = () => new Date().toISOString();
     async function load() {
       const now = nowIso();
-      const [liveRes, upRes, doneRes, banRes, bcRes] = await Promise.all([
+      const [liveRes, upRes, doneRes, banRes, bcRes, matchRes] = await Promise.all([
         supabase.from("contests").select("id, title, entry_fee, first_prize, starts_at, ends_at, results_status")
           .eq("active", true).eq("results_status", "pending")
           .or(`starts_at.is.null,starts_at.lte.${now}`)
@@ -108,11 +122,17 @@ function Home() {
           .eq("active", true).order("sort_order", { ascending: true }).limit(10),
         supabase.from("broadcasts").select("id, title, body").eq("active", true)
           .order("created_at", { ascending: false }).limit(3),
+        supabase.from("cricket_matches")
+          .select("id, name, status, team_a, team_b, score_a, score_b, is_live, date_time")
+          .order("is_live", { ascending: false })
+          .order("date_time", { ascending: false })
+          .limit(6),
       ]);
       if (cancelled) return;
       setLive((liveRes.data ?? []) as LiveContest[]);
       setUpcoming((upRes.data ?? []) as LiveContest[]);
       setCompleted((doneRes.data ?? []) as LiveContest[]);
+      setMatches((matchRes.data ?? []) as CricketMatch[]);
       // Filter banners by date window
       const bans = ((banRes.data ?? []) as any[]).filter((b) => {
         if (b.starts_at && new Date(b.starts_at) > new Date()) return false;
@@ -121,6 +141,7 @@ function Home() {
       });
       setBanners(bans as Banner[]);
       setBroadcasts((bcRes.data ?? []) as Broadcast[]);
+
     }
     load();
     const t = setInterval(load, 45_000);
@@ -348,6 +369,45 @@ function Home() {
           <span className="shrink-0 text-xs text-primary">View →</span>
         </div>
       </Link>
+
+      {/* 5b · Live cricket matches from the sports feed */}
+      {matches.length > 0 && (
+        <section className="mt-3">
+          <div className="flex snap-x gap-3 overflow-x-auto pb-1">
+            {matches.map((m) => (
+              <Link
+                key={m.id}
+                to="/cricket/$id"
+                params={{ id: m.id }}
+                className="card-lift min-w-[240px] snap-start rounded-2xl bg-card p-3 shadow-soft"
+              >
+                <div className="flex items-center gap-2">
+                  {m.is_live ? (
+                    <span className="rounded-full bg-destructive/15 px-2 py-0.5 text-[10px] font-bold text-destructive">● LIVE</span>
+                  ) : (
+                    <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                      {m.date_time ? new Date(m.date_time).toLocaleDateString() : "Match"}
+                    </span>
+                  )}
+                  <span className="truncate text-[11px] text-muted-foreground">🏏 Cricket</span>
+                </div>
+                <div className="mt-2 space-y-1 text-sm font-bold">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate">{m.team_a || "Team A"}</span>
+                    <span className="shrink-0 font-mono text-xs">{m.score_a || "—"}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate">{m.team_b || "Team B"}</span>
+                    <span className="shrink-0 font-mono text-xs">{m.score_b || "—"}</span>
+                  </div>
+                </div>
+                <div className="mt-1 line-clamp-2 text-[11px] text-muted-foreground">{m.status || m.name}</div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
 
       {/* 6 · Recently completed */}
       {completed.length > 0 && (

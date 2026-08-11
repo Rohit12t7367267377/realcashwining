@@ -41,8 +41,12 @@ export const saveSportsConfig = createServerFn({ method: "POST" })
       { key: "sports_require_review", value: data.requireReview, updated_at: now },
     ];
     if (data.apiKey && data.apiKey.trim().length > 0) {
-      rows.push({ key: "cricket_api_key", value: data.apiKey.trim(), updated_at: now });
+      const { sanitizeApiKey } = await import("@/lib/sports.server");
+      const key = sanitizeApiKey(data.apiKey);
+      if (!key) throw new Error("That API key looks empty — paste only the key itself.");
+      rows.push({ key: "cricket_api_key", value: key, updated_at: now });
     }
+
     const { error } = await supabaseAdmin.from("app_settings").upsert(rows);
     if (error) throw new Error(error.message);
     return { ok: true };

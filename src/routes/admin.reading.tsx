@@ -218,12 +218,20 @@ function Page() {
   async function saveQuestion() {
     if (!selected) return;
     try {
+      if (!qForm.question.trim()) throw new Error("Write the question first");
+      // Keep only filled options, and follow the correct answer to its new position.
+      const kept: { text: string; index: number }[] = qForm.options
+        .map((o, i) => ({ text: o.trim(), index: i }))
+        .filter((o) => o.text.length > 0);
+      if (kept.length < 2) throw new Error("Fill at least 2 options");
+      const correct = kept.findIndex((o) => o.index === qForm.correct_index);
+      if (correct < 0) throw new Error("The option you marked correct is empty — fill it or mark another one");
       const values = {
         passage_id: selected.id,
-        question: qForm.question,
-        options: qForm.options.map((o) => o.trim()).filter(Boolean),
-        correct_index: qForm.correct_index,
-        explanation: qForm.explanation || null,
+        question: qForm.question.trim(),
+        options: kept.map((o) => o.text),
+        correct_index: correct,
+        explanation: qForm.explanation.trim() || null,
         marks: qForm.marks === "" ? null : Number(qForm.marks),
         sort_order: qForm.sort_order,
       };
@@ -235,6 +243,7 @@ function Page() {
       toast.error(e instanceof Error ? e.message : "Failed to save question");
     }
   }
+
 
   async function delQuestion(q: RQ) {
     if (!selected || !confirm("Delete this question?")) return;
