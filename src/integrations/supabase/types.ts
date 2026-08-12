@@ -913,6 +913,954 @@ export type Database = {
         }
         Relationships: []
       }
+      guru_academic_years: {
+        Row: {
+          active: boolean
+          created_at: string
+          ends_on: string | null
+          id: string
+          is_current: boolean
+          label: string
+          starts_on: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          ends_on?: string | null
+          id?: string
+          is_current?: boolean
+          label: string
+          starts_on?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          ends_on?: string | null
+          id?: string
+          is_current?: boolean
+          label?: string
+          starts_on?: string | null
+        }
+        Relationships: []
+      }
+      guru_achievements: {
+        Row: {
+          badge_id: string | null
+          code: string | null
+          created_at: string
+          description: string | null
+          earned_at: string | null
+          goal: number
+          id: string
+          progress: number
+          title: string
+          user_id: string
+        }
+        Insert: {
+          badge_id?: string | null
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          earned_at?: string | null
+          goal?: number
+          id?: string
+          progress?: number
+          title: string
+          user_id: string
+        }
+        Update: {
+          badge_id?: string | null
+          code?: string | null
+          created_at?: string
+          description?: string | null
+          earned_at?: string | null
+          goal?: number
+          id?: string
+          progress?: number
+          title?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_achievements_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "guru_badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_ai_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          intent: string | null
+          meta: Json
+          role: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          intent?: string | null
+          meta?: Json
+          role: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          intent?: string | null
+          meta?: Json
+          role?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_ai_messages_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "guru_ai_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_ai_sessions: {
+        Row: {
+          character_id: string | null
+          context: Json
+          created_at: string
+          id: string
+          language: string
+          scope: string
+          title: string | null
+          topic_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          character_id?: string | null
+          context?: Json
+          created_at?: string
+          id?: string
+          language?: string
+          scope?: string
+          title?: string | null
+          topic_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          character_id?: string | null
+          context?: Json
+          created_at?: string
+          id?: string
+          language?: string
+          scope?: string
+          title?: string | null
+          topic_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_ai_sessions_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "guru_characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guru_ai_sessions_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "guru_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_badges: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          criteria: Json
+          description: string | null
+          emoji: string
+          id: string
+          name: string
+          reward_xp: number
+          sort_order: number
+          tier: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          emoji?: string
+          id?: string
+          name: string
+          reward_xp?: number
+          sort_order?: number
+          tier?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          criteria?: Json
+          description?: string | null
+          emoji?: string
+          id?: string
+          name?: string
+          reward_xp?: number
+          sort_order?: number
+          tier?: string
+        }
+        Relationships: []
+      }
+      guru_boards: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          region: string | null
+          short_name: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          region?: string | null
+          short_name?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          region?: string | null
+          short_name?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      guru_books: {
+        Row: {
+          academic_year_id: string | null
+          active: boolean
+          cover_url: string | null
+          created_at: string
+          id: string
+          language: string
+          publisher: string | null
+          sort_order: number
+          source_reference: string | null
+          status: string
+          subject_id: string | null
+          title: string
+          version: string
+        }
+        Insert: {
+          academic_year_id?: string | null
+          active?: boolean
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          language?: string
+          publisher?: string | null
+          sort_order?: number
+          source_reference?: string | null
+          status?: string
+          subject_id?: string | null
+          title: string
+          version?: string
+        }
+        Update: {
+          academic_year_id?: string | null
+          active?: boolean
+          cover_url?: string | null
+          created_at?: string
+          id?: string
+          language?: string
+          publisher?: string | null
+          sort_order?: number
+          source_reference?: string | null
+          status?: string
+          subject_id?: string | null
+          title?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_books_academic_year_id_fkey"
+            columns: ["academic_year_id"]
+            isOneToOne: false
+            referencedRelation: "guru_academic_years"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guru_books_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "guru_subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_chapters: {
+        Row: {
+          active: boolean
+          book_id: string | null
+          chapter_number: number | null
+          created_at: string
+          id: string
+          language: string
+          sort_order: number
+          status: string
+          summary: string | null
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          book_id?: string | null
+          chapter_number?: number | null
+          created_at?: string
+          id?: string
+          language?: string
+          sort_order?: number
+          status?: string
+          summary?: string | null
+          title: string
+        }
+        Update: {
+          active?: boolean
+          book_id?: string | null
+          chapter_number?: number | null
+          created_at?: string
+          id?: string
+          language?: string
+          sort_order?: number
+          status?: string
+          summary?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_chapters_book_id_fkey"
+            columns: ["book_id"]
+            isOneToOne: false
+            referencedRelation: "guru_books"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_character_costumes: {
+        Row: {
+          active: boolean
+          character_id: string | null
+          code: string
+          created_at: string
+          description: string | null
+          emoji: string
+          id: string
+          image_url: string | null
+          name: string
+          rarity: string
+          sort_order: number
+          unlock_requirement: Json
+          unlock_type: string
+        }
+        Insert: {
+          active?: boolean
+          character_id?: string | null
+          code: string
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          image_url?: string | null
+          name: string
+          rarity?: string
+          sort_order?: number
+          unlock_requirement?: Json
+          unlock_type?: string
+        }
+        Update: {
+          active?: boolean
+          character_id?: string | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          rarity?: string
+          sort_order?: number
+          unlock_requirement?: Json
+          unlock_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_character_costumes_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "guru_characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_character_inventory: {
+        Row: {
+          character_id: string | null
+          costume_id: string | null
+          created_at: string
+          id: string
+          kind: string
+          source: string
+          user_id: string
+        }
+        Insert: {
+          character_id?: string | null
+          costume_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          source?: string
+          user_id: string
+        }
+        Update: {
+          character_id?: string | null
+          costume_id?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          source?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_character_inventory_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "guru_characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guru_character_inventory_costume_id_fkey"
+            columns: ["costume_id"]
+            isOneToOne: false
+            referencedRelation: "guru_character_costumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_character_progress: {
+        Row: {
+          character_id: string
+          created_at: string
+          equipped_costume_id: string | null
+          id: string
+          level: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          character_id: string
+          created_at?: string
+          equipped_costume_id?: string | null
+          id?: string
+          level?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          character_id?: string
+          created_at?: string
+          equipped_costume_id?: string | null
+          id?: string
+          level?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_character_progress_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "guru_characters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guru_character_progress_equipped_costume_id_fkey"
+            columns: ["equipped_costume_id"]
+            isOneToOne: false
+            referencedRelation: "guru_character_costumes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_characters: {
+        Row: {
+          accent_color: string
+          active: boolean
+          avatar_url: string | null
+          code: string
+          created_at: string
+          description: string | null
+          emoji: string
+          id: string
+          name: string
+          personality: string
+          rarity: string
+          sort_order: number
+          tagline: string | null
+          teaching_style: string
+          tone: string
+          unlock_requirement: Json
+          unlock_type: string
+          updated_at: string
+          voice_id: string | null
+        }
+        Insert: {
+          accent_color?: string
+          active?: boolean
+          avatar_url?: string | null
+          code: string
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          name: string
+          personality?: string
+          rarity?: string
+          sort_order?: number
+          tagline?: string | null
+          teaching_style?: string
+          tone?: string
+          unlock_requirement?: Json
+          unlock_type?: string
+          updated_at?: string
+          voice_id?: string | null
+        }
+        Update: {
+          accent_color?: string
+          active?: boolean
+          avatar_url?: string | null
+          code?: string
+          created_at?: string
+          description?: string | null
+          emoji?: string
+          id?: string
+          name?: string
+          personality?: string
+          rarity?: string
+          sort_order?: number
+          tagline?: string | null
+          teaching_style?: string
+          tone?: string
+          unlock_requirement?: Json
+          unlock_type?: string
+          updated_at?: string
+          voice_id?: string | null
+        }
+        Relationships: []
+      }
+      guru_classes: {
+        Row: {
+          active: boolean
+          board_id: string | null
+          class_number: number | null
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          board_id?: string | null
+          class_number?: number | null
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          board_id?: string | null
+          class_number?: number | null
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_classes_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "guru_boards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_learning_sessions: {
+        Row: {
+          completed: boolean
+          ended_at: string | null
+          id: string
+          lesson_id: string | null
+          mode: string
+          seconds_spent: number
+          started_at: string
+          topic_id: string | null
+          user_id: string
+          xp_earned: number
+        }
+        Insert: {
+          completed?: boolean
+          ended_at?: string | null
+          id?: string
+          lesson_id?: string | null
+          mode?: string
+          seconds_spent?: number
+          started_at?: string
+          topic_id?: string | null
+          user_id: string
+          xp_earned?: number
+        }
+        Update: {
+          completed?: boolean
+          ended_at?: string | null
+          id?: string
+          lesson_id?: string | null
+          mode?: string
+          seconds_spent?: number
+          started_at?: string
+          topic_id?: string | null
+          user_id?: string
+          xp_earned?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_learning_sessions_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "guru_lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guru_learning_sessions_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "guru_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_lessons: {
+        Row: {
+          active: boolean
+          body: string | null
+          created_at: string
+          id: string
+          kind: string
+          language: string
+          media_url: string | null
+          sort_order: number
+          source_reference: string | null
+          status: string
+          title: string
+          topic_id: string | null
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          active?: boolean
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          language?: string
+          media_url?: string | null
+          sort_order?: number
+          source_reference?: string | null
+          status?: string
+          title: string
+          topic_id?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          active?: boolean
+          body?: string | null
+          created_at?: string
+          id?: string
+          kind?: string
+          language?: string
+          media_url?: string | null
+          sort_order?: number
+          source_reference?: string | null
+          status?: string
+          title?: string
+          topic_id?: string | null
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_lessons_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "guru_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_student_topic_progress: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          last_opened_at: string
+          mastery: number
+          status: string
+          topic_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          last_opened_at?: string
+          mastery?: number
+          status?: string
+          topic_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          last_opened_at?: string
+          mastery?: number
+          status?: string
+          topic_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_student_topic_progress_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "guru_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_student_xp: {
+        Row: {
+          best_streak: number
+          board_id: string | null
+          class_id: string | null
+          created_at: string
+          last_active_date: string | null
+          lessons_completed: number
+          level: number
+          preferred_language: string
+          questions_solved: number
+          selected_character_id: string | null
+          streak_days: number
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          best_streak?: number
+          board_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          last_active_date?: string | null
+          lessons_completed?: number
+          level?: number
+          preferred_language?: string
+          questions_solved?: number
+          selected_character_id?: string | null
+          streak_days?: number
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          best_streak?: number
+          board_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          last_active_date?: string | null
+          lessons_completed?: number
+          level?: number
+          preferred_language?: string
+          questions_solved?: number
+          selected_character_id?: string | null
+          streak_days?: number
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_student_xp_selected_character_id_fkey"
+            columns: ["selected_character_id"]
+            isOneToOne: false
+            referencedRelation: "guru_characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_subjects: {
+        Row: {
+          active: boolean
+          board_id: string | null
+          class_id: string | null
+          created_at: string
+          emoji: string
+          id: string
+          language: string
+          name: string
+          slug: string | null
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          board_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          emoji?: string
+          id?: string
+          language?: string
+          name: string
+          slug?: string | null
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          board_id?: string | null
+          class_id?: string | null
+          created_at?: string
+          emoji?: string
+          id?: string
+          language?: string
+          name?: string
+          slug?: string | null
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_subjects_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "guru_boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guru_subjects_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "guru_classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_topics: {
+        Row: {
+          active: boolean
+          chapter_id: string | null
+          created_at: string
+          difficulty: string
+          estimated_minutes: number
+          id: string
+          language: string
+          objectives: Json
+          sort_order: number
+          source_reference: string | null
+          status: string
+          title: string
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          active?: boolean
+          chapter_id?: string | null
+          created_at?: string
+          difficulty?: string
+          estimated_minutes?: number
+          id?: string
+          language?: string
+          objectives?: Json
+          sort_order?: number
+          source_reference?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          version?: string
+        }
+        Update: {
+          active?: boolean
+          chapter_id?: string | null
+          created_at?: string
+          difficulty?: string
+          estimated_minutes?: number
+          id?: string
+          language?: string
+          objectives?: Json
+          sort_order?: number
+          source_reference?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_topics_chapter_id_fkey"
+            columns: ["chapter_id"]
+            isOneToOne: false
+            referencedRelation: "guru_chapters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       kyc_submissions: {
         Row: {
           admin_note: string | null
