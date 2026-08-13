@@ -137,3 +137,61 @@ export async function guruTeach(ctx: TeachContext): Promise<{ content: string; p
   const content = await callAiChat(buildTeachMessages(ctx), { temperature: 0.4 });
   return { content, provider: "lovable-ai" };
 }
+
+export type GuruQuestion = {
+  question: string;
+  options: string[];
+  correct_index: number;
+  explanation: string;
+  difficulty: "easy" | "medium" | "hard";
+};
+
+/** Generate a topic mastery test. Returns [] when no AI provider is configured. */
+export async function guruGenerateQuestions(args: {
+  topic: string;
+  objectives: string[];
+  board?: string | null;
+  className?: string | null;
+  subject?: string | null;
+  lesson?: string | null;
+  language: string;
+  count: number;
+}): Promise<GuruQuestion[]> {
+  if (!process.env.LOVABLE_API_KEY) return [];
+  const { extractJson } = await import("@/lib/ai-gateway.server");
+  const raw = await callAiChat(
+    [
+      {
+        role: "system",
+        content:
+          `You write school assessment questions. Student level: ${[args.board, args.className, args.subject].filter(Boolean).join(" • ") || "school"}. ` +
+          `${args.language === "hi" ? "Write everything in simple Hindi (Devanagari)." : "Write everything in simple English."} ` +
+          `Return ONLY JSON of the shape {"questions":[{"question":string,"options":[4 strings],"correct_index":0-3,"explanation":string,"difficulty":"easy"|"medium"|"hard"}]}. ` +
+          `Never invent facts outside the topic.`,
+      },
+      {
+        role: "user",
+        content:
+          `Topic: ${args.topic}\nObjectives: ${(args.objectives || []).join("; ") || "n/a"}\n` +
+          `Lesson notes: ${(args.lesson || "").slice(0, 3000)}\nMake ${args.count} questions of rising difficulty.`,
+      },
+    ],
+    { temperature: 0.5, responseFormat: "json_object" },
+  );
+  const parsed = extractJson(raw) as { questions?: unknown };
+  const list = Array.isArray(parsed?.questions) ? (parsed.questions as Record<string, unknown>[]) : [];
+  return list
+    .map((q) => {
+      const options = Array.isArray(q.options) ? q.options.map((o) => String(o)).filter((o) => o.trim()) : [];
+      const ci = Number(q.correct_index ?? 0);
+      return {
+        question: String(q.question ?? "").trim(),
+        options,
+        correct_index: ci >= 0 && ci < options.length ? ci : 0,
+        explanation: String(q.explanation ?? "").trim(),
+        difficulty: (["easy", "medium", "hard"].includes(String(q.difficulty)) ? String(q.difficulty) : "medium") as GuruQuestion["difficulty"],
+      };
+    })
+    .filter((q) => q.question && q.options.length >= 2)
+    .slice(0, args.count);
+}
