@@ -27,6 +27,7 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as KycRouteImport } from './routes/kyc'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
+import { Route as GuruRouteImport } from './routes/guru'
 import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
@@ -40,11 +41,13 @@ import { Route as AiRouteImport } from './routes/ai'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ReadingIndexRouteImport } from './routes/reading.index'
+import { Route as GuruIndexRouteImport } from './routes/guru.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
+import { Route as GuruCharactersRouteImport } from './routes/guru.characters'
 import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
@@ -177,6 +180,11 @@ const HallOfFameRoute = HallOfFameRouteImport.update({
   path: '/hall-of-fame',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuruRoute = GuruRouteImport.update({
+  id: '/guru',
+  path: '/guru',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeedbackRoute = FeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
@@ -242,6 +250,11 @@ const ReadingIndexRoute = ReadingIndexRouteImport.update({
   path: '/reading/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuruIndexRoute = GuruIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GuruRoute,
+} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -266,6 +279,11 @@ const PlayIdRoute = PlayIdRouteImport.update({
   id: '/play/$id',
   path: '/play/$id',
   getParentRoute: () => rootRouteImport,
+} as any)
+const GuruCharactersRoute = GuruCharactersRouteImport.update({
+  id: '/characters',
+  path: '/characters',
+  getParentRoute: () => GuruRoute,
 } as any)
 const CricketIdRoute = CricketIdRouteImport.update({
   id: '/cricket_/$id',
@@ -489,6 +507,7 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/feedback': typeof FeedbackRoute
+  '/guru': typeof GuruRouteWithChildren
   '/hall-of-fame': typeof HallOfFameRoute
   '/hub': typeof HubRoute
   '/kyc': typeof KycRoute
@@ -544,11 +563,13 @@ export interface FileRoutesByFullPath {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
+  '/guru/characters': typeof GuruCharactersRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
+  '/guru/': typeof GuruIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -622,11 +643,13 @@ export interface FileRoutesByTo {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
+  '/guru/characters': typeof GuruCharactersRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
+  '/guru': typeof GuruIndexRoute
   '/reading': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -647,6 +670,7 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/feedback': typeof FeedbackRoute
+  '/guru': typeof GuruRouteWithChildren
   '/hall-of-fame': typeof HallOfFameRoute
   '/hub': typeof HubRoute
   '/kyc': typeof KycRoute
@@ -702,11 +726,13 @@ export interface FileRoutesById {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket_/$id': typeof CricketIdRoute
+  '/guru/characters': typeof GuruCharactersRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
+  '/guru/': typeof GuruIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -728,6 +754,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/feedback'
+    | '/guru'
     | '/hall-of-fame'
     | '/hub'
     | '/kyc'
@@ -783,11 +810,13 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/cricket/$id'
+    | '/guru/characters'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin/'
+    | '/guru/'
     | '/reading/'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -861,11 +890,13 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/cricket/$id'
+    | '/guru/characters'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin'
+    | '/guru'
     | '/reading'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -885,6 +916,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/feedback'
+    | '/guru'
     | '/hall-of-fame'
     | '/hub'
     | '/kyc'
@@ -940,11 +972,13 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/cricket_/$id'
+    | '/guru/characters'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
     | '/admin/'
+    | '/guru/'
     | '/reading/'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -965,6 +999,7 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
   FeedbackRoute: typeof FeedbackRoute
+  GuruRoute: typeof GuruRouteWithChildren
   HallOfFameRoute: typeof HallOfFameRoute
   HubRoute: typeof HubRoute
   KycRoute: typeof KycRoute
@@ -1124,6 +1159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HallOfFameRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guru': {
+      id: '/guru'
+      path: '/guru'
+      fullPath: '/guru'
+      preLoaderRoute: typeof GuruRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/feedback': {
       id: '/feedback'
       path: '/feedback'
@@ -1215,6 +1257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReadingIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guru/': {
+      id: '/guru/'
+      path: '/'
+      fullPath: '/guru/'
+      preLoaderRoute: typeof GuruIndexRouteImport
+      parentRoute: typeof GuruRoute
+    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -1249,6 +1298,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/play/$id'
       preLoaderRoute: typeof PlayIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/guru/characters': {
+      id: '/guru/characters'
+      path: '/characters'
+      fullPath: '/guru/characters'
+      preLoaderRoute: typeof GuruCharactersRouteImport
+      parentRoute: typeof GuruRoute
     }
     '/cricket_/$id': {
       id: '/cricket_/$id'
@@ -1618,6 +1674,18 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface GuruRouteChildren {
+  GuruCharactersRoute: typeof GuruCharactersRoute
+  GuruIndexRoute: typeof GuruIndexRoute
+}
+
+const GuruRouteChildren: GuruRouteChildren = {
+  GuruCharactersRoute: GuruCharactersRoute,
+  GuruIndexRoute: GuruIndexRoute,
+}
+
+const GuruRouteWithChildren = GuruRoute._addFileChildren(GuruRouteChildren)
+
 interface WalletRouteChildren {
   WalletHistoryRoute: typeof WalletHistoryRoute
 }
@@ -1642,6 +1710,7 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,
   FeedbackRoute: FeedbackRoute,
+  GuruRoute: GuruRouteWithChildren,
   HallOfFameRoute: HallOfFameRoute,
   HubRoute: HubRoute,
   KycRoute: KycRoute,
