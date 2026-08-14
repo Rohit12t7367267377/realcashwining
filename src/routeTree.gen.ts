@@ -27,6 +27,7 @@ import { Route as LeaderboardRouteImport } from './routes/leaderboard'
 import { Route as KycRouteImport } from './routes/kyc'
 import { Route as HubRouteImport } from './routes/hub'
 import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
+import { Route as GuruRouteImport } from './routes/guru'
 import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as EventsRouteImport } from './routes/events'
@@ -175,6 +176,11 @@ const HubRoute = HubRouteImport.update({
 const HallOfFameRoute = HallOfFameRouteImport.update({
   id: '/hall-of-fame',
   path: '/hall-of-fame',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuruRoute = GuruRouteImport.update({
+  id: '/guru',
+  path: '/guru',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FeedbackRoute = FeedbackRouteImport.update({
@@ -489,6 +495,7 @@ export interface FileRoutesByFullPath {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/feedback': typeof FeedbackRoute
+  '/guru': typeof GuruRoute
   '/hall-of-fame': typeof HallOfFameRoute
   '/hub': typeof HubRoute
   '/kyc': typeof KycRoute
@@ -567,6 +574,7 @@ export interface FileRoutesByTo {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/feedback': typeof FeedbackRoute
+  '/guru': typeof GuruRoute
   '/hall-of-fame': typeof HallOfFameRoute
   '/hub': typeof HubRoute
   '/kyc': typeof KycRoute
@@ -647,6 +655,7 @@ export interface FileRoutesById {
   '/events': typeof EventsRoute
   '/faq': typeof FaqRoute
   '/feedback': typeof FeedbackRoute
+  '/guru': typeof GuruRoute
   '/hall-of-fame': typeof HallOfFameRoute
   '/hub': typeof HubRoute
   '/kyc': typeof KycRoute
@@ -728,6 +737,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/feedback'
+    | '/guru'
     | '/hall-of-fame'
     | '/hub'
     | '/kyc'
@@ -806,6 +816,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/feedback'
+    | '/guru'
     | '/hall-of-fame'
     | '/hub'
     | '/kyc'
@@ -885,6 +896,7 @@ export interface FileRouteTypes {
     | '/events'
     | '/faq'
     | '/feedback'
+    | '/guru'
     | '/hall-of-fame'
     | '/hub'
     | '/kyc'
@@ -965,6 +977,7 @@ export interface RootRouteChildren {
   EventsRoute: typeof EventsRoute
   FaqRoute: typeof FaqRoute
   FeedbackRoute: typeof FeedbackRoute
+  GuruRoute: typeof GuruRoute
   HallOfFameRoute: typeof HallOfFameRoute
   HubRoute: typeof HubRoute
   KycRoute: typeof KycRoute
@@ -1122,6 +1135,13 @@ declare module '@tanstack/react-router' {
       path: '/hall-of-fame'
       fullPath: '/hall-of-fame'
       preLoaderRoute: typeof HallOfFameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guru': {
+      id: '/guru'
+      path: '/guru'
+      fullPath: '/guru'
+      preLoaderRoute: typeof GuruRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feedback': {
@@ -1642,6 +1662,7 @@ const rootRouteChildren: RootRouteChildren = {
   EventsRoute: EventsRoute,
   FaqRoute: FaqRoute,
   FeedbackRoute: FeedbackRoute,
+  GuruRoute: GuruRoute,
   HallOfFameRoute: HallOfFameRoute,
   HubRoute: HubRoute,
   KycRoute: KycRoute,
