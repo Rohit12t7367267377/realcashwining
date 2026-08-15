@@ -89,6 +89,7 @@ import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
+import { Route as GuruTopicIdRouteImport } from './routes/guru.topic.$id'
 import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
 import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
 import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
@@ -494,6 +495,11 @@ const AdminAdsRoute = AdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AdminRoute,
 } as any)
+const GuruTopicIdRoute = GuruTopicIdRouteImport.update({
+  id: '/topic/$id',
+  path: '/topic/$id',
+  getParentRoute: () => GuruRoute,
+} as any)
 const ApiPublicHooksRazorpayRoute = ApiPublicHooksRazorpayRouteImport.update({
   id: '/api/public/hooks/razorpay',
   path: '/api/public/hooks/razorpay',
@@ -599,6 +605,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -683,6 +690,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/guru': typeof GuruIndexRoute
   '/reading': typeof ReadingIndexRoute
+  '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -770,6 +778,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -858,6 +867,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/guru/'
     | '/reading/'
+    | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -942,6 +952,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/guru'
     | '/reading'
+    | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -1028,6 +1039,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/guru/'
     | '/reading/'
+    | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -1641,6 +1653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/guru/topic/$id': {
+      id: '/guru/topic/$id'
+      path: '/topic/$id'
+      fullPath: '/guru/topic/$id'
+      preLoaderRoute: typeof GuruTopicIdRouteImport
+      parentRoute: typeof GuruRoute
+    }
     '/api/public/hooks/razorpay': {
       id: '/api/public/hooks/razorpay'
       path: '/api/public/hooks/razorpay'
@@ -1757,6 +1776,7 @@ interface GuruRouteChildren {
   GuruSchoolRoute: typeof GuruSchoolRoute
   GuruUniversalRoute: typeof GuruUniversalRoute
   GuruIndexRoute: typeof GuruIndexRoute
+  GuruTopicIdRoute: typeof GuruTopicIdRoute
 }
 
 const GuruRouteChildren: GuruRouteChildren = {
@@ -1766,6 +1786,7 @@ const GuruRouteChildren: GuruRouteChildren = {
   GuruSchoolRoute: GuruSchoolRoute,
   GuruUniversalRoute: GuruUniversalRoute,
   GuruIndexRoute: GuruIndexRoute,
+  GuruTopicIdRoute: GuruTopicIdRoute,
 }
 
 const GuruRouteWithChildren = GuruRoute._addFileChildren(GuruRouteChildren)

@@ -64,7 +64,7 @@ function CharactersPage() {
             <div key={c.id} className={`rounded-2xl p-4 shadow-soft ${selected ? "bg-gradient-primary text-primary-foreground" : "bg-card"}`}>
               <div className="flex items-start gap-3">
                 <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl text-lg ${selected ? "bg-primary-foreground/20" : "bg-primary/10 text-primary"}`}>
-                  {c.avatar_emoji ?? <UserRound className="h-5 w-5" />}
+                  {c.emoji || <UserRound className="h-5 w-5" />}
                 </div>
                 <div className="min-w-0">
                   <div className="text-sm font-black">{c.name}</div>
