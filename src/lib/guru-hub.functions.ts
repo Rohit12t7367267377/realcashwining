@@ -29,8 +29,10 @@ export const getGuruLibrary = createServerFn({ method: "GET" })
         .eq("active", true)
         .order("sort_order");
       for (const c of chapters ?? []) {
-        counts.set(c.book_id, (counts.get(c.book_id) ?? 0) + 1);
-        if (!firstChapter.has(c.book_id)) firstChapter.set(c.book_id, c.id);
+        const bookId = c.book_id;
+        if (!bookId) continue;
+        counts.set(bookId, (counts.get(bookId) ?? 0) + 1);
+        if (!firstChapter.has(bookId)) firstChapter.set(bookId, c.id);
       }
     }
 
