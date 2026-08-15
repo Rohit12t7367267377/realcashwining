@@ -47,7 +47,11 @@ import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
+import { Route as GuruUniversalRouteImport } from './routes/guru.universal'
+import { Route as GuruSchoolRouteImport } from './routes/guru.school'
+import { Route as GuruProgressRouteImport } from './routes/guru.progress'
 import { Route as GuruCharactersRouteImport } from './routes/guru.characters'
+import { Route as GuruAchievementsRouteImport } from './routes/guru.achievements'
 import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
@@ -85,6 +89,7 @@ import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
+import { Route as GuruTopicIdRouteImport } from './routes/guru.topic.$id'
 import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
 import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
 import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
@@ -280,9 +285,29 @@ const PlayIdRoute = PlayIdRouteImport.update({
   path: '/play/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GuruUniversalRoute = GuruUniversalRouteImport.update({
+  id: '/universal',
+  path: '/universal',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruSchoolRoute = GuruSchoolRouteImport.update({
+  id: '/school',
+  path: '/school',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruProgressRoute = GuruProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => GuruRoute,
+} as any)
 const GuruCharactersRoute = GuruCharactersRouteImport.update({
   id: '/characters',
   path: '/characters',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruAchievementsRoute = GuruAchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
   getParentRoute: () => GuruRoute,
 } as any)
 const CricketIdRoute = CricketIdRouteImport.update({
@@ -470,6 +495,11 @@ const AdminAdsRoute = AdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AdminRoute,
 } as any)
+const GuruTopicIdRoute = GuruTopicIdRouteImport.update({
+  id: '/topic/$id',
+  path: '/topic/$id',
+  getParentRoute: () => GuruRoute,
+} as any)
 const ApiPublicHooksRazorpayRoute = ApiPublicHooksRazorpayRouteImport.update({
   id: '/api/public/hooks/razorpay',
   path: '/api/public/hooks/razorpay',
@@ -563,7 +593,11 @@ export interface FileRoutesByFullPath {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
+  '/guru/achievements': typeof GuruAchievementsRoute
   '/guru/characters': typeof GuruCharactersRoute
+  '/guru/progress': typeof GuruProgressRoute
+  '/guru/school': typeof GuruSchoolRoute
+  '/guru/universal': typeof GuruUniversalRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
@@ -571,6 +605,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -643,7 +678,11 @@ export interface FileRoutesByTo {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
+  '/guru/achievements': typeof GuruAchievementsRoute
   '/guru/characters': typeof GuruCharactersRoute
+  '/guru/progress': typeof GuruProgressRoute
+  '/guru/school': typeof GuruSchoolRoute
+  '/guru/universal': typeof GuruUniversalRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
@@ -651,6 +690,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AdminIndexRoute
   '/guru': typeof GuruIndexRoute
   '/reading': typeof ReadingIndexRoute
+  '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -726,7 +766,11 @@ export interface FileRoutesById {
   '/category/$id': typeof CategoryIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket_/$id': typeof CricketIdRoute
+  '/guru/achievements': typeof GuruAchievementsRoute
   '/guru/characters': typeof GuruCharactersRoute
+  '/guru/progress': typeof GuruProgressRoute
+  '/guru/school': typeof GuruSchoolRoute
+  '/guru/universal': typeof GuruUniversalRoute
   '/play/$id': typeof PlayIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
@@ -734,6 +778,7 @@ export interface FileRoutesById {
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -810,7 +855,11 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/cricket/$id'
+    | '/guru/achievements'
     | '/guru/characters'
+    | '/guru/progress'
+    | '/guru/school'
+    | '/guru/universal'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
@@ -818,6 +867,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/guru/'
     | '/reading/'
+    | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -890,7 +940,11 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/cricket/$id'
+    | '/guru/achievements'
     | '/guru/characters'
+    | '/guru/progress'
+    | '/guru/school'
+    | '/guru/universal'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
@@ -898,6 +952,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/guru'
     | '/reading'
+    | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -972,7 +1027,11 @@ export interface FileRouteTypes {
     | '/category/$id'
     | '/contest/$id'
     | '/cricket_/$id'
+    | '/guru/achievements'
     | '/guru/characters'
+    | '/guru/progress'
+    | '/guru/school'
+    | '/guru/universal'
     | '/play/$id'
     | '/reading/$id'
     | '/result/$id'
@@ -980,6 +1039,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/guru/'
     | '/reading/'
+    | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -1299,11 +1359,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/guru/universal': {
+      id: '/guru/universal'
+      path: '/universal'
+      fullPath: '/guru/universal'
+      preLoaderRoute: typeof GuruUniversalRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/school': {
+      id: '/guru/school'
+      path: '/school'
+      fullPath: '/guru/school'
+      preLoaderRoute: typeof GuruSchoolRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/progress': {
+      id: '/guru/progress'
+      path: '/progress'
+      fullPath: '/guru/progress'
+      preLoaderRoute: typeof GuruProgressRouteImport
+      parentRoute: typeof GuruRoute
+    }
     '/guru/characters': {
       id: '/guru/characters'
       path: '/characters'
       fullPath: '/guru/characters'
       preLoaderRoute: typeof GuruCharactersRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/achievements': {
+      id: '/guru/achievements'
+      path: '/achievements'
+      fullPath: '/guru/achievements'
+      preLoaderRoute: typeof GuruAchievementsRouteImport
       parentRoute: typeof GuruRoute
     }
     '/cricket_/$id': {
@@ -1565,6 +1653,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/guru/topic/$id': {
+      id: '/guru/topic/$id'
+      path: '/topic/$id'
+      fullPath: '/guru/topic/$id'
+      preLoaderRoute: typeof GuruTopicIdRouteImport
+      parentRoute: typeof GuruRoute
+    }
     '/api/public/hooks/razorpay': {
       id: '/api/public/hooks/razorpay'
       path: '/api/public/hooks/razorpay'
@@ -1675,13 +1770,23 @@ const AdminRouteChildren: AdminRouteChildren = {
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface GuruRouteChildren {
+  GuruAchievementsRoute: typeof GuruAchievementsRoute
   GuruCharactersRoute: typeof GuruCharactersRoute
+  GuruProgressRoute: typeof GuruProgressRoute
+  GuruSchoolRoute: typeof GuruSchoolRoute
+  GuruUniversalRoute: typeof GuruUniversalRoute
   GuruIndexRoute: typeof GuruIndexRoute
+  GuruTopicIdRoute: typeof GuruTopicIdRoute
 }
 
 const GuruRouteChildren: GuruRouteChildren = {
+  GuruAchievementsRoute: GuruAchievementsRoute,
   GuruCharactersRoute: GuruCharactersRoute,
+  GuruProgressRoute: GuruProgressRoute,
+  GuruSchoolRoute: GuruSchoolRoute,
+  GuruUniversalRoute: GuruUniversalRoute,
   GuruIndexRoute: GuruIndexRoute,
+  GuruTopicIdRoute: GuruTopicIdRoute,
 }
 
 const GuruRouteWithChildren = GuruRoute._addFileChildren(GuruRouteChildren)
