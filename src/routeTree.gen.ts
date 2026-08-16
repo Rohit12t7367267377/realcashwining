@@ -51,6 +51,7 @@ import { Route as GuruUniversalRouteImport } from './routes/guru.universal'
 import { Route as GuruSchoolRouteImport } from './routes/guru.school'
 import { Route as GuruProgressRouteImport } from './routes/guru.progress'
 import { Route as GuruLibraryRouteImport } from './routes/guru.library'
+import { Route as GuruCompetitionsRouteImport } from './routes/guru.competitions'
 import { Route as GuruCharactersRouteImport } from './routes/guru.characters'
 import { Route as GuruAchievementsRouteImport } from './routes/guru.achievements'
 import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
@@ -304,6 +305,11 @@ const GuruProgressRoute = GuruProgressRouteImport.update({
 const GuruLibraryRoute = GuruLibraryRouteImport.update({
   id: '/library',
   path: '/library',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruCompetitionsRoute = GuruCompetitionsRouteImport.update({
+  id: '/competitions',
+  path: '/competitions',
   getParentRoute: () => GuruRoute,
 } as any)
 const GuruCharactersRoute = GuruCharactersRouteImport.update({
@@ -601,6 +607,7 @@ export interface FileRoutesByFullPath {
   '/cricket/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
   '/guru/characters': typeof GuruCharactersRoute
+  '/guru/competitions': typeof GuruCompetitionsRoute
   '/guru/library': typeof GuruLibraryRoute
   '/guru/progress': typeof GuruProgressRoute
   '/guru/school': typeof GuruSchoolRoute
@@ -687,6 +694,7 @@ export interface FileRoutesByTo {
   '/cricket/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
   '/guru/characters': typeof GuruCharactersRoute
+  '/guru/competitions': typeof GuruCompetitionsRoute
   '/guru/library': typeof GuruLibraryRoute
   '/guru/progress': typeof GuruProgressRoute
   '/guru/school': typeof GuruSchoolRoute
@@ -776,6 +784,7 @@ export interface FileRoutesById {
   '/cricket_/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
   '/guru/characters': typeof GuruCharactersRoute
+  '/guru/competitions': typeof GuruCompetitionsRoute
   '/guru/library': typeof GuruLibraryRoute
   '/guru/progress': typeof GuruProgressRoute
   '/guru/school': typeof GuruSchoolRoute
@@ -866,6 +875,7 @@ export interface FileRouteTypes {
     | '/cricket/$id'
     | '/guru/achievements'
     | '/guru/characters'
+    | '/guru/competitions'
     | '/guru/library'
     | '/guru/progress'
     | '/guru/school'
@@ -952,6 +962,7 @@ export interface FileRouteTypes {
     | '/cricket/$id'
     | '/guru/achievements'
     | '/guru/characters'
+    | '/guru/competitions'
     | '/guru/library'
     | '/guru/progress'
     | '/guru/school'
@@ -1040,6 +1051,7 @@ export interface FileRouteTypes {
     | '/cricket_/$id'
     | '/guru/achievements'
     | '/guru/characters'
+    | '/guru/competitions'
     | '/guru/library'
     | '/guru/progress'
     | '/guru/school'
@@ -1397,6 +1409,13 @@ declare module '@tanstack/react-router' {
       path: '/library'
       fullPath: '/guru/library'
       preLoaderRoute: typeof GuruLibraryRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/competitions': {
+      id: '/guru/competitions'
+      path: '/competitions'
+      fullPath: '/guru/competitions'
+      preLoaderRoute: typeof GuruCompetitionsRouteImport
       parentRoute: typeof GuruRoute
     }
     '/guru/characters': {
@@ -1791,6 +1810,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 interface GuruRouteChildren {
   GuruAchievementsRoute: typeof GuruAchievementsRoute
   GuruCharactersRoute: typeof GuruCharactersRoute
+  GuruCompetitionsRoute: typeof GuruCompetitionsRoute
   GuruLibraryRoute: typeof GuruLibraryRoute
   GuruProgressRoute: typeof GuruProgressRoute
   GuruSchoolRoute: typeof GuruSchoolRoute
@@ -1802,6 +1822,7 @@ interface GuruRouteChildren {
 const GuruRouteChildren: GuruRouteChildren = {
   GuruAchievementsRoute: GuruAchievementsRoute,
   GuruCharactersRoute: GuruCharactersRoute,
+  GuruCompetitionsRoute: GuruCompetitionsRoute,
   GuruLibraryRoute: GuruLibraryRoute,
   GuruProgressRoute: GuruProgressRoute,
   GuruSchoolRoute: GuruSchoolRoute,
