@@ -41,3 +41,30 @@ export const deleteQuestion = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** Admin-only listing: includes the answer key, which clients can no longer read directly. */
+export const listQuestions = createServerFn({ method: "GET" })
+  .middleware([requireAdminPassword])
+  .inputValidator((d) => z.object({ category_id: z.string().uuid().optional() }).parse(d ?? {}))
+  .handler(async ({ data }) => {
+    let q = supabaseAdmin
+      .from("questions")
+      .select("id, category_id, question, options, correct_index, explanation, difficulty, time_seconds, created_at")
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (data.category_id) q = q.eq("category_id", data.category_id);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+/** Admin-only count (questions columns are restricted for normal clients). */
+export const countQuestions = createServerFn({ method: "GET" })
+  .middleware([requireAdminPassword])
+  .handler(async () => {
+    const { count, error } = await supabaseAdmin
+      .from("questions")
+      .select("id", { count: "exact", head: true });
+    if (error) throw new Error(error.message);
+    return { count: count ?? 0 };
+  });
