@@ -9,237 +9,97 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WalletRouteImport } from './routes/wallet'
-import { Route as VipRouteImport } from './routes/vip'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as SupportRouteImport } from './routes/support'
-import { Route as SubscribeRouteImport } from './routes/subscribe'
-import { Route as SearchRouteImport } from './routes/search'
-import { Route as RewardsRouteImport } from './routes/rewards'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ReferRouteImport } from './routes/refer'
-import { Route as ProfileRouteImport } from './routes/profile'
-import { Route as NotificationsRouteImport } from './routes/notifications'
-import { Route as MissionsRouteImport } from './routes/missions'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as LiveScoresRouteImport } from './routes/live-scores'
-import { Route as LeaderboardRouteImport } from './routes/leaderboard'
-import { Route as KycRouteImport } from './routes/kyc'
-import { Route as HubRouteImport } from './routes/hub'
-import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
-import { Route as GuruRouteImport } from './routes/guru'
-import { Route as FeedbackRouteImport } from './routes/feedback'
-import { Route as FaqRouteImport } from './routes/faq'
-import { Route as EventsRouteImport } from './routes/events'
-import { Route as CricketRouteImport } from './routes/cricket'
-import { Route as CouponsRouteImport } from './routes/coupons'
-import { Route as CommunityRouteImport } from './routes/community'
-import { Route as BooksRouteImport } from './routes/books'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AiTutorRouteImport } from './routes/ai-tutor'
-import { Route as AiRouteImport } from './routes/ai'
-import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as ReadingIndexRouteImport } from './routes/reading.index'
-import { Route as GuruIndexRouteImport } from './routes/guru.index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as AiRouteImport } from './routes/ai'
+import { Route as AiTutorRouteImport } from './routes/ai-tutor'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BooksRouteImport } from './routes/books'
+import { Route as CommunityRouteImport } from './routes/community'
+import { Route as CouponsRouteImport } from './routes/coupons'
+import { Route as CricketRouteImport } from './routes/cricket'
+import { Route as EventsRouteImport } from './routes/events'
+import { Route as FaqRouteImport } from './routes/faq'
+import { Route as FeedbackRouteImport } from './routes/feedback'
+import { Route as GuruRouteImport } from './routes/guru'
+import { Route as HallOfFameRouteImport } from './routes/hall-of-fame'
+import { Route as HubRouteImport } from './routes/hub'
+import { Route as KycRouteImport } from './routes/kyc'
+import { Route as LeaderboardRouteImport } from './routes/leaderboard'
+import { Route as LiveScoresRouteImport } from './routes/live-scores'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MissionsRouteImport } from './routes/missions'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ReferRouteImport } from './routes/refer'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RewardsRouteImport } from './routes/rewards'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as SubscribeRouteImport } from './routes/subscribe'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VipRouteImport } from './routes/vip'
+import { Route as WalletRouteImport } from './routes/wallet'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
-import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
-import { Route as ResultIdRouteImport } from './routes/result.$id'
-import { Route as ReadingIdRouteImport } from './routes/reading.$id'
-import { Route as PlayIdRouteImport } from './routes/play.$id'
-import { Route as GuruUniversalRouteImport } from './routes/guru.universal'
-import { Route as GuruSchoolRouteImport } from './routes/guru.school'
-import { Route as GuruProgressRouteImport } from './routes/guru.progress'
-import { Route as GuruLibraryRouteImport } from './routes/guru.library'
-import { Route as GuruCompetitionsRouteImport } from './routes/guru.competitions'
-import { Route as GuruCharactersRouteImport } from './routes/guru.characters'
-import { Route as GuruAchievementsRouteImport } from './routes/guru.achievements'
-import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
-import { Route as ContestIdRouteImport } from './routes/contest.$id'
-import { Route as CategoryIdRouteImport } from './routes/category.$id'
-import { Route as AdminXpRouteImport } from './routes/admin.xp'
-import { Route as AdminUsersRouteImport } from './routes/admin.users'
-import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
-import { Route as AdminStoreRouteImport } from './routes/admin.store'
-import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
-import { Route as AdminRolesRouteImport } from './routes/admin.roles'
-import { Route as AdminResultsRouteImport } from './routes/admin.results'
-import { Route as AdminReadingRouteImport } from './routes/admin.reading'
-import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
-import { Route as AdminPrizesRouteImport } from './routes/admin.prizes'
-import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
-import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
-import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
-import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
-import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
-import { Route as AdminKycRouteImport } from './routes/admin.kyc'
-import { Route as AdminFraudRouteImport } from './routes/admin.fraud'
-import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
-import { Route as AdminFaqsRouteImport } from './routes/admin.faqs'
-import { Route as AdminEventsRouteImport } from './routes/admin.events'
-import { Route as AdminCricketRouteImport } from './routes/admin.cricket'
-import { Route as AdminCreatorsRouteImport } from './routes/admin.creators'
-import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
-import { Route as AdminContestsRouteImport } from './routes/admin.contests'
-import { Route as AdminCommunityRouteImport } from './routes/admin.community'
-import { Route as AdminCommentsRouteImport } from './routes/admin.comments'
-import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
-import { Route as AdminBroadcastsRouteImport } from './routes/admin.broadcasts'
-import { Route as AdminBooksRouteImport } from './routes/admin.books'
-import { Route as AdminBannersRouteImport } from './routes/admin.banners'
-import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
-import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
-import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
+import { Route as AdminAiRouteImport } from './routes/admin.ai'
+import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
+import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
+import { Route as AdminBannersRouteImport } from './routes/admin.banners'
+import { Route as AdminBooksRouteImport } from './routes/admin.books'
+import { Route as AdminBroadcastsRouteImport } from './routes/admin.broadcasts'
+import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminCommentsRouteImport } from './routes/admin.comments'
+import { Route as AdminCommunityRouteImport } from './routes/admin.community'
+import { Route as AdminContestsRouteImport } from './routes/admin.contests'
+import { Route as AdminCouponsRouteImport } from './routes/admin.coupons'
+import { Route as AdminCreatorsRouteImport } from './routes/admin.creators'
+import { Route as AdminCricketRouteImport } from './routes/admin.cricket'
+import { Route as AdminEventsRouteImport } from './routes/admin.events'
+import { Route as AdminFaqsRouteImport } from './routes/admin.faqs'
+import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
+import { Route as AdminFraudRouteImport } from './routes/admin.fraud'
+import { Route as AdminKycRouteImport } from './routes/admin.kyc'
+import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
+import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
+import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
+import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
+import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminPrizesRouteImport } from './routes/admin.prizes'
+import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
+import { Route as AdminReadingRouteImport } from './routes/admin.reading'
+import { Route as AdminResultsRouteImport } from './routes/admin.results'
+import { Route as AdminRolesRouteImport } from './routes/admin.roles'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminStoreRouteImport } from './routes/admin.store'
+import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminXpRouteImport } from './routes/admin.xp'
+import { Route as CategoryIdRouteImport } from './routes/category.$id'
+import { Route as ContestIdRouteImport } from './routes/contest.$id'
+import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
+import { Route as GuruIndexRouteImport } from './routes/guru.index'
+import { Route as GuruAchievementsRouteImport } from './routes/guru.achievements'
+import { Route as GuruCharactersRouteImport } from './routes/guru.characters'
+import { Route as GuruCompetitionsRouteImport } from './routes/guru.competitions'
+import { Route as GuruLibraryRouteImport } from './routes/guru.library'
+import { Route as GuruProgressRouteImport } from './routes/guru.progress'
+import { Route as GuruSchoolRouteImport } from './routes/guru.school'
+import { Route as GuruUniversalRouteImport } from './routes/guru.universal'
+import { Route as PlayIdRouteImport } from './routes/play.$id'
+import { Route as ReadingIndexRouteImport } from './routes/reading.index'
+import { Route as ReadingIdRouteImport } from './routes/reading.$id'
+import { Route as ResultIdRouteImport } from './routes/result.$id'
+import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as GuruTopicIdRouteImport } from './routes/guru.topic.$id'
-import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
-import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
-import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
+import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
+import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
+import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
 
-const WalletRoute = WalletRouteImport.update({
-  id: '/wallet',
-  path: '/wallet',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const VipRoute = VipRouteImport.update({
-  id: '/vip',
-  path: '/vip',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SupportRoute = SupportRouteImport.update({
-  id: '/support',
-  path: '/support',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SubscribeRoute = SubscribeRouteImport.update({
-  id: '/subscribe',
-  path: '/subscribe',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SearchRoute = SearchRouteImport.update({
-  id: '/search',
-  path: '/search',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RewardsRoute = RewardsRouteImport.update({
-  id: '/rewards',
-  path: '/rewards',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReferRoute = ReferRouteImport.update({
-  id: '/refer',
-  path: '/refer',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfileRoute = ProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MissionsRoute = MissionsRouteImport.update({
-  id: '/missions',
-  path: '/missions',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LiveScoresRoute = LiveScoresRouteImport.update({
-  id: '/live-scores',
-  path: '/live-scores',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LeaderboardRoute = LeaderboardRouteImport.update({
-  id: '/leaderboard',
-  path: '/leaderboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KycRoute = KycRouteImport.update({
-  id: '/kyc',
-  path: '/kyc',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HubRoute = HubRouteImport.update({
-  id: '/hub',
-  path: '/hub',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HallOfFameRoute = HallOfFameRouteImport.update({
-  id: '/hall-of-fame',
-  path: '/hall-of-fame',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuruRoute = GuruRouteImport.update({
-  id: '/guru',
-  path: '/guru',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeedbackRoute = FeedbackRouteImport.update({
-  id: '/feedback',
-  path: '/feedback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FaqRoute = FaqRouteImport.update({
-  id: '/faq',
-  path: '/faq',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const EventsRoute = EventsRouteImport.update({
-  id: '/events',
-  path: '/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CricketRoute = CricketRouteImport.update({
-  id: '/cricket',
-  path: '/cricket',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CouponsRoute = CouponsRouteImport.update({
-  id: '/coupons',
-  path: '/coupons',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CommunityRoute = CommunityRouteImport.update({
-  id: '/community',
-  path: '/community',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BooksRoute = BooksRouteImport.update({
-  id: '/books',
-  path: '/books',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AiTutorRoute = AiTutorRouteImport.update({
-  id: '/ai-tutor',
-  path: '/ai-tutor',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AiRoute = AiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -247,259 +107,154 @@ const AdminRoute = AdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AiRoute = AiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ReadingIndexRoute = ReadingIndexRouteImport.update({
-  id: '/reading/',
-  path: '/reading/',
+const AiTutorRoute = AiTutorRouteImport.update({
+  id: '/ai-tutor',
+  path: '/ai-tutor',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GuruIndexRoute = GuruIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => GuruRoute,
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BooksRoute = BooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CommunityRoute = CommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CouponsRoute = CouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CricketRoute = CricketRouteImport.update({
+  id: '/cricket',
+  path: '/cricket',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventsRoute = EventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FaqRoute = FaqRouteImport.update({
+  id: '/faq',
+  path: '/faq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeedbackRoute = FeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuruRoute = GuruRouteImport.update({
+  id: '/guru',
+  path: '/guru',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HallOfFameRoute = HallOfFameRouteImport.update({
+  id: '/hall-of-fame',
+  path: '/hall-of-fame',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HubRoute = HubRouteImport.update({
+  id: '/hub',
+  path: '/hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KycRoute = KycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeaderboardRoute = LeaderboardRouteImport.update({
+  id: '/leaderboard',
+  path: '/leaderboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LiveScoresRoute = LiveScoresRouteImport.update({
+  id: '/live-scores',
+  path: '/live-scores',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MissionsRoute = MissionsRouteImport.update({
+  id: '/missions',
+  path: '/missions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReferRoute = ReferRouteImport.update({
+  id: '/refer',
+  path: '/refer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RewardsRoute = RewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubscribeRoute = SubscribeRouteImport.update({
+  id: '/subscribe',
+  path: '/subscribe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VipRoute = VipRouteImport.update({
+  id: '/vip',
+  path: '/vip',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WalletRoute = WalletRouteImport.update({
+  id: '/wallet',
+  path: '/wallet',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AdminRoute,
-} as any)
-const WalletHistoryRoute = WalletHistoryRouteImport.update({
-  id: '/history',
-  path: '/history',
-  getParentRoute: () => WalletRoute,
-} as any)
-const ResultIdRoute = ResultIdRouteImport.update({
-  id: '/result/$id',
-  path: '/result/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReadingIdRoute = ReadingIdRouteImport.update({
-  id: '/reading/$id',
-  path: '/reading/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PlayIdRoute = PlayIdRouteImport.update({
-  id: '/play/$id',
-  path: '/play/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GuruUniversalRoute = GuruUniversalRouteImport.update({
-  id: '/universal',
-  path: '/universal',
-  getParentRoute: () => GuruRoute,
-} as any)
-const GuruSchoolRoute = GuruSchoolRouteImport.update({
-  id: '/school',
-  path: '/school',
-  getParentRoute: () => GuruRoute,
-} as any)
-const GuruProgressRoute = GuruProgressRouteImport.update({
-  id: '/progress',
-  path: '/progress',
-  getParentRoute: () => GuruRoute,
-} as any)
-const GuruLibraryRoute = GuruLibraryRouteImport.update({
-  id: '/library',
-  path: '/library',
-  getParentRoute: () => GuruRoute,
-} as any)
-const GuruCompetitionsRoute = GuruCompetitionsRouteImport.update({
-  id: '/competitions',
-  path: '/competitions',
-  getParentRoute: () => GuruRoute,
-} as any)
-const GuruCharactersRoute = GuruCharactersRouteImport.update({
-  id: '/characters',
-  path: '/characters',
-  getParentRoute: () => GuruRoute,
-} as any)
-const GuruAchievementsRoute = GuruAchievementsRouteImport.update({
-  id: '/achievements',
-  path: '/achievements',
-  getParentRoute: () => GuruRoute,
-} as any)
-const CricketIdRoute = CricketIdRouteImport.update({
-  id: '/cricket_/$id',
-  path: '/cricket/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContestIdRoute = ContestIdRouteImport.update({
-  id: '/contest/$id',
-  path: '/contest/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CategoryIdRoute = CategoryIdRouteImport.update({
-  id: '/category/$id',
-  path: '/category/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminXpRoute = AdminXpRouteImport.update({
-  id: '/xp',
-  path: '/xp',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminUsersRoute = AdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
-  id: '/subscriptions',
-  path: '/subscriptions',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminStoreRoute = AdminStoreRouteImport.update({
-  id: '/store',
-  path: '/store',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminSettingsRoute = AdminSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminRolesRoute = AdminRolesRouteImport.update({
-  id: '/roles',
-  path: '/roles',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminResultsRoute = AdminResultsRouteImport.update({
-  id: '/results',
-  path: '/results',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminReadingRoute = AdminReadingRouteImport.update({
-  id: '/reading',
-  path: '/reading',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
-  id: '/questions',
-  path: '/questions',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminPrizesRoute = AdminPrizesRouteImport.update({
-  id: '/prizes',
-  path: '/prizes',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
-  id: '/payments',
-  path: '/payments',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminMissionsRoute = AdminMissionsRouteImport.update({
-  id: '/missions',
-  path: '/missions',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminMembershipsRoute = AdminMembershipsRouteImport.update({
-  id: '/memberships',
-  path: '/memberships',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminLiveScoresRoute = AdminLiveScoresRouteImport.update({
-  id: '/live-scores',
-  path: '/live-scores',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminKycRoute = AdminKycRouteImport.update({
-  id: '/kyc',
-  path: '/kyc',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminFraudRoute = AdminFraudRouteImport.update({
-  id: '/fraud',
-  path: '/fraud',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
-  id: '/feedback',
-  path: '/feedback',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminFaqsRoute = AdminFaqsRouteImport.update({
-  id: '/faqs',
-  path: '/faqs',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminEventsRoute = AdminEventsRouteImport.update({
-  id: '/events',
-  path: '/events',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCricketRoute = AdminCricketRouteImport.update({
-  id: '/cricket',
-  path: '/cricket',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCreatorsRoute = AdminCreatorsRouteImport.update({
-  id: '/creators',
-  path: '/creators',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCouponsRoute = AdminCouponsRouteImport.update({
-  id: '/coupons',
-  path: '/coupons',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminContestsRoute = AdminContestsRouteImport.update({
-  id: '/contests',
-  path: '/contests',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCommunityRoute = AdminCommunityRouteImport.update({
-  id: '/community',
-  path: '/community',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCommentsRoute = AdminCommentsRouteImport.update({
-  id: '/comments',
-  path: '/comments',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
-  id: '/categories',
-  path: '/categories',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminBroadcastsRoute = AdminBroadcastsRouteImport.update({
-  id: '/broadcasts',
-  path: '/broadcasts',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminBooksRoute = AdminBooksRouteImport.update({
-  id: '/books',
-  path: '/books',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminBannersRoute = AdminBannersRouteImport.update({
-  id: '/banners',
-  path: '/banners',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAutomationRoute = AdminAutomationRouteImport.update({
-  id: '/automation',
-  path: '/automation',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAppUpdatesRoute = AdminAppUpdatesRouteImport.update({
-  id: '/app-updates',
-  path: '/app-updates',
-  getParentRoute: () => AdminRoute,
-} as any)
-const AdminAiRoute = AdminAiRouteImport.update({
-  id: '/ai',
-  path: '/ai',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAdsRoute = AdminAdsRouteImport.update({
@@ -507,20 +262,260 @@ const AdminAdsRoute = AdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAiRoute = AdminAiRouteImport.update({
+  id: '/ai',
+  path: '/ai',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAppUpdatesRoute = AdminAppUpdatesRouteImport.update({
+  id: '/app-updates',
+  path: '/app-updates',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAutomationRoute = AdminAutomationRouteImport.update({
+  id: '/automation',
+  path: '/automation',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBannersRoute = AdminBannersRouteImport.update({
+  id: '/banners',
+  path: '/banners',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBooksRoute = AdminBooksRouteImport.update({
+  id: '/books',
+  path: '/books',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBroadcastsRoute = AdminBroadcastsRouteImport.update({
+  id: '/broadcasts',
+  path: '/broadcasts',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCommentsRoute = AdminCommentsRouteImport.update({
+  id: '/comments',
+  path: '/comments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCommunityRoute = AdminCommunityRouteImport.update({
+  id: '/community',
+  path: '/community',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminContestsRoute = AdminContestsRouteImport.update({
+  id: '/contests',
+  path: '/contests',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCouponsRoute = AdminCouponsRouteImport.update({
+  id: '/coupons',
+  path: '/coupons',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCreatorsRoute = AdminCreatorsRouteImport.update({
+  id: '/creators',
+  path: '/creators',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCricketRoute = AdminCricketRouteImport.update({
+  id: '/cricket',
+  path: '/cricket',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminEventsRoute = AdminEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFaqsRoute = AdminFaqsRouteImport.update({
+  id: '/faqs',
+  path: '/faqs',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFraudRoute = AdminFraudRouteImport.update({
+  id: '/fraud',
+  path: '/fraud',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminKycRoute = AdminKycRouteImport.update({
+  id: '/kyc',
+  path: '/kyc',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminLiveScoresRoute = AdminLiveScoresRouteImport.update({
+  id: '/live-scores',
+  path: '/live-scores',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMembershipsRoute = AdminMembershipsRouteImport.update({
+  id: '/memberships',
+  path: '/memberships',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminMissionsRoute = AdminMissionsRouteImport.update({
+  id: '/missions',
+  path: '/missions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminPrizesRoute = AdminPrizesRouteImport.update({
+  id: '/prizes',
+  path: '/prizes',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminQuestionsRoute = AdminQuestionsRouteImport.update({
+  id: '/questions',
+  path: '/questions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminReadingRoute = AdminReadingRouteImport.update({
+  id: '/reading',
+  path: '/reading',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminResultsRoute = AdminResultsRouteImport.update({
+  id: '/results',
+  path: '/results',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminRolesRoute = AdminRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStoreRoute = AdminStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
+  id: '/subscriptions',
+  path: '/subscriptions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminXpRoute = AdminXpRouteImport.update({
+  id: '/xp',
+  path: '/xp',
+  getParentRoute: () => AdminRoute,
+} as any)
+const CategoryIdRoute = CategoryIdRouteImport.update({
+  id: '/category/$id',
+  path: '/category/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContestIdRoute = ContestIdRouteImport.update({
+  id: '/contest/$id',
+  path: '/contest/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CricketIdRoute = CricketIdRouteImport.update({
+  id: '/cricket_/$id',
+  path: '/cricket/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuruIndexRoute = GuruIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruAchievementsRoute = GuruAchievementsRouteImport.update({
+  id: '/achievements',
+  path: '/achievements',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruCharactersRoute = GuruCharactersRouteImport.update({
+  id: '/characters',
+  path: '/characters',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruCompetitionsRoute = GuruCompetitionsRouteImport.update({
+  id: '/competitions',
+  path: '/competitions',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruLibraryRoute = GuruLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruProgressRoute = GuruProgressRouteImport.update({
+  id: '/progress',
+  path: '/progress',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruSchoolRoute = GuruSchoolRouteImport.update({
+  id: '/school',
+  path: '/school',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruUniversalRoute = GuruUniversalRouteImport.update({
+  id: '/universal',
+  path: '/universal',
+  getParentRoute: () => GuruRoute,
+} as any)
+const PlayIdRoute = PlayIdRouteImport.update({
+  id: '/play/$id',
+  path: '/play/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadingIndexRoute = ReadingIndexRouteImport.update({
+  id: '/reading/',
+  path: '/reading/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReadingIdRoute = ReadingIdRouteImport.update({
+  id: '/reading/$id',
+  path: '/reading/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResultIdRoute = ResultIdRouteImport.update({
+  id: '/result/$id',
+  path: '/result/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WalletHistoryRoute = WalletHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => WalletRoute,
+} as any)
 const GuruTopicIdRoute = GuruTopicIdRouteImport.update({
   id: '/topic/$id',
   path: '/topic/$id',
   getParentRoute: () => GuruRoute,
 } as any)
-const ApiPublicHooksRazorpayRoute = ApiPublicHooksRazorpayRouteImport.update({
-  id: '/api/public/hooks/razorpay',
-  path: '/api/public/hooks/razorpay',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicHooksPushDispatchRoute =
-  ApiPublicHooksPushDispatchRouteImport.update({
-    id: '/api/public/hooks/push-dispatch',
-    path: '/api/public/hooks/push-dispatch',
+const ApiPublicHooksAutomationRoute =
+  ApiPublicHooksAutomationRouteImport.update({
+    id: '/api/public/hooks/automation',
+    path: '/api/public/hooks/automation',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicHooksPushConfigRoute =
@@ -529,12 +524,17 @@ const ApiPublicHooksPushConfigRoute =
     path: '/api/public/hooks/push-config',
     getParentRoute: () => rootRouteImport,
   } as any)
-const ApiPublicHooksAutomationRoute =
-  ApiPublicHooksAutomationRouteImport.update({
-    id: '/api/public/hooks/automation',
-    path: '/api/public/hooks/automation',
+const ApiPublicHooksPushDispatchRoute =
+  ApiPublicHooksPushDispatchRouteImport.update({
+    id: '/api/public/hooks/push-dispatch',
+    path: '/api/public/hooks/push-dispatch',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksRazorpayRoute = ApiPublicHooksRazorpayRouteImport.update({
+  id: '/api/public/hooks/razorpay',
+  path: '/api/public/hooks/razorpay',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -1117,207 +1117,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/wallet': {
-      id: '/wallet'
-      path: '/wallet'
-      fullPath: '/wallet'
-      preLoaderRoute: typeof WalletRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/vip': {
-      id: '/vip'
-      path: '/vip'
-      fullPath: '/vip'
-      preLoaderRoute: typeof VipRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/support': {
-      id: '/support'
-      path: '/support'
-      fullPath: '/support'
-      preLoaderRoute: typeof SupportRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/subscribe': {
-      id: '/subscribe'
-      path: '/subscribe'
-      fullPath: '/subscribe'
-      preLoaderRoute: typeof SubscribeRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/search': {
-      id: '/search'
-      path: '/search'
-      fullPath: '/search'
-      preLoaderRoute: typeof SearchRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rewards': {
-      id: '/rewards'
-      path: '/rewards'
-      fullPath: '/rewards'
-      preLoaderRoute: typeof RewardsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/refer': {
-      id: '/refer'
-      path: '/refer'
-      fullPath: '/refer'
-      preLoaderRoute: typeof ReferRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profile': {
-      id: '/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof ProfileRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/missions': {
-      id: '/missions'
-      path: '/missions'
-      fullPath: '/missions'
-      preLoaderRoute: typeof MissionsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/live-scores': {
-      id: '/live-scores'
-      path: '/live-scores'
-      fullPath: '/live-scores'
-      preLoaderRoute: typeof LiveScoresRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/leaderboard': {
-      id: '/leaderboard'
-      path: '/leaderboard'
-      fullPath: '/leaderboard'
-      preLoaderRoute: typeof LeaderboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/kyc': {
-      id: '/kyc'
-      path: '/kyc'
-      fullPath: '/kyc'
-      preLoaderRoute: typeof KycRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hub': {
-      id: '/hub'
-      path: '/hub'
-      fullPath: '/hub'
-      preLoaderRoute: typeof HubRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/hall-of-fame': {
-      id: '/hall-of-fame'
-      path: '/hall-of-fame'
-      fullPath: '/hall-of-fame'
-      preLoaderRoute: typeof HallOfFameRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guru': {
-      id: '/guru'
-      path: '/guru'
-      fullPath: '/guru'
-      preLoaderRoute: typeof GuruRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/feedback': {
-      id: '/feedback'
-      path: '/feedback'
-      fullPath: '/feedback'
-      preLoaderRoute: typeof FeedbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/faq': {
-      id: '/faq'
-      path: '/faq'
-      fullPath: '/faq'
-      preLoaderRoute: typeof FaqRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/events': {
-      id: '/events'
-      path: '/events'
-      fullPath: '/events'
-      preLoaderRoute: typeof EventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cricket': {
-      id: '/cricket'
-      path: '/cricket'
-      fullPath: '/cricket'
-      preLoaderRoute: typeof CricketRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/coupons': {
-      id: '/coupons'
-      path: '/coupons'
-      fullPath: '/coupons'
-      preLoaderRoute: typeof CouponsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/community': {
-      id: '/community'
-      path: '/community'
-      fullPath: '/community'
-      preLoaderRoute: typeof CommunityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/books': {
-      id: '/books'
-      path: '/books'
-      fullPath: '/books'
-      preLoaderRoute: typeof BooksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ai-tutor': {
-      id: '/ai-tutor'
-      path: '/ai-tutor'
-      fullPath: '/ai-tutor'
-      preLoaderRoute: typeof AiTutorRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ai': {
-      id: '/ai'
-      path: '/ai'
-      fullPath: '/ai'
-      preLoaderRoute: typeof AiRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -1327,361 +1131,214 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/ai': {
+      id: '/ai'
+      path: '/ai'
+      fullPath: '/ai'
+      preLoaderRoute: typeof AiRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/reading/': {
-      id: '/reading/'
-      path: '/reading'
-      fullPath: '/reading/'
-      preLoaderRoute: typeof ReadingIndexRouteImport
+    '/ai-tutor': {
+      id: '/ai-tutor'
+      path: '/ai-tutor'
+      fullPath: '/ai-tutor'
+      preLoaderRoute: typeof AiTutorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/guru/': {
-      id: '/guru/'
-      path: '/'
-      fullPath: '/guru/'
-      preLoaderRoute: typeof GuruIndexRouteImport
-      parentRoute: typeof GuruRoute
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/books': {
+      id: '/books'
+      path: '/books'
+      fullPath: '/books'
+      preLoaderRoute: typeof BooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/community': {
+      id: '/community'
+      path: '/community'
+      fullPath: '/community'
+      preLoaderRoute: typeof CommunityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/coupons': {
+      id: '/coupons'
+      path: '/coupons'
+      fullPath: '/coupons'
+      preLoaderRoute: typeof CouponsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cricket': {
+      id: '/cricket'
+      path: '/cricket'
+      fullPath: '/cricket'
+      preLoaderRoute: typeof CricketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/events': {
+      id: '/events'
+      path: '/events'
+      fullPath: '/events'
+      preLoaderRoute: typeof EventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/faq': {
+      id: '/faq'
+      path: '/faq'
+      fullPath: '/faq'
+      preLoaderRoute: typeof FaqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/feedback': {
+      id: '/feedback'
+      path: '/feedback'
+      fullPath: '/feedback'
+      preLoaderRoute: typeof FeedbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guru': {
+      id: '/guru'
+      path: '/guru'
+      fullPath: '/guru'
+      preLoaderRoute: typeof GuruRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hall-of-fame': {
+      id: '/hall-of-fame'
+      path: '/hall-of-fame'
+      fullPath: '/hall-of-fame'
+      preLoaderRoute: typeof HallOfFameRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hub': {
+      id: '/hub'
+      path: '/hub'
+      fullPath: '/hub'
+      preLoaderRoute: typeof HubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kyc': {
+      id: '/kyc'
+      path: '/kyc'
+      fullPath: '/kyc'
+      preLoaderRoute: typeof KycRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaderboard': {
+      id: '/leaderboard'
+      path: '/leaderboard'
+      fullPath: '/leaderboard'
+      preLoaderRoute: typeof LeaderboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/live-scores': {
+      id: '/live-scores'
+      path: '/live-scores'
+      fullPath: '/live-scores'
+      preLoaderRoute: typeof LiveScoresRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/missions': {
+      id: '/missions'
+      path: '/missions'
+      fullPath: '/missions'
+      preLoaderRoute: typeof MissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/refer': {
+      id: '/refer'
+      path: '/refer'
+      fullPath: '/refer'
+      preLoaderRoute: typeof ReferRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rewards': {
+      id: '/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof RewardsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/subscribe': {
+      id: '/subscribe'
+      path: '/subscribe'
+      fullPath: '/subscribe'
+      preLoaderRoute: typeof SubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vip': {
+      id: '/vip'
+      path: '/vip'
+      fullPath: '/vip'
+      preLoaderRoute: typeof VipRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wallet': {
+      id: '/wallet'
+      path: '/wallet'
+      fullPath: '/wallet'
+      preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/admin/': {
       id: '/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/wallet/history': {
-      id: '/wallet/history'
-      path: '/history'
-      fullPath: '/wallet/history'
-      preLoaderRoute: typeof WalletHistoryRouteImport
-      parentRoute: typeof WalletRoute
-    }
-    '/result/$id': {
-      id: '/result/$id'
-      path: '/result/$id'
-      fullPath: '/result/$id'
-      preLoaderRoute: typeof ResultIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reading/$id': {
-      id: '/reading/$id'
-      path: '/reading/$id'
-      fullPath: '/reading/$id'
-      preLoaderRoute: typeof ReadingIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/play/$id': {
-      id: '/play/$id'
-      path: '/play/$id'
-      fullPath: '/play/$id'
-      preLoaderRoute: typeof PlayIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/guru/universal': {
-      id: '/guru/universal'
-      path: '/universal'
-      fullPath: '/guru/universal'
-      preLoaderRoute: typeof GuruUniversalRouteImport
-      parentRoute: typeof GuruRoute
-    }
-    '/guru/school': {
-      id: '/guru/school'
-      path: '/school'
-      fullPath: '/guru/school'
-      preLoaderRoute: typeof GuruSchoolRouteImport
-      parentRoute: typeof GuruRoute
-    }
-    '/guru/progress': {
-      id: '/guru/progress'
-      path: '/progress'
-      fullPath: '/guru/progress'
-      preLoaderRoute: typeof GuruProgressRouteImport
-      parentRoute: typeof GuruRoute
-    }
-    '/guru/library': {
-      id: '/guru/library'
-      path: '/library'
-      fullPath: '/guru/library'
-      preLoaderRoute: typeof GuruLibraryRouteImport
-      parentRoute: typeof GuruRoute
-    }
-    '/guru/competitions': {
-      id: '/guru/competitions'
-      path: '/competitions'
-      fullPath: '/guru/competitions'
-      preLoaderRoute: typeof GuruCompetitionsRouteImport
-      parentRoute: typeof GuruRoute
-    }
-    '/guru/characters': {
-      id: '/guru/characters'
-      path: '/characters'
-      fullPath: '/guru/characters'
-      preLoaderRoute: typeof GuruCharactersRouteImport
-      parentRoute: typeof GuruRoute
-    }
-    '/guru/achievements': {
-      id: '/guru/achievements'
-      path: '/achievements'
-      fullPath: '/guru/achievements'
-      preLoaderRoute: typeof GuruAchievementsRouteImport
-      parentRoute: typeof GuruRoute
-    }
-    '/cricket_/$id': {
-      id: '/cricket_/$id'
-      path: '/cricket/$id'
-      fullPath: '/cricket/$id'
-      preLoaderRoute: typeof CricketIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contest/$id': {
-      id: '/contest/$id'
-      path: '/contest/$id'
-      fullPath: '/contest/$id'
-      preLoaderRoute: typeof ContestIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/category/$id': {
-      id: '/category/$id'
-      path: '/category/$id'
-      fullPath: '/category/$id'
-      preLoaderRoute: typeof CategoryIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/xp': {
-      id: '/admin/xp'
-      path: '/xp'
-      fullPath: '/admin/xp'
-      preLoaderRoute: typeof AdminXpRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/users': {
-      id: '/admin/users'
-      path: '/users'
-      fullPath: '/admin/users'
-      preLoaderRoute: typeof AdminUsersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/subscriptions': {
-      id: '/admin/subscriptions'
-      path: '/subscriptions'
-      fullPath: '/admin/subscriptions'
-      preLoaderRoute: typeof AdminSubscriptionsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/store': {
-      id: '/admin/store'
-      path: '/store'
-      fullPath: '/admin/store'
-      preLoaderRoute: typeof AdminStoreRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/settings': {
-      id: '/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AdminSettingsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/roles': {
-      id: '/admin/roles'
-      path: '/roles'
-      fullPath: '/admin/roles'
-      preLoaderRoute: typeof AdminRolesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/results': {
-      id: '/admin/results'
-      path: '/results'
-      fullPath: '/admin/results'
-      preLoaderRoute: typeof AdminResultsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/reading': {
-      id: '/admin/reading'
-      path: '/reading'
-      fullPath: '/admin/reading'
-      preLoaderRoute: typeof AdminReadingRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/questions': {
-      id: '/admin/questions'
-      path: '/questions'
-      fullPath: '/admin/questions'
-      preLoaderRoute: typeof AdminQuestionsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/prizes': {
-      id: '/admin/prizes'
-      path: '/prizes'
-      fullPath: '/admin/prizes'
-      preLoaderRoute: typeof AdminPrizesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/payments': {
-      id: '/admin/payments'
-      path: '/payments'
-      fullPath: '/admin/payments'
-      preLoaderRoute: typeof AdminPaymentsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/notifications': {
-      id: '/admin/notifications'
-      path: '/notifications'
-      fullPath: '/admin/notifications'
-      preLoaderRoute: typeof AdminNotificationsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/missions': {
-      id: '/admin/missions'
-      path: '/missions'
-      fullPath: '/admin/missions'
-      preLoaderRoute: typeof AdminMissionsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/memberships': {
-      id: '/admin/memberships'
-      path: '/memberships'
-      fullPath: '/admin/memberships'
-      preLoaderRoute: typeof AdminMembershipsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/live-scores': {
-      id: '/admin/live-scores'
-      path: '/live-scores'
-      fullPath: '/admin/live-scores'
-      preLoaderRoute: typeof AdminLiveScoresRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/kyc': {
-      id: '/admin/kyc'
-      path: '/kyc'
-      fullPath: '/admin/kyc'
-      preLoaderRoute: typeof AdminKycRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/fraud': {
-      id: '/admin/fraud'
-      path: '/fraud'
-      fullPath: '/admin/fraud'
-      preLoaderRoute: typeof AdminFraudRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/feedback': {
-      id: '/admin/feedback'
-      path: '/feedback'
-      fullPath: '/admin/feedback'
-      preLoaderRoute: typeof AdminFeedbackRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/faqs': {
-      id: '/admin/faqs'
-      path: '/faqs'
-      fullPath: '/admin/faqs'
-      preLoaderRoute: typeof AdminFaqsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/events': {
-      id: '/admin/events'
-      path: '/events'
-      fullPath: '/admin/events'
-      preLoaderRoute: typeof AdminEventsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/cricket': {
-      id: '/admin/cricket'
-      path: '/cricket'
-      fullPath: '/admin/cricket'
-      preLoaderRoute: typeof AdminCricketRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/creators': {
-      id: '/admin/creators'
-      path: '/creators'
-      fullPath: '/admin/creators'
-      preLoaderRoute: typeof AdminCreatorsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/coupons': {
-      id: '/admin/coupons'
-      path: '/coupons'
-      fullPath: '/admin/coupons'
-      preLoaderRoute: typeof AdminCouponsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/contests': {
-      id: '/admin/contests'
-      path: '/contests'
-      fullPath: '/admin/contests'
-      preLoaderRoute: typeof AdminContestsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/community': {
-      id: '/admin/community'
-      path: '/community'
-      fullPath: '/admin/community'
-      preLoaderRoute: typeof AdminCommunityRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/comments': {
-      id: '/admin/comments'
-      path: '/comments'
-      fullPath: '/admin/comments'
-      preLoaderRoute: typeof AdminCommentsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/categories': {
-      id: '/admin/categories'
-      path: '/categories'
-      fullPath: '/admin/categories'
-      preLoaderRoute: typeof AdminCategoriesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/broadcasts': {
-      id: '/admin/broadcasts'
-      path: '/broadcasts'
-      fullPath: '/admin/broadcasts'
-      preLoaderRoute: typeof AdminBroadcastsRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/books': {
-      id: '/admin/books'
-      path: '/books'
-      fullPath: '/admin/books'
-      preLoaderRoute: typeof AdminBooksRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/banners': {
-      id: '/admin/banners'
-      path: '/banners'
-      fullPath: '/admin/banners'
-      preLoaderRoute: typeof AdminBannersRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/automation': {
-      id: '/admin/automation'
-      path: '/automation'
-      fullPath: '/admin/automation'
-      preLoaderRoute: typeof AdminAutomationRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/app-updates': {
-      id: '/admin/app-updates'
-      path: '/app-updates'
-      fullPath: '/admin/app-updates'
-      preLoaderRoute: typeof AdminAppUpdatesRouteImport
-      parentRoute: typeof AdminRoute
-    }
-    '/admin/ai': {
-      id: '/admin/ai'
-      path: '/ai'
-      fullPath: '/admin/ai'
-      preLoaderRoute: typeof AdminAiRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/ads': {
@@ -1691,6 +1348,349 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ai': {
+      id: '/admin/ai'
+      path: '/ai'
+      fullPath: '/admin/ai'
+      preLoaderRoute: typeof AdminAiRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/app-updates': {
+      id: '/admin/app-updates'
+      path: '/app-updates'
+      fullPath: '/admin/app-updates'
+      preLoaderRoute: typeof AdminAppUpdatesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/automation': {
+      id: '/admin/automation'
+      path: '/automation'
+      fullPath: '/admin/automation'
+      preLoaderRoute: typeof AdminAutomationRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/banners': {
+      id: '/admin/banners'
+      path: '/banners'
+      fullPath: '/admin/banners'
+      preLoaderRoute: typeof AdminBannersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/books': {
+      id: '/admin/books'
+      path: '/books'
+      fullPath: '/admin/books'
+      preLoaderRoute: typeof AdminBooksRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/broadcasts': {
+      id: '/admin/broadcasts'
+      path: '/broadcasts'
+      fullPath: '/admin/broadcasts'
+      preLoaderRoute: typeof AdminBroadcastsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/categories': {
+      id: '/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AdminCategoriesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/comments': {
+      id: '/admin/comments'
+      path: '/comments'
+      fullPath: '/admin/comments'
+      preLoaderRoute: typeof AdminCommentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/community': {
+      id: '/admin/community'
+      path: '/community'
+      fullPath: '/admin/community'
+      preLoaderRoute: typeof AdminCommunityRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/contests': {
+      id: '/admin/contests'
+      path: '/contests'
+      fullPath: '/admin/contests'
+      preLoaderRoute: typeof AdminContestsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/coupons': {
+      id: '/admin/coupons'
+      path: '/coupons'
+      fullPath: '/admin/coupons'
+      preLoaderRoute: typeof AdminCouponsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/creators': {
+      id: '/admin/creators'
+      path: '/creators'
+      fullPath: '/admin/creators'
+      preLoaderRoute: typeof AdminCreatorsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/cricket': {
+      id: '/admin/cricket'
+      path: '/cricket'
+      fullPath: '/admin/cricket'
+      preLoaderRoute: typeof AdminCricketRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/events': {
+      id: '/admin/events'
+      path: '/events'
+      fullPath: '/admin/events'
+      preLoaderRoute: typeof AdminEventsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/faqs': {
+      id: '/admin/faqs'
+      path: '/faqs'
+      fullPath: '/admin/faqs'
+      preLoaderRoute: typeof AdminFaqsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/feedback': {
+      id: '/admin/feedback'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/fraud': {
+      id: '/admin/fraud'
+      path: '/fraud'
+      fullPath: '/admin/fraud'
+      preLoaderRoute: typeof AdminFraudRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/kyc': {
+      id: '/admin/kyc'
+      path: '/kyc'
+      fullPath: '/admin/kyc'
+      preLoaderRoute: typeof AdminKycRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/live-scores': {
+      id: '/admin/live-scores'
+      path: '/live-scores'
+      fullPath: '/admin/live-scores'
+      preLoaderRoute: typeof AdminLiveScoresRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/memberships': {
+      id: '/admin/memberships'
+      path: '/memberships'
+      fullPath: '/admin/memberships'
+      preLoaderRoute: typeof AdminMembershipsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/missions': {
+      id: '/admin/missions'
+      path: '/missions'
+      fullPath: '/admin/missions'
+      preLoaderRoute: typeof AdminMissionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/notifications': {
+      id: '/admin/notifications'
+      path: '/notifications'
+      fullPath: '/admin/notifications'
+      preLoaderRoute: typeof AdminNotificationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/payments': {
+      id: '/admin/payments'
+      path: '/payments'
+      fullPath: '/admin/payments'
+      preLoaderRoute: typeof AdminPaymentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/prizes': {
+      id: '/admin/prizes'
+      path: '/prizes'
+      fullPath: '/admin/prizes'
+      preLoaderRoute: typeof AdminPrizesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/questions': {
+      id: '/admin/questions'
+      path: '/questions'
+      fullPath: '/admin/questions'
+      preLoaderRoute: typeof AdminQuestionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/reading': {
+      id: '/admin/reading'
+      path: '/reading'
+      fullPath: '/admin/reading'
+      preLoaderRoute: typeof AdminReadingRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/results': {
+      id: '/admin/results'
+      path: '/results'
+      fullPath: '/admin/results'
+      preLoaderRoute: typeof AdminResultsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/roles': {
+      id: '/admin/roles'
+      path: '/roles'
+      fullPath: '/admin/roles'
+      preLoaderRoute: typeof AdminRolesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/store': {
+      id: '/admin/store'
+      path: '/store'
+      fullPath: '/admin/store'
+      preLoaderRoute: typeof AdminStoreRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/subscriptions': {
+      id: '/admin/subscriptions'
+      path: '/subscriptions'
+      fullPath: '/admin/subscriptions'
+      preLoaderRoute: typeof AdminSubscriptionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/xp': {
+      id: '/admin/xp'
+      path: '/xp'
+      fullPath: '/admin/xp'
+      preLoaderRoute: typeof AdminXpRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/category/$id': {
+      id: '/category/$id'
+      path: '/category/$id'
+      fullPath: '/category/$id'
+      preLoaderRoute: typeof CategoryIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contest/$id': {
+      id: '/contest/$id'
+      path: '/contest/$id'
+      fullPath: '/contest/$id'
+      preLoaderRoute: typeof ContestIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cricket_/$id': {
+      id: '/cricket_/$id'
+      path: '/cricket/$id'
+      fullPath: '/cricket/$id'
+      preLoaderRoute: typeof CricketIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/guru/': {
+      id: '/guru/'
+      path: '/'
+      fullPath: '/guru/'
+      preLoaderRoute: typeof GuruIndexRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/achievements': {
+      id: '/guru/achievements'
+      path: '/achievements'
+      fullPath: '/guru/achievements'
+      preLoaderRoute: typeof GuruAchievementsRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/characters': {
+      id: '/guru/characters'
+      path: '/characters'
+      fullPath: '/guru/characters'
+      preLoaderRoute: typeof GuruCharactersRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/competitions': {
+      id: '/guru/competitions'
+      path: '/competitions'
+      fullPath: '/guru/competitions'
+      preLoaderRoute: typeof GuruCompetitionsRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/library': {
+      id: '/guru/library'
+      path: '/library'
+      fullPath: '/guru/library'
+      preLoaderRoute: typeof GuruLibraryRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/progress': {
+      id: '/guru/progress'
+      path: '/progress'
+      fullPath: '/guru/progress'
+      preLoaderRoute: typeof GuruProgressRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/school': {
+      id: '/guru/school'
+      path: '/school'
+      fullPath: '/guru/school'
+      preLoaderRoute: typeof GuruSchoolRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/universal': {
+      id: '/guru/universal'
+      path: '/universal'
+      fullPath: '/guru/universal'
+      preLoaderRoute: typeof GuruUniversalRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/play/$id': {
+      id: '/play/$id'
+      path: '/play/$id'
+      fullPath: '/play/$id'
+      preLoaderRoute: typeof PlayIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reading/': {
+      id: '/reading/'
+      path: '/reading'
+      fullPath: '/reading/'
+      preLoaderRoute: typeof ReadingIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reading/$id': {
+      id: '/reading/$id'
+      path: '/reading/$id'
+      fullPath: '/reading/$id'
+      preLoaderRoute: typeof ReadingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/result/$id': {
+      id: '/result/$id'
+      path: '/result/$id'
+      fullPath: '/result/$id'
+      preLoaderRoute: typeof ResultIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/wallet/history': {
+      id: '/wallet/history'
+      path: '/history'
+      fullPath: '/wallet/history'
+      preLoaderRoute: typeof WalletHistoryRouteImport
+      parentRoute: typeof WalletRoute
+    }
     '/guru/topic/$id': {
       id: '/guru/topic/$id'
       path: '/topic/$id'
@@ -1698,18 +1698,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuruTopicIdRouteImport
       parentRoute: typeof GuruRoute
     }
-    '/api/public/hooks/razorpay': {
-      id: '/api/public/hooks/razorpay'
-      path: '/api/public/hooks/razorpay'
-      fullPath: '/api/public/hooks/razorpay'
-      preLoaderRoute: typeof ApiPublicHooksRazorpayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/public/hooks/push-dispatch': {
-      id: '/api/public/hooks/push-dispatch'
-      path: '/api/public/hooks/push-dispatch'
-      fullPath: '/api/public/hooks/push-dispatch'
-      preLoaderRoute: typeof ApiPublicHooksPushDispatchRouteImport
+    '/api/public/hooks/automation': {
+      id: '/api/public/hooks/automation'
+      path: '/api/public/hooks/automation'
+      fullPath: '/api/public/hooks/automation'
+      preLoaderRoute: typeof ApiPublicHooksAutomationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/push-config': {
@@ -1719,11 +1712,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPushConfigRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/hooks/automation': {
-      id: '/api/public/hooks/automation'
-      path: '/api/public/hooks/automation'
-      fullPath: '/api/public/hooks/automation'
-      preLoaderRoute: typeof ApiPublicHooksAutomationRouteImport
+    '/api/public/hooks/push-dispatch': {
+      id: '/api/public/hooks/push-dispatch'
+      path: '/api/public/hooks/push-dispatch'
+      fullPath: '/api/public/hooks/push-dispatch'
+      preLoaderRoute: typeof ApiPublicHooksPushDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/razorpay': {
+      id: '/api/public/hooks/razorpay'
+      path: '/api/public/hooks/razorpay'
+      fullPath: '/api/public/hooks/razorpay'
+      preLoaderRoute: typeof ApiPublicHooksRazorpayRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
