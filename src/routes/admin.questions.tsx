@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
-import { upsertQuestion, deleteQuestion } from "@/lib/admin-questions.functions";
+import { upsertQuestion, deleteQuestion, listQuestions } from "@/lib/admin-questions.functions";
 
 export const Route = createFileRoute("/admin/questions")({ component: Page });
 
