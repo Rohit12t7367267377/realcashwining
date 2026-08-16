@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { FolderTree, HelpCircle, Trophy, Users } from "lucide-react";
+import { countQuestions } from "@/lib/admin-questions.functions";
+
 
 export const Route = createFileRoute("/admin/")({ component: Page });
 
