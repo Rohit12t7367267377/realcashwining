@@ -20,7 +20,7 @@ import { useTheme } from "@/lib/theme";
 import { toast } from "sonner";
 import {
   LogOut, Trophy, Target, Award, History, Camera, Grid3X3, Play,
-  BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2,
+  BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2, Send,
   Settings, Bell, Shield, Globe,
 
   Sun, Moon,
