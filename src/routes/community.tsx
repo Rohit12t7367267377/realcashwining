@@ -266,6 +266,12 @@ function Page() {
                   {p.user_id !== user.id && !following.has(p.user_id) && (
                     <Button size="sm" variant="outline" onClick={() => follow(p.user_id)}>Follow</Button>
                   )}
+                  {p.user_id !== user.id && mutual.has(p.user_id) && (
+                    <Button asChild size="sm" variant="ghost">
+                      <Link to="/messages/$id" params={{ id: p.user_id }}>Message</Link>
+                    </Button>
+                  )}
+
                 </div>
                 {p.body && <p className="whitespace-pre-wrap px-3 pb-3 text-sm">{p.body}</p>}
                 {url && p.media_type === "image" && <img src={url} alt="Community post media" loading="lazy" className="max-h-[480px] w-full object-cover" />}

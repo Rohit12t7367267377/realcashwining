@@ -20,7 +20,7 @@ import { useTheme } from "@/lib/theme";
 import { toast } from "sonner";
 import {
   LogOut, Trophy, Target, Award, History, Camera, Grid3X3, Play,
-  BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2,
+  BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2, Send,
   Settings, Bell, Shield, Globe,
 
   Sun, Moon,
@@ -210,7 +210,9 @@ function ProfilePage() {
     <AppShell>
       {/* Feature row (top) */}
       <section className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+        <TopLink to="/messages" icon={<Send className="h-4 w-4" />} label="Messages" />
         <TopLink to="/books" icon={<BookOpen className="h-4 w-4" />} label="Library" />
+
         <TopLink to="/feedback" icon={<MessageSquare className="h-4 w-4" />} label="Feedback" />
         <TopLink to="/faq" icon={<HelpCircle className="h-4 w-4" />} label="FAQ" />
         <TopLink to="/support" icon={<LifeBuoy className="h-4 w-4" />} label="Support" />
