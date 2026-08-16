@@ -86,6 +86,7 @@ import { Route as GuruLibraryRouteImport } from './routes/guru.library'
 import { Route as GuruProgressRouteImport } from './routes/guru.progress'
 import { Route as GuruSchoolRouteImport } from './routes/guru.school'
 import { Route as GuruUniversalRouteImport } from './routes/guru.universal'
+import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
 import { Route as ReadingIndexRouteImport } from './routes/reading.index'
 import { Route as ReadingIdRouteImport } from './routes/reading.$id'
@@ -482,6 +483,11 @@ const GuruUniversalRoute = GuruUniversalRouteImport.update({
   path: '/universal',
   getParentRoute: () => GuruRoute,
 } as any)
+const MessagesIndexRoute = MessagesIndexRouteImport.update({
+  id: '/messages/',
+  path: '/messages/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PlayIdRoute = PlayIdRouteImport.update({
   id: '/play/$id',
   path: '/play/$id',
@@ -618,6 +624,7 @@ export interface FileRoutesByFullPath {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
+  '/messages/': typeof MessagesIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
@@ -705,6 +712,7 @@ export interface FileRoutesByTo {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
   '/guru': typeof GuruIndexRoute
+  '/messages': typeof MessagesIndexRoute
   '/reading': typeof ReadingIndexRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
@@ -795,6 +803,7 @@ export interface FileRoutesById {
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
+  '/messages/': typeof MessagesIndexRoute
   '/reading/': typeof ReadingIndexRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
@@ -886,6 +895,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin/'
     | '/guru/'
+    | '/messages/'
     | '/reading/'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
@@ -973,6 +983,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin'
     | '/guru'
+    | '/messages'
     | '/reading'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
@@ -1062,6 +1073,7 @@ export interface FileRouteTypes {
     | '/wallet/history'
     | '/admin/'
     | '/guru/'
+    | '/messages/'
     | '/reading/'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
@@ -1108,6 +1120,7 @@ export interface RootRouteChildren {
   PlayIdRoute: typeof PlayIdRoute
   ReadingIdRoute: typeof ReadingIdRoute
   ResultIdRoute: typeof ResultIdRoute
+  MessagesIndexRoute: typeof MessagesIndexRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
   ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
   ApiPublicHooksPushConfigRoute: typeof ApiPublicHooksPushConfigRoute
@@ -1656,6 +1669,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuruUniversalRouteImport
       parentRoute: typeof GuruRoute
     }
+    '/messages/': {
+      id: '/messages/'
+      path: '/messages'
+      fullPath: '/messages/'
+      preLoaderRoute: typeof MessagesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/play/$id': {
       id: '/play/$id'
       path: '/play/$id'
@@ -1882,6 +1902,7 @@ const rootRouteChildren: RootRouteChildren = {
   PlayIdRoute: PlayIdRoute,
   ReadingIdRoute: ReadingIdRoute,
   ResultIdRoute: ResultIdRoute,
+  MessagesIndexRoute: MessagesIndexRoute,
   ReadingIndexRoute: ReadingIndexRoute,
   ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
   ApiPublicHooksPushConfigRoute: ApiPublicHooksPushConfigRoute,
