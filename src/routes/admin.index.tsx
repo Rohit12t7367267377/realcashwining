@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { FolderTree, HelpCircle, Trophy, Users } from "lucide-react";
+import { countQuestions } from "@/lib/admin-questions.functions";
+
 
 export const Route = createFileRoute("/admin/")({ component: Page });
 
@@ -11,14 +13,15 @@ function Page() {
   useEffect(() => {
     (async () => {
       const [c, q, ct, p] = await Promise.all([
-        supabase.from("categories").select("*", { count: "exact", head: true }),
-        supabase.from("questions").select("*", { count: "exact", head: true }),
-        supabase.from("contests").select("*", { count: "exact", head: true }),
-        supabase.from("profiles").select("*", { count: "exact", head: true }),
+        supabase.from("categories").select("id", { count: "exact", head: true }),
+        countQuestions().catch(() => ({ count: 0 })),
+        supabase.from("contests").select("id", { count: "exact", head: true }),
+        supabase.from("profiles").select("id", { count: "exact", head: true }),
       ]);
       setStats({ cats: c.count ?? 0, qs: q.count ?? 0, contests: ct.count ?? 0, users: p.count ?? 0 });
     })();
   }, []);
+
 
   const cards = [
     { label: "Categories", value: stats.cats, icon: FolderTree, color: "from-rose-500 to-pink-500" },

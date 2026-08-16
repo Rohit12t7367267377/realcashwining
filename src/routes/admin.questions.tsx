@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
-import { upsertQuestion, deleteQuestion } from "@/lib/admin-questions.functions";
+import { upsertQuestion, deleteQuestion, listQuestions } from "@/lib/admin-questions.functions";
 
 export const Route = createFileRoute("/admin/questions")({ component: Page });
 
@@ -36,14 +36,14 @@ function Page() {
   });
 
   async function load() {
-    const cQ = supabase.from("categories").select("id, name").order("sort_order");
-    const qQ = filter === "all"
-      ? supabase.from("questions").select("*").order("created_at", { ascending: false }).limit(200)
-      : supabase.from("questions").select("*").eq("category_id", filter).order("created_at", { ascending: false });
-    const [c, q] = await Promise.all([cQ, qQ]);
+    const [c, q] = await Promise.all([
+      supabase.from("categories").select("id, name").order("sort_order"),
+      listQuestions({ data: filter === "all" ? {} : { category_id: filter } }).catch(() => []),
+    ]);
     setCats((c.data ?? []) as Cat[]);
-    setRows((q.data ?? []) as Q[]);
+    setRows((q ?? []) as unknown as Q[]);
   }
+
   useEffect(() => { load(); }, [filter]);
 
   function openNew() {
