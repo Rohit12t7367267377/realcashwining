@@ -46,6 +46,10 @@ function Page() {
   const [genMatch, setGenMatch] = useState("");
   const [genCount, setGenCount] = useState(5);
   const [busy, setBusy] = useState(false);
+  const [newFee, setNewFee] = useState(0);
+  const [newPool, setNewPool] = useState(0);
+  const [newDuration, setNewDuration] = useState(10);
+
 
   const load = useCallback(async () => {
     try {
