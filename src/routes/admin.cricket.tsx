@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { RefreshCw, Radio, Sparkles, ShieldCheck, BookOpenCheck, Link2, Bot } from "lucide-react";
+import { RefreshCw, Radio, Sparkles, ShieldCheck, BookOpenCheck, Link2, Bot, Trophy } from "lucide-react";
 import {
   getSportsConfig,
   saveSportsConfig,
