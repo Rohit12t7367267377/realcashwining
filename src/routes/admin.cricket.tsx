@@ -24,7 +24,9 @@ import {
   approveQuizDrafts,
   rejectQuizDrafts,
   runSportsAutomationNow,
+  createContestFromMatch,
 } from "@/lib/admin-sports.functions";
+
 
 export const Route = createFileRoute("/admin/cricket")({ component: Page });
 
