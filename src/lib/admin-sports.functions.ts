@@ -257,3 +257,72 @@ export const runSportsAutomationNow = createServerFn({ method: "POST" })
     const { runSportsAutomation } = await import("@/lib/sports.server");
     return await runSportsAutomation();
   });
+
+/** Create a sports contest already linked to a live match, and draft its questions. */
+export const createContestFromMatch = createServerFn({ method: "POST" })
+  .middleware([requireAdminPassword])
+  .inputValidator((d) =>
+    z
+      .object({
+        match_id: z.string().uuid(),
+        category_id: z.string().uuid(),
+        entry_fee: z.number().min(0).max(10000).default(0),
+        prize_pool: z.number().min(0).max(1000000).default(0),
+        num_questions: z.number().int().min(1).max(25).default(5),
+        duration_minutes: z.number().int().min(1).max(180).default(10),
+        auto_quiz: z.boolean().default(true),
+        auto_result: z.boolean().default(true),
+        draft_now: z.boolean().default(true),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: match, error: mErr } = await supabaseAdmin
+      .from("cricket_matches")
+      .select("id, name, date_time")
+      .eq("id", data.match_id)
+      .single();
+    if (mErr || !match) throw new Error("Match not found — refresh the live feed first.");
+
+    const start = new Date();
+    const end = new Date(start.getTime() + data.duration_minutes * 60000 + 6 * 3600000);
+
+    const { data: contest, error } = await supabaseAdmin
+      .from("contests")
+      .insert({
+        title: `${match.name} — Live Quiz`,
+        category_id: data.category_id,
+        match_id: data.match_id,
+        entry_fee: data.entry_fee,
+        prize_pool: data.prize_pool,
+        first_prize: Math.round(data.prize_pool * 0.5),
+        num_questions: data.num_questions,
+        duration_minutes: data.duration_minutes,
+        contest_type: data.entry_fee > 0 ? "paid" : "free",
+        active: true,
+        max_participants: 10000,
+        starts_at: start.toISOString(),
+        ends_at: end.toISOString(),
+        auto_quiz: data.auto_quiz,
+        auto_result: data.auto_result,
+        review_required: true,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    let drafted = 0;
+    if (data.draft_now) {
+      const { generateMatchQuestionDrafts } = await import("@/lib/sports.server");
+      const r = await generateMatchQuestionDrafts({
+        matchId: data.match_id,
+        count: data.num_questions,
+        contestId: contest.id,
+        categoryId: data.category_id,
+        difficulty: "mixed",
+      });
+      drafted = r.drafted;
+    }
+    return { contest_id: contest.id, drafted };
+  });
