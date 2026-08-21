@@ -9,7 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { RefreshCw, Radio, Sparkles, ShieldCheck, BookOpenCheck, Link2, Bot } from "lucide-react";
+import { RefreshCw, Radio, Sparkles, ShieldCheck, BookOpenCheck, Link2, Bot, Trophy } from "lucide-react";
 import {
   getSportsConfig,
   saveSportsConfig,
@@ -24,7 +24,9 @@ import {
   approveQuizDrafts,
   rejectQuizDrafts,
   runSportsAutomationNow,
+  createContestFromMatch,
 } from "@/lib/admin-sports.functions";
+
 
 export const Route = createFileRoute("/admin/cricket")({ component: Page });
 
@@ -44,6 +46,10 @@ function Page() {
   const [genMatch, setGenMatch] = useState("");
   const [genCount, setGenCount] = useState(5);
   const [busy, setBusy] = useState(false);
+  const [newFee, setNewFee] = useState(0);
+  const [newPool, setNewPool] = useState(0);
+  const [newDuration, setNewDuration] = useState(10);
+
 
   const load = useCallback(async () => {
     try {
@@ -287,6 +293,51 @@ function Page() {
         </Card>
 
         <Card className="space-y-3 p-5">
+          <h2 className="flex items-center gap-2 font-semibold"><Trophy className="h-4 w-4" /> Create a contest from a live match</h2>
+          <p className="text-xs text-muted-foreground">
+            Creates a sports contest already linked to the selected match and drafts its questions for your review.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <div>
+              <Label>Entry fee ₹</Label>
+              <Input type="number" min={0} value={newFee} onChange={(e) => setNewFee(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label>Prize pool ₹</Label>
+              <Input type="number" min={0} value={newPool} onChange={(e) => setNewPool(Number(e.target.value))} />
+            </div>
+            <div>
+              <Label>Duration (min)</Label>
+              <Input type="number" min={1} value={newDuration} onChange={(e) => setNewDuration(Number(e.target.value))} />
+            </div>
+          </div>
+          <Button
+            disabled={busy || !genMatch || !approveCat}
+            onClick={() => act(async () => {
+              const r = await createContestFromMatch({
+                data: {
+                  match_id: genMatch,
+                  category_id: approveCat,
+                  entry_fee: newFee,
+                  prize_pool: newPool,
+                  num_questions: cfg?.questionsPerMatch ?? 5,
+                  duration_minutes: newDuration,
+                  auto_quiz: true,
+                  auto_result: true,
+                  draft_now: true,
+                },
+              });
+              return `Contest created · ${r.drafted} question(s) drafted for review`;
+            })}
+          >
+            <Trophy className="mr-1 h-4 w-4" /> Create contest for selected match
+          </Button>
+          <p className="text-xs text-muted-foreground">
+            Uses the match picked above and the category selected in the review queue.
+          </p>
+        </Card>
+
+        <Card className="space-y-3 p-5">
           <h2 className="flex items-center gap-2 font-semibold"><Link2 className="h-4 w-4" /> Link contests to a live match</h2>
           <p className="text-xs text-muted-foreground">
             A linked contest can draft questions from that match and its results wait for the official match result.
@@ -304,8 +355,14 @@ function Page() {
                 })}
               />
             ))}
+            {!contests.length && (
+              <div className="text-sm text-muted-foreground">
+                No contests exist yet — create one above (or in Contests admin) before you can link a match.
+              </div>
+            )}
           </div>
         </Card>
+
 
         <Card className="p-5">
           <h2 className="mb-3 font-semibold">Live matches</h2>
