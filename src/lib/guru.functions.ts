@@ -364,7 +364,16 @@ export const guruAsk = createServerFn({ method: "POST" })
 
     let reply: string;
     let provider = "offline";
+    let usedSources: Array<{ id: string; title: string }> = [];
     try {
+      const { retrieveGuruContext, formatSources } = await import("@/lib/guru-rag.server");
+      const passages = await retrieveGuruContext(supabase as never, {
+        query: data.question,
+        topicId: data.topic_id ?? null,
+        scope: data.scope === "universal" ? null : data.scope,
+        limit: 5,
+      });
+      usedSources = passages.map((p) => ({ id: p.id, title: p.title }));
       const out = await guruTeach({
         intent: data.intent,
         question: data.question,
@@ -374,6 +383,7 @@ export const guruAsk = createServerFn({ method: "POST" })
         board: breadcrumb.board ?? null,
         className: breadcrumb.className ?? null,
         subject: breadcrumb.subject ?? null,
+        sources: formatSources(passages) || null,
       });
       reply = out.content;
       provider = out.provider;
@@ -381,6 +391,7 @@ export const guruAsk = createServerFn({ method: "POST" })
       reply = e instanceof Error ? e.message : "Guru.AI could not answer right now. Please try again.";
       provider = "error";
     }
+
 
     const { data: saved } = await supabase
       .from("guru_ai_messages")
