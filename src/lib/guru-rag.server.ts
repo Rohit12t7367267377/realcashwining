@@ -141,7 +141,9 @@ export async function indexGuruSource(input: IndexSourceInput): Promise<number> 
 
   const del = supabaseAdmin.from("guru_ai_sources" as never).delete();
   if (input.lesson_id) await del.eq("lesson_id", input.lesson_id);
-  else await del.eq("title", input.title).eq("topic_id", input.topic_id ?? null);
+  else if (input.topic_id) await del.eq("title", input.title).eq("topic_id", input.topic_id);
+  else await del.eq("title", input.title).is("topic_id", null);
+
 
   let vectors: number[][] = [];
   try {
