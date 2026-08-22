@@ -4,7 +4,26 @@
 let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
 
+/**
+ * A client that disconnects mid-request (navigation, refresh, cancelled fetch)
+ * makes Node emit `Error: aborted` from `abortIncoming`. It is not an app bug,
+ * so it must never be recorded or surfaced as a runtime error.
+ */
+export function isBenignAbortError(error: unknown): boolean {
+  const name = (error as { name?: string } | null)?.name ?? "";
+  const message = (error as { message?: string } | null)?.message ?? "";
+  const code = (error as { code?: string } | null)?.code ?? "";
+  return (
+    name === "AbortError" ||
+    code === "ECONNRESET" ||
+    code === "ERR_STREAM_PREMATURE_CLOSE" ||
+    /^aborted$/i.test(message.trim()) ||
+    /aborted|socket hang up|premature close|request aborted/i.test(message)
+  );
+}
+
 function record(error: unknown) {
+  if (isBenignAbortError(error)) return;
   lastCapturedError = { error, at: Date.now() };
 }
 
@@ -14,6 +33,7 @@ if (typeof globalThis.addEventListener === "function") {
     record((event as PromiseRejectionEvent).reason),
   );
 }
+
 
 export function consumeLastCapturedError(): unknown {
   if (!lastCapturedError) return undefined;
