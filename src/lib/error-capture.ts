@@ -43,7 +43,7 @@ if (proc && typeof proc.on === "function" && !(proc as unknown as { __lovableAbo
   proc.on("uncaughtException", (error: unknown) => {
     if (isBenignAbortError(error)) return;
     record(error);
-    throw error;
+    console.error(error);
   });
   proc.on("unhandledRejection", (reason: unknown) => {
     if (isBenignAbortError(reason)) return;
