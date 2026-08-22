@@ -278,7 +278,86 @@ function AdminAiPage() {
   );
 }
 
+function GuruKnowledgeCard() {
+  const qc = useQueryClient();
+  const stats = useServerFn(guruRagStats);
+  const indexLessons = useServerFn(guruIndexLessons);
+  const addSource = useServerFn(guruAddSource);
+
+  const { data } = useQuery({ queryKey: ["guru-rag-stats"], queryFn: () => stats() });
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+
+  const indexMut = useMutation({
+    mutationFn: () => indexLessons({ data: { limit: 10 } }),
+    onSuccess: (r) => {
+      toast.success(`Indexed ${r.documents} lessons into ${r.chunks} searchable pieces`);
+      if (r.failures.length) toast.error(r.failures[0]!);
+      qc.invalidateQueries({ queryKey: ["guru-rag-stats"] });
+    },
+    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Indexing failed"),
+  });
+
+  const addMut = useMutation({
+    mutationFn: () => addSource({ data: { title: title.trim(), content: body.trim(), scope: "library" as const, language: "en" as const } }),
+    onSuccess: (r) => {
+      toast.success(`Added ${r.chunks} searchable pieces`);
+      setTitle("");
+      setBody("");
+      qc.invalidateQueries({ queryKey: ["guru-rag-stats"] });
+    },
+    onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Could not add document"),
+  });
+
+  return (
+    <Card className="mt-4 space-y-4 p-5">
+      <div className="flex items-center gap-2">
+        <Library className="h-4 w-4 text-primary" />
+        <h2 className="text-base font-bold">Guru.AI Knowledge Library</h2>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Guru.AI searches this library before answering, so students get answers grounded in your own study material
+        instead of generic AI knowledge.
+      </p>
+      <div className="grid grid-cols-3 gap-2 text-center">
+        {[
+          { label: "Pieces", value: data?.chunks ?? 0 },
+          { label: "Searchable", value: data?.embedded ?? 0 },
+          { label: "Lessons", value: data?.lessons ?? 0 },
+        ].map((s) => (
+          <div key={s.label} className="rounded-xl bg-muted p-3">
+            <div className="text-lg font-black">{s.value}</div>
+            <div className="text-[11px] text-muted-foreground">{s.label}</div>
+          </div>
+        ))}
+      </div>
+      <Button onClick={() => indexMut.mutate()} disabled={indexMut.isPending} variant="secondary">
+        {indexMut.isPending ? "Indexing lessons…" : "Index latest lessons"}
+      </Button>
+
+      <div className="space-y-2 border-t pt-4">
+        <Label>Add a study document</Label>
+        <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Document title" />
+        <Textarea
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          rows={5}
+          placeholder="Paste notes, syllabus or reference material Guru.AI should learn from…"
+        />
+        <Button
+          onClick={() => addMut.mutate()}
+          disabled={addMut.isPending || title.trim().length < 2 || body.trim().length < 20}
+          className="bg-gradient-primary"
+        >
+          {addMut.isPending ? "Saving…" : "Add to knowledge library"}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 function Row({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="min-w-0">
