@@ -79,7 +79,10 @@ export type TeachContext = {
   board?: string | null;
   className?: string | null;
   subject?: string | null;
+  /** Retrieved knowledge passages (RAG) to ground the answer. */
+  sources?: string | null;
 };
+
 
 const INTENT_DIRECTIVE: Record<TeachContext["intent"], string> = {
   learn: "Teach the topic from the very beginning, in small numbered steps, with everyday examples. End by asking whether the student understood.",
