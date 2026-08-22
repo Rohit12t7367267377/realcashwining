@@ -364,7 +364,16 @@ export const guruAsk = createServerFn({ method: "POST" })
 
     let reply: string;
     let provider = "offline";
+    let usedSources: Array<{ id: string; title: string }> = [];
     try {
+      const { retrieveGuruContext, formatSources } = await import("@/lib/guru-rag.server");
+      const passages = await retrieveGuruContext(supabase as never, {
+        query: data.question,
+        topicId: data.topic_id ?? null,
+        scope: data.scope === "universal" ? null : data.scope,
+        limit: 5,
+      });
+      usedSources = passages.map((p) => ({ id: p.id, title: p.title }));
       const out = await guruTeach({
         intent: data.intent,
         question: data.question,
@@ -374,6 +383,7 @@ export const guruAsk = createServerFn({ method: "POST" })
         board: breadcrumb.board ?? null,
         className: breadcrumb.className ?? null,
         subject: breadcrumb.subject ?? null,
+        sources: formatSources(passages) || null,
       });
       reply = out.content;
       provider = out.provider;
@@ -382,13 +392,21 @@ export const guruAsk = createServerFn({ method: "POST" })
       provider = "error";
     }
 
+
     const { data: saved } = await supabase
       .from("guru_ai_messages")
-      .insert({ user_id: userId, session_id: sessionId, role: "assistant", content: reply, meta: { provider } })
+      .insert({
+        user_id: userId,
+        session_id: sessionId,
+        role: "assistant",
+        content: reply,
+        meta: { provider, sources: usedSources },
+      })
       .select("id, content, role, created_at")
       .maybeSingle();
 
-    return { session_id: sessionId, reply, provider, message_id: saved?.id ?? null };
+    return { session_id: sessionId, reply, provider, sources: usedSources, message_id: saved?.id ?? null };
+
   });
 
 export const listGuruMessages = createServerFn({ method: "GET" })

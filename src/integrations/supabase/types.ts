@@ -1112,6 +1112,81 @@ export type Database = {
           },
         ]
       }
+      guru_ai_sources: {
+        Row: {
+          active: boolean
+          board: string | null
+          class_name: string | null
+          content: string
+          created_at: string
+          embedding: string | null
+          id: string
+          kind: string
+          language: string
+          lesson_id: string | null
+          metadata: Json
+          model_version: string | null
+          scope: string
+          subject: string | null
+          title: string
+          topic_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          board?: string | null
+          class_name?: string | null
+          content: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          kind?: string
+          language?: string
+          lesson_id?: string | null
+          metadata?: Json
+          model_version?: string | null
+          scope?: string
+          subject?: string | null
+          title: string
+          topic_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          board?: string | null
+          class_name?: string | null
+          content?: string
+          created_at?: string
+          embedding?: string | null
+          id?: string
+          kind?: string
+          language?: string
+          lesson_id?: string | null
+          metadata?: Json
+          model_version?: string | null
+          scope?: string
+          subject?: string | null
+          title?: string
+          topic_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_ai_sources_lesson_id_fkey"
+            columns: ["lesson_id"]
+            isOneToOne: false
+            referencedRelation: "guru_lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guru_ai_sources_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "guru_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guru_badges: {
         Row: {
           active: boolean
@@ -3410,6 +3485,23 @@ export type Database = {
           charged: number
         }[]
       }
+      match_guru_sources: {
+        Args: {
+          _scope?: string
+          _topic_id?: string
+          match_count?: number
+          query_embedding: string
+        }
+        Returns: {
+          content: string
+          id: string
+          kind: string
+          scope: string
+          similarity: number
+          title: string
+          topic_id: string
+        }[]
+      }
       open_reward_box: {
         Args: { _box_id: string }
         Returns: {
@@ -3440,6 +3532,23 @@ export type Database = {
         }[]
       }
       refresh_user_missions: { Args: { _user_id?: string }; Returns: number }
+      search_guru_sources: {
+        Args: {
+          _query: string
+          _scope?: string
+          _topic_id?: string
+          match_count?: number
+        }
+        Returns: {
+          content: string
+          id: string
+          kind: string
+          scope: string
+          similarity: number
+          title: string
+          topic_id: string
+        }[]
+      }
       submit_reading_attempt: {
         Args: {
           _answers: Json

@@ -1,0 +1,1 @@
+alter function public.match_guru_sources(extensions.vector, int, uuid, text) set search_path = public, extensions;

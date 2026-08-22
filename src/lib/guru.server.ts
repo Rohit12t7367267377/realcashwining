@@ -79,7 +79,10 @@ export type TeachContext = {
   board?: string | null;
   className?: string | null;
   subject?: string | null;
+  /** Retrieved knowledge passages (RAG) to ground the answer. */
+  sources?: string | null;
 };
+
 
 const INTENT_DIRECTIVE: Record<TeachContext["intent"], string> = {
   learn: "Teach the topic from the very beginning, in small numbered steps, with everyday examples. End by asking whether the student understood.",
@@ -101,6 +104,9 @@ export function buildTeachMessages(ctx: TeachContext) {
     ? `Current topic: ${ctx.topic.title}. Learning objectives: ${(ctx.topic.objectives || []).join("; ") || "n/a"}. Lesson notes: ${(ctx.topic.lesson || "").slice(0, 4000)}`
     : "No specific school topic is open; answer as a universal tutor.";
   const lang = ctx.language === "hi" ? "Reply in simple Hindi (Devanagari)." : "Reply in simple English.";
+  const retrieved = ctx.sources
+    ? `Retrieved study material from the Guru.AI knowledge library. Base your answer on it and prefer it over your own memory. Cite it naturally (e.g. "as your lesson says"); if it does not cover the question, say so briefly and then answer generally.\n\n${ctx.sources}`
+    : "";
   return [
     {
       role: "system" as const,
@@ -108,10 +114,12 @@ export function buildTeachMessages(ctx: TeachContext) {
         persona,
         level ? `Student context: ${level}. Never assume knowledge above this level.` : "",
         topic,
+        retrieved,
         INTENT_DIRECTIVE[ctx.intent],
         lang,
         "Keep answers under 400 words unless asked for more. Use short paragraphs and bullet points.",
       ]
+
         .filter(Boolean)
         .join("\n\n"),
     },
