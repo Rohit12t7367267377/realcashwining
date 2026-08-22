@@ -33,7 +33,7 @@ export const speakAnswer = createServerFn({ method: "POST" })
         },
         { role: "user", content: data.question },
       ],
-      { temperature: 0.6 },
+      { temperature: 0.6, model: "google/gemini-3.7-flash" },
     );
 
     const audio = await synthesizeSpeech(answer, data.voiceId);
