@@ -395,11 +395,18 @@ export const guruAsk = createServerFn({ method: "POST" })
 
     const { data: saved } = await supabase
       .from("guru_ai_messages")
-      .insert({ user_id: userId, session_id: sessionId, role: "assistant", content: reply, meta: { provider } })
+      .insert({
+        user_id: userId,
+        session_id: sessionId,
+        role: "assistant",
+        content: reply,
+        meta: { provider, sources: usedSources },
+      })
       .select("id, content, role, created_at")
       .maybeSingle();
 
-    return { session_id: sessionId, reply, provider, message_id: saved?.id ?? null };
+    return { session_id: sessionId, reply, provider, sources: usedSources, message_id: saved?.id ?? null };
+
   });
 
 export const listGuruMessages = createServerFn({ method: "GET" })
