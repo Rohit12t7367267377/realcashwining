@@ -48,7 +48,7 @@ function GuruSkillsPage() {
           scope: "skills",
         },
       }),
-    onSuccess: (r) => setLesson(r.content),
+    onSuccess: (r) => setLesson(r.reply),
   });
 
   const challenge = useMutation({
