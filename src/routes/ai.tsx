@@ -10,7 +10,7 @@ import { getMyContestStats } from "@/lib/stats.functions";
 import { useUser } from "@/lib/user-store";
 import {
   Sparkles, Send, Trash2, Bot, User as UserIcon, GraduationCap, HelpCircle,
-  ListChecks, BookOpen, Code2, Briefcase, CalendarClock, LineChart,
+  ListChecks, BookOpen, Code2, Briefcase, CalendarClock, LineChart, ArrowRight,
 } from "lucide-react";
 import { VoiceAssistant } from "@/components/VoiceAssistant";
 import { LibrarySection } from "@/components/LibrarySection";
@@ -122,6 +122,12 @@ function AiHubPage() {
         </div>
         <h1 className="mt-1 text-2xl font-black">Guru.AI — your personal coach</h1>
         <p className="mt-1 text-sm opacity-90">Tutor, doubt solver, library, voice and analyst — English या हिन्दी.</p>
+        <Link
+          to="/guru"
+          className="press mt-4 inline-flex items-center gap-2 rounded-xl bg-primary-foreground px-3 py-2 text-xs font-black text-primary shadow-soft"
+        >
+          Open all Guru.AI sections <ArrowRight className="h-4 w-4" />
+        </Link>
       </section>
 
       {/* Tools */}
