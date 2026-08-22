@@ -17,8 +17,10 @@ import {
   readAiSettingsAdmin,
   listAllCategories,
 } from "@/lib/admin-ai.functions";
+import { guruRagStats, guruIndexLessons, guruAddSource } from "@/lib/guru-rag.functions";
 import { toast } from "sonner";
-import { Sparkles, Wand2, BookOpen } from "lucide-react";
+import { Sparkles, Wand2, BookOpen, Library } from "lucide-react";
+
 
 
 export const Route = createFileRoute("/admin/ai")({
