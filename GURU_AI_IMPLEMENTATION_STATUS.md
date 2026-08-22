@@ -24,6 +24,13 @@ first version (Phase 7/6) are in place.
   (Learn / Explain simply / Revise), 5-question AI assessment with XP award.
 - **Phase 9 (v1)** — `guru.library.tsx`: book search, chapters, jump into topics.
 - **Phase 10 (v1)** — `guru.universal.tsx` universal AI chat.
+- **Phase 11** — RAG retrieval (`guru_ai_sources`, `guru-rag.server.ts`,
+  admin Knowledge Library card) grounding tutor answers.
+- **Phase 12** — web search abstraction (`guru-extras.server.ts`: Tavily/Serper,
+  unverified fallback) + "Web search" mode in Universal AI with citations.
+- **Phase 13** — photo/image doubt solving (vision model) in Universal AI.
+- **Phase 14 (v1)** — voice: browser speech-to-text input + "Listen" TTS on every
+  answer (`guruSpeak`).
 - **Phase 15 (v1)** — `guru.galaxy.tsx`: each subject is a planet whose glow is
   the student's mastery; empty/loading/error states.
 - **Phase 16 (v1)** — `guru.progress.tsx` strong/weak topics.
@@ -49,10 +56,9 @@ first version (Phase 7/6) are in place.
   with a safe offline fallback when no key is present.
 
 ## Integrations still required
-- Embeddings + vector store (Phase 11 RAG)
-- Web search provider (Phase 12)
-- Vision provider for image doubts (Phase 13)
-- STT/TTS provider abstraction for voice tutor (Phase 14)
+- Optional live search key (TAVILY_API_KEY or SERPER_API_KEY) to make web
+  answers verified instead of AI-knowledge-only.
+- Server-side speech-to-text provider (currently browser Web Speech API).
 
 ## Known issues
 - Skills tracks are a code catalogue (`src/lib/guru-hub.ts`), not yet admin-managed
@@ -62,12 +68,11 @@ first version (Phase 7/6) are in place.
 - No Guru.AI Admin Center routes yet (Phase 17).
 
 ## NEXT ACTION
-Phase 11 — RAG/knowledge retrieval: add `guru_content_chunks` (with embeddings +
-board/class/subject/chapter/topic metadata), an EmbeddingProvider abstraction in
-`src/lib/guru-rag.server.ts`, chunk-and-embed on lesson save, and retrieval
-injected into `guruTeach` before generation.
+Phase 7 — full Competition Hub tables (`guru_competitive_exams`, `guru_exam_years`,
+`guru_exam_subjects`, `guru_exam_topics`, `guru_mock_tests`, `guru_competitions`)
+with mock tests and exam-wise leaderboards.
 
 ## REMAINING TASKS
-Phase 11 RAG → Phase 12 web search → Phase 13 image doubt → Phase 14 voice AI →
-Phase 7 full Competition Hub tables (exams/years/subjects/mock tests) →
-Phase 8 admin-managed skill tables → Phase 17 Guru.AI Admin Center.
+Phase 7 Competition Hub tables → Phase 8 admin-managed skill tables
+(`guru_skill_*`) → Phase 9 full Library (books/chapters/reading progress/notes)
+→ Phase 17 Guru.AI Admin Center routes.
