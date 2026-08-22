@@ -34,6 +34,23 @@ if (typeof globalThis.addEventListener === "function") {
   );
 }
 
+// Node dev server: client disconnects surface as a process-level `Error: aborted`
+// from abortIncoming(), which never reaches the addEventListener hooks above.
+// Swallow those so they don't crash the request or show a blank error page.
+const proc = (globalThis as { process?: NodeJS.Process }).process;
+if (proc && typeof proc.on === "function" && !(proc as unknown as { __lovableAbortGuard?: boolean }).__lovableAbortGuard) {
+  (proc as unknown as { __lovableAbortGuard?: boolean }).__lovableAbortGuard = true;
+  proc.on("uncaughtException", (error: unknown) => {
+    if (isBenignAbortError(error)) return;
+    record(error);
+    throw error;
+  });
+  proc.on("unhandledRejection", (reason: unknown) => {
+    if (isBenignAbortError(reason)) return;
+    record(reason);
+  });
+}
+
 
 export function consumeLastCapturedError(): unknown {
   if (!lastCapturedError) return undefined;
