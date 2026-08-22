@@ -26,11 +26,11 @@ export const Route = createFileRoute("/guru/")({
 
 const SECTIONS = [
   { to: "/guru/school", label: "School", sub: "Board, class & chapters", icon: GraduationCap, ready: true },
-  { to: "/guru/school", label: "Competition Hub", sub: "Coming soon", icon: Trophy, ready: false },
-  { to: "/guru/school", label: "Skills", sub: "Coming soon", icon: Wrench, ready: false },
-  { to: "/ai", label: "Library", sub: "Books & reading", icon: Library, ready: true },
+  { to: "/guru/competitions", label: "Competition Hub", sub: "Contests & challenges", icon: Trophy, ready: true },
+  { to: "/guru/skills", label: "Skills", sub: "Roadmaps & assessments", icon: Wrench, ready: true },
+  { to: "/guru/library", label: "Library", sub: "Books & reading", icon: Library, ready: true },
   { to: "/guru/universal", label: "Universal AI", sub: "Ask anything", icon: Sparkles, ready: true },
-  { to: "/guru/school", label: "Galaxy Classroom", sub: "Coming soon", icon: Orbit, ready: false },
+  { to: "/guru/galaxy", label: "Galaxy Classroom", sub: "Subjects as planets", icon: Orbit, ready: true },
   { to: "/guru/characters", label: "My AI Character", sub: "Pick your teacher", icon: UserRound, ready: true },
   { to: "/guru/progress", label: "My Learning", sub: "Strong & weak topics", icon: LineChart, ready: true },
   { to: "/guru/achievements", label: "Achievements", sub: "Badges & milestones", icon: Medal, ready: true },
