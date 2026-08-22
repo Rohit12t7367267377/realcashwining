@@ -272,7 +272,9 @@ function AdminAiPage() {
         </Card>
       </div>
 
+      <GuruKnowledgeCard />
     </AdminShell>
+
   );
 }
 
