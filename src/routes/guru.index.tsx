@@ -7,7 +7,7 @@ import { useUser } from "@/lib/user-store";
 import { getGuruDashboard, setGuruLanguage } from "@/lib/guru.functions";
 import {
   GraduationCap, Trophy, Wrench, Library, Sparkles, Orbit, UserRound,
-  LineChart, Medal, Flame, Star, Languages,
+  LineChart, Medal, Flame, Star, Languages, NotebookPen,
 } from "lucide-react";
 
 export const Route = createFileRoute("/guru/")({
@@ -25,6 +25,7 @@ export const Route = createFileRoute("/guru/")({
 });
 
 const SECTIONS = [
+  { to: "/guru/notes", label: "Class Notes 1–12", sub: "Any board, any subject", icon: NotebookPen, ready: true },
   { to: "/guru/school", label: "School", sub: "Board, class & chapters", icon: GraduationCap, ready: true },
   { to: "/guru/competitions", label: "Competition Hub", sub: "Contests & challenges", icon: Trophy, ready: true },
   { to: "/guru/skills", label: "Skills", sub: "Roadmaps & assessments", icon: Wrench, ready: true },
