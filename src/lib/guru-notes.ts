@@ -60,10 +60,58 @@ export function gradientFor(seed: string) {
 export type NotesPayload = {
   title: string;
   intro: string;
+  /** "Explain simply" version of the topic. */
+  simple: string;
   keyPoints: string[];
+  importantPoints: string[];
   sections: { heading: string; body: string }[];
   formulas: string[];
   examples: { question: string; solution: string }[];
+  practice: { question: string; answer: string }[];
+  revision: string[];
   examTips: string[];
   nextTopics: string[];
 };
+
+export type QuizItem = {
+  question: string;
+  options: string[];
+  answerIndex: number;
+  explanation: string;
+};
+
+/** Local progress tracking per topic (board/class/subject/topic). */
+export type TopicProgress = { opened: boolean; quizScore: number | null; revised: boolean };
+
+const PROGRESS_KEY = "guru-school-progress";
+
+function progressId(p: { board: string; className: string; subject: string; topic: string }) {
+  return [p.board, p.className, p.subject, p.topic].join("|").toLowerCase();
+}
+
+export function readProgress(): Record<string, TopicProgress> {
+  if (typeof window === "undefined") return {};
+  try {
+    return JSON.parse(window.localStorage.getItem(PROGRESS_KEY) ?? "{}") as Record<string, TopicProgress>;
+  } catch {
+    return {};
+  }
+}
+
+export function saveProgress(
+  key: { board: string; className: string; subject: string; topic: string },
+  patch: Partial<TopicProgress>,
+) {
+  if (typeof window === "undefined") return;
+  const all = readProgress();
+  const id = progressId(key);
+  all[id] = { opened: true, quizScore: null, revised: false, ...(all[id] ?? {}), ...patch };
+  window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
+}
+
+export function getProgress(
+  all: Record<string, TopicProgress>,
+  key: { board: string; className: string; subject: string; topic: string },
+): TopicProgress | null {
+  return all[progressId(key)] ?? null;
+}
