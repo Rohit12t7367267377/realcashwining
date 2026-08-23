@@ -80,6 +80,7 @@ import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
 import { Route as GuruIndexRouteImport } from './routes/guru.index'
 import { Route as GuruAchievementsRouteImport } from './routes/guru.achievements'
+import { Route as GuruAskRouteImport } from './routes/guru.ask'
 import { Route as GuruCharactersRouteImport } from './routes/guru.characters'
 import { Route as GuruCompetitionsRouteImport } from './routes/guru.competitions'
 import { Route as GuruGalaxyRouteImport } from './routes/guru.galaxy'
@@ -457,6 +458,11 @@ const GuruAchievementsRoute = GuruAchievementsRouteImport.update({
   path: '/achievements',
   getParentRoute: () => GuruRoute,
 } as any)
+const GuruAskRoute = GuruAskRouteImport.update({
+  id: '/ask',
+  path: '/ask',
+  getParentRoute: () => GuruRoute,
+} as any)
 const GuruCharactersRoute = GuruCharactersRouteImport.update({
   id: '/characters',
   path: '/characters',
@@ -636,6 +642,7 @@ export interface FileRoutesByFullPath {
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
+  '/guru/ask': typeof GuruAskRoute
   '/guru/characters': typeof GuruCharactersRoute
   '/guru/competitions': typeof GuruCompetitionsRoute
   '/guru/galaxy': typeof GuruGalaxyRoute
@@ -728,6 +735,7 @@ export interface FileRoutesByTo {
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
+  '/guru/ask': typeof GuruAskRoute
   '/guru/characters': typeof GuruCharactersRoute
   '/guru/competitions': typeof GuruCompetitionsRoute
   '/guru/galaxy': typeof GuruGalaxyRoute
@@ -823,6 +831,7 @@ export interface FileRoutesById {
   '/contest/$id': typeof ContestIdRoute
   '/cricket_/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
+  '/guru/ask': typeof GuruAskRoute
   '/guru/characters': typeof GuruCharactersRoute
   '/guru/competitions': typeof GuruCompetitionsRoute
   '/guru/galaxy': typeof GuruGalaxyRoute
@@ -919,6 +928,7 @@ export interface FileRouteTypes {
     | '/contest/$id'
     | '/cricket/$id'
     | '/guru/achievements'
+    | '/guru/ask'
     | '/guru/characters'
     | '/guru/competitions'
     | '/guru/galaxy'
@@ -1011,6 +1021,7 @@ export interface FileRouteTypes {
     | '/contest/$id'
     | '/cricket/$id'
     | '/guru/achievements'
+    | '/guru/ask'
     | '/guru/characters'
     | '/guru/competitions'
     | '/guru/galaxy'
@@ -1105,6 +1116,7 @@ export interface FileRouteTypes {
     | '/contest/$id'
     | '/cricket_/$id'
     | '/guru/achievements'
+    | '/guru/ask'
     | '/guru/characters'
     | '/guru/competitions'
     | '/guru/galaxy'
@@ -1676,6 +1688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuruAchievementsRouteImport
       parentRoute: typeof GuruRoute
     }
+    '/guru/ask': {
+      id: '/guru/ask'
+      path: '/ask'
+      fullPath: '/guru/ask'
+      preLoaderRoute: typeof GuruAskRouteImport
+      parentRoute: typeof GuruRoute
+    }
     '/guru/characters': {
       id: '/guru/characters'
       path: '/characters'
@@ -1906,6 +1925,7 @@ const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
 interface GuruRouteChildren {
   GuruAchievementsRoute: typeof GuruAchievementsRoute
+  GuruAskRoute: typeof GuruAskRoute
   GuruCharactersRoute: typeof GuruCharactersRoute
   GuruCompetitionsRoute: typeof GuruCompetitionsRoute
   GuruGalaxyRoute: typeof GuruGalaxyRoute
@@ -1921,6 +1941,7 @@ interface GuruRouteChildren {
 
 const GuruRouteChildren: GuruRouteChildren = {
   GuruAchievementsRoute: GuruAchievementsRoute,
+  GuruAskRoute: GuruAskRoute,
   GuruCharactersRoute: GuruCharactersRoute,
   GuruCompetitionsRoute: GuruCompetitionsRoute,
   GuruGalaxyRoute: GuruGalaxyRoute,
