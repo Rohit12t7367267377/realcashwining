@@ -7,7 +7,7 @@ import { useUser } from "@/lib/user-store";
 import { getGuruDashboard, setGuruLanguage } from "@/lib/guru.functions";
 import {
   GraduationCap, Trophy, Wrench, Library, Sparkles, Orbit, UserRound,
-  LineChart, Medal, Flame, Star, Languages, NotebookPen,
+  LineChart, Medal, Flame, Star, Languages, NotebookPen, ImagePlus,
 } from "lucide-react";
 
 export const Route = createFileRoute("/guru/")({
