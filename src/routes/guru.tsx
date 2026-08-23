@@ -10,6 +10,7 @@ function GuruLayout() {
   return (
     <>
       <Outlet />
+      <GuruBoardDock />
       <GuruVoiceDock />
     </>
   );
