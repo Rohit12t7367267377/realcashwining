@@ -78,6 +78,26 @@ export function GuruBoardDock() {
     }
   }
 
+  function run(e: React.FormEvent) {
+    e.preventDefault();
+    void teachTopic(topic);
+  }
+
+  /** Any Guru.AI screen can start a board lesson: window.dispatchEvent(new CustomEvent("guru:teach", { detail: { topic } })) */
+  useEffect(() => {
+    function onTeach(ev: Event) {
+      const t = (ev as CustomEvent<{ topic?: string }>).detail?.topic;
+      if (!t) return;
+      setOpen(true);
+      setTopic(t);
+      void teachTopic(t);
+    }
+    window.addEventListener("guru:teach", onTeach);
+    return () => window.removeEventListener("guru:teach", onTeach);
+  });
+
+
+
   if (!open) {
     return (
       <button
