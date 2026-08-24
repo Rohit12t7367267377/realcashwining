@@ -48,9 +48,8 @@ export function GuruBoardDock() {
     }
   }
 
-  async function run(e: React.FormEvent) {
-    e.preventDefault();
-    const t = topic.trim();
+  async function teachTopic(raw: string) {
+    const t = raw.trim();
     if (!t || busy) return;
     stopAll();
     stopRef.current = false;
