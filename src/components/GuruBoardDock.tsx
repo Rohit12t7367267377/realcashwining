@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,9 +48,8 @@ export function GuruBoardDock() {
     }
   }
 
-  async function run(e: React.FormEvent) {
-    e.preventDefault();
-    const t = topic.trim();
+  async function teachTopic(raw: string) {
+    const t = raw.trim();
     if (!t || busy) return;
     stopAll();
     stopRef.current = false;
@@ -78,6 +77,26 @@ export function GuruBoardDock() {
       setBusy(false);
     }
   }
+
+  function run(e: React.FormEvent) {
+    e.preventDefault();
+    void teachTopic(topic);
+  }
+
+  /** Any Guru.AI screen can start a board lesson: window.dispatchEvent(new CustomEvent("guru:teach", { detail: { topic } })) */
+  useEffect(() => {
+    function onTeach(ev: Event) {
+      const t = (ev as CustomEvent<{ topic?: string }>).detail?.topic;
+      if (!t) return;
+      setOpen(true);
+      setTopic(t);
+      void teachTopic(t);
+    }
+    window.addEventListener("guru:teach", onTeach);
+    return () => window.removeEventListener("guru:teach", onTeach);
+  });
+
+
 
   if (!open) {
     return (

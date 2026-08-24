@@ -105,7 +105,8 @@ export function saveProgress(
   if (typeof window === "undefined") return;
   const all = readProgress();
   const id = progressId(key);
-  all[id] = { opened: true, quizScore: null, revised: false, ...(all[id] ?? {}), ...patch };
+  const base: TopicProgress = all[id] ?? { opened: true, quizScore: null, revised: false };
+  all[id] = { ...base, ...patch };
   window.localStorage.setItem(PROGRESS_KEY, JSON.stringify(all));
 }
 

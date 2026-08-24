@@ -1,7 +1,13 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { buildClassNotes, answerNotesDoubt, suggestChapterList } from "@/lib/guru-notes.server";
+import {
+  buildClassNotes,
+  answerNotesDoubt,
+  suggestChapterList,
+  suggestTopicList,
+  buildTopicQuiz,
+} from "@/lib/guru-notes.server";
 
 const scope = {
   board: z.string().trim().min(1).max(60),
@@ -16,11 +22,23 @@ export const listNotesChapters = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object(scope).parse(d))
   .handler(async ({ data }) => suggestChapterList(data));
 
+/** Topics inside one chapter. */
+export const listNotesTopics = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ ...scope, chapter: z.string().trim().min(2).max(160) }).parse(d))
+  .handler(async ({ data }) => suggestTopicList(data));
+
 /** Full teacher-style notes for one topic. */
 export const getClassNotes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ ...scope, topic: z.string().trim().min(2).max(160) }).parse(d))
   .handler(async ({ data }) => buildClassNotes(data));
+
+/** 5-question MCQ quiz for the topic. */
+export const getTopicQuiz = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ ...scope, topic: z.string().trim().min(2).max(160) }).parse(d))
+  .handler(async ({ data }) => buildTopicQuiz(data));
 
 /** Ask a doubt about the current notes topic; answered like a patient teacher. */
 export const askNotesDoubt = createServerFn({ method: "POST" })
