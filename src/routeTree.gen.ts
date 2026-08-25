@@ -48,6 +48,7 @@ import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminBooksRouteImport } from './routes/admin.books'
 import { Route as AdminBroadcastsRouteImport } from './routes/admin.broadcasts'
+import { Route as AdminCatalogRouteImport } from './routes/admin.catalog'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCommentsRouteImport } from './routes/admin.comments'
 import { Route as AdminCommunityRouteImport } from './routes/admin.community'
@@ -300,6 +301,11 @@ const AdminBooksRoute = AdminBooksRouteImport.update({
 const AdminBroadcastsRoute = AdminBroadcastsRouteImport.update({
   id: '/broadcasts',
   path: '/broadcasts',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminCatalogRoute = AdminCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
@@ -635,6 +641,7 @@ export interface FileRoutesByFullPath {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
+  '/admin/catalog': typeof AdminCatalogRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/community': typeof AdminCommunityRoute
@@ -732,6 +739,7 @@ export interface FileRoutesByTo {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
+  '/admin/catalog': typeof AdminCatalogRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/community': typeof AdminCommunityRoute
@@ -832,6 +840,7 @@ export interface FileRoutesById {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
+  '/admin/catalog': typeof AdminCatalogRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/community': typeof AdminCommunityRoute
@@ -933,6 +942,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
+    | '/admin/catalog'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/community'
@@ -1030,6 +1040,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
+    | '/admin/catalog'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/community'
@@ -1129,6 +1140,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
+    | '/admin/catalog'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/community'
@@ -1510,6 +1522,13 @@ declare module '@tanstack/react-router' {
       path: '/broadcasts'
       fullPath: '/admin/broadcasts'
       preLoaderRoute: typeof AdminBroadcastsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/catalog': {
+      id: '/admin/catalog'
+      path: '/catalog'
+      fullPath: '/admin/catalog'
+      preLoaderRoute: typeof AdminCatalogRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/categories': {
@@ -1929,6 +1948,7 @@ interface AdminRouteChildren {
   AdminBannersRoute: typeof AdminBannersRoute
   AdminBooksRoute: typeof AdminBooksRoute
   AdminBroadcastsRoute: typeof AdminBroadcastsRoute
+  AdminCatalogRoute: typeof AdminCatalogRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminCommunityRoute: typeof AdminCommunityRoute
@@ -1967,6 +1987,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBannersRoute: AdminBannersRoute,
   AdminBooksRoute: AdminBooksRoute,
   AdminBroadcastsRoute: AdminBroadcastsRoute,
+  AdminCatalogRoute: AdminCatalogRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminCommentsRoute: AdminCommentsRoute,
   AdminCommunityRoute: AdminCommunityRoute,
