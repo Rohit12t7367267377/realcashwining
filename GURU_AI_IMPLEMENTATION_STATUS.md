@@ -76,3 +76,8 @@ with mock tests and exam-wise leaderboards.
 Phase 7 Competition Hub tables → Phase 8 admin-managed skill tables
 (`guru_skill_*`) → Phase 9 full Library (books/chapters/reading progress/notes)
 → Phase 17 Guru.AI Admin Center routes.
+
+## School module upgrade (renamed from "Class Notes 1–12")
+- Route `/guru/notes` is now **School**: Board → Class → Subject → Chapter → Topic.
+- Catalogue is database-driven (`guru_boards`, `guru_classes`, `guru_subjects`, `guru_books`/`guru_chapters`, `guru_topics`) via `getSchoolCatalog`; the built-in board/class/subject lists and AI syllabus generation are only fallbacks, so admins can add rows without frontend changes.
+- Each topic now has tabs: Notes, Explain Simply, Important Points, Examples, Formulas, Practice, Quiz (5 MCQs, auto-scored), Revision, Exam Tips, Ask Doubt — plus Hindi/English switching, an "AI Teacher" board lesson trigger (`guru:teach` event) and per-topic progress (read / quiz score / revised).
