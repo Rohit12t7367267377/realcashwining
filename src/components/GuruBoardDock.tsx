@@ -144,6 +144,16 @@ export function GuruBoardDock() {
         </Button>
       </form>
 
+      <Link
+        to="/guru/classroom"
+        search={topic.trim() ? { topic: topic.trim() } : {}}
+        onClick={() => { stopAll(); setOpen(false); }}
+        className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-secondary py-2 text-[12px] font-bold"
+      >
+        <GraduationCap className="h-4 w-4 text-primary" />
+        {lang === "hi" ? "पूरी इंटरैक्टिव क्लास खोलें" : "Open full interactive classroom"}
+      </Link>
+
       {(speaking || busy) && (
         <Button type="button" variant="destructive" className="mt-2 w-full" onClick={stopAll}>
           <Square className="mr-2 h-4 w-4" /> Stop
