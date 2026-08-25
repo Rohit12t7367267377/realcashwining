@@ -61,6 +61,7 @@ import { Route as AdminFaqsRouteImport } from './routes/admin.faqs'
 import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminFraudRouteImport } from './routes/admin.fraud'
 import { Route as AdminKycRouteImport } from './routes/admin.kyc'
+import { Route as AdminLibraryRouteImport } from './routes/admin.library'
 import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
 import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
@@ -368,6 +369,11 @@ const AdminKycRoute = AdminKycRouteImport.update({
   path: '/kyc',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminLibraryRoute = AdminLibraryRouteImport.update({
+  id: '/library',
+  path: '/library',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminLiveScoresRoute = AdminLiveScoresRouteImport.update({
   id: '/live-scores',
   path: '/live-scores',
@@ -654,6 +660,7 @@ export interface FileRoutesByFullPath {
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/fraud': typeof AdminFraudRoute
   '/admin/kyc': typeof AdminKycRoute
+  '/admin/library': typeof AdminLibraryRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
@@ -752,6 +759,7 @@ export interface FileRoutesByTo {
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/fraud': typeof AdminFraudRoute
   '/admin/kyc': typeof AdminKycRoute
+  '/admin/library': typeof AdminLibraryRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
@@ -853,6 +861,7 @@ export interface FileRoutesById {
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/fraud': typeof AdminFraudRoute
   '/admin/kyc': typeof AdminKycRoute
+  '/admin/library': typeof AdminLibraryRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
@@ -955,6 +964,7 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/fraud'
     | '/admin/kyc'
+    | '/admin/library'
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
@@ -1053,6 +1063,7 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/fraud'
     | '/admin/kyc'
+    | '/admin/library'
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
@@ -1153,6 +1164,7 @@ export interface FileRouteTypes {
     | '/admin/feedback'
     | '/admin/fraud'
     | '/admin/kyc'
+    | '/admin/library'
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
@@ -1615,6 +1627,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminKycRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/library': {
+      id: '/admin/library'
+      path: '/library'
+      fullPath: '/admin/library'
+      preLoaderRoute: typeof AdminLibraryRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/live-scores': {
       id: '/admin/live-scores'
       path: '/live-scores'
@@ -1961,6 +1980,7 @@ interface AdminRouteChildren {
   AdminFeedbackRoute: typeof AdminFeedbackRoute
   AdminFraudRoute: typeof AdminFraudRoute
   AdminKycRoute: typeof AdminKycRoute
+  AdminLibraryRoute: typeof AdminLibraryRoute
   AdminLiveScoresRoute: typeof AdminLiveScoresRoute
   AdminMembershipsRoute: typeof AdminMembershipsRoute
   AdminMissionsRoute: typeof AdminMissionsRoute
@@ -2000,6 +2020,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFeedbackRoute: AdminFeedbackRoute,
   AdminFraudRoute: AdminFraudRoute,
   AdminKycRoute: AdminKycRoute,
+  AdminLibraryRoute: AdminLibraryRoute,
   AdminLiveScoresRoute: AdminLiveScoresRoute,
   AdminMembershipsRoute: AdminMembershipsRoute,
   AdminMissionsRoute: AdminMissionsRoute,

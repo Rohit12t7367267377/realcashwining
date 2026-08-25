@@ -172,3 +172,41 @@ export async function indexGuruSource(input: IndexSourceInput): Promise<number> 
   if (error) throw new Error(error.message);
   return rows.length;
 }
+
+/**
+ * Resource-scoped retrieval: pull the chunks of one library resource that best
+ * match the question. Vector search when embeddings exist, keyword overlap
+ * otherwise, so the AI teacher always gets the authorised material first.
+ */
+export async function retrieveResourceContext(
+  supabase: MinimalClient,
+  args: { resourceId: string; query: string; limit?: number },
+): Promise<GuruSourcePassage[]> {
+  const limit = args.limit ?? 4;
+  const { data } = await supabase
+    .from("guru_ai_sources")
+    .select("id, title, content, scope, kind")
+    .eq("resource_id", args.resourceId)
+    .eq("active", true)
+    .limit(60);
+  const rows = (Array.isArray(data) ? data : []) as Array<{
+    id: string;
+    title: string;
+    content: string;
+    scope: string;
+    kind: string;
+  }>;
+  if (rows.length === 0) return [];
+
+  const terms = args.query
+    .toLowerCase()
+    .split(/[^a-z0-9\u0900-\u097F]+/)
+    .filter((t) => t.length > 2);
+  const scored = rows.map((r) => {
+    const text = `${r.title} ${r.content}`.toLowerCase();
+    const hits = terms.reduce((n, t) => (text.includes(t) ? n + 1 : n), 0);
+    return { ...r, similarity: terms.length ? hits / terms.length : 0 };
+  });
+  scored.sort((a, b) => b.similarity - a.similarity);
+  return scored.slice(0, limit) as GuruSourcePassage[];
+}
