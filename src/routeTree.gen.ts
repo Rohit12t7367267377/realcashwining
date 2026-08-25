@@ -99,6 +99,7 @@ import { Route as ReadingIndexRouteImport } from './routes/reading.index'
 import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
+import { Route as GuruExamsCodeRouteImport } from './routes/guru.exams_.$code'
 import { Route as GuruTopicIdRouteImport } from './routes/guru.topic.$id'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
 import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
@@ -555,6 +556,11 @@ const WalletHistoryRoute = WalletHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => WalletRoute,
 } as any)
+const GuruExamsCodeRoute = GuruExamsCodeRouteImport.update({
+  id: '/exams_/$code',
+  path: '/exams/$code',
+  getParentRoute: () => GuruRoute,
+} as any)
 const GuruTopicIdRoute = GuruTopicIdRouteImport.update({
   id: '/topic/$id',
   path: '/topic/$id',
@@ -675,6 +681,7 @@ export interface FileRoutesByFullPath {
   '/guru/': typeof GuruIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/guru/exams/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -770,6 +777,7 @@ export interface FileRoutesByTo {
   '/guru': typeof GuruIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/reading': typeof ReadingIndexRoute
+  '/guru/exams/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -868,6 +876,7 @@ export interface FileRoutesById {
   '/guru/': typeof GuruIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/guru/exams_/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -967,6 +976,7 @@ export interface FileRouteTypes {
     | '/guru/'
     | '/messages/'
     | '/reading/'
+    | '/guru/exams/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -1062,6 +1072,7 @@ export interface FileRouteTypes {
     | '/guru'
     | '/messages'
     | '/reading'
+    | '/guru/exams/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -1159,6 +1170,7 @@ export interface FileRouteTypes {
     | '/guru/'
     | '/messages/'
     | '/reading/'
+    | '/guru/exams_/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -1845,6 +1857,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletHistoryRouteImport
       parentRoute: typeof WalletRoute
     }
+    '/guru/exams_/$code': {
+      id: '/guru/exams_/$code'
+      path: '/exams/$code'
+      fullPath: '/guru/exams/$code'
+      preLoaderRoute: typeof GuruExamsCodeRouteImport
+      parentRoute: typeof GuruRoute
+    }
     '/guru/topic/$id': {
       id: '/guru/topic/$id'
       path: '/topic/$id'
@@ -1976,6 +1995,7 @@ interface GuruRouteChildren {
   GuruSkillsRoute: typeof GuruSkillsRoute
   GuruUniversalRoute: typeof GuruUniversalRoute
   GuruIndexRoute: typeof GuruIndexRoute
+  GuruExamsCodeRoute: typeof GuruExamsCodeRoute
   GuruTopicIdRoute: typeof GuruTopicIdRoute
 }
 
@@ -1994,6 +2014,7 @@ const GuruRouteChildren: GuruRouteChildren = {
   GuruSkillsRoute: GuruSkillsRoute,
   GuruUniversalRoute: GuruUniversalRoute,
   GuruIndexRoute: GuruIndexRoute,
+  GuruExamsCodeRoute: GuruExamsCodeRoute,
   GuruTopicIdRoute: GuruTopicIdRoute,
 }
 
