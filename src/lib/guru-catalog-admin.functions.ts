@@ -64,13 +64,20 @@ export const adminSaveCatalogRow = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    // Catalogue tables share a loose shape here; the admin form supplies validated fields.
     const table = TABLES[data.entity];
+    const db = supabaseAdmin as unknown as {
+      from: (t: string) => {
+        update: (v: Record<string, unknown>) => { eq: (c: string, v2: string) => Promise<{ error: { message: string } | null }> };
+        insert: (v: Record<string, unknown>) => { select: (c: string) => { maybeSingle: () => Promise<{ data: { id: string } | null; error: { message: string } | null }> } };
+      };
+    };
     if (data.id) {
-      const { error } = await supabaseAdmin.from(table).update(data.values).eq("id", data.id);
+      const { error } = await db.from(table).update(data.values).eq("id", data.id);
       if (error) throw new Error(error.message);
       return { ok: true, id: data.id };
     }
-    const { data: row, error } = await supabaseAdmin.from(table).insert(data.values).select("id").maybeSingle();
+    const { data: row, error } = await db.from(table).insert(data.values).select("id").maybeSingle();
     if (error) throw new Error(error.message);
     return { ok: true, id: row?.id ?? null };
   });
@@ -80,7 +87,10 @@ export const adminDeleteCatalogRow = createServerFn({ method: "POST" })
   .middleware([requireAdminPassword])
   .inputValidator((d) => z.object({ entity, id: z.string().uuid() }).parse(d))
   .handler(async ({ data }) => {
-    const { error } = await supabaseAdmin.from(TABLES[data.entity]).delete().eq("id", data.id);
+    const { error } = await (supabaseAdmin as unknown as { from: (t: string) => { delete: () => { eq: (c: string, v: string) => Promise<{ error: { message: string } | null }> } } })
+      .from(TABLES[data.entity])
+      .delete()
+      .eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
