@@ -46,7 +46,9 @@ type Filters = {
   topic?: string;
 };
 
-const TYPE_META = new Map(RESOURCE_TYPES.map((t) => [t.value, t]));
+const TYPE_META = new Map<string, { value: string; label: string; emoji: string }>(
+  RESOURCE_TYPES.map((t) => [t.value as string, { value: t.value as string, label: t.label as string, emoji: t.emoji as string }]),
+);
 
 function Select({
   label, value, options, onChange,
