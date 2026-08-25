@@ -154,3 +154,61 @@ export const guruResource = createServerFn({ method: "GET" })
       has_ai_context: (r.chunk_count ?? 0) > 0,
     };
   });
+
+/** Ask the AI teacher about a library resource — answered from the indexed material (RAG). */
+export const guruAskResource = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        resource_id: z.string().uuid(),
+        question: z.string().trim().min(3).max(600),
+        language: z.enum(["en", "hi"]).default("en"),
+        intent: z.enum(["learn", "doubt", "simple", "practice", "revise"]).default("doubt"),
+      })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const { data: res } = await context.supabase
+      .from("guru_resources")
+      .select("title, author, publisher, subject, class_name, board, license, source_name, chunk_count")
+      .eq("id", data.resource_id)
+      .maybeSingle();
+    if (!res) throw new Error("Resource not found");
+
+    const { retrieveResourceContext, retrieveGuruContext, formatSources } = await import("@/lib/guru-rag.server");
+    const { guruTeach } = await import("@/lib/guru.server");
+
+    let passages = await retrieveResourceContext(context.supabase as never, {
+      resourceId: data.resource_id,
+      query: data.question,
+    });
+    if (passages.length === 0) {
+      passages = await retrieveGuruContext(context.supabase as never, {
+        query: `${res.title} ${data.question}`,
+        scope: "library",
+        limit: 4,
+      });
+    }
+
+    const out = await guruTeach({
+      intent: data.intent,
+      question: data.question,
+      language: data.language,
+      character: null,
+      topic: null,
+      board: res.board ?? null,
+      className: res.class_name ?? null,
+      subject: res.subject ?? null,
+      sources: formatSources(passages) || null,
+      styleDirective: `You are teaching from the resource "${res.title}"${res.author ? ` by ${res.author}` : ""}${res.source_name ? ` (${res.source_name})` : ""}. Only reproduce short quotations; explain in your own words and never output long verbatim extracts.`,
+      learnerContext: null,
+    });
+
+    return {
+      answer: out.content,
+      provider: out.provider,
+      sources: passages.map((p) => ({ id: p.id, title: p.title })),
+      grounded: passages.length > 0,
+    };
+  });
