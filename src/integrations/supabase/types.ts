@@ -1534,16 +1534,20 @@ export type Database = {
         Row: {
           accent_color: string
           active: boolean
+          avatar_style: string
           avatar_url: string | null
           code: string
           created_at: string
           description: string | null
+          difficulty_style: string
           emoji: string
           id: string
+          languages: string
           name: string
           personality: string
           rarity: string
           sort_order: number
+          subject_specialization: string
           tagline: string | null
           teaching_style: string
           tone: string
@@ -1551,20 +1555,25 @@ export type Database = {
           unlock_type: string
           updated_at: string
           voice_id: string | null
+          voice_label: string
         }
         Insert: {
           accent_color?: string
           active?: boolean
+          avatar_style?: string
           avatar_url?: string | null
           code: string
           created_at?: string
           description?: string | null
+          difficulty_style?: string
           emoji?: string
           id?: string
+          languages?: string
           name: string
           personality?: string
           rarity?: string
           sort_order?: number
+          subject_specialization?: string
           tagline?: string | null
           teaching_style?: string
           tone?: string
@@ -1572,20 +1581,25 @@ export type Database = {
           unlock_type?: string
           updated_at?: string
           voice_id?: string | null
+          voice_label?: string
         }
         Update: {
           accent_color?: string
           active?: boolean
+          avatar_style?: string
           avatar_url?: string | null
           code?: string
           created_at?: string
           description?: string | null
+          difficulty_style?: string
           emoji?: string
           id?: string
+          languages?: string
           name?: string
           personality?: string
           rarity?: string
           sort_order?: number
+          subject_specialization?: string
           tagline?: string | null
           teaching_style?: string
           tone?: string
@@ -1593,6 +1607,7 @@ export type Database = {
           unlock_type?: string
           updated_at?: string
           voice_id?: string | null
+          voice_label?: string
         }
         Relationships: []
       }
@@ -1801,6 +1816,7 @@ export type Database = {
           lessons_completed: number
           level: number
           preferred_language: string
+          preferred_teaching_style: string
           questions_solved: number
           selected_character_id: string | null
           streak_days: number
@@ -1817,6 +1833,7 @@ export type Database = {
           lessons_completed?: number
           level?: number
           preferred_language?: string
+          preferred_teaching_style?: string
           questions_solved?: number
           selected_character_id?: string | null
           streak_days?: number
@@ -1833,6 +1850,7 @@ export type Database = {
           lessons_completed?: number
           level?: number
           preferred_language?: string
+          preferred_teaching_style?: string
           questions_solved?: number
           selected_character_id?: string | null
           streak_days?: number
