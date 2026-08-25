@@ -48,6 +48,7 @@ import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminBooksRouteImport } from './routes/admin.books'
 import { Route as AdminBroadcastsRouteImport } from './routes/admin.broadcasts'
+import { Route as AdminCatalogRouteImport } from './routes/admin.catalog'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCommentsRouteImport } from './routes/admin.comments'
 import { Route as AdminCommunityRouteImport } from './routes/admin.community'
@@ -83,7 +84,9 @@ import { Route as GuruAchievementsRouteImport } from './routes/guru.achievements
 import { Route as GuruAskRouteImport } from './routes/guru.ask'
 import { Route as GuruCharactersRouteImport } from './routes/guru.characters'
 import { Route as GuruClassroomRouteImport } from './routes/guru.classroom'
+import { Route as GuruCollegeRouteImport } from './routes/guru.college'
 import { Route as GuruCompetitionsRouteImport } from './routes/guru.competitions'
+import { Route as GuruExamsRouteImport } from './routes/guru.exams'
 import { Route as GuruGalaxyRouteImport } from './routes/guru.galaxy'
 import { Route as GuruLibraryRouteImport } from './routes/guru.library'
 import { Route as GuruNotesRouteImport } from './routes/guru.notes'
@@ -98,6 +101,7 @@ import { Route as ReadingIndexRouteImport } from './routes/reading.index'
 import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
 import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
+import { Route as GuruExamsCodeRouteImport } from './routes/guru.exams_.$code'
 import { Route as GuruTopicIdRouteImport } from './routes/guru.topic.$id'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
 import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
@@ -299,6 +303,11 @@ const AdminBroadcastsRoute = AdminBroadcastsRouteImport.update({
   path: '/broadcasts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCatalogRoute = AdminCatalogRouteImport.update({
+  id: '/catalog',
+  path: '/catalog',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -474,9 +483,19 @@ const GuruClassroomRoute = GuruClassroomRouteImport.update({
   path: '/classroom',
   getParentRoute: () => GuruRoute,
 } as any)
+const GuruCollegeRoute = GuruCollegeRouteImport.update({
+  id: '/college',
+  path: '/college',
+  getParentRoute: () => GuruRoute,
+} as any)
 const GuruCompetitionsRoute = GuruCompetitionsRouteImport.update({
   id: '/competitions',
   path: '/competitions',
+  getParentRoute: () => GuruRoute,
+} as any)
+const GuruExamsRoute = GuruExamsRouteImport.update({
+  id: '/exams',
+  path: '/exams',
   getParentRoute: () => GuruRoute,
 } as any)
 const GuruGalaxyRoute = GuruGalaxyRouteImport.update({
@@ -549,6 +568,11 @@ const WalletHistoryRoute = WalletHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => WalletRoute,
 } as any)
+const GuruExamsCodeRoute = GuruExamsCodeRouteImport.update({
+  id: '/exams_/$code',
+  path: '/exams/$code',
+  getParentRoute: () => GuruRoute,
+} as any)
 const GuruTopicIdRoute = GuruTopicIdRouteImport.update({
   id: '/topic/$id',
   path: '/topic/$id',
@@ -617,6 +641,7 @@ export interface FileRoutesByFullPath {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
+  '/admin/catalog': typeof AdminCatalogRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/community': typeof AdminCommunityRoute
@@ -651,7 +676,9 @@ export interface FileRoutesByFullPath {
   '/guru/ask': typeof GuruAskRoute
   '/guru/characters': typeof GuruCharactersRoute
   '/guru/classroom': typeof GuruClassroomRoute
+  '/guru/college': typeof GuruCollegeRoute
   '/guru/competitions': typeof GuruCompetitionsRoute
+  '/guru/exams': typeof GuruExamsRoute
   '/guru/galaxy': typeof GuruGalaxyRoute
   '/guru/library': typeof GuruLibraryRoute
   '/guru/notes': typeof GuruNotesRoute
@@ -668,6 +695,7 @@ export interface FileRoutesByFullPath {
   '/guru/': typeof GuruIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/guru/exams/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -711,6 +739,7 @@ export interface FileRoutesByTo {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
+  '/admin/catalog': typeof AdminCatalogRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/community': typeof AdminCommunityRoute
@@ -745,7 +774,9 @@ export interface FileRoutesByTo {
   '/guru/ask': typeof GuruAskRoute
   '/guru/characters': typeof GuruCharactersRoute
   '/guru/classroom': typeof GuruClassroomRoute
+  '/guru/college': typeof GuruCollegeRoute
   '/guru/competitions': typeof GuruCompetitionsRoute
+  '/guru/exams': typeof GuruExamsRoute
   '/guru/galaxy': typeof GuruGalaxyRoute
   '/guru/library': typeof GuruLibraryRoute
   '/guru/notes': typeof GuruNotesRoute
@@ -762,6 +793,7 @@ export interface FileRoutesByTo {
   '/guru': typeof GuruIndexRoute
   '/messages': typeof MessagesIndexRoute
   '/reading': typeof ReadingIndexRoute
+  '/guru/exams/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -808,6 +840,7 @@ export interface FileRoutesById {
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
   '/admin/broadcasts': typeof AdminBroadcastsRoute
+  '/admin/catalog': typeof AdminCatalogRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/comments': typeof AdminCommentsRoute
   '/admin/community': typeof AdminCommunityRoute
@@ -842,7 +875,9 @@ export interface FileRoutesById {
   '/guru/ask': typeof GuruAskRoute
   '/guru/characters': typeof GuruCharactersRoute
   '/guru/classroom': typeof GuruClassroomRoute
+  '/guru/college': typeof GuruCollegeRoute
   '/guru/competitions': typeof GuruCompetitionsRoute
+  '/guru/exams': typeof GuruExamsRoute
   '/guru/galaxy': typeof GuruGalaxyRoute
   '/guru/library': typeof GuruLibraryRoute
   '/guru/notes': typeof GuruNotesRoute
@@ -859,6 +894,7 @@ export interface FileRoutesById {
   '/guru/': typeof GuruIndexRoute
   '/messages/': typeof MessagesIndexRoute
   '/reading/': typeof ReadingIndexRoute
+  '/guru/exams_/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
@@ -906,6 +942,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
+    | '/admin/catalog'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/community'
@@ -940,7 +977,9 @@ export interface FileRouteTypes {
     | '/guru/ask'
     | '/guru/characters'
     | '/guru/classroom'
+    | '/guru/college'
     | '/guru/competitions'
+    | '/guru/exams'
     | '/guru/galaxy'
     | '/guru/library'
     | '/guru/notes'
@@ -957,6 +996,7 @@ export interface FileRouteTypes {
     | '/guru/'
     | '/messages/'
     | '/reading/'
+    | '/guru/exams/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -1000,6 +1040,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
+    | '/admin/catalog'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/community'
@@ -1034,7 +1075,9 @@ export interface FileRouteTypes {
     | '/guru/ask'
     | '/guru/characters'
     | '/guru/classroom'
+    | '/guru/college'
     | '/guru/competitions'
+    | '/guru/exams'
     | '/guru/galaxy'
     | '/guru/library'
     | '/guru/notes'
@@ -1051,6 +1094,7 @@ export interface FileRouteTypes {
     | '/guru'
     | '/messages'
     | '/reading'
+    | '/guru/exams/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -1096,6 +1140,7 @@ export interface FileRouteTypes {
     | '/admin/banners'
     | '/admin/books'
     | '/admin/broadcasts'
+    | '/admin/catalog'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/community'
@@ -1130,7 +1175,9 @@ export interface FileRouteTypes {
     | '/guru/ask'
     | '/guru/characters'
     | '/guru/classroom'
+    | '/guru/college'
     | '/guru/competitions'
+    | '/guru/exams'
     | '/guru/galaxy'
     | '/guru/library'
     | '/guru/notes'
@@ -1147,6 +1194,7 @@ export interface FileRouteTypes {
     | '/guru/'
     | '/messages/'
     | '/reading/'
+    | '/guru/exams_/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
     | '/api/public/hooks/push-config'
@@ -1476,6 +1524,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBroadcastsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/catalog': {
+      id: '/admin/catalog'
+      path: '/catalog'
+      fullPath: '/admin/catalog'
+      preLoaderRoute: typeof AdminCatalogRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/categories': {
       id: '/admin/categories'
       path: '/categories'
@@ -1721,11 +1776,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuruClassroomRouteImport
       parentRoute: typeof GuruRoute
     }
+    '/guru/college': {
+      id: '/guru/college'
+      path: '/college'
+      fullPath: '/guru/college'
+      preLoaderRoute: typeof GuruCollegeRouteImport
+      parentRoute: typeof GuruRoute
+    }
     '/guru/competitions': {
       id: '/guru/competitions'
       path: '/competitions'
       fullPath: '/guru/competitions'
       preLoaderRoute: typeof GuruCompetitionsRouteImport
+      parentRoute: typeof GuruRoute
+    }
+    '/guru/exams': {
+      id: '/guru/exams'
+      path: '/exams'
+      fullPath: '/guru/exams'
+      preLoaderRoute: typeof GuruExamsRouteImport
       parentRoute: typeof GuruRoute
     }
     '/guru/galaxy': {
@@ -1826,6 +1895,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalletHistoryRouteImport
       parentRoute: typeof WalletRoute
     }
+    '/guru/exams_/$code': {
+      id: '/guru/exams_/$code'
+      path: '/exams/$code'
+      fullPath: '/guru/exams/$code'
+      preLoaderRoute: typeof GuruExamsCodeRouteImport
+      parentRoute: typeof GuruRoute
+    }
     '/guru/topic/$id': {
       id: '/guru/topic/$id'
       path: '/topic/$id'
@@ -1872,6 +1948,7 @@ interface AdminRouteChildren {
   AdminBannersRoute: typeof AdminBannersRoute
   AdminBooksRoute: typeof AdminBooksRoute
   AdminBroadcastsRoute: typeof AdminBroadcastsRoute
+  AdminCatalogRoute: typeof AdminCatalogRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminCommentsRoute: typeof AdminCommentsRoute
   AdminCommunityRoute: typeof AdminCommunityRoute
@@ -1910,6 +1987,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBannersRoute: AdminBannersRoute,
   AdminBooksRoute: AdminBooksRoute,
   AdminBroadcastsRoute: AdminBroadcastsRoute,
+  AdminCatalogRoute: AdminCatalogRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminCommentsRoute: AdminCommentsRoute,
   AdminCommunityRoute: AdminCommunityRoute,
@@ -1947,7 +2025,9 @@ interface GuruRouteChildren {
   GuruAskRoute: typeof GuruAskRoute
   GuruCharactersRoute: typeof GuruCharactersRoute
   GuruClassroomRoute: typeof GuruClassroomRoute
+  GuruCollegeRoute: typeof GuruCollegeRoute
   GuruCompetitionsRoute: typeof GuruCompetitionsRoute
+  GuruExamsRoute: typeof GuruExamsRoute
   GuruGalaxyRoute: typeof GuruGalaxyRoute
   GuruLibraryRoute: typeof GuruLibraryRoute
   GuruNotesRoute: typeof GuruNotesRoute
@@ -1956,6 +2036,7 @@ interface GuruRouteChildren {
   GuruSkillsRoute: typeof GuruSkillsRoute
   GuruUniversalRoute: typeof GuruUniversalRoute
   GuruIndexRoute: typeof GuruIndexRoute
+  GuruExamsCodeRoute: typeof GuruExamsCodeRoute
   GuruTopicIdRoute: typeof GuruTopicIdRoute
 }
 
@@ -1964,7 +2045,9 @@ const GuruRouteChildren: GuruRouteChildren = {
   GuruAskRoute: GuruAskRoute,
   GuruCharactersRoute: GuruCharactersRoute,
   GuruClassroomRoute: GuruClassroomRoute,
+  GuruCollegeRoute: GuruCollegeRoute,
   GuruCompetitionsRoute: GuruCompetitionsRoute,
+  GuruExamsRoute: GuruExamsRoute,
   GuruGalaxyRoute: GuruGalaxyRoute,
   GuruLibraryRoute: GuruLibraryRoute,
   GuruNotesRoute: GuruNotesRoute,
@@ -1973,6 +2056,7 @@ const GuruRouteChildren: GuruRouteChildren = {
   GuruSkillsRoute: GuruSkillsRoute,
   GuruUniversalRoute: GuruUniversalRoute,
   GuruIndexRoute: GuruIndexRoute,
+  GuruExamsCodeRoute: GuruExamsCodeRoute,
   GuruTopicIdRoute: GuruTopicIdRoute,
 }
 

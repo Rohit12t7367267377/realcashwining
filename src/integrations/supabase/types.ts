@@ -1649,6 +1649,378 @@ export type Database = {
           },
         ]
       }
+      guru_college_degrees: {
+        Row: {
+          active: boolean
+          blurb: string
+          code: string
+          created_at: string
+          emoji: string
+          id: string
+          level: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          blurb?: string
+          code: string
+          created_at?: string
+          emoji?: string
+          id?: string
+          level?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          blurb?: string
+          code?: string
+          created_at?: string
+          emoji?: string
+          id?: string
+          level?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      guru_college_regulations: {
+        Row: {
+          active: boolean
+          created_at: string
+          degree_id: string
+          id: string
+          name: string
+          sort_order: number
+          university: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          degree_id: string
+          id?: string
+          name: string
+          sort_order?: number
+          university?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          degree_id?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          university?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_college_regulations_degree_id_fkey"
+            columns: ["degree_id"]
+            isOneToOne: false
+            referencedRelation: "guru_college_degrees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_college_subjects: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          id: string
+          is_programming: boolean
+          name: string
+          regulation_id: string
+          sort_order: number
+          term: string
+        }
+        Insert: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          is_programming?: boolean
+          name: string
+          regulation_id: string
+          sort_order?: number
+          term?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          id?: string
+          is_programming?: boolean
+          name?: string
+          regulation_id?: string
+          sort_order?: number
+          term?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_college_subjects_regulation_id_fkey"
+            columns: ["regulation_id"]
+            isOneToOne: false
+            referencedRelation: "guru_college_regulations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_college_topics: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          sort_order: number
+          title: string
+          unit_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title: string
+          unit_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          sort_order?: number
+          title?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_college_topics_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "guru_college_units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_college_units: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          sort_order: number
+          subject_id: string
+          title: string
+          unit_number: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          sort_order?: number
+          subject_id: string
+          title: string
+          unit_number?: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          sort_order?: number
+          subject_id?: string
+          title?: string
+          unit_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_college_units_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "guru_college_subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_exam_attempts: {
+        Row: {
+          correct: number
+          created_at: string
+          exam_code: string
+          id: string
+          mode: string
+          subject: string
+          topic: string
+          total: number
+          user_id: string
+        }
+        Insert: {
+          correct?: number
+          created_at?: string
+          exam_code: string
+          id?: string
+          mode?: string
+          subject?: string
+          topic?: string
+          total?: number
+          user_id: string
+        }
+        Update: {
+          correct?: number
+          created_at?: string
+          exam_code?: string
+          id?: string
+          mode?: string
+          subject?: string
+          topic?: string
+          total?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      guru_exam_subjects: {
+        Row: {
+          active: boolean
+          created_at: string
+          emoji: string
+          exam_id: string
+          id: string
+          name: string
+          sort_order: number
+          weightage: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          emoji?: string
+          exam_id: string
+          id?: string
+          name: string
+          sort_order?: number
+          weightage?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          emoji?: string
+          exam_id?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          weightage?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_exam_subjects_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "guru_exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_exam_topics: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          sort_order: number
+          subject_id: string
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          sort_order?: number
+          subject_id: string
+          title: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          sort_order?: number
+          subject_id?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_exam_topics_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "guru_exam_subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      guru_exams: {
+        Row: {
+          active: boolean
+          blurb: string
+          category: string
+          code: string
+          conducting_body: string
+          created_at: string
+          emoji: string
+          id: string
+          name: string
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          blurb?: string
+          category?: string
+          code: string
+          conducting_body?: string
+          created_at?: string
+          emoji?: string
+          id?: string
+          name: string
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          blurb?: string
+          category?: string
+          code?: string
+          conducting_body?: string
+          created_at?: string
+          emoji?: string
+          id?: string
+          name?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      guru_learn_progress: {
+        Row: {
+          id: string
+          node_key: string
+          score: number | null
+          status: string
+          track: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          node_key: string
+          score?: number | null
+          status?: string
+          track: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          node_key?: string
+          score?: number | null
+          status?: string
+          track?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       guru_learning_sessions: {
         Row: {
           completed: boolean
