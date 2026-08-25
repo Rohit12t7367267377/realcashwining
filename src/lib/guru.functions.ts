@@ -10,6 +10,7 @@ import {
   guruGenerateQuestions,
   type UnlockStats,
 } from "@/lib/guru.server";
+import { teachingStyleDirective } from "@/lib/guru-teaching";
 
 /** Ensure the student's Guru.AI profile row exists and roll the daily streak forward. */
 export const getGuruDashboard = createServerFn({ method: "GET" })
@@ -90,6 +91,20 @@ export const setGuruLanguage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const setGuruTeachingStyle = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({ style: z.enum(["friendly", "strict", "simple", "exam", "concept", "fast", "detailed"]) })
+      .parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    await context.supabase
+      .from("guru_student_xp")
+      .upsert({ user_id: context.userId, preferred_teaching_style: data.style }, { onConflict: "user_id" });
+    return { ok: true };
+  });
+
 export const listGuruCharacters = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -109,6 +124,7 @@ export const listGuruCharacters = createServerFn({ method: "GET" })
     const owned = new Set((inv.data ?? []).map((i) => i.character_id ?? i.costume_id ?? ""));
     return {
       selectedId: row?.selected_character_id ?? null,
+      teachingStyle: row?.preferred_teaching_style ?? "friendly",
       characters: (chars.data ?? []).map((c) => ({
         ...c,
         unlocked: c.unlock_type === "free" || owned.has(c.id) || isUnlocked(c.unlock_requirement, stats),
@@ -288,6 +304,10 @@ export const guruAsk = createServerFn({ method: "POST" })
         scope: z.enum(["school", "universal", "skills", "library", "galaxy"]).default("universal"),
         topic_id: z.string().uuid().optional(),
         session_id: z.string().uuid().optional(),
+        /** Universal AI learner context (area / level / topic). */
+        learner_context: z.string().trim().max(400).optional(),
+        /** One-off teaching-style override; otherwise the saved preference is used. */
+        teaching_style: z.string().trim().max(24).optional(),
       })
       .parse(d),
   )
@@ -299,7 +319,7 @@ export const guruAsk = createServerFn({ method: "POST" })
     const { data: character } = row?.selected_character_id
       ? await supabase
           .from("guru_characters")
-          .select("name, personality, teaching_style, tone")
+          .select("name, personality, teaching_style, tone, subject_specialization, difficulty_style")
           .eq("id", row.selected_character_id)
           .maybeSingle()
       : { data: null };
@@ -384,6 +404,8 @@ export const guruAsk = createServerFn({ method: "POST" })
         className: breadcrumb.className ?? null,
         subject: breadcrumb.subject ?? null,
         sources: formatSources(passages) || null,
+        styleDirective: teachingStyleDirective(data.teaching_style ?? row?.preferred_teaching_style ?? "friendly"),
+        learnerContext: data.learner_context ?? null,
       });
       reply = out.content;
       provider = out.provider;

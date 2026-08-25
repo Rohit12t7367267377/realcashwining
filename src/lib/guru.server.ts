@@ -74,14 +74,26 @@ export type TeachContext = {
   intent: "learn" | "doubt" | "simple" | "practice" | "quiz" | "revise" | "chat";
   question: string;
   language: string;
-  character: { name: string; personality: string; teaching_style: string; tone: string } | null;
+  character: {
+    name: string;
+    personality: string;
+    teaching_style: string;
+    tone: string;
+    subject_specialization?: string | null;
+    difficulty_style?: string | null;
+  } | null;
   topic?: { title: string; objectives: string[]; lesson?: string | null } | null;
   board?: string | null;
   className?: string | null;
   subject?: string | null;
   /** Retrieved knowledge passages (RAG) to ground the answer. */
   sources?: string | null;
+  /** Student-chosen teaching style directive (see guru-teaching.ts). */
+  styleDirective?: string | null;
+  /** Universal AI learner context: school/college/exam/topic. */
+  learnerContext?: string | null;
 };
+
 
 
 const INTENT_DIRECTIVE: Record<TeachContext["intent"], string> = {
@@ -97,7 +109,10 @@ const INTENT_DIRECTIVE: Record<TeachContext["intent"], string> = {
 export function buildTeachMessages(ctx: TeachContext) {
   const c = ctx.character;
   const persona = c
-    ? `You are ${c.name}, an AI teacher character inside Guru.AI. Personality: ${c.personality}. Teaching style: ${c.teaching_style}. Tone: ${c.tone}. You are only a presenter — never invent facts; if unsure, say so.`
+    ? `You are ${c.name}, an AI teacher character inside Guru.AI. Personality: ${c.personality}. Teaching style: ${c.teaching_style}. Tone: ${c.tone}.` +
+      (c.subject_specialization ? ` You specialise in ${c.subject_specialization}; when a question falls outside it, still help but connect it back to your specialisation where useful.` : "") +
+      (c.difficulty_style ? ` Difficulty approach: ${c.difficulty_style}.` : "") +
+      " You are only a presenter — never invent facts; if unsure, say so."
     : "You are a friendly AI teacher inside Guru.AI.";
   const level = [ctx.board, ctx.className, ctx.subject].filter(Boolean).join(" • ");
   const topic = ctx.topic
@@ -112,10 +127,14 @@ export function buildTeachMessages(ctx: TeachContext) {
       role: "system" as const,
       content: [
         persona,
+        ctx.learnerContext
+          ? `Learner profile: ${ctx.learnerContext} Pitch every explanation exactly at this level — never above or below it, and use the vocabulary and examples that fit it.`
+          : "",
         level ? `Student context: ${level}. Never assume knowledge above this level.` : "",
         topic,
         retrieved,
         INTENT_DIRECTIVE[ctx.intent],
+        ctx.styleDirective || "",
         lang,
         "Keep answers under 400 words unless asked for more. Use short paragraphs and bullet points.",
       ]
