@@ -25,6 +25,7 @@ export const Route = createFileRoute("/guru/")({
 });
 
 const SECTIONS = [
+  { to: "/guru/classroom", label: "AI Teacher Classroom", sub: "Teach Me — live board, questions & test", icon: GraduationCap, ready: true },
   { to: "/guru/ask", label: "Photo Doubt & Ask", sub: "Upload a picture, ask anything", icon: ImagePlus, ready: true },
   { to: "/guru/notes", label: "School", sub: "Board → Class → Chapter → Topic", icon: School, ready: true },
   { to: "/guru/school", label: "Curriculum Books", sub: "Admin books & lessons", icon: GraduationCap, ready: true },

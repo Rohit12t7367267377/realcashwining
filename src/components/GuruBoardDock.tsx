@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
@@ -143,6 +144,16 @@ export function GuruBoardDock() {
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <GraduationCap className="h-4 w-4" />}
         </Button>
       </form>
+
+      <Link
+        to="/guru/classroom"
+        search={{ topic: topic.trim() || undefined }}
+        onClick={() => { stopAll(); setOpen(false); }}
+        className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-secondary py-2 text-[12px] font-bold"
+      >
+        <GraduationCap className="h-4 w-4 text-primary" />
+        {lang === "hi" ? "पूरी इंटरैक्टिव क्लास खोलें" : "Open full interactive classroom"}
+      </Link>
 
       {(speaking || busy) && (
         <Button type="button" variant="destructive" className="mt-2 w-full" onClick={stopAll}>
