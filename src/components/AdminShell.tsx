@@ -78,6 +78,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { to: "/admin/fraud", label: "Fraud & Anti-Cheat", icon: AlertTriangle },
       { to: "/admin/app-updates", label: "App Updates", icon: Download },
       { to: "/admin/roles", label: "Roles", icon: ShieldCheck },
+      { to: "/admin/catalog", label: "Exams & College", icon: ShieldCheck },
       { to: "/admin/settings", label: "Settings", icon: Settings },
     ],
   },

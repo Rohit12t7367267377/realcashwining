@@ -81,7 +81,19 @@ function CompetitionHubPage() {
         <p className="mt-1 text-sm opacity-90">{data?.me.solved ?? 0} questions solved with Guru.AI</p>
       </section>
 
-      <section className="mt-5 rounded-3xl bg-card p-4 shadow-soft">
+      <Link to="/guru/exams" className="card-lift mt-4 block rounded-3xl bg-card p-4 shadow-soft">
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🎯</span>
+          <div>
+            <div className="text-sm font-black">Competitive Exams</div>
+            <p className="text-[11px] text-muted-foreground">
+              JEE, NEET, GATE, UPSC, SSC, Banking, Railway, NDA, CDS, CUET, CAT, CLAT, UGC NET — syllabus, PYQs, mocks &amp; study plans
+            </p>
+          </div>
+        </div>
+      </Link>
+
+      <section className="mt-4 rounded-3xl bg-card p-4 shadow-soft">
         <h2 className="text-sm font-black">AI Practice Challenge</h2>
         <div className="mt-2 flex flex-wrap gap-1.5">
           {SUBJECTS.map((s) => (
