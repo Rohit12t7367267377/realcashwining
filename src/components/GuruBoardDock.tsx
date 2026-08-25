@@ -147,7 +147,7 @@ export function GuruBoardDock() {
 
       <Link
         to="/guru/classroom"
-        search={topic.trim() ? { topic: topic.trim() } : {}}
+        search={{ topic: topic.trim() || undefined }}
         onClick={() => { stopAll(); setOpen(false); }}
         className="mt-2 flex items-center justify-center gap-2 rounded-2xl bg-secondary py-2 text-[12px] font-bold"
       >
