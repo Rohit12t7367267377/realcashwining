@@ -9,6 +9,7 @@ import { useUser } from "@/lib/user-store";
 import { guruAsk, listGuruMessages } from "@/lib/guru.functions";
 import { guruImageDoubt, guruSpeak, guruWebAnswer } from "@/lib/guru-extras.functions";
 import { Bot, Camera, Globe, Mic, Send, Sparkles, User as UserIcon, Volume2 } from "lucide-react";
+import { LEARNER_DOMAINS, buildLearnerContext } from "@/lib/guru-teaching";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/guru/universal")({
@@ -40,6 +41,9 @@ function UniversalAiPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [listening, setListening] = useState(false);
+  const [domain, setDomain] = useState<string>("school");
+  const [levelText, setLevelText] = useState<string>("");
+  const [focusTopic, setFocusTopic] = useState<string>("");
   const [web, setWeb] = useState<{ answer: string; verified: boolean; note: string | null; results: Array<{ title: string; url: string }> } | null>(null);
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -53,7 +57,15 @@ function UniversalAiPage() {
 
   const send = useMutation({
     mutationFn: (question: string) =>
-      ask({ data: { question, intent: "chat" as const, scope: "universal" as const, ...(sessionId ? { session_id: sessionId } : {}) } }),
+      ask({
+        data: {
+          question,
+          intent: "chat" as const,
+          scope: "universal" as const,
+          ...(sessionId ? { session_id: sessionId } : {}),
+          ...(learnerContext ? { learner_context: learnerContext } : {}),
+        },
+      }),
     onSuccess: (res) => {
       setSessionId(res.session_id);
       qc.invalidateQueries({ queryKey: ["guru-messages"] });
@@ -104,6 +116,8 @@ function UniversalAiPage() {
     );
   }
 
+  const learnerContext = buildLearnerContext({ domain, level: levelText, topic: focusTopic });
+  const activeDomain = LEARNER_DOMAINS.find((d) => d.id === domain) ?? LEARNER_DOMAINS[0];
   const busy = send.isPending || searchWeb.isPending || photo.isPending;
 
   function startVoice() {
@@ -177,6 +191,39 @@ function UniversalAiPage() {
           </button>
         ))}
       </div>
+
+      <section className="mt-3 rounded-3xl bg-card p-3 shadow-soft">
+        <h2 className="text-xs font-black">Who is asking?</h2>
+        <p className="text-[11px] text-muted-foreground">Guru.AI pitches the answer at your exact level.</p>
+        <div className="mt-2 -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
+          {LEARNER_DOMAINS.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              onClick={() => { setDomain(d.id); setLevelText(""); }}
+              className={`press shrink-0 rounded-full px-3 py-1 text-[11px] font-bold ${domain === d.id ? "bg-gradient-primary text-primary-foreground" : "bg-secondary"}`}
+            >
+              {d.emoji} {d.label}
+            </button>
+          ))}
+        </div>
+        <div className="mt-2 flex flex-wrap gap-1.5">
+          {activeDomain.levels.map((l) => (
+            <button
+              key={l}
+              type="button"
+              onClick={() => setLevelText(l)}
+              className={`press rounded-full px-2.5 py-1 text-[11px] font-bold ${levelText === l ? "bg-primary text-primary-foreground" : "bg-muted"}`}
+            >
+              {l}
+            </button>
+          ))}
+        </div>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <Input value={levelText} onChange={(e) => setLevelText(e.target.value)} placeholder={activeDomain.levelHint} className="h-9 text-xs" />
+          <Input value={focusTopic} onChange={(e) => setFocusTopic(e.target.value)} placeholder="Topic (optional) e.g. Trigonometry" className="h-9 text-xs" />
+        </div>
+      </section>
 
       {mode === "web" ? (
         <div className="mt-3 min-h-[40vh] rounded-2xl bg-card p-4 shadow-soft">
