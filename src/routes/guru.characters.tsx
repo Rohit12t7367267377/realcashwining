@@ -194,7 +194,7 @@ function CharactersPage() {
                 {selected ? (
                   <>
                     <span className="inline-flex items-center gap-1 text-xs font-bold"><Check className="h-3.5 w-3.5" /> Selected</span>
-                    <Link to="/guru/classroom" className="ml-auto">
+                    <Link to="/guru/classroom" search={{ topic: undefined }} className="ml-auto">
                       <Button size="sm" variant="secondary">Teach me</Button>
                     </Link>
                   </>
