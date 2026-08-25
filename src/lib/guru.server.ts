@@ -74,14 +74,26 @@ export type TeachContext = {
   intent: "learn" | "doubt" | "simple" | "practice" | "quiz" | "revise" | "chat";
   question: string;
   language: string;
-  character: { name: string; personality: string; teaching_style: string; tone: string } | null;
+  character: {
+    name: string;
+    personality: string;
+    teaching_style: string;
+    tone: string;
+    subject_specialization?: string | null;
+    difficulty_style?: string | null;
+  } | null;
   topic?: { title: string; objectives: string[]; lesson?: string | null } | null;
   board?: string | null;
   className?: string | null;
   subject?: string | null;
   /** Retrieved knowledge passages (RAG) to ground the answer. */
   sources?: string | null;
+  /** Student-chosen teaching style directive (see guru-teaching.ts). */
+  styleDirective?: string | null;
+  /** Universal AI learner context: school/college/exam/topic. */
+  learnerContext?: string | null;
 };
+
 
 
 const INTENT_DIRECTIVE: Record<TeachContext["intent"], string> = {
