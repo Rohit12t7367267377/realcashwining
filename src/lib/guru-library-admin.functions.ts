@@ -38,6 +38,37 @@ const clean = (v?: string) => {
 
 type Db = { from: (t: string) => any };
 
+export type AdminResourceRow = {
+  id: string;
+  title: string;
+  author: string | null;
+  publisher: string | null;
+  isbn: string | null;
+  description: string | null;
+  cover_url: string | null;
+  language: string;
+  resource_type: string;
+  board: string | null;
+  class_name: string | null;
+  degree: string | null;
+  semester: string | null;
+  subject: string | null;
+  chapter: string | null;
+  topic: string | null;
+  exam: string | null;
+  source_name: string | null;
+  source_url: string | null;
+  license: string | null;
+  access_type: string;
+  tags: string[];
+  status: string;
+  active: boolean;
+  content: string | null;
+  chunk_count: number;
+  indexed_at: string | null;
+  sort_order: number;
+};
+
 /** Admin list with search + every filter. */
 export const adminListResources = createServerFn({ method: "GET" })
   .middleware([requireAdminPassword])
@@ -69,7 +100,7 @@ export const adminListResources = createServerFn({ method: "GET" })
     }
     const { data: rows, error } = await q;
     if (error) throw new Error(error.message);
-    return (rows ?? []) as Array<Record<string, unknown>>;
+    return (rows ?? []) as AdminResourceRow[];
   });
 
 /** Create or update a resource. */
