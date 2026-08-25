@@ -1126,6 +1126,7 @@ export type Database = {
           lesson_id: string | null
           metadata: Json
           model_version: string | null
+          resource_id: string | null
           scope: string
           subject: string | null
           title: string
@@ -1145,6 +1146,7 @@ export type Database = {
           lesson_id?: string | null
           metadata?: Json
           model_version?: string | null
+          resource_id?: string | null
           scope?: string
           subject?: string | null
           title: string
@@ -1164,6 +1166,7 @@ export type Database = {
           lesson_id?: string | null
           metadata?: Json
           model_version?: string | null
+          resource_id?: string | null
           scope?: string
           subject?: string | null
           title?: string
@@ -1176,6 +1179,13 @@ export type Database = {
             columns: ["lesson_id"]
             isOneToOne: false
             referencedRelation: "guru_lessons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guru_ai_sources_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "guru_resources"
             referencedColumns: ["id"]
           },
           {
@@ -2133,6 +2143,105 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      guru_resources: {
+        Row: {
+          access_type: string
+          active: boolean
+          author: string | null
+          board: string | null
+          chapter: string | null
+          chunk_count: number
+          class_name: string | null
+          content: string | null
+          cover_url: string | null
+          created_at: string
+          degree: string | null
+          description: string | null
+          exam: string | null
+          id: string
+          indexed_at: string | null
+          isbn: string | null
+          language: string
+          license: string | null
+          publisher: string | null
+          resource_type: string
+          semester: string | null
+          sort_order: number
+          source_name: string | null
+          source_url: string | null
+          status: string
+          subject: string | null
+          tags: string[]
+          title: string
+          topic: string | null
+          updated_at: string
+        }
+        Insert: {
+          access_type?: string
+          active?: boolean
+          author?: string | null
+          board?: string | null
+          chapter?: string | null
+          chunk_count?: number
+          class_name?: string | null
+          content?: string | null
+          cover_url?: string | null
+          created_at?: string
+          degree?: string | null
+          description?: string | null
+          exam?: string | null
+          id?: string
+          indexed_at?: string | null
+          isbn?: string | null
+          language?: string
+          license?: string | null
+          publisher?: string | null
+          resource_type?: string
+          semester?: string | null
+          sort_order?: number
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
+          subject?: string | null
+          tags?: string[]
+          title: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Update: {
+          access_type?: string
+          active?: boolean
+          author?: string | null
+          board?: string | null
+          chapter?: string | null
+          chunk_count?: number
+          class_name?: string | null
+          content?: string | null
+          cover_url?: string | null
+          created_at?: string
+          degree?: string | null
+          description?: string | null
+          exam?: string | null
+          id?: string
+          indexed_at?: string | null
+          isbn?: string | null
+          language?: string
+          license?: string | null
+          publisher?: string | null
+          resource_type?: string
+          semester?: string | null
+          sort_order?: number
+          source_name?: string | null
+          source_url?: string | null
+          status?: string
+          subject?: string | null
+          tags?: string[]
+          title?: string
+          topic?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       guru_student_topic_progress: {
         Row: {
