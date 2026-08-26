@@ -1197,6 +1197,36 @@ export type Database = {
           },
         ]
       }
+      guru_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          entity: string | null
+          entity_id: string | null
+          id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          entity?: string | null
+          entity_id?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
       guru_badges: {
         Row: {
           active: boolean
@@ -1659,6 +1689,80 @@ export type Database = {
           },
         ]
       }
+      guru_classrooms: {
+        Row: {
+          active: boolean
+          board: string | null
+          character_id: string | null
+          class_name: string | null
+          content: Json
+          created_at: string
+          degree: string | null
+          description: string | null
+          environment: string
+          exam: string | null
+          id: string
+          is_premium: boolean
+          name: string
+          planet: string | null
+          sort_order: number
+          subject: string | null
+          theme_color: string | null
+          updated_at: string
+          xp_reward: number
+        }
+        Insert: {
+          active?: boolean
+          board?: string | null
+          character_id?: string | null
+          class_name?: string | null
+          content?: Json
+          created_at?: string
+          degree?: string | null
+          description?: string | null
+          environment?: string
+          exam?: string | null
+          id?: string
+          is_premium?: boolean
+          name: string
+          planet?: string | null
+          sort_order?: number
+          subject?: string | null
+          theme_color?: string | null
+          updated_at?: string
+          xp_reward?: number
+        }
+        Update: {
+          active?: boolean
+          board?: string | null
+          character_id?: string | null
+          class_name?: string | null
+          content?: Json
+          created_at?: string
+          degree?: string | null
+          description?: string | null
+          environment?: string
+          exam?: string | null
+          id?: string
+          is_premium?: boolean
+          name?: string
+          planet?: string | null
+          sort_order?: number
+          subject?: string | null
+          theme_color?: string | null
+          updated_at?: string
+          xp_reward?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_classrooms_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "guru_characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guru_college_degrees: {
         Row: {
           active: boolean
@@ -2001,6 +2105,69 @@ export type Database = {
         }
         Relationships: []
       }
+      guru_knowledge_sources: {
+        Row: {
+          api_key: string | null
+          api_key_secret_name: string | null
+          api_secret: string | null
+          config: Json
+          created_at: string
+          description: string | null
+          enabled: boolean
+          endpoint: string | null
+          id: string
+          label: string
+          last_test_message: string | null
+          last_test_ok: boolean | null
+          last_tested_at: string | null
+          provider: string
+          sort_order: number
+          source_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          api_key?: string | null
+          api_key_secret_name?: string | null
+          api_secret?: string | null
+          config?: Json
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          endpoint?: string | null
+          id?: string
+          label: string
+          last_test_message?: string | null
+          last_test_ok?: boolean | null
+          last_tested_at?: string | null
+          provider: string
+          sort_order?: number
+          source_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string | null
+          api_key_secret_name?: string | null
+          api_secret?: string | null
+          config?: Json
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          endpoint?: string | null
+          id?: string
+          label?: string
+          last_test_message?: string | null
+          last_test_ok?: boolean | null
+          last_tested_at?: string | null
+          provider?: string
+          sort_order?: number
+          source_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       guru_learn_progress: {
         Row: {
           id: string
@@ -2030,6 +2197,68 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      guru_learning_memory: {
+        Row: {
+          created_at: string
+          difficulty_performance: Json
+          last_activity_at: string | null
+          learning_history: Json
+          preferred_character_id: string | null
+          preferred_language: string
+          preferred_teaching_style: string | null
+          quiz_performance: Json
+          skill_level: string
+          strong_topics: Json
+          topics_completed: Json
+          topics_studied: Json
+          updated_at: string
+          user_id: string
+          weak_topics: Json
+        }
+        Insert: {
+          created_at?: string
+          difficulty_performance?: Json
+          last_activity_at?: string | null
+          learning_history?: Json
+          preferred_character_id?: string | null
+          preferred_language?: string
+          preferred_teaching_style?: string | null
+          quiz_performance?: Json
+          skill_level?: string
+          strong_topics?: Json
+          topics_completed?: Json
+          topics_studied?: Json
+          updated_at?: string
+          user_id: string
+          weak_topics?: Json
+        }
+        Update: {
+          created_at?: string
+          difficulty_performance?: Json
+          last_activity_at?: string | null
+          learning_history?: Json
+          preferred_character_id?: string | null
+          preferred_language?: string
+          preferred_teaching_style?: string | null
+          quiz_performance?: Json
+          skill_level?: string
+          strong_topics?: Json
+          topics_completed?: Json
+          topics_studied?: Json
+          updated_at?: string
+          user_id?: string
+          weak_topics?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_learning_memory_preferred_character_id_fkey"
+            columns: ["preferred_character_id"]
+            isOneToOne: false
+            referencedRelation: "guru_characters"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       guru_learning_sessions: {
         Row: {
