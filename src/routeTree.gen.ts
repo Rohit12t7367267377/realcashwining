@@ -60,6 +60,7 @@ import { Route as AdminEventsRouteImport } from './routes/admin.events'
 import { Route as AdminFaqsRouteImport } from './routes/admin.faqs'
 import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminFraudRouteImport } from './routes/admin.fraud'
+import { Route as AdminKnowledgeRouteImport } from './routes/admin.knowledge'
 import { Route as AdminKycRouteImport } from './routes/admin.kyc'
 import { Route as AdminLibraryRouteImport } from './routes/admin.library'
 import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
@@ -364,6 +365,11 @@ const AdminFraudRoute = AdminFraudRouteImport.update({
   path: '/fraud',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminKnowledgeRoute = AdminKnowledgeRouteImport.update({
+  id: '/knowledge',
+  path: '/knowledge',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminKycRoute = AdminKycRouteImport.update({
   id: '/kyc',
   path: '/kyc',
@@ -659,6 +665,7 @@ export interface FileRoutesByFullPath {
   '/admin/faqs': typeof AdminFaqsRoute
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/fraud': typeof AdminFraudRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/kyc': typeof AdminKycRoute
   '/admin/library': typeof AdminLibraryRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
@@ -758,6 +765,7 @@ export interface FileRoutesByTo {
   '/admin/faqs': typeof AdminFaqsRoute
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/fraud': typeof AdminFraudRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/kyc': typeof AdminKycRoute
   '/admin/library': typeof AdminLibraryRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
@@ -860,6 +868,7 @@ export interface FileRoutesById {
   '/admin/faqs': typeof AdminFaqsRoute
   '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/fraud': typeof AdminFraudRoute
+  '/admin/knowledge': typeof AdminKnowledgeRoute
   '/admin/kyc': typeof AdminKycRoute
   '/admin/library': typeof AdminLibraryRoute
   '/admin/live-scores': typeof AdminLiveScoresRoute
@@ -963,6 +972,7 @@ export interface FileRouteTypes {
     | '/admin/faqs'
     | '/admin/feedback'
     | '/admin/fraud'
+    | '/admin/knowledge'
     | '/admin/kyc'
     | '/admin/library'
     | '/admin/live-scores'
@@ -1062,6 +1072,7 @@ export interface FileRouteTypes {
     | '/admin/faqs'
     | '/admin/feedback'
     | '/admin/fraud'
+    | '/admin/knowledge'
     | '/admin/kyc'
     | '/admin/library'
     | '/admin/live-scores'
@@ -1163,6 +1174,7 @@ export interface FileRouteTypes {
     | '/admin/faqs'
     | '/admin/feedback'
     | '/admin/fraud'
+    | '/admin/knowledge'
     | '/admin/kyc'
     | '/admin/library'
     | '/admin/live-scores'
@@ -1620,6 +1632,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFraudRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/knowledge': {
+      id: '/admin/knowledge'
+      path: '/knowledge'
+      fullPath: '/admin/knowledge'
+      preLoaderRoute: typeof AdminKnowledgeRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/kyc': {
       id: '/admin/kyc'
       path: '/kyc'
@@ -1979,6 +1998,7 @@ interface AdminRouteChildren {
   AdminFaqsRoute: typeof AdminFaqsRoute
   AdminFeedbackRoute: typeof AdminFeedbackRoute
   AdminFraudRoute: typeof AdminFraudRoute
+  AdminKnowledgeRoute: typeof AdminKnowledgeRoute
   AdminKycRoute: typeof AdminKycRoute
   AdminLibraryRoute: typeof AdminLibraryRoute
   AdminLiveScoresRoute: typeof AdminLiveScoresRoute
@@ -2019,6 +2039,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminFaqsRoute: AdminFaqsRoute,
   AdminFeedbackRoute: AdminFeedbackRoute,
   AdminFraudRoute: AdminFraudRoute,
+  AdminKnowledgeRoute: AdminKnowledgeRoute,
   AdminKycRoute: AdminKycRoute,
   AdminLibraryRoute: AdminLibraryRoute,
   AdminLiveScoresRoute: AdminLiveScoresRoute,
