@@ -126,7 +126,8 @@ function AdminLibraryPage() {
   });
 
   return (
-    <AdminShell title="Book & Resource Management">
+    <AdminShell>
+      <h1 className="text-xl font-black">Book &amp; Resource Management</h1>
       <div className="rounded-2xl border border-border bg-card p-3">
         <p className="flex items-start gap-2 text-[11px] text-muted-foreground">
           <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
