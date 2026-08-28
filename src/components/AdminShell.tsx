@@ -53,9 +53,13 @@ const GROUPS: { title: string; items: Item[] }[] = [
     title: "Guru.AI",
     items: [
       { to: "/admin/ai", label: "AI Studio", icon: Wand2 },
-      { to: "/admin/books", label: "Library", icon: BookOpen },
+      { to: "/admin/library", label: "Books & Resources", icon: BookOpen },
+      { to: "/admin/knowledge", label: "AI Knowledge Sources", icon: Database },
+      { to: "/admin/catalog", label: "Exams & College", icon: FolderTree },
+      { to: "/admin/books", label: "Library (legacy)", icon: BookOpen },
     ],
   },
+
   {
     title: "Profile & Creators",
     items: [
