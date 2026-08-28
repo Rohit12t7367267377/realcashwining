@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 import {
   LayoutDashboard, FolderTree, HelpCircle, Trophy, Users, Settings, LogOut, Home, ShieldCheck,
   Banknote, BookOpen, Gavel, Radio, Award, Target, Sparkles, Zap, Wand2, Crown, Ticket, Image,
-  Bell, Download, AlertTriangle, MessageSquare, Eye, ShoppingBag, Gift, Megaphone, Star, Cog,
+  Bell, Database, Download, AlertTriangle, MessageSquare, Eye, ShoppingBag, Gift, Megaphone, Star, Cog,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -82,8 +82,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { to: "/admin/fraud", label: "Fraud & Anti-Cheat", icon: AlertTriangle },
       { to: "/admin/app-updates", label: "App Updates", icon: Download },
       { to: "/admin/roles", label: "Roles", icon: ShieldCheck },
-      { to: "/admin/catalog", label: "Exams & College", icon: ShieldCheck },
-      { to: "/admin/settings", label: "Settings", icon: Settings },
+            { to: "/admin/settings", label: "Settings", icon: Settings },
     ],
   },
 ];
