@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.17"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -1581,6 +1581,7 @@ export type Database = {
           description: string | null
           difficulty_style: string
           emoji: string
+          fallback_voice_code: string | null
           id: string
           languages: string
           name: string
@@ -1594,8 +1595,13 @@ export type Database = {
           unlock_requirement: Json
           unlock_type: string
           updated_at: string
+          voice_code: string | null
           voice_id: string | null
           voice_label: string
+          voice_language: string
+          voice_pitch: number
+          voice_provider: string
+          voice_speed: number
         }
         Insert: {
           accent_color?: string
@@ -1607,6 +1613,7 @@ export type Database = {
           description?: string | null
           difficulty_style?: string
           emoji?: string
+          fallback_voice_code?: string | null
           id?: string
           languages?: string
           name: string
@@ -1620,8 +1627,13 @@ export type Database = {
           unlock_requirement?: Json
           unlock_type?: string
           updated_at?: string
+          voice_code?: string | null
           voice_id?: string | null
           voice_label?: string
+          voice_language?: string
+          voice_pitch?: number
+          voice_provider?: string
+          voice_speed?: number
         }
         Update: {
           accent_color?: string
@@ -1633,6 +1645,7 @@ export type Database = {
           description?: string | null
           difficulty_style?: string
           emoji?: string
+          fallback_voice_code?: string | null
           id?: string
           languages?: string
           name?: string
@@ -1646,8 +1659,13 @@ export type Database = {
           unlock_requirement?: Json
           unlock_type?: string
           updated_at?: string
+          voice_code?: string | null
           voice_id?: string | null
           voice_label?: string
+          voice_language?: string
+          voice_pitch?: number
+          voice_provider?: string
+          voice_speed?: number
         }
         Relationships: []
       }
@@ -2527,6 +2545,8 @@ export type Database = {
           level: number
           preferred_language: string
           preferred_teaching_style: string
+          preferred_voice_code: string | null
+          preferred_voice_speed: number
           questions_solved: number
           selected_character_id: string | null
           streak_days: number
@@ -2544,6 +2564,8 @@ export type Database = {
           level?: number
           preferred_language?: string
           preferred_teaching_style?: string
+          preferred_voice_code?: string | null
+          preferred_voice_speed?: number
           questions_solved?: number
           selected_character_id?: string | null
           streak_days?: number
@@ -2561,6 +2583,8 @@ export type Database = {
           level?: number
           preferred_language?: string
           preferred_teaching_style?: string
+          preferred_voice_code?: string | null
+          preferred_voice_speed?: number
           questions_solved?: number
           selected_character_id?: string | null
           streak_days?: number
@@ -2632,6 +2656,80 @@ export type Database = {
           },
         ]
       }
+      guru_teaching_configs: {
+        Row: {
+          access: string
+          active: boolean
+          board_type: string
+          character_id: string | null
+          created_at: string
+          difficulty: string | null
+          extra_instructions: string | null
+          id: string
+          language: string
+          lesson_structure: Json
+          priority: number
+          ref_id: string | null
+          scope: string
+          teaching_mode: string
+          title: string
+          tools: Json
+          topic_key: string | null
+          updated_at: string
+          voice_code: string | null
+        }
+        Insert: {
+          access?: string
+          active?: boolean
+          board_type?: string
+          character_id?: string | null
+          created_at?: string
+          difficulty?: string | null
+          extra_instructions?: string | null
+          id?: string
+          language?: string
+          lesson_structure?: Json
+          priority?: number
+          ref_id?: string | null
+          scope: string
+          teaching_mode?: string
+          title: string
+          tools?: Json
+          topic_key?: string | null
+          updated_at?: string
+          voice_code?: string | null
+        }
+        Update: {
+          access?: string
+          active?: boolean
+          board_type?: string
+          character_id?: string | null
+          created_at?: string
+          difficulty?: string | null
+          extra_instructions?: string | null
+          id?: string
+          language?: string
+          lesson_structure?: Json
+          priority?: number
+          ref_id?: string | null
+          scope?: string
+          teaching_mode?: string
+          title?: string
+          tools?: Json
+          topic_key?: string | null
+          updated_at?: string
+          voice_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guru_teaching_configs_character_id_fkey"
+            columns: ["character_id"]
+            isOneToOne: false
+            referencedRelation: "guru_characters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guru_topics: {
         Row: {
           active: boolean
@@ -2690,6 +2788,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      guru_voices: {
+        Row: {
+          accent: string | null
+          active: boolean
+          code: string
+          created_at: string
+          gender: string | null
+          id: string
+          is_default: boolean
+          is_fallback: boolean
+          label: string
+          language: string
+          pitch: number
+          provider: string
+          sort_order: number
+          speed: number
+          style: string | null
+          updated_at: string
+          voice_id: string
+        }
+        Insert: {
+          accent?: string | null
+          active?: boolean
+          code: string
+          created_at?: string
+          gender?: string | null
+          id?: string
+          is_default?: boolean
+          is_fallback?: boolean
+          label: string
+          language?: string
+          pitch?: number
+          provider?: string
+          sort_order?: number
+          speed?: number
+          style?: string | null
+          updated_at?: string
+          voice_id: string
+        }
+        Update: {
+          accent?: string | null
+          active?: boolean
+          code?: string
+          created_at?: string
+          gender?: string | null
+          id?: string
+          is_default?: boolean
+          is_fallback?: boolean
+          label?: string
+          language?: string
+          pitch?: number
+          provider?: string
+          sort_order?: number
+          speed?: number
+          style?: string | null
+          updated_at?: string
+          voice_id?: string
+        }
+        Relationships: []
       }
       kyc_submissions: {
         Row: {
