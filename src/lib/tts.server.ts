@@ -51,8 +51,9 @@ export async function synthesizeSpeech(
     body: JSON.stringify({
       model: "openai/gpt-4o-mini-tts",
       input: clean,
-      voice: "alloy",
+      voice: opts.fallbackVoiceId || opts.voiceId || "alloy",
       response_format: "mp3",
+      speed,
     }),
   });
   if (!res.ok) {

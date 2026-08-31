@@ -143,7 +143,7 @@ export const guruSaveVoicePreference = createServerFn({ method: "POST" })
     const patch: Record<string, unknown> = { user_id: context.userId };
     patch.preferred_voice_code = data.voiceCode?.trim() ? data.voiceCode.trim() : null;
     if (typeof data.speed === "number") patch.preferred_voice_speed = data.speed;
-    const { error } = await context.supabase.from("guru_student_xp").upsert(patch, { onConflict: "user_id" });
+    const { error } = await context.supabase.from("guru_student_xp").upsert(patch as never, { onConflict: "user_id" });
     if (error) throw new Error(error.message);
     return { ok: true };
   });
