@@ -4,6 +4,8 @@ import { requireAdminPassword } from "@/lib/admin-auth";
 
 type Db = { from: (t: string) => any };
 
+type Row = Record<string, string | number | boolean | null | string[]>;
+
 const SCOPES = ["school", "college", "exam", "skill", "galaxy", "universal", "library", "classroom"] as const;
 
 /* ------------------------------ voices ------------------------------ */
@@ -18,7 +20,7 @@ export const adminListVoices = createServerFn({ method: "GET" })
       .order("sort_order")
       .order("label");
     if (error) throw new Error(error.message);
-    return (data ?? []) as Array<Record<string, unknown>>;
+    return (data ?? []) as Row[];
   });
 
 export const adminSaveVoice = createServerFn({ method: "POST" })
@@ -77,8 +79,8 @@ export const adminListTeachingConfigs = createServerFn({ method: "GET" })
     ]);
     if (error) throw new Error(error.message);
     return {
-      configs: (configs ?? []) as Array<Record<string, unknown>>,
-      characters: (characters ?? []) as Array<Record<string, unknown>>,
+      configs: (configs ?? []) as Row[],
+      characters: (characters ?? []) as Row[],
     };
   });
 
