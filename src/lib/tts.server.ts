@@ -6,11 +6,28 @@ const GATEWAY_TTS_URL = "https://ai.gateway.lovable.dev/v1/audio/speech";
 
 export type SpeechResult = { base64: string; mimeType: string; provider: string };
 
-export async function synthesizeSpeech(text: string, voiceId?: string): Promise<SpeechResult> {
+export type SpeechOptions = {
+  /** Provider voice id (ElevenLabs voice id, or gateway voice name). */
+  voiceId?: string | null;
+  /** Used when the primary voice is rejected by the provider. */
+  fallbackVoiceId?: string | null;
+  /** 0.5 – 1.5 */
+  speed?: number | null;
+  /** "elevenlabs" | "lovable" — a hint only; fallback always applies. */
+  provider?: string | null;
+};
+
+export async function synthesizeSpeech(
+  text: string,
+  options?: string | SpeechOptions,
+): Promise<SpeechResult> {
+  const opts: SpeechOptions = typeof options === "string" ? { voiceId: options } : options ?? {};
   const clean = text.slice(0, 3000);
+  const speed = Math.max(0.5, Math.min(1.5, Number(opts.speed ?? 1) || 1));
   const elevenKey = process.env.ELEVENLABS_API_KEY;
-  if (elevenKey) {
-    const voice = voiceId || ELEVEN_DEFAULT_VOICE;
+  if (elevenKey && opts.provider !== "lovable") {
+    const voice = opts.voiceId || ELEVEN_DEFAULT_VOICE;
+
     const res = await fetch(
       `https://api.elevenlabs.io/v1/text-to-speech/${voice}?output_format=mp3_44100_128`,
       {
@@ -34,8 +51,9 @@ export async function synthesizeSpeech(text: string, voiceId?: string): Promise<
     body: JSON.stringify({
       model: "openai/gpt-4o-mini-tts",
       input: clean,
-      voice: "alloy",
+      voice: opts.fallbackVoiceId || opts.voiceId || "alloy",
       response_format: "mp3",
+      speed,
     }),
   });
   if (!res.ok) {

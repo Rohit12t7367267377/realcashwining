@@ -76,6 +76,7 @@ import { Route as AdminRolesRouteImport } from './routes/admin.roles'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminStoreRouteImport } from './routes/admin.store'
 import { Route as AdminSubscriptionsRouteImport } from './routes/admin.subscriptions'
+import { Route as AdminTeachingRouteImport } from './routes/admin.teaching'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminXpRouteImport } from './routes/admin.xp'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
@@ -445,6 +446,11 @@ const AdminSubscriptionsRoute = AdminSubscriptionsRouteImport.update({
   path: '/subscriptions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminTeachingRoute = AdminTeachingRouteImport.update({
+  id: '/teaching',
+  path: '/teaching',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
@@ -681,6 +687,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/store': typeof AdminStoreRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
+  '/admin/teaching': typeof AdminTeachingRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -781,6 +788,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/store': typeof AdminStoreRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
+  '/admin/teaching': typeof AdminTeachingRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -884,6 +892,7 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/store': typeof AdminStoreRoute
   '/admin/subscriptions': typeof AdminSubscriptionsRoute
+  '/admin/teaching': typeof AdminTeachingRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
@@ -988,6 +997,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/store'
     | '/admin/subscriptions'
+    | '/admin/teaching'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -1088,6 +1098,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/store'
     | '/admin/subscriptions'
+    | '/admin/teaching'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -1190,6 +1201,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/store'
     | '/admin/subscriptions'
+    | '/admin/teaching'
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
@@ -1744,6 +1756,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSubscriptionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/teaching': {
+      id: '/admin/teaching'
+      path: '/teaching'
+      fullPath: '/admin/teaching'
+      preLoaderRoute: typeof AdminTeachingRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/users': {
       id: '/admin/users'
       path: '/users'
@@ -2014,6 +2033,7 @@ interface AdminRouteChildren {
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminStoreRoute: typeof AdminStoreRoute
   AdminSubscriptionsRoute: typeof AdminSubscriptionsRoute
+  AdminTeachingRoute: typeof AdminTeachingRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminXpRoute: typeof AdminXpRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -2055,6 +2075,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSettingsRoute: AdminSettingsRoute,
   AdminStoreRoute: AdminStoreRoute,
   AdminSubscriptionsRoute: AdminSubscriptionsRoute,
+  AdminTeachingRoute: AdminTeachingRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminXpRoute: AdminXpRoute,
   AdminIndexRoute: AdminIndexRoute,
