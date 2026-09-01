@@ -56,7 +56,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { to: "/admin/library", label: "Books & Resources", icon: BookOpen },
       { to: "/admin/knowledge", label: "AI Knowledge Sources", icon: Database },
       { to: "/admin/catalog", label: "Exams & College", icon: FolderTree },
-      { to: "/admin/books", label: "Library (legacy)", icon: BookOpen },
+      { to: "/admin/teaching", label: "Teaching Engine", icon: Cog },
     ],
   },
 
