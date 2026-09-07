@@ -1,23 +1,27 @@
 import { createMiddleware } from "@tanstack/react-start";
-import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { getRequest } from "@tanstack/react-start/server";
 
-/**
- * Server-side admin guard.
- * Requires a valid Supabase session (bearer token) AND the `admin` role
- * in public.user_roles, verified in the database via has_role().
- * There is no shared password and no frontend-only check.
- */
-export const requireAdmin = createMiddleware({ type: "function" })
-  .middleware([requireSupabaseAuth])
-  .server(async ({ next, context }) => {
-    const { data, error } = await context.supabase.rpc("has_role", {
-      _user_id: context.userId,
-      _role: "admin",
-    });
-    if (error) throw new Error("Unauthorized: could not verify admin role");
-    if (data !== true) throw new Error("Unauthorized: admin role required");
+export const ADMIN_PASSWORD = "Zoe@123";
+export const ADMIN_GATE_KEY = "cwl_admin_gate_v1";
+const HEADER = "x-admin-pass";
+
+export const attachAdminPass = createMiddleware({ type: "function" }).client(
+  async ({ next }) => {
+    let pass = "";
+    if (typeof window !== "undefined") {
+      pass = sessionStorage.getItem(ADMIN_GATE_KEY) === "1" ? ADMIN_PASSWORD : "";
+    }
+    return next({ headers: pass ? { [HEADER]: pass } : {} });
+  },
+);
+
+export const requireAdminPassword = createMiddleware({ type: "function" }).server(
+  async ({ next }) => {
+    const request = getRequest();
+    const provided = request?.headers.get(HEADER);
+    if (provided !== ADMIN_PASSWORD) {
+      throw new Error("Unauthorized: admin password required");
+    }
     return next();
-  });
-
-/** Legacy alias kept so existing admin server functions keep working. */
-export const requireAdminPassword = requireAdmin;
+  },
+);
