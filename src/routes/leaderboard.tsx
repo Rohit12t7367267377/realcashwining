@@ -15,9 +15,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/leaderboard")({
   head: () => ({
     meta: [
-      { title: "Ranks — Leaderboards, Missions & Hall of Fame | Cash Winning League" },
+      { title: "Ranks — Leaderboards, Missions & Hall of Fame | Guru-G" },
       { name: "description", content: "The complete competition centre: winners leaderboard, weekly/monthly/all-time ranking, top 3 podium, seasonal events, missions, XP progress and Hall of Fame." },
-      { property: "og:title", content: "Ranks — Cash Winning League" },
+      { property: "og:title", content: "Ranks — Guru-G" },
       { property: "og:description", content: "Winners leaderboard, weekly & monthly rankings, podium, missions, XP and Hall of Fame." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

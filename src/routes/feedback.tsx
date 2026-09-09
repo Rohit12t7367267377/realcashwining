@@ -10,7 +10,7 @@ import { submitFeedback } from "@/lib/social.functions";
 
 export const Route = createFileRoute("/feedback")({
   head: () => ({ meta: [
-    { title: "Send Feedback — Cash Winning League" },
+    { title: "Send Feedback — Guru-G" },
     { name: "description", content: "Rate the app and share suggestions with our team." },
     { property: "og:title", content: "Send Feedback" },
     { property: "og:description", content: "Help us improve the app." },

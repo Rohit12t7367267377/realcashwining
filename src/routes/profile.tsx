@@ -29,9 +29,9 @@ import {
 export const Route = createFileRoute("/profile")({
   head: () => ({
     meta: [
-      { title: "My Profile — Cash Winning League" },
+      { title: "My Profile — Guru-G" },
       { name: "description", content: "Your quiz profile — photo, bio, followers, posts, stats and contest history." },
-      { property: "og:title", content: "My Profile — Cash Winning League" },
+      { property: "og:title", content: "My Profile — Guru-G" },
       { property: "og:description", content: "Photo, bio, followers, posts, stats and contest history." },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary" },

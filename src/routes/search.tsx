@@ -10,9 +10,9 @@ export const Route = createFileRoute("/search")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Search — Cash Winning League" },
+      { title: "Search — Guru-G" },
       { name: "description", content: "Search contests, categories, players, books and help articles across the app." },
-      { property: "og:title", content: "Search Cash Winning League" },
+      { property: "og:title", content: "Search Guru-G" },
       { property: "og:description", content: "Find contests, categories, players and help articles instantly." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/live-scores")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Live Sports Scores — CWL" }] }),
+  head: () => ({ meta: [{ title: "Live Sports Scores — Guru-G" }] }),
   component: LiveScores,
 });
 

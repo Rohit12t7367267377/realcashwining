@@ -25,7 +25,7 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/wallet/history")({
-  head: () => ({ meta: [{ title: "Transaction History — Cash Winning League" }] }),
+  head: () => ({ meta: [{ title: "Transaction History — Guru-G" }] }),
   component: TxnHistoryPage,
 });
 

@@ -20,9 +20,9 @@ import { useLang, t } from "@/lib/i18n";
 export const Route = createFileRoute("/ai")({
   head: () => ({
     meta: [
-      { title: "Guru.AI — Tutor, Doubt Solver, Library & Voice | Cash Winning League" },
+      { title: "Guru.AI — Tutor, Doubt Solver, Library & Voice | Guru-G" },
       { name: "description", content: "Guru.AI: one place for every AI tool — tutor, doubt solver, quiz generator, reading assistant, coding mentor, interview practice, study planner and performance analysis." },
-      { property: "og:title", content: "Guru.AI — Cash Winning League" },
+      { property: "og:title", content: "Guru.AI — Guru-G" },
       { property: "og:description", content: "Your personal AI tutor, doubt solver, planner and performance analyst — in English or Hindi." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

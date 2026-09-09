@@ -9,7 +9,7 @@ export const Route = createFileRoute("/support")({
   component: SupportPage,
   head: () => ({
     meta: [
-      { title: "Help & Support — Cash Winning League" },
+      { title: "Help & Support — Guru-G" },
       { name: "description", content: "Need help? Contact our support team or browse common questions." },
     ],
   }),
@@ -39,7 +39,7 @@ const FAQS = [
 ];
 
 function SupportPage() {
-  const subject = encodeURIComponent("Help needed — Cash Winning League");
+  const subject = encodeURIComponent("Help needed — Guru-G");
   const body = encodeURIComponent("Hi team,\n\nI need help with:\n\n");
   const mailto = `mailto:${SUPPORT_EMAIL}?subject=${subject}&body=${body}`;
 

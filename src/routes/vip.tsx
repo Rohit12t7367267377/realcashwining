@@ -10,7 +10,7 @@ import { purchaseMembership } from "@/lib/social.functions";
 
 export const Route = createFileRoute("/vip")({
   head: () => ({ meta: [
-    { title: "VIP Membership — Cash Winning League" },
+    { title: "VIP Membership — Guru-G" },
     { name: "description", content: "Upgrade to VIP for exclusive contests, ad-free play and bonus XP." },
     { property: "og:title", content: "VIP Membership" },
     { property: "og:description", content: "Unlock premium contests and rewards." },

@@ -47,11 +47,11 @@ export function AppHeader() {
       <div className="mx-auto grid max-w-2xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5">
         <Link to="/" className="press flex min-w-0 items-center gap-2">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground font-black shadow-glow">
-            ₹
+            G
           </span>
           <div className="min-w-0 leading-tight">
-            <div className="truncate text-sm font-bold tracking-tight">Cash Winning</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">League</div>
+            <div className="truncate text-sm font-bold tracking-tight">Guru-G</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Learn & Win</div>
           </div>
         </Link>
         <div className="flex shrink-0 items-center gap-1.5">

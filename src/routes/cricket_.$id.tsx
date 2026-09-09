@@ -8,7 +8,7 @@ import { ArrowLeft, Radio, Trophy, Zap, BookOpenCheck, Clock } from "lucide-reac
 export const Route = createFileRoute("/cricket_/$id")({
   head: () => ({
     meta: [
-      { title: "Live Match Centre — Cash Winning League" },
+      { title: "Live Match Centre — Guru-G" },
       { name: "description", content: "Live score, match quizzes and reading challenges for this match." },
       { property: "og:title", content: "Live Match Centre" },
       { property: "og:description", content: "Follow the live score and play the match quiz." },

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/admin")({
   component: AdminLayout,
-  head: () => ({ meta: [{ title: "Admin — Cash Winning League" }] }),
+  head: () => ({ meta: [{ title: "Admin — Guru-G" }] }),
 });
 
 function Gate({ icon, title, text, children }: { icon: React.ReactNode; title: string; text: string; children?: React.ReactNode }) {

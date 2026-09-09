@@ -111,7 +111,7 @@ export async function exportContestResultsToWord(
       children: [
         new Paragraph({
           heading: HeadingLevel.HEADING_1,
-          children: [new TextRun({ text: "Cash Winning League", bold: true })],
+          children: [new TextRun({ text: "Guru-G", bold: true })],
         }),
         new Paragraph({
           children: [new TextRun({ text: contestTitle, bold: true, size: 28 })],
@@ -144,5 +144,5 @@ export async function exportContestResultsToWord(
 
   const buffer = await Packer.toBlob(doc);
   const safeName = contestTitle.replace(/[^a-zA-Z0-9]+/g, "_").substring(0, 40);
-  saveAs(buffer, `CWL_${safeName}_Results.docx`);
+  saveAs(buffer, `Guru-G_${safeName}_Results.docx`);
 }

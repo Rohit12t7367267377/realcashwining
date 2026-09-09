@@ -17,9 +17,9 @@ import { Trophy, Sparkles, Timer, PlayCircle } from "lucide-react";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Cash Winning League — Play Quiz, Win Real Cash" },
+      { title: "Guru-G — Play Quiz, Win Real Cash" },
       { name: "description", content: "India's most exciting MCQ quiz competition — SSC, UPSC, Banking, Railway, Police, GK & more. Win cash, climb the leaderboard." },
-      { property: "og:title", content: "Cash Winning League" },
+      { property: "og:title", content: "Guru-G" },
       { property: "og:description", content: "Play paid & free quiz contests on SSC, UPSC, Banking & more. Win real cash daily." },
     ],
   }),

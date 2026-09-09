@@ -12,7 +12,7 @@ import { submitKyc } from "@/lib/social.functions";
 
 export const Route = createFileRoute("/kyc")({
   head: () => ({ meta: [
-    { title: "KYC Verification — Cash Winning League" },
+    { title: "KYC Verification — Guru-G" },
     { name: "description", content: "Submit ID documents to verify your account and unlock withdrawals." },
     { property: "og:title", content: "KYC Verification" },
     { property: "og:description", content: "Verify your identity to withdraw winnings." },

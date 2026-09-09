@@ -38,9 +38,9 @@ export const SUBSCRIBE_DEFAULTS: SubscribeConfig = {
 export const Route = createFileRoute("/subscribe")({
   head: () => ({
     meta: [
-      { title: "Premium Membership — Cash Winning League" },
+      { title: "Premium Membership — Guru-G" },
       { name: "description", content: "Unlock unlimited Guru.AI, premium contests, creator mode, ad-free play and bonus rewards." },
-      { property: "og:title", content: "Premium Membership — Cash Winning League" },
+      { property: "og:title", content: "Premium Membership — Guru-G" },
       { property: "og:description", content: "Unlock unlimited Guru.AI, premium contests, creator mode and ad-free play." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -131,7 +131,7 @@ function Page() {
           key: keyId,
           amount: order.amount_paise,
           currency: order.currency,
-          name: "Cash Winning League",
+          name: "Guru-G",
           description: `${order.plan_name} membership`,
           order_id: order.order_id,
           theme: { color: "#7c3aed" },

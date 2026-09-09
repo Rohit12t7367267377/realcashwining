@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/wallet")({
-  head: () => ({ meta: [{ title: "Wallet — Cash Winning League" }] }),
+  head: () => ({ meta: [{ title: "Wallet — Guru-G" }] }),
   component: WalletPage,
 });
 
@@ -307,7 +307,7 @@ function DepositForm({ settings, onDone }: { settings: any; onDone: () => void }
         {settings.admin_upi_id ? (
           <div className="mt-3 flex flex-col items-center gap-1">
             <img
-              src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&data=${encodeURIComponent(`upi://pay?pa=${settings.admin_upi_id}&pn=CWL&cu=INR`)}`}
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=10&data=${encodeURIComponent(`upi://pay?pa=${settings.admin_upi_id}&pn=Guru-G&cu=INR`)}`}
               alt="Admin UPI QR"
               className="h-64 w-64 rounded-lg border bg-white object-contain p-2"
             />
