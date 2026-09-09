@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Trophy, Gem, Sparkles, User } from "lucide-react";
+import { Home, Trophy, Sparkles, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
