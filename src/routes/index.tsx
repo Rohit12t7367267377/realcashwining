@@ -501,51 +501,76 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle: string })
   );
 }
 
+const LEARN_SKILLS = [
+  { to: "/guru/school", emoji: "🏫", name: "School", desc: "Class 1–12 · All boards" },
+  { to: "/guru/college", emoji: "🎓", name: "College", desc: "B.Tech · BCA · MBA & more" },
+  { to: "/guru/skills", emoji: "🚀", name: "Skills", desc: "Coding · Communication · AI" },
+] as const;
+
 function Landing() {
   return (
-    <div className="relative isolate min-h-screen overflow-hidden">
+    <div className="landing-dark relative isolate min-h-screen overflow-hidden">
+      {/* Aurora background */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 -left-24 h-96 w-96 rounded-full bg-primary/30 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-secondary/30 blur-3xl animate-blob" style={{ animationDelay: "4s" }} />
-        <div className="absolute bottom-0 left-1/4 h-80 w-80 rounded-full bg-accent/30 blur-3xl animate-blob" style={{ animationDelay: "8s" }} />
+        <div className="absolute -top-32 -left-24 h-96 w-96 rounded-full bg-primary/40 blur-3xl animate-blob" />
+        <div className="absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-secondary/35 blur-3xl animate-blob" style={{ animationDelay: "4s" }} />
+        <div className="absolute bottom-0 left-1/4 h-80 w-80 rounded-full bg-accent/35 blur-3xl animate-blob" style={{ animationDelay: "8s" }} />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,var(--background)_75%)]" />
       </div>
-      <div className="mx-auto flex max-w-2xl flex-col items-center px-6 pt-20 text-center">
-        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/30 bg-card/60 px-4 py-1.5 text-xs font-semibold backdrop-blur">
-          <span className="h-2 w-2 animate-pulse rounded-full bg-success" />
-          Play. Win. Repeat.
+
+      <div className="mx-auto flex max-w-2xl flex-col items-center px-6 pt-16 text-center [perspective:1000px]">
+        {/* Logo mark */}
+        <div className="animate-float-slow mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-primary text-4xl font-black text-primary-foreground shadow-glow ring-4 ring-primary/20">
+          G
         </div>
+
+        <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/40 bg-card/60 px-4 py-1.5 text-xs font-semibold backdrop-blur">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-success" />
+          Learn everything you want — and win too
+        </div>
+
         <h1 className="text-5xl font-black leading-tight tracking-tight sm:text-6xl">
-          Play Quiz.<br />Win <span className="text-gradient-primary">Real Cash.</span>
+          Learn with <span className="text-gradient-primary">Guru-G.</span><br />Win Real Cash.
         </h1>
         <p className="mt-4 max-w-md text-base text-muted-foreground">
-          Live Sports quizzes (cricket, football, tennis & more), General Knowledge for every competitive exam, and Coding challenges across every language.
+          AI-powered learning for School, College & Skills — plus live quizzes where your knowledge wins real rewards.
         </p>
+
         <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
           <Link to="/auth">
             <Button size="lg" className="h-12 w-full bg-gradient-primary text-base font-bold shadow-glow hover:opacity-95">
               Get Started
             </Button>
           </Link>
-          <Link to="/live-scores">
-            <Button size="lg" variant="outline" className="h-12 w-full text-base font-semibold">
-              ⚡ View Live Scores
+          <Link to="/guru">
+            <Button size="lg" variant="outline" className="h-12 w-full border-primary/40 text-base font-semibold hover:bg-primary/10">
+              ✨ Explore Guru.AI
             </Button>
           </Link>
         </div>
 
-        <div className="mt-12 w-full">
-          <h3 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">Quiz Categories</h3>
+        {/* Learn skills — 3D tiles */}
+        <div className="mt-14 w-full">
+          <h3 className="mb-1 text-sm font-bold uppercase tracking-widest text-muted-foreground">Learn Skills</h3>
+          <p className="mb-4 text-xs text-muted-foreground/70">Pick a path — AI teachers guide you the whole way</p>
           <div className="grid grid-cols-3 gap-3">
-            {CATEGORIES.map((c) => (
-              <Link key={c.id} to="/category/$id" params={{ id: c.id }} className="flex flex-col items-center rounded-2xl bg-card/80 p-4 shadow-soft backdrop-blur hover:-translate-y-1 transition">
-                <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-3xl`}>{c.emoji}</div>
-                <div className="mt-2 text-sm font-bold">{c.name}</div>
+            {LEARN_SKILLS.map((s) => (
+              <Link
+                key={s.to}
+                to={s.to}
+                className="tile-3d flex flex-col items-center rounded-2xl border border-primary/25 bg-card/80 p-4 backdrop-blur"
+              >
+                <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-primary text-3xl shadow-glow">
+                  {s.emoji}
+                </div>
+                <div className="mt-2 text-sm font-bold">{s.name}</div>
+                <div className="mt-0.5 text-[10px] leading-tight text-muted-foreground">{s.desc}</div>
               </Link>
             ))}
           </div>
         </div>
 
-        <div className="mt-10 flex gap-4 text-xs text-muted-foreground">
+        <div className="mt-10 flex gap-4 pb-8 text-xs text-muted-foreground">
           <Link to="/terms" className="hover:text-primary hover:underline">Terms &amp; Conditions</Link>
           <Link to="/support" className="hover:text-primary hover:underline">Help &amp; Support</Link>
           <Link to="/books" className="hover:text-primary hover:underline">Study Books</Link>
