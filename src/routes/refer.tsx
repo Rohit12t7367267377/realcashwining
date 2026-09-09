@@ -35,7 +35,7 @@ function ReferPage() {
 
   const share = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: "Guru-G", text: `Join me on CWL and win cash! Use code ${code}`, url: link }); }
+      try { await navigator.share({ title: "Guru-G", text: `Join me on Guru-G and win cash! Use code ${code}`, url: link }); }
       catch {}
     } else copy(link, "Link");
   };

@@ -144,5 +144,5 @@ export async function exportContestResultsToWord(
 
   const buffer = await Packer.toBlob(doc);
   const safeName = contestTitle.replace(/[^a-zA-Z0-9]+/g, "_").substring(0, 40);
-  saveAs(buffer, `CWL_${safeName}_Results.docx`);
+  saveAs(buffer, `Guru-G_${safeName}_Results.docx`);
 }

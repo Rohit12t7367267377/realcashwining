@@ -23,7 +23,7 @@ function TermsPage() {
 
       <article className="prose prose-sm dark:prose-invert mt-6 max-w-none space-y-5 text-sm leading-relaxed">
         <Section title="1. Acceptance of Terms">
-          By creating an account or participating in any contest on Guru-G ("CWL", "we", "us"),
+          By creating an account or participating in any contest on Guru-G ("Guru-G", "we", "us"),
           you agree to be bound by these Terms &amp; Conditions. If you do not agree, do not use the platform.
         </Section>
         <Section title="2. Eligibility">
@@ -32,7 +32,7 @@ function TermsPage() {
           Telangana, Andhra Pradesh, Nagaland, Sikkim).
         </Section>
         <Section title="3. Game of Skill">
-          All contests on CWL are games of skill. Outcomes depend on a player's knowledge, attention, and accuracy.
+          All contests on Guru-G are games of skill. Outcomes depend on a player's knowledge, attention, and accuracy.
           No element of chance determines winners.
         </Section>
         <Section title="4. Wallet, Deposits & Withdrawals">
@@ -53,10 +53,10 @@ function TermsPage() {
         </Section>
         <Section title="6. Live Sports Quizzes">
           For cricket and football live-match contests, questions reflect real-time match events.
-          Decisions made by CWL admins regarding question validity are final.
+          Decisions made by Guru-G admins regarding question validity are final.
         </Section>
         <Section title="7. Books Library">
-          PDFs uploaded to the Books section are for study purposes only. CWL does not claim ownership
+          PDFs uploaded to the Books section are for study purposes only. Guru-G does not claim ownership
           of uploaded content. Report copyright concerns at <Mail />.
         </Section>
         <Section title="8. Account Suspension">
@@ -64,10 +64,10 @@ function TermsPage() {
           manipulate results, or engages in abusive behaviour.
         </Section>
         <Section title="9. Limitation of Liability">
-          CWL is not liable for any indirect, incidental, or consequential losses arising from use of the platform.
+          Guru-G is not liable for any indirect, incidental, or consequential losses arising from use of the platform.
         </Section>
         <Section title="10. Changes">
-          We may update these terms at any time. Continued use of CWL after changes constitutes acceptance.
+          We may update these terms at any time. Continued use of Guru-G after changes constitutes acceptance.
         </Section>
         <Section title="11. Contact">
           For any concerns, write to us at <Mail />.

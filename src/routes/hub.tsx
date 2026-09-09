@@ -129,7 +129,7 @@ function HubPage() {
           <Soon icon={<Palette className="h-5 w-5" />} title="Themes" sub="Custom app skins" />
           <Soon icon={<CreditCard className="h-5 w-5" />} title="Gift Cards" sub="Amazon, Flipkart & more" />
           <Soon icon={<Disc3 className="h-5 w-5" />} title="Spin Wheel" sub="Daily lucky spin" />
-          <Soon icon={<ShoppingBag className="h-5 w-5" />} title="Merchandise" sub="Official CWL store" />
+          <Soon icon={<ShoppingBag className="h-5 w-5" />} title="Merchandise" sub="Official Guru-G store" />
         </div>
       </section>
 

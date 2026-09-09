@@ -104,7 +104,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <aside className="w-64 shrink-0 bg-card border-r flex flex-col">
         <div className="p-5 border-b">
           <div className="font-bold text-lg bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-            CWL Admin
+            Guru-G Admin
           </div>
           <div className="text-xs text-muted-foreground">Control panel</div>
         </div>

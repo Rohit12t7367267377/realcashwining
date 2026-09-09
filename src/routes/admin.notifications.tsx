@@ -23,9 +23,9 @@ export const Route = createFileRoute("/admin/notifications")({
   component: AdminNotificationsPage,
   head: () => ({
     meta: [
-      { title: "Push Notifications — CWL Admin" },
+      { title: "Push Notifications — Guru-G Admin" },
       { name: "description", content: "Send instant or scheduled push notifications to your quiz players." },
-      { property: "og:title", content: "Push Notifications — CWL Admin" },
+      { property: "og:title", content: "Push Notifications — Guru-G Admin" },
       { property: "og:description", content: "Target all users, premium members, a category or specific players." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

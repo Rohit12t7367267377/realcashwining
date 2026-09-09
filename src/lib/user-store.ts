@@ -11,7 +11,7 @@ function startSupabaseSync() {
       const base = current ?? load();
       const name = u.user_metadata?.full_name || u.user_metadata?.name || u.email?.split("@")[0] || "Player";
       const phone = u.phone || u.user_metadata?.phone || base.phone || "";
-      const referralCode = base.referralCode || ("CWL" + Math.random().toString(36).slice(2, 7).toUpperCase());
+      const referralCode = base.referralCode || ("GG" + Math.random().toString(36).slice(2, 7).toUpperCase());
       save({ ...base, loggedIn: true, name, phone, referralCode, joinedAt: base.joinedAt || Date.now() });
     } else {
       const base = current ?? load();
@@ -101,7 +101,7 @@ export function useUser() {
   }, []);
 
   const login = useCallback((name: string, phone: string) => {
-    const code = "CWL" + Math.random().toString(36).slice(2, 7).toUpperCase();
+    const code = "GG" + Math.random().toString(36).slice(2, 7).toUpperCase();
     save({
       ...DEFAULT,
       loggedIn: true,
