@@ -35,7 +35,7 @@ async function start() {
     const messaging = firebase.messaging();
     messaging.onBackgroundMessage((payload) => {
       const n = payload.notification || {};
-      self.registration.showNotification(n.title || "Cash Winning League", {
+      self.registration.showNotification(n.title || "Guru-G", {
         body: n.body || "",
         icon: "/favicon.ico",
         image: n.image,

@@ -7,7 +7,7 @@ import { HelpCircle } from "lucide-react";
 
 export const Route = createFileRoute("/faq")({
   head: () => ({ meta: [
-    { title: "FAQ & Help Center — Cash Winning League" },
+    { title: "FAQ & Help Center — Guru-G" },
     { name: "description", content: "Answers to common questions about deposits, contests, prizes and withdrawals." },
     { property: "og:title", content: "FAQ & Help Center" },
     { property: "og:description", content: "Get answers to common questions." },

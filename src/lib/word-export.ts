@@ -111,7 +111,7 @@ export async function exportContestResultsToWord(
       children: [
         new Paragraph({
           heading: HeadingLevel.HEADING_1,
-          children: [new TextRun({ text: "Cash Winning League", bold: true })],
+          children: [new TextRun({ text: "Guru-G", bold: true })],
         }),
         new Paragraph({
           children: [new TextRun({ text: contestTitle, bold: true, size: 28 })],

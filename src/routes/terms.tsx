@@ -6,8 +6,8 @@ export const Route = createFileRoute("/terms")({
   component: TermsPage,
   head: () => ({
     meta: [
-      { title: "Terms & Conditions — Cash Winning League" },
-      { name: "description", content: "Terms of use for participating in Cash Winning League quiz contests." },
+      { title: "Terms & Conditions — Guru-G" },
+      { name: "description", content: "Terms of use for participating in Guru-G quiz contests." },
     ],
   }),
 });
@@ -23,7 +23,7 @@ function TermsPage() {
 
       <article className="prose prose-sm dark:prose-invert mt-6 max-w-none space-y-5 text-sm leading-relaxed">
         <Section title="1. Acceptance of Terms">
-          By creating an account or participating in any contest on Cash Winning League ("CWL", "we", "us"),
+          By creating an account or participating in any contest on Guru-G ("CWL", "we", "us"),
           you agree to be bound by these Terms &amp; Conditions. If you do not agree, do not use the platform.
         </Section>
         <Section title="2. Eligibility">

@@ -7,7 +7,7 @@ import { Radio } from "lucide-react";
 
 export const Route = createFileRoute("/cricket")({
   head: () => ({ meta: [
-    { title: "Live Cricket Scores — Cash Winning League" },
+    { title: "Live Cricket Scores — Guru-G" },
     { name: "description", content: "Live scores for cricket matches happening right now." },
     { property: "og:title", content: "Live Cricket Scores" },
     { property: "og:description", content: "Follow every live match in one place." },

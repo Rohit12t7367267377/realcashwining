@@ -22,7 +22,7 @@ function Page() {
   const [wrongPoints, setWrongPoints] = useState(0);
   const [prizePoolPct, setPrizePoolPct] = useState(50);
   const [prizePoolTotal, setPrizePoolTotal] = useState(0);
-  const [branding, setBranding] = useState({ siteName: "Cash Winning League", tagline: "Play. Win. Repeat." });
+  const [branding, setBranding] = useState({ siteName: "Guru-G", tagline: "Play. Win. Repeat." });
   const [banner, setBanner] = useState({ message: "", active: true });
   const [loading, setLoading] = useState(true);
 
@@ -40,7 +40,7 @@ function Page() {
         if (r.key === "wrong_points") setWrongPoints(Number(r.value) || 0);
         if (r.key === "prize_pool_pct") setPrizePoolPct(Number(r.value) || 0);
         if (r.key === "prize_pool_total") setPrizePoolTotal(Number(r.value) || 0);
-        if (r.key === "branding" && r.value && typeof r.value === "object") setBranding({ siteName: "Cash Winning League", tagline: "Play. Win. Repeat.", ...r.value });
+        if (r.key === "branding" && r.value && typeof r.value === "object") setBranding({ siteName: "Guru-G", tagline: "Play. Win. Repeat.", ...r.value });
         if (r.key === "banner" && r.value && typeof r.value === "object") setBanner({ message: "", active: true, ...r.value });
       });
       setLoading(false);

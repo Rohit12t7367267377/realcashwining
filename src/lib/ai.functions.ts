@@ -26,7 +26,7 @@ async function readAiSettings(supabase: {
     doubtEnabled: asBool(map.get("ai_doubt_enabled"), true),
     doubtPrompt: asStr(
       map.get("ai_doubt_system_prompt"),
-      "You are a friendly quiz tutor for the Cash Winning League app. Explain concepts clearly and concisely. If the user asks in Hindi, reply in Hindi. Never reveal answers to active contest questions.",
+      "You are a friendly quiz tutor for the Guru-G app. Explain concepts clearly and concisely. If the user asks in Hindi, reply in Hindi. Never reveal answers to active contest questions.",
     ),
   };
 }

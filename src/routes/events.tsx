@@ -9,7 +9,7 @@ import { Sparkles } from "lucide-react";
 export const Route = createFileRoute("/events")({
   head: () => ({
     meta: [
-      { title: "Seasonal Events — Cash Winning League" },
+      { title: "Seasonal Events — Guru-G" },
       { name: "description", content: "Limited-time events with boosted XP and prize pools." },
       { property: "og:title", content: "Seasonal Events" },
       { property: "og:description", content: "Limited-time events with boosted XP and prize pools." },

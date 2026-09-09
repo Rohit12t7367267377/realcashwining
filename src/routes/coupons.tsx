@@ -10,7 +10,7 @@ import { redeemCoupon } from "@/lib/social.functions";
 
 export const Route = createFileRoute("/coupons")({
   head: () => ({ meta: [
-    { title: "Redeem Coupon — Cash Winning League" },
+    { title: "Redeem Coupon — Guru-G" },
     { name: "description", content: "Redeem gift codes for wallet credit and XP." },
     { property: "og:title", content: "Redeem Coupon" },
     { property: "og:description", content: "Enter a coupon code to unlock rewards." },

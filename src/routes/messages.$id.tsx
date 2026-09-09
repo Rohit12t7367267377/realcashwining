@@ -14,9 +14,9 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/messages/$id")({
   head: () => ({
     meta: [
-      { title: "Chat — Cash Winning League" },
+      { title: "Chat — Guru-G" },
       { name: "description", content: "Direct message a player you both follow." },
-      { property: "og:title", content: "Chat — Cash Winning League" },
+      { property: "og:title", content: "Chat — Guru-G" },
       { property: "og:description", content: "Direct message a player you both follow." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

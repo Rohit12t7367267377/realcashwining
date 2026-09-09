@@ -10,9 +10,9 @@ import { listDmThreads, listDmContacts } from "@/lib/dm.functions";
 export const Route = createFileRoute("/messages/")({
   head: () => ({
     meta: [
-      { title: "Messages — Cash Winning League" },
+      { title: "Messages — Guru-G" },
       { name: "description", content: "Private chats with the players who follow you back." },
-      { property: "og:title", content: "Messages — Cash Winning League" },
+      { property: "og:title", content: "Messages — Guru-G" },
       { property: "og:description", content: "Private chats with the players who follow you back." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

@@ -11,7 +11,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/reading/$id")({
   head: () => ({
     meta: [
-      { title: "Reading Comprehension Quiz — Cash Winning League" },
+      { title: "Reading Comprehension Quiz — Guru-G" },
       { name: "description", content: "Read the passage against the clock, then answer the comprehension questions." },
       { property: "og:title", content: "Reading Comprehension Quiz" },
       { property: "og:description", content: "Timed passage reading followed by multiple choice questions." },

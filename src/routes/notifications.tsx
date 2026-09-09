@@ -14,7 +14,7 @@ export const Route = createFileRoute("/notifications")({
   ssr: false,
   head: () => ({
     meta: [
-      { title: "Notifications — Cash Winning League" },
+      { title: "Notifications — Guru-G" },
       { name: "description", content: "Contest results, wallet updates, rewards and announcements in one place." },
       { property: "og:title", content: "Your Notifications" },
       { property: "og:description", content: "Results, wallet activity, rewards and announcements." },

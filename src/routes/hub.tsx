@@ -17,9 +17,9 @@ import {
 export const Route = createFileRoute("/hub")({
   head: () => ({
     meta: [
-      { title: "Elite Hub — Redeem, Unlock & Claim | Cash Winning League" },
+      { title: "Elite Hub — Redeem, Unlock & Claim | Guru-G" },
       { name: "description", content: "The Elite Hub: open reward boxes, redeem coupons, unlock premium membership, XP boosts, power-ups, badges, frames and themes." },
-      { property: "og:title", content: "Elite Hub — Cash Winning League" },
+      { property: "og:title", content: "Elite Hub — Guru-G" },
       { property: "og:description", content: "Claim, redeem and unlock everything: boxes, coupons, membership, boosts, badges and frames." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

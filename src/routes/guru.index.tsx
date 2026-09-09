@@ -13,7 +13,7 @@ import {
 export const Route = createFileRoute("/guru/")({
   head: () => ({
     meta: [
-      { title: "Guru.AI Universe — Learn, Level Up, Win | Cash Winning League" },
+      { title: "Guru.AI Universe — Learn, Level Up, Win | Guru-G" },
       { name: "description", content: "Your gamified AI learning universe: School, Competition Hub, Skills, Library, Universal AI, Galaxy Classroom, AI Character, My Learning and Achievements." },
       { property: "og:title", content: "Guru.AI Universe" },
       { property: "og:description", content: "A gamified AI education universe with your own AI teacher, XP, streaks and badges." },

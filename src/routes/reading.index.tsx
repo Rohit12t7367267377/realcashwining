@@ -7,7 +7,7 @@ import { BookOpenCheck, Timer, Clock } from "lucide-react";
 export const Route = createFileRoute("/reading/")({
   head: () => ({
     meta: [
-      { title: "Reading Comprehension Quizzes — Cash Winning League" },
+      { title: "Reading Comprehension Quizzes — Guru-G" },
       { name: "description", content: "Timed reading comprehension quizzes: read the passage, then answer MCQs before the clock runs out." },
       { property: "og:title", content: "Reading Comprehension Quizzes" },
       { property: "og:description", content: "Read a passage against the clock, then answer the questions." },

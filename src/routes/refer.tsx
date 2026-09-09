@@ -6,7 +6,7 @@ import { Gift, Copy, Share2, Users, IndianRupee, Calendar, CheckCircle2 } from "
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/refer")({
-  head: () => ({ meta: [{ title: "Refer & Earn — Cash Winning League" }] }),
+  head: () => ({ meta: [{ title: "Refer & Earn — Guru-G" }] }),
   component: ReferPage,
 });
 
@@ -35,7 +35,7 @@ function ReferPage() {
 
   const share = async () => {
     if (navigator.share) {
-      try { await navigator.share({ title: "Cash Winning League", text: `Join me on CWL and win cash! Use code ${code}`, url: link }); }
+      try { await navigator.share({ title: "Guru-G", text: `Join me on CWL and win cash! Use code ${code}`, url: link }); }
       catch {}
     } else copy(link, "Link");
   };

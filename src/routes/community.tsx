@@ -14,7 +14,7 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/community")({
   head: () => ({
     meta: [
-      { title: "Community Feed — Cash Winning League" },
+      { title: "Community Feed — Guru-G" },
       { name: "description", content: "Share posts, photos and videos with friends you follow, like and comment on their wins." },
       { property: "og:title", content: "Community Feed" },
       { property: "og:description", content: "Post, like and comment with your quiz friends." },

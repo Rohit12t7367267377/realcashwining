@@ -22,7 +22,7 @@ export const Route = createFileRoute("/books")({
   component: BooksPage,
   head: () => ({
     meta: [
-      { title: "Study Books — Cash Winning League" },
+      { title: "Study Books — Guru-G" },
       { name: "description", content: "Free PDF books for SSC, UPSC, Banking, Railway and more exam preparation." },
     ],
   }),
