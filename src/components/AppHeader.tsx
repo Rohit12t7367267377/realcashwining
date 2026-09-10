@@ -51,7 +51,7 @@ export function AppHeader() {
           </span>
           <div className="min-w-0 leading-tight">
             <div className="truncate text-sm font-bold tracking-tight">Guru-G</div>
-            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Learn & Win</div>
+            <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Learn everything · Win too</div>
           </div>
         </Link>
         <div className="flex shrink-0 items-center gap-1.5">
