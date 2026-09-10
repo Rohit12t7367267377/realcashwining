@@ -502,9 +502,9 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle: string })
 }
 
 const LEARN_SKILLS = [
-  { to: "/guru/school", emoji: "🏫", name: "School", desc: "Class 1–12 · All boards" },
+  { to: "/guru/school", emoji: "📚", name: "School", desc: "Class 1–12 · All boards" },
   { to: "/guru/college", emoji: "🎓", name: "College", desc: "B.Tech · BCA · MBA & more" },
-  { to: "/guru/skills", emoji: "🚀", name: "Skills", desc: "Coding · Communication · AI" },
+  { to: "/guru/skills", emoji: "💡", name: "Skills", desc: "Coding · Communication · AI" },
 ] as const;
 
 function Landing() {
@@ -544,7 +544,7 @@ function Landing() {
           </Link>
           <Link to="/guru">
             <Button size="lg" variant="outline" className="h-12 w-full border-primary/40 text-base font-semibold hover:bg-primary/10">
-              ✨ Explore Guru.AI
+              Explore Guru.AI →
             </Button>
           </Link>
         </div>
