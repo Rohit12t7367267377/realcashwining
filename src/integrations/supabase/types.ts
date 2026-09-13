@@ -40,6 +40,203 @@ export type Database = {
           },
         ]
       }
+      admin_audit_logs: {
+        Row: {
+          action: string
+          actor_id: string
+          actor_roles: string[]
+          after_data: Json | null
+          before_data: Json | null
+          created_at: string
+          id: string
+          ip_hash: string | null
+          metadata: Json
+          permission_key: string
+          reason: string | null
+          request_id: string | null
+          result: string
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action: string
+          actor_id: string
+          actor_roles?: string[]
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          metadata?: Json
+          permission_key: string
+          reason?: string | null
+          request_id?: string | null
+          result: string
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string
+          actor_roles?: string[]
+          after_data?: Json | null
+          before_data?: Json | null
+          created_at?: string
+          id?: string
+          ip_hash?: string | null
+          metadata?: Json
+          permission_key?: string
+          reason?: string | null
+          request_id?: string | null
+          result?: string
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
+      admin_permissions: {
+        Row: {
+          dangerous: boolean
+          description: string | null
+          key: string
+          label: string
+          module: string
+        }
+        Insert: {
+          dangerous?: boolean
+          description?: string | null
+          key: string
+          label: string
+          module: string
+        }
+        Update: {
+          dangerous?: boolean
+          description?: string | null
+          key?: string
+          label?: string
+          module?: string
+        }
+        Relationships: []
+      }
+      admin_rate_limits: {
+        Row: {
+          actor_id: string
+          request_count: number
+          scope: string
+          window_start: string
+        }
+        Insert: {
+          actor_id: string
+          request_count?: number
+          scope: string
+          window_start: string
+        }
+        Update: {
+          actor_id?: string
+          request_count?: number
+          scope?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      admin_role_definitions: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          label: string
+          name: string
+          system: boolean
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          label: string
+          name: string
+          system?: boolean
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          label?: string
+          name?: string
+          system?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      admin_role_permissions: {
+        Row: {
+          created_at: string
+          permission_key: string
+          role_id: string
+        }
+        Insert: {
+          created_at?: string
+          permission_key: string
+          role_id: string
+        }
+        Update: {
+          created_at?: string
+          permission_key?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_role_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "admin_permissions"
+            referencedColumns: ["key"]
+          },
+          {
+            foreignKeyName: "admin_role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "admin_role_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      admin_user_role_assignments: {
+        Row: {
+          assigned_by: string | null
+          created_at: string
+          role_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_by?: string | null
+          created_at?: string
+          role_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_by?: string | null
+          created_at?: string
+          role_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_user_role_assignments_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "admin_role_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ads: {
         Row: {
           active: boolean
@@ -4320,12 +4517,45 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_adjust_wallet_atomic: {
+        Args: {
+          _actor_id: string
+          _amount: number
+          _idempotency_key: string
+          _reason: string
+          _user_id: string
+        }
+        Returns: number
+      }
       admin_declare_contest_result: {
         Args: {
           _attempt_id: string
           _contest_id: string
           _prize: number
           _rank: number
+        }
+        Returns: undefined
+      }
+      admin_has_permission: {
+        Args: { _permission: string; _user_id: string }
+        Returns: boolean
+      }
+      admin_review_deposit_atomic: {
+        Args: {
+          _action: string
+          _actor_id: string
+          _reason: string
+          _request_id: string
+        }
+        Returns: undefined
+      }
+      admin_review_withdrawal_atomic: {
+        Args: {
+          _action: string
+          _actor_id: string
+          _payout_ref: string
+          _reason: string
+          _request_id: string
         }
         Returns: undefined
       }
@@ -4336,6 +4566,15 @@ export type Database = {
           reward_coins: number
           reward_xp: number
         }[]
+      }
+      consume_admin_rate_limit: {
+        Args: {
+          _actor_id: string
+          _limit: number
+          _scope: string
+          _window_seconds: number
+        }
+        Returns: boolean
       }
       grant_xp: {
         Args: {
@@ -4448,6 +4687,28 @@ export type Database = {
           unanswered_count: number
           wrong_count: number
         }[]
+      }
+      submit_withdrawal_atomic: {
+        Args: { _amount: number; _upi_id: string }
+        Returns: {
+          new_balance: number
+          request_id: string
+        }[]
+      }
+      write_admin_audit: {
+        Args: {
+          _action: string
+          _actor_id: string
+          _after: Json
+          _before: Json
+          _metadata?: Json
+          _permission: string
+          _reason: string
+          _result: string
+          _target_id: string
+          _target_type: string
+        }
+        Returns: string
       }
       xp_to_level: { Args: { _xp: number }; Returns: number }
     }
