@@ -4540,6 +4540,16 @@ export type Database = {
         Args: { _permission: string; _user_id: string }
         Returns: boolean
       }
+      admin_manage_user_role: {
+        Args: {
+          _actor_id: string
+          _enabled: boolean
+          _reason: string
+          _role_id: string
+          _user_id: string
+        }
+        Returns: undefined
+      }
       admin_review_deposit_atomic: {
         Args: {
           _action: string
