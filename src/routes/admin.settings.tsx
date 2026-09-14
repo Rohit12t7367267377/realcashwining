@@ -28,8 +28,8 @@ function Page() {
   useEffect(() => {
     (async () => {
       try {
-      const data = await getAdminSettings();
-      (data ?? []).forEach((r: any) => {
+        const data = await getAdminSettings();
+        (data ?? []).forEach((r: any) => {
         if (r.key === "admin_upi_id") setAdminUpi(typeof r.value === "string" ? r.value : String(r.value));
         if (r.key === "admin_upi_qr") setAdminUpiQr(typeof r.value === "string" ? r.value : String(r.value));
         if (r.key === "min_deposit") setMinDeposit(Number(r.value) || 20);
@@ -42,8 +42,7 @@ function Page() {
         if (r.key === "prize_pool_total") setPrizePoolTotal(Number(r.value) || 0);
         if (r.key === "branding" && r.value && typeof r.value === "object") setBranding({ siteName: "Guru-G", tagline: "Play. Win. Repeat.", ...r.value });
         if (r.key === "banner" && r.value && typeof r.value === "object") setBanner({ message: "", active: true, ...r.value });
-      });
-      });
+        });
       } catch (error: any) {
         toast.error(error?.message ?? "Failed to load settings");
       } finally {
