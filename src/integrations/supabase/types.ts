@@ -4689,7 +4689,7 @@ export type Database = {
         }[]
       }
       submit_withdrawal_atomic: {
-        Args: { _amount: number; _upi_id: string }
+        Args: { _amount: number; _upi_id: string; _user_id: string }
         Returns: {
           new_balance: number
           request_id: string
