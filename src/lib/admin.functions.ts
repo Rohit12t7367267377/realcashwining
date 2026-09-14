@@ -91,6 +91,36 @@ export const manageAdminRole = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const listAdminAuditLogs = createServerFn({ method: "GET" })
+  .middleware([requireAdminPermission("audit_logs.view")])
+  .inputValidator((data) => z.object({
+    page: z.number().int().min(1).max(10000).default(1),
+    pageSize: z.number().int().min(10).max(100).default(50),
+    action: z.string().trim().max(100).optional(),
+  }).parse(data))
+  .handler(async ({ data }) => {
+    const from = (data.page - 1) * data.pageSize;
+    let query = supabaseAdmin
+      .from("admin_audit_logs")
+      .select("id, actor_id, actor_roles, permission_key, action, target_type, target_id, result, reason, before_data, after_data, metadata, created_at", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, from + data.pageSize - 1);
+    if (data.action) query = query.ilike("action", `%${data.action}%`);
+    const { data: rows, count, error } = await query;
+    if (error) throw new Error(error.message);
+    const ids = Array.from(new Set((rows ?? []).map((row) => row.actor_id)));
+    const { data: profiles } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, full_name, username").in("id", ids)
+      : { data: [] as any[] };
+    const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name || profile.username || profile.id.slice(0, 8)]));
+    return {
+      rows: (rows ?? []).map((row) => ({ ...row, actorName: names.get(row.actor_id) ?? row.actor_id.slice(0, 8) })),
+      count: count ?? 0,
+      page: data.page,
+      pageSize: data.pageSize,
+    };
+  });
+
 export const adjustWallet = createServerFn({ method: "POST" })
   .middleware([requireAdminPermission("finance.adjust")])
   .inputValidator((d) => z.object({ userId: z.string().uuid(), amount: z.number().finite().refine((v) => v !== 0).refine((v) => Math.abs(v) <= 100000), note: z.string().trim().min(3).max(200), idempotencyKey: z.string().uuid() }).parse(d))
