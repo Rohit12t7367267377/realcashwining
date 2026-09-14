@@ -1,5 +1,7 @@
 # Guru-G Admin Control Center
 
+- [x] Replace the basic Guru.AI classroom avatar with a reusable animated 2D teacher character
+
 - [ ] Complete codebase and backend audit
 - [ ] Approve implementation plan
 - [ ] Implement RBAC, auditing, and security foundations

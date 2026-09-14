@@ -5,7 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GuruBoardCanvas } from "@/components/GuruBoardCanvas";
-import { GuruTeacherAvatar } from "@/components/GuruTeacherAvatar";
+import { TeacherCharacter, type TeacherCharacterState } from "@/components/TeacherCharacter";
 import type { BoardBlock } from "@/lib/guru-board-blocks";
 import { guruClassroomTurn, guruEvaluateAnswer, guruClassroomProgress } from "@/lib/guru-classroom.functions";
 import { guruSpeak } from "@/lib/guru-extras.functions";
@@ -61,6 +61,22 @@ function Classroom() {
   const [correct, setCorrect] = useState(0);
   const [doubt, setDoubt] = useState("");
   const [listening, setListening] = useState(false);
+
+  const teacherState: TeacherCharacterState = listening
+    ? "listening"
+    : busy
+      ? "thinking"
+      : speaking
+        ? "speaking"
+        : feedback?.verdict === "correct"
+          ? "correct"
+          : feedback?.verdict === "partial"
+            ? "encouraging"
+            : feedback
+              ? "wrong"
+              : revealed < blocks.length
+                ? "explaining"
+                : "idle";
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -264,7 +280,11 @@ function Classroom() {
         <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
           <GuruBoardCanvas title={title} blocks={blocks} revealed={revealed} stepLabel={stepLabel} />
           <div className="flex items-center justify-center sm:block">
-            <GuruTeacherAvatar teacher={teacher} speaking={speaking} writing={busy ? false : revealed < blocks.length} thinking={busy} />
+            <TeacherCharacter
+              teacherName={teacher}
+              state={teacherState}
+              className="w-[178px] sm:w-[196px]"
+            />
           </div>
         </div>
 
