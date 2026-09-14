@@ -44,6 +44,7 @@ import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
 import { Route as AdminAppUpdatesRouteImport } from './routes/admin.app-updates'
+import { Route as AdminAuditLogsRouteImport } from './routes/admin.audit-logs'
 import { Route as AdminAutomationRouteImport } from './routes/admin.automation'
 import { Route as AdminBannersRouteImport } from './routes/admin.banners'
 import { Route as AdminBooksRouteImport } from './routes/admin.books'
@@ -284,6 +285,11 @@ const AdminAiRoute = AdminAiRouteImport.update({
 const AdminAppUpdatesRoute = AdminAppUpdatesRouteImport.update({
   id: '/app-updates',
   path: '/app-updates',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAuditLogsRoute = AdminAuditLogsRouteImport.update({
+  id: '/audit-logs',
+  path: '/audit-logs',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAutomationRoute = AdminAutomationRouteImport.update({
@@ -655,6 +661,7 @@ export interface FileRoutesByFullPath {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/automation': typeof AdminAutomationRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
@@ -756,6 +763,7 @@ export interface FileRoutesByTo {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/automation': typeof AdminAutomationRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
@@ -860,6 +868,7 @@ export interface FileRoutesById {
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
+  '/admin/audit-logs': typeof AdminAuditLogsRoute
   '/admin/automation': typeof AdminAutomationRoute
   '/admin/banners': typeof AdminBannersRoute
   '/admin/books': typeof AdminBooksRoute
@@ -965,6 +974,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
+    | '/admin/audit-logs'
     | '/admin/automation'
     | '/admin/banners'
     | '/admin/books'
@@ -1066,6 +1076,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
+    | '/admin/audit-logs'
     | '/admin/automation'
     | '/admin/banners'
     | '/admin/books'
@@ -1169,6 +1180,7 @@ export interface FileRouteTypes {
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
+    | '/admin/audit-logs'
     | '/admin/automation'
     | '/admin/banners'
     | '/admin/books'
@@ -1530,6 +1542,13 @@ declare module '@tanstack/react-router' {
       path: '/app-updates'
       fullPath: '/admin/app-updates'
       preLoaderRoute: typeof AdminAppUpdatesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/audit-logs': {
+      id: '/admin/audit-logs'
+      path: '/audit-logs'
+      fullPath: '/admin/audit-logs'
+      preLoaderRoute: typeof AdminAuditLogsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/automation': {
@@ -2001,6 +2020,7 @@ interface AdminRouteChildren {
   AdminAdsRoute: typeof AdminAdsRoute
   AdminAiRoute: typeof AdminAiRoute
   AdminAppUpdatesRoute: typeof AdminAppUpdatesRoute
+  AdminAuditLogsRoute: typeof AdminAuditLogsRoute
   AdminAutomationRoute: typeof AdminAutomationRoute
   AdminBannersRoute: typeof AdminBannersRoute
   AdminBooksRoute: typeof AdminBooksRoute
@@ -2043,6 +2063,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAdsRoute: AdminAdsRoute,
   AdminAiRoute: AdminAiRoute,
   AdminAppUpdatesRoute: AdminAppUpdatesRoute,
+  AdminAuditLogsRoute: AdminAuditLogsRoute,
   AdminAutomationRoute: AdminAutomationRoute,
   AdminBannersRoute: AdminBannersRoute,
   AdminBooksRoute: AdminBooksRoute,

@@ -1,13 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { saveAppSetting } from "@/lib/admin-settings.functions";
+import { getAdminSettings, saveAppSetting } from "@/lib/admin-settings.functions";
 
 export const Route = createFileRoute("/admin/settings")({ component: Page });
 
@@ -28,8 +27,9 @@ function Page() {
 
   useEffect(() => {
     (async () => {
-      const { data } = await supabase.from("app_settings").select("*");
-      (data ?? []).forEach((r: any) => {
+      try {
+        const data = await getAdminSettings();
+        (data ?? []).forEach((r: any) => {
         if (r.key === "admin_upi_id") setAdminUpi(typeof r.value === "string" ? r.value : String(r.value));
         if (r.key === "admin_upi_qr") setAdminUpiQr(typeof r.value === "string" ? r.value : String(r.value));
         if (r.key === "min_deposit") setMinDeposit(Number(r.value) || 20);
@@ -42,14 +42,20 @@ function Page() {
         if (r.key === "prize_pool_total") setPrizePoolTotal(Number(r.value) || 0);
         if (r.key === "branding" && r.value && typeof r.value === "object") setBranding({ siteName: "Guru-G", tagline: "Play. Win. Repeat.", ...r.value });
         if (r.key === "banner" && r.value && typeof r.value === "object") setBanner({ message: "", active: true, ...r.value });
-      });
-      setLoading(false);
+        });
+      } catch (error: any) {
+        toast.error(error?.message ?? "Failed to load settings");
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
   async function save(key: string, value: any) {
+    const reason = window.prompt(`Reason for changing ${key.replaceAll("_", " ")}?`);
+    if (!reason?.trim()) return;
     try {
-      await saveAppSetting({ data: { key, value } });
+      await saveAppSetting({ data: { key: key as any, value, reason } });
       toast.success("Saved");
     } catch (e: any) {
       toast.error(e?.message ?? "Failed to save");

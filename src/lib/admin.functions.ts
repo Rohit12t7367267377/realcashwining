@@ -10,7 +10,7 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
   });
 
 export const listUsersAdmin = createServerFn({ method: "GET" })
-  .middleware([requireAdminPassword])
+  .middleware([requireAdminPermission("users.view")])
   .handler(async () => {
     const { data: authList, error: aerr } = await supabaseAdmin.auth.admin.listUsers({ perPage: 200 });
     if (aerr) throw new Error(aerr.message);
@@ -30,6 +30,95 @@ export const listUsersAdmin = createServerFn({ method: "GET" })
       profile: profileMap.get(u.id) ?? null,
       roles: roleMap.get(u.id) ?? [],
     }));
+  });
+
+export const getRoleManagement = createServerFn({ method: "GET" })
+  .middleware([requireAdminPermission("roles.manage")])
+  .handler(async ({ context }) => {
+    const [{ data: authList, error: authError }, { data: profiles }, { data: roles, error: rolesError }, { data: assignments, error: assignmentsError }] = await Promise.all([
+      supabaseAdmin.auth.admin.listUsers({ perPage: 200 }),
+      supabaseAdmin.from("profiles").select("id, full_name, phone"),
+      supabaseAdmin.from("admin_role_definitions").select("id, name, label, description, system, active, admin_role_permissions(permission_key)").eq("active", true).order("label"),
+      supabaseAdmin.from("admin_user_role_assignments").select("user_id, role_id, assigned_by, created_at"),
+    ]);
+    if (authError) throw new Error(authError.message);
+    if (rolesError) throw new Error(rolesError.message);
+    if (assignmentsError) throw new Error(assignmentsError.message);
+    const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
+    const assignmentMap = new Map<string, string[]>();
+    for (const assignment of assignments ?? []) {
+      const current = assignmentMap.get(assignment.user_id) ?? [];
+      current.push(assignment.role_id);
+      assignmentMap.set(assignment.user_id, current);
+    }
+    return {
+      actorId: context.adminUserId,
+      actorRoles: context.adminRoles,
+      roles: (roles ?? []).map((role) => ({
+        id: role.id,
+        name: role.name,
+        label: role.label,
+        description: role.description,
+        system: role.system,
+        permissions: (role.admin_role_permissions ?? []).map((item) => item.permission_key),
+      })),
+      users: authList.users.map((user) => ({
+        id: user.id,
+        email: user.email ?? "",
+        profile: profileMap.get(user.id) ?? null,
+        roleIds: assignmentMap.get(user.id) ?? [],
+      })),
+    };
+  });
+
+export const manageAdminRole = createServerFn({ method: "POST" })
+  .middleware([requireAdminPermission("roles.manage")])
+  .inputValidator((data) => z.object({
+    userId: z.string().uuid(),
+    roleId: z.string().uuid(),
+    enabled: z.boolean(),
+    reason: z.string().trim().min(3).max(300),
+  }).parse(data))
+  .handler(async ({ data, context }) => {
+    const { error } = await (supabaseAdmin as any).rpc("admin_manage_user_role", {
+      _actor_id: context.adminUserId,
+      _user_id: data.userId,
+      _role_id: data.roleId,
+      _enabled: data.enabled,
+      _reason: data.reason,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const listAdminAuditLogs = createServerFn({ method: "GET" })
+  .middleware([requireAdminPermission("audit_logs.view")])
+  .inputValidator((data) => z.object({
+    page: z.number().int().min(1).max(10000).default(1),
+    pageSize: z.number().int().min(10).max(100).default(50),
+    action: z.string().trim().max(100).optional(),
+  }).parse(data))
+  .handler(async ({ data }) => {
+    const from = (data.page - 1) * data.pageSize;
+    let query = supabaseAdmin
+      .from("admin_audit_logs")
+      .select("id, actor_id, actor_roles, permission_key, action, target_type, target_id, result, reason, before_data, after_data, metadata, created_at", { count: "exact" })
+      .order("created_at", { ascending: false })
+      .range(from, from + data.pageSize - 1);
+    if (data.action) query = query.ilike("action", `%${data.action}%`);
+    const { data: rows, count, error } = await query;
+    if (error) throw new Error(error.message);
+    const ids = Array.from(new Set((rows ?? []).map((row) => row.actor_id)));
+    const { data: profiles } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, full_name, username").in("id", ids)
+      : { data: [] as any[] };
+    const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name || profile.username || profile.id.slice(0, 8)]));
+    return {
+      rows: (rows ?? []).map((row) => ({ ...row, actorName: names.get(row.actor_id) ?? row.actor_id.slice(0, 8) })),
+      count: count ?? 0,
+      page: data.page,
+      pageSize: data.pageSize,
+    };
   });
 
 export const adjustWallet = createServerFn({ method: "POST" })
@@ -62,36 +151,3 @@ export const toggleBan = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const setUserRole = createServerFn({ method: "POST" })
-  .middleware([requireAdminPassword])
-  .inputValidator((d) => z.object({ userId: z.string().uuid(), makeAdmin: z.boolean() }).parse(d))
-  .handler(async ({ data }) => {
-    if (data.makeAdmin) {
-      await supabaseAdmin.from("user_roles").upsert({ user_id: data.userId, role: "admin" }, { onConflict: "user_id,role" });
-    } else {
-      await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId).eq("role", "admin");
-    }
-    return { ok: true };
-  });
-
-const ROLE_ENUM = z.enum(["admin", "editor", "moderator", "user"]);
-
-export const setRoleAssignment = createServerFn({ method: "POST" })
-  .middleware([requireAdminPassword])
-  .inputValidator((d) =>
-    z.object({ userId: z.string().uuid(), role: ROLE_ENUM, enabled: z.boolean() }).parse(d)
-  )
-  .handler(async ({ data }) => {
-    if (data.enabled) {
-      await supabaseAdmin
-        .from("user_roles")
-        .upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id,role" });
-    } else {
-      await supabaseAdmin
-        .from("user_roles")
-        .delete()
-        .eq("user_id", data.userId)
-        .eq("role", data.role);
-    }
-    return { ok: true };
-  });

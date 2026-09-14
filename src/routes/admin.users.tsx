@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { listUsersAdmin, adjustWallet, toggleBan, setUserRole } from "@/lib/admin.functions";
+import { listUsersAdmin, adjustWallet, toggleBan } from "@/lib/admin.functions";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Wallet, Ban, ShieldCheck, ShieldOff, Loader2 } from "lucide-react";
+import { Wallet, Ban, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/admin/users")({ component: Page });
 
@@ -23,7 +23,6 @@ function Page() {
   const list = useServerFn(listUsersAdmin);
   const adj = useServerFn(adjustWallet);
   const ban = useServerFn(toggleBan);
-  const role = useServerFn(setUserRole);
 
   const [rows, setRows] = useState<Row[]>([]);
   const [q, setQ] = useState("");
@@ -56,13 +55,6 @@ function Page() {
     try { await ban({ data: { userId: r.id, banned: !(r.profile?.banned), reason } }); toast.success("Updated"); load(); }
     catch (e: any) { toast.error(e.message); }
   }
-  async function doRole(r: Row) {
-    const isAdmin = r.roles.includes("admin");
-    if (isAdmin && !confirm("Remove admin role?")) return;
-    try { await role({ data: { userId: r.id, makeAdmin: !isAdmin } }); toast.success("Updated"); load(); }
-    catch (e: any) { toast.error(e.message); }
-  }
-
   return (
     <div>
       <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
@@ -94,9 +86,6 @@ function Page() {
                 </div>
                 <div className="flex gap-1">
                   <Button size="sm" variant="outline" onClick={() => { setWalletFor(r); setAmt(0); setNote(""); }}><Wallet className="w-4 h-4 mr-1" /> Adjust</Button>
-                  <Button size="sm" variant="outline" onClick={() => doRole(r)} title={isAdmin ? "Revoke admin" : "Make admin"}>
-                    {isAdmin ? <ShieldOff className="w-4 h-4" /> : <ShieldCheck className="w-4 h-4" />}
-                  </Button>
                   <Button size="sm" variant="outline" onClick={() => doBan(r)} title={r.profile?.banned ? "Unban" : "Ban"}>
                     <Ban className="w-4 h-4" />
                   </Button>

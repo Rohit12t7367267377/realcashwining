@@ -74,6 +74,15 @@ export function requireAdminPermission(permission: string) {
     if (!admin.adminPermissions.includes("*") && !admin.adminPermissions.includes(permission)) {
       throw new Error(`Forbidden: ${permission} permission required`);
     }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: allowed, error } = await (supabaseAdmin as any).rpc("consume_admin_rate_limit", {
+      _actor_id: admin.adminUserId,
+      _scope: permission,
+      _limit: 120,
+      _window_seconds: 60,
+    });
+    if (error) throw new Error("Unable to verify administrator rate limit");
+    if (!allowed) throw new Error("Too many administrator requests. Please wait and try again.");
     return next({ context: admin });
   });
 }
