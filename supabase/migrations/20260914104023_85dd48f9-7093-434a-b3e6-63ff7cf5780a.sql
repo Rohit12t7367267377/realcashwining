@@ -1,0 +1,16 @@
+REVOKE ALL ON FUNCTION public.admin_adjust_wallet_atomic(uuid,uuid,numeric,text,text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_adjust_wallet_atomic(uuid,uuid,numeric,text,text) TO service_role;
+REVOKE ALL ON FUNCTION public.admin_review_deposit_atomic(uuid,uuid,text,text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_review_deposit_atomic(uuid,uuid,text,text) TO service_role;
+REVOKE ALL ON FUNCTION public.admin_review_withdrawal_atomic(uuid,uuid,text,text,text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_review_withdrawal_atomic(uuid,uuid,text,text,text) TO service_role;
+REVOKE ALL ON FUNCTION public.consume_admin_rate_limit(uuid,text,integer,integer) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.consume_admin_rate_limit(uuid,text,integer,integer) TO service_role;
+REVOKE ALL ON FUNCTION public.write_admin_audit(uuid,text,text,text,text,text,text,jsonb,jsonb,jsonb) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.write_admin_audit(uuid,text,text,text,text,text,text,jsonb,jsonb,jsonb) TO service_role;
+REVOKE ALL ON FUNCTION public.admin_has_permission(uuid,text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.admin_has_permission(uuid,text) TO service_role;
+REVOKE ALL ON FUNCTION public.submit_withdrawal_atomic(numeric,text) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.submit_withdrawal_atomic(numeric,text) TO authenticated, service_role;
+CREATE POLICY "Internal rate limits are server managed" ON public.admin_rate_limits FOR ALL TO authenticated USING (false) WITH CHECK (false);
+CREATE POLICY "Knowledge source staging is server managed" ON public.guru_knowledge_sources FOR ALL TO authenticated USING (false) WITH CHECK (false);
