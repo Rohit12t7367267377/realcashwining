@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { requireAdminPassword } from "@/lib/admin-auth";
+import { requireAdminPassword, requireAdminPermission } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
 const ALLOWED = [
@@ -70,17 +70,41 @@ export const adminReviewKyc = createServerFn({ method: "POST" })
   });
 
 // Fraud flag CRUD
+export const adminListFraud = createServerFn({ method: "GET" })
+  .middleware([requireAdminPermission("security.view")])
+  .handler(async () => {
+    const [{ data: flags, error: flagsError }, { data: events, error: eventsError }] = await Promise.all([
+      supabaseAdmin.from("fraud_flags").select("*").order("created_at", { ascending: false }).limit(50),
+      supabaseAdmin.from("anticheat_events").select("*").order("created_at", { ascending: false }).limit(50),
+    ]);
+    if (flagsError) throw new Error(flagsError.message);
+    if (eventsError) throw new Error(eventsError.message);
+    const ids = Array.from(new Set([...(flags ?? []), ...(events ?? [])].map((row: any) => row.user_id).filter(Boolean)));
+    const { data: profiles } = ids.length
+      ? await supabaseAdmin.from("profiles").select("id, full_name, username").in("id", ids)
+      : { data: [] as any[] };
+    const names = new Map((profiles ?? []).map((profile) => [profile.id, profile.full_name || profile.username || profile.id.slice(0, 8)]));
+    const nameRows = (rows: any[]) => rows.map((row) => ({ ...row, profileName: names.get(row.user_id) ?? row.user_id?.slice(0, 8) ?? "—" }));
+    return { flags: nameRows(flags ?? []), events: nameRows(events ?? []) };
+  });
+
 export const adminResolveFraud = createServerFn({ method: "POST" })
-  .middleware([requireAdminPassword])
+  .middleware([requireAdminPermission("community.moderate")])
   .inputValidator((d) =>
-    z.object({ id: z.string().uuid(), resolved: z.boolean(), admin_note: z.string().max(500).optional() }).parse(d),
+    z.object({ id: z.string().uuid(), resolved: z.boolean(), admin_note: z.string().trim().min(3).max(500) }).parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    const { data: before } = await supabaseAdmin.from("fraud_flags").select("resolved, admin_note, user_id, reason, severity").eq("id", data.id).single();
     const { error } = await supabaseAdmin.from("fraud_flags").update({
       resolved: data.resolved,
-      admin_note: data.admin_note ?? null,
+      admin_note: data.admin_note,
     }).eq("id", data.id);
     if (error) throw new Error(error.message);
+    await (supabaseAdmin as any).rpc("write_admin_audit", {
+      _actor_id: context.adminUserId, _permission: "community.moderate", _action: data.resolved ? "fraud.resolve" : "fraud.reopen",
+      _target_type: "fraud_flag", _target_id: data.id, _result: "success", _reason: data.admin_note,
+      _before: before ?? {}, _after: { ...(before ?? {}), resolved: data.resolved, admin_note: data.admin_note }, _metadata: {},
+    });
     return { ok: true };
   });
 

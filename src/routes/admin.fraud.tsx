@@ -1,13 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertTriangle, Check } from "lucide-react";
 import { toast } from "sonner";
-import { adminResolveFraud } from "@/lib/admin-crud.functions";
-import { attachProfileNames } from "@/lib/admin-names";
+import { adminListFraud, adminResolveFraud } from "@/lib/admin-crud.functions";
 
 export const Route = createFileRoute("/admin/fraud")({ component: Page });
 
@@ -17,15 +15,20 @@ function Page() {
   const [notes, setNotes] = useState<Record<string, string>>({});
 
   async function load() {
-    const { data: f } = await supabase.from("fraud_flags").select("*").order("created_at", { ascending: false }).limit(50);
-    setFlags(await attachProfileNames(f ?? []));
-    const { data: e } = await supabase.from("anticheat_events").select("*").order("created_at", { ascending: false }).limit(50);
-    setEvents(await attachProfileNames(e ?? []));
+    try {
+      const data = await adminListFraud();
+      setFlags(data.flags);
+      setEvents(data.events);
+    } catch (error: any) {
+      toast.error(error?.message ?? "Failed to load security events");
+    }
   }
   useEffect(() => { load(); }, []);
 
   async function resolve(id: string) {
-    try { await adminResolveFraud({ data: { id, resolved: true, admin_note: notes[id] } }); toast.success("Resolved"); load(); }
+    const note = notes[id]?.trim();
+    if (!note) { toast.error("A resolution note is required"); return; }
+    try { await adminResolveFraud({ data: { id, resolved: true, admin_note: note } }); toast.success("Resolved"); load(); }
     catch (e: any) { toast.error(e?.message ?? "Failed"); }
   }
 
@@ -40,7 +43,7 @@ function Page() {
           <Card key={r.id} className={`p-3 ${r.resolved ? "opacity-60" : ""}`}>
             <div className="flex justify-between gap-4">
               <div className="flex-1"><div className="text-sm"><b>{r.profileName}</b> · <span className="uppercase text-xs">{r.severity}</span></div><div className="text-sm">{r.reason}</div><div className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString()}</div></div>
-              {!r.resolved && <div className="w-56 space-y-1"><Textarea rows={1} placeholder="Note" value={notes[r.id] ?? ""} onChange={(e) => setNotes({ ...notes, [r.id]: e.target.value })} /><Button size="sm" onClick={() => resolve(r.id)}><Check className="w-4 h-4 mr-1" /> Resolve</Button></div>}
+              {!r.resolved && <div className="w-56 space-y-1"><Textarea rows={1} placeholder="Required resolution note" value={notes[r.id] ?? ""} onChange={(e) => setNotes({ ...notes, [r.id]: e.target.value })} /><Button size="sm" disabled={!notes[r.id]?.trim()} onClick={() => resolve(r.id)}><Check className="w-4 h-4 mr-1" /> Resolve</Button></div>}
             </div>
           </Card>
         ))}
