@@ -1,17 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireAdminPassword } from "@/lib/admin-auth";
+import { requireAdminPermission } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
-
-async function assertAdmin(supabase: any, userId: string) {
-  const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId).eq("role", "admin").maybeSingle();
-  if (!data) throw new Error("Forbidden: admin only");
-}
 
 // ---------- Deposits ----------
 
 export const listDeposits = createServerFn({ method: "GET" })
-  .middleware([requireAdminPassword])
+  .middleware([requireAdminPermission("finance.view")])
   .inputValidator((d) => z.object({ status: z.enum(["pending", "approved", "rejected", "all"]).default("pending") }).parse(d))
   .handler(async ({ data }) => {
     
@@ -34,64 +29,26 @@ export const listDeposits = createServerFn({ method: "GET" })
   });
 
 export const reviewDeposit = createServerFn({ method: "POST" })
-  .middleware([requireAdminPassword])
+  .middleware([requireAdminPermission("finance.adjust")])
   .inputValidator((d) =>
     z.object({
       id: z.string().uuid(),
       action: z.enum(["approve", "reject"]),
-      note: z.string().max(300).optional(),
+      note: z.string().trim().min(3).max(300),
     }).parse(d)
   )
-  .handler(async ({ data }) => {
-    
-
-    const { data: req, error: rerr } = await supabaseAdmin.from("deposit_requests").select("*").eq("id", data.id).single();
-    if (rerr) throw new Error(rerr.message);
-    if (req.status !== "pending") throw new Error(`Already ${req.status}`);
-
-    if (data.action === "approve") {
-      const { data: prof } = await supabaseAdmin.from("profiles").select("wallet_balance").eq("id", req.user_id).single();
-      const newBal = Number(prof?.wallet_balance ?? 0) + Number(req.amount);
-      const { error: uerr } = await supabaseAdmin.from("profiles").update({ wallet_balance: newBal }).eq("id", req.user_id);
-      if (uerr) throw new Error(uerr.message);
-      await supabaseAdmin.from("transactions").insert({
-        user_id: req.user_id,
-        type: "credit",
-        amount: Number(req.amount),
-        note: `Deposit approved (UTR ${req.upi_utr})`,
-      });
-
-      // Contribute configured % of the deposit to the global prize pool.
-      const { data: pctRow } = await supabaseAdmin.from("app_settings").select("value").eq("key", "prize_pool_pct").maybeSingle();
-      const { data: totRow } = await supabaseAdmin.from("app_settings").select("value").eq("key", "prize_pool_total").maybeSingle();
-      const pct = Number(pctRow?.value ?? 50);
-      const currentPool = Number(totRow?.value ?? 0);
-      const addition = (Number(req.amount) * pct) / 100;
-      await supabaseAdmin.from("app_settings").upsert({
-        key: "prize_pool_total",
-        value: currentPool + addition,
-        updated_at: new Date().toISOString(),
-      });
-    }
-
-    const { error: upErr } = await supabaseAdmin
-      .from("deposit_requests")
-      .update({
-        status: data.action === "approve" ? "approved" : "rejected",
-        admin_note: data.note ?? null,
-        reviewed_by: null,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", data.id);
-    if (upErr) throw new Error(upErr.message);
-
+  .handler(async ({ data, context }) => {
+    const { error } = await (supabaseAdmin as any).rpc("admin_review_deposit_atomic", {
+      _actor_id: context.adminUserId, _request_id: data.id, _action: data.action, _reason: data.note,
+    });
+    if (error) throw new Error(error.message);
     return { ok: true };
   });
 
 // ---------- Withdrawals ----------
 
 export const listWithdrawals = createServerFn({ method: "GET" })
-  .middleware([requireAdminPassword])
+  .middleware([requireAdminPermission("finance.view")])
   .inputValidator((d) => z.object({ status: z.enum(["pending", "approved", "paid", "rejected", "all"]).default("pending") }).parse(d))
   .handler(async ({ data }) => {
     
@@ -113,46 +70,20 @@ export const listWithdrawals = createServerFn({ method: "GET" })
   });
 
 export const reviewWithdrawal = createServerFn({ method: "POST" })
-  .middleware([requireAdminPassword])
+  .middleware([requireAdminPermission("finance.adjust")])
   .inputValidator((d) =>
     z.object({
       id: z.string().uuid(),
       action: z.enum(["mark_paid", "reject"]),
       payout_ref: z.string().max(100).optional(),
-      note: z.string().max(300).optional(),
+      note: z.string().trim().min(3).max(300),
     }).parse(d)
   )
-  .handler(async ({ data }) => {
-    
-
-    const { data: req, error: rerr } = await supabaseAdmin.from("withdrawal_requests").select("*").eq("id", data.id).single();
-    if (rerr) throw new Error(rerr.message);
-    if (req.status !== "pending" && req.status !== "approved") throw new Error(`Already ${req.status}`);
-
-    if (data.action === "reject") {
-      // refund the held amount
-      const { data: prof } = await supabaseAdmin.from("profiles").select("wallet_balance").eq("id", req.user_id).single();
-      const newBal = Number(prof?.wallet_balance ?? 0) + Number(req.amount);
-      await supabaseAdmin.from("profiles").update({ wallet_balance: newBal }).eq("id", req.user_id);
-      await supabaseAdmin.from("transactions").insert({
-        user_id: req.user_id,
-        type: "credit",
-        amount: Number(req.amount),
-        note: `Withdrawal rejected — refund`,
-      });
-    }
-
-    const { error: upErr } = await supabaseAdmin
-      .from("withdrawal_requests")
-      .update({
-        status: data.action === "mark_paid" ? "paid" : "rejected",
-        payout_ref: data.payout_ref ?? null,
-        admin_note: data.note ?? null,
-        reviewed_by: null,
-        reviewed_at: new Date().toISOString(),
-      })
-      .eq("id", data.id);
-    if (upErr) throw new Error(upErr.message);
-
+  .handler(async ({ data, context }) => {
+    const { error } = await (supabaseAdmin as any).rpc("admin_review_withdrawal_atomic", {
+      _actor_id: context.adminUserId, _request_id: data.id, _action: data.action,
+      _payout_ref: data.payout_ref ?? null, _reason: data.note,
+    });
+    if (error) throw new Error(error.message);
     return { ok: true };
   });

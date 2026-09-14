@@ -46,11 +46,14 @@ function Page() {
 
   async function doAdjust() {
     if (!walletFor || !amt || !note.trim()) return toast.error("Amount & note required");
-    try { await adj({ data: { userId: walletFor.id, amount: amt, note } }); toast.success("Wallet updated"); setWalletFor(null); setAmt(0); setNote(""); load(); }
+    try { await adj({ data: { userId: walletFor.id, amount: amt, note, idempotencyKey: crypto.randomUUID() } }); toast.success("Wallet updated"); setWalletFor(null); setAmt(0); setNote(""); load(); }
     catch (e: any) { toast.error(e.message); }
   }
   async function doBan(r: Row) {
-    try { await ban({ data: { userId: r.id, banned: !(r.profile?.banned) } }); toast.success("Updated"); load(); }
+    const action = r.profile?.banned ? "unban" : "ban";
+    const reason = window.prompt(`Reason to ${action} this user?`);
+    if (!reason?.trim()) return;
+    try { await ban({ data: { userId: r.id, banned: !(r.profile?.banned), reason } }); toast.success("Updated"); load(); }
     catch (e: any) { toast.error(e.message); }
   }
   async function doRole(r: Row) {

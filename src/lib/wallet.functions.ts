@@ -97,64 +97,12 @@ export const submitWithdrawal = createServerFn({ method: "POST" })
   .inputValidator((d) => withdrawalSchema.parse(d))
   .handler(async ({ context, data }) => {
     const { userId } = context;
-
-    const [{ data: cfgRows }, { data: prof }] = await Promise.all([
-      supabaseAdmin.from("app_settings").select("key, value").in("key", ["min_withdrawal", "max_withdrawal_per_day"]),
-      supabaseAdmin.from("profiles").select("wallet_balance, banned").eq("id", userId).single(),
-    ]);
-    if (!prof) throw new Error("Profile not found");
-    if (prof.banned) throw new Error("Your account is suspended. Contact support.");
-
-    const cfg: Record<string, any> = {};
-    (cfgRows ?? []).forEach((s) => { cfg[s.key] = s.value; });
-    const min = Number(cfg.min_withdrawal ?? 100);
-    const maxDaily = Number(cfg.max_withdrawal_per_day ?? 5000);
-
-    if (data.amount < min) throw new Error(`Minimum withdrawal is ₹${min}`);
-    if (Number(prof.wallet_balance) < data.amount) throw new Error("Insufficient balance");
-
-    // daily cap (sum of approved + pending + paid in last 24h)
-    const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
-    const { data: recent } = await supabaseAdmin
-      .from("withdrawal_requests")
-      .select("amount, status")
-      .eq("user_id", userId)
-      .gte("created_at", since)
-      .in("status", ["pending", "approved", "paid"]);
-    const used = (recent ?? []).reduce((sum, r) => sum + Number(r.amount), 0);
-    if (used + data.amount > maxDaily) {
-      throw new Error(`Daily withdrawal limit ₹${maxDaily} exceeded (already requested ₹${used} today).`);
-    }
-
-    // debit wallet immediately (held), refund on rejection
-    const newBal = Number(prof.wallet_balance) - data.amount;
-    const { error: uerr } = await supabaseAdmin.from("profiles").update({ wallet_balance: newBal }).eq("id", userId);
-    if (uerr) throw new Error(uerr.message);
-
-    const { data: row, error } = await supabaseAdmin
-      .from("withdrawal_requests")
-      .insert({
-        user_id: userId,
-        amount: data.amount,
-        upi_id: data.upi_id,
-        status: "pending",
-      })
-      .select()
-      .single();
-    if (error) {
-      // roll back wallet
-      await supabaseAdmin.from("profiles").update({ wallet_balance: Number(prof.wallet_balance) }).eq("id", userId);
-      throw new Error(error.message);
-    }
-
-    await supabaseAdmin.from("transactions").insert({
-      user_id: userId,
-      type: "debit",
-      amount: data.amount,
-      note: `Withdrawal requested → ${data.upi_id}`,
+    const { data: result, error } = await (supabaseAdmin as any).rpc("submit_withdrawal_atomic", {
+      _user_id: userId, _amount: data.amount, _upi_id: data.upi_id,
     });
-
-    return { ok: true, withdrawal: row, newBalance: newBal };
+    if (error) throw new Error(error.message);
+    const row = Array.isArray(result) ? result[0] : result;
+    return { ok: true, withdrawal: { id: row?.request_id }, newBalance: Number(row?.new_balance ?? 0) };
   });
 
 // ---------- Read: full transaction history ----------
