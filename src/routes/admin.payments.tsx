@@ -62,8 +62,10 @@ function DepositsPanel() {
   });
 
   const review = async (id: string, action: "approve" | "reject") => {
+    const note = window.prompt(`Reason for ${action}?`);
+    if (!note?.trim()) return;
     try {
-      await reviewFn({ data: { id, action } });
+      await reviewFn({ data: { id, action, note } });
       toast.success(action === "approve" ? "Deposit approved — wallet credited" : "Deposit rejected");
       qc.invalidateQueries({ queryKey: ["admin-deposits"] });
     } catch (e: any) { toast.error(e?.message ?? "Failed"); }
@@ -113,8 +115,10 @@ function WithdrawalsPanel() {
   });
 
   const act = async (id: string, action: "mark_paid" | "reject") => {
+    const note = window.prompt(action === "mark_paid" ? "Payment confirmation note?" : "Reason for rejection?");
+    if (!note?.trim()) return;
     try {
-      await reviewFn({ data: { id, action, payout_ref: refs[id] } });
+      await reviewFn({ data: { id, action, payout_ref: refs[id], note } });
       toast.success(action === "mark_paid" ? "Marked paid" : "Rejected — wallet refunded");
       qc.invalidateQueries({ queryKey: ["admin-withdrawals"] });
     } catch (e: any) { toast.error(e?.message ?? "Failed"); }

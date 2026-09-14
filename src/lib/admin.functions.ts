@@ -1,12 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
-import { requireAdminPassword } from "@/lib/admin-auth";
+import { requireAdminPassword, requireAdminPermission } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { z } from "zod";
 
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireAdminPassword])
-  .handler(async () => {
-    return { isAdmin: true };
+  .handler(async ({ context }) => {
+    return { isAdmin: true, roles: context.adminRoles, permissions: context.adminPermissions };
   });
 
 export const listUsersAdmin = createServerFn({ method: "GET" })
@@ -33,29 +33,32 @@ export const listUsersAdmin = createServerFn({ method: "GET" })
   });
 
 export const adjustWallet = createServerFn({ method: "POST" })
-  .middleware([requireAdminPassword])
-  .inputValidator((d) => z.object({ userId: z.string().uuid(), amount: z.number(), note: z.string().min(1).max(200) }).parse(d))
-  .handler(async ({ data }) => {
-    const { data: prof, error: perr } = await supabaseAdmin.from("profiles").select("wallet_balance").eq("id", data.userId).single();
-    if (perr) throw new Error(perr.message);
-    const newBal = Number(prof.wallet_balance) + data.amount;
-    const { error: uerr } = await supabaseAdmin.from("profiles").update({ wallet_balance: newBal }).eq("id", data.userId);
-    if (uerr) throw new Error(uerr.message);
-    await supabaseAdmin.from("transactions").insert({
-      user_id: data.userId,
-      type: data.amount >= 0 ? "credit" : "debit",
-      amount: Math.abs(data.amount),
-      note: `[admin] ${data.note}`,
+  .middleware([requireAdminPermission("finance.adjust")])
+  .inputValidator((d) => z.object({ userId: z.string().uuid(), amount: z.number().finite().refine((v) => v !== 0).refine((v) => Math.abs(v) <= 100000), note: z.string().trim().min(3).max(200), idempotencyKey: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: balance, error } = await (supabaseAdmin as any).rpc("admin_adjust_wallet_atomic", {
+      _actor_id: context.adminUserId,
+      _user_id: data.userId,
+      _amount: data.amount,
+      _reason: data.note,
+      _idempotency_key: data.idempotencyKey,
     });
-    return { ok: true, balance: newBal };
+    if (error) throw new Error(error.message);
+    return { ok: true, balance: Number(balance) };
   });
 
 export const toggleBan = createServerFn({ method: "POST" })
-  .middleware([requireAdminPassword])
-  .inputValidator((d) => z.object({ userId: z.string().uuid(), banned: z.boolean() }).parse(d))
-  .handler(async ({ data }) => {
+  .middleware([requireAdminPermission("users.ban")])
+  .inputValidator((d) => z.object({ userId: z.string().uuid(), banned: z.boolean(), reason: z.string().trim().min(3).max(300) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: before } = await supabaseAdmin.from("profiles").select("banned").eq("id", data.userId).single();
     const { error } = await supabaseAdmin.from("profiles").update({ banned: data.banned }).eq("id", data.userId);
     if (error) throw new Error(error.message);
+    await (supabaseAdmin as any).rpc("write_admin_audit", {
+      _actor_id: context.adminUserId, _permission: "users.ban", _action: data.banned ? "user.ban" : "user.unban",
+      _target_type: "profile", _target_id: data.userId, _result: "success", _reason: data.reason,
+      _before: { banned: before?.banned ?? false }, _after: { banned: data.banned }, _metadata: {},
+    });
     return { ok: true };
   });
 
