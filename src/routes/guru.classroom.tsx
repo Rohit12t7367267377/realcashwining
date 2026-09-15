@@ -283,7 +283,7 @@ function Classroom() {
             <TeacherCharacter
               teacherName={teacher}
               state={teacherState}
-              className="w-[178px] sm:w-[196px]"
+              className="w-[142px] sm:w-[196px]"
             />
           </div>
         </div>

@@ -397,6 +397,10 @@
 .teacher-character[data-gesture="celebrate"] .teacher-arm-left { transform: rotate(35deg) translate(12px, -8px); animation: teacher-wave 1.5s ease-in-out infinite; }
 .teacher-character[data-gesture="celebrate"] .teacher-arm-right { transform: rotate(-28deg) translate(-8px, -5px); }
 
+@media (max-width: 639px) {
+  .teacher-character { width: min(100%, 8.875rem); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .teacher-character *, .teacher-character *::before, .teacher-character *::after { animation: none !important; transition: none !important; }
 }
