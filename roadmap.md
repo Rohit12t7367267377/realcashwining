@@ -1,7 +1,7 @@
 # Guru-G Admin Control Center
 
 - [x] Replace the basic Guru.AI classroom avatar with a reusable animated 2D teacher character
-- [ ] Enable and verify Lovable AI for the existing AI features
+- [x] Enable and verify Lovable AI for the existing AI features
 
 - [ ] Complete codebase and backend audit
 - [ ] Approve implementation plan

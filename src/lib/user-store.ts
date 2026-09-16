@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 let supabaseSyncStarted = false;
@@ -71,6 +71,22 @@ function load(): UserState {
 let listeners: Array<() => void> = [];
 let current: UserState | null = null;
 
+function subscribe(listener: () => void) {
+  listeners.push(listener);
+  return () => {
+    listeners = listeners.filter((entry) => entry !== listener);
+  };
+}
+
+function getSnapshot() {
+  if (!current) current = load();
+  return current;
+}
+
+function getServerSnapshot() {
+  return DEFAULT;
+}
+
 function save(s: UserState) {
   current = s;
   if (typeof window !== "undefined") {
@@ -80,23 +96,15 @@ function save(s: UserState) {
 }
 
 export function useUser() {
-  const [state, setState] = useState<UserState>(() => {
-    if (current) return current;
-    current = load();
-    return current;
-  });
+  const state = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
     startSupabaseSync();
-    const l = () => setState(current!);
-    listeners.push(l);
-    return () => {
-      listeners = listeners.filter((x) => x !== l);
-    };
   }, []);
 
   const update = useCallback((patch: Partial<UserState> | ((s: UserState) => UserState)) => {
-    const next = typeof patch === "function" ? patch(current!) : { ...current!, ...patch };
+    const base = current ?? load();
+    const next = typeof patch === "function" ? patch(base) : { ...base, ...patch };
     save(next);
   }, []);
 
