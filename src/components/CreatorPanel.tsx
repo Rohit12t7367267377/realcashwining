@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { getMyCreatorStats, applyForMonetization } from "@/lib/creator.functions";
-import { BadgeCheck, Eye, Star, Clock, Users, IdCard } from "lucide-react";
+import { BadgeCheck, Eye, Star, Clock, Users, IdCard, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import { ScrollText } from "lucide-react";
