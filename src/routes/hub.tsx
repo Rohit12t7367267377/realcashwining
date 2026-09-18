@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 import {
   Gift, Share2, Ticket, Crown, Gem, Zap, Coins, CreditCard, Shield,
-  Frame, Palette, Disc3, ShoppingBag, Sparkles,
+  Frame, Palette, ShoppingBag, Sparkles, Target,
 } from "lucide-react";
 
 export const Route = createFileRoute("/hub")({
@@ -89,7 +89,7 @@ function HubPage() {
       </section>
 
       {/* Reward boxes */}
-      <section className="mt-5">
+      <section id="reward-boxes" className="mt-5 scroll-mt-20">
         <h2 className="mb-2 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
           <Gift className="h-4 w-4" /> Reward boxes ({unopened.length})
         </h2>
@@ -122,18 +122,20 @@ function HubPage() {
           <TileLink to="/coupons" icon={<Ticket className="h-5 w-5" />} title="Coupons" sub="Redeem bonus codes" />
           <TileLink to="/refer" icon={<Share2 className="h-5 w-5" />} title="Referral Rewards" sub="Invite & earn cash" tone="success" />
           <TileLink to="/wallet" icon={<Coins className="h-5 w-5" />} title="Coins & Balance" sub="Add money or withdraw" />
-          <Soon icon={<Zap className="h-5 w-5" />} title="XP Boost" sub="2× XP for 24 hours" />
-          <Soon icon={<Gem className="h-5 w-5" />} title="Power Ups" sub="50-50, freeze timer, skip" />
-          <Soon icon={<Shield className="h-5 w-5" />} title="Special Badges" sub="Show off your rank" />
-          <Soon icon={<Frame className="h-5 w-5" />} title="Avatar Frames" sub="Premium profile rings" />
-          <Soon icon={<Palette className="h-5 w-5" />} title="Themes" sub="Custom app skins" />
-          <Soon icon={<CreditCard className="h-5 w-5" />} title="Gift Cards" sub="Amazon, Flipkart & more" />
-          <Soon icon={<Disc3 className="h-5 w-5" />} title="Spin Wheel" sub="Daily lucky spin" />
-          <Soon icon={<ShoppingBag className="h-5 w-5" />} title="Merchandise" sub="Official Guru-G store" />
+          <TileLink to="/guru/progress" icon={<Zap className="h-5 w-5" />} title="XP & Levels" sub="Track XP, level and progress" />
+          <TileLink to="/leaderboard" icon={<Target className="h-5 w-5" />} title="Missions" sub="Complete missions for rewards" />
+          <TileLink to="/guru/achievements" icon={<Shield className="h-5 w-5" />} title="Special Badges" sub="View earned and locked badges" />
+          <TileLink to="/guru/characters" icon={<Frame className="h-5 w-5" />} title="AI Characters" sub="Choose your teacher character" />
+          <TileLink to="/profile" icon={<Palette className="h-5 w-5" />} title="Theme & Language" sub="Personalize your experience" />
+          <TileAction icon={<CreditCard className="h-5 w-5" />} title="Gift Cards" sub="Browse available store rewards" targetId="elite-store" />
+          <TileAction icon={<Gift className="h-5 w-5" />} title="Reward Boxes" sub="Open your earned rewards" targetId="reward-boxes" />
+          <TileAction icon={<ShoppingBag className="h-5 w-5" />} title="Merchandise" sub="Browse the Guru-G store" targetId="elite-store" />
         </div>
       </section>
 
-      <StoreSection />
+      <div id="elite-store" className="scroll-mt-20">
+        <StoreSection />
+      </div>
 
 
       {/* Claim history */}
@@ -187,19 +189,19 @@ function TileLink({
   );
 }
 
-function Soon({ icon, title, sub }: { icon: React.ReactNode; title: string; sub: string }) {
+function TileAction({ icon, title, sub, targetId }: { icon: React.ReactNode; title: string; sub: string; targetId: string }) {
   return (
-    <button
+    <Button
       type="button"
-      onClick={() => toast.info(`${title} unlocks soon — stay tuned!`)}
-      className="press card-lift rounded-2xl border border-dashed border-border bg-card/60 p-4 text-left shadow-soft"
+      variant="ghost"
+      onClick={() => document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" })}
+      className="press card-lift h-auto min-h-24 justify-start rounded-2xl bg-card p-4 text-left shadow-soft"
     >
-      <span className="text-muted-foreground">{icon}</span>
-      <div className="mt-2 flex items-center gap-1.5 text-sm font-black leading-tight">
-        {title}
-        <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-bold uppercase text-muted-foreground">Soon</span>
-      </div>
-      <div className="text-[11px] text-muted-foreground">{sub}</div>
-    </button>
+      <span className="block min-w-0 whitespace-normal">
+        <span className="text-primary">{icon}</span>
+        <span className="mt-2 block text-sm font-black leading-tight">{title}</span>
+        <span className="block text-[11px] font-normal text-muted-foreground">{sub}</span>
+      </span>
+    </Button>
   );
 }
