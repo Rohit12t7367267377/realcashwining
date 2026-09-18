@@ -81,13 +81,17 @@ export function CreatorPanel() {
         <Link to="/kyc" className="press mt-3 flex items-center justify-center gap-2 rounded-xl bg-gradient-gold px-3 py-2 text-xs font-black text-amber-950">
           <IdCard className="h-4 w-4" /> Complete KYC to receive payouts
         </Link>
+      ) : !data.eligible ? (
+        <Link to="/profile" className="press mt-3 flex items-center justify-center gap-2 rounded-xl bg-gradient-primary px-3 py-2 text-xs font-black text-primary-foreground">
+          <ImagePlus className="h-4 w-4" /> Create a post to progress
+        </Link>
       ) : (
         <Button
           className="press mt-3 w-full bg-gradient-primary font-bold"
-          disabled={!agreed || !data.eligible || data.status === "pending" || applyMut.isPending}
+          disabled={!agreed || data.status === "pending" || applyMut.isPending}
           onClick={() => applyMut.mutate()}
         >
-          {data.status === "pending" ? "Application in review" : !agreed ? "Accept the terms to continue" : data.eligible ? "Apply for monetization" : "Keep creating to unlock"}
+          {data.status === "pending" ? "Application in review" : !agreed ? "Accept the terms to continue" : "Apply for monetization"}
         </Button>
       )}
     </section>
