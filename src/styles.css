@@ -375,7 +375,12 @@
 .teacher-caption-state { margin-top: 0.12rem; font-size: 0.65rem; font-weight: 650; color: var(--muted-foreground); }
 
 .teacher-character[data-state="speaking"] .teacher-mouth-line { display: none; }
-.teacher-character[data-state="speaking"] .teacher-mouth-open { display: block; animation: teacher-talk 320ms ease-in-out infinite; }
+.teacher-character[data-state="speaking"] .teacher-mouth-small { display: block; animation: teacher-talk 320ms ease-in-out infinite; }
+.teacher-character[data-state="speaking"][data-lip-sync] .teacher-mouth-open { display: none; animation: none; }
+.teacher-character[data-state="speaking"][data-lip-sync="0"] .teacher-mouth-line { display: block; }
+.teacher-character[data-state="speaking"][data-lip-sync="1"] .teacher-mouth-small,
+.teacher-character[data-state="speaking"][data-lip-sync="2"] .teacher-mouth-medium,
+.teacher-character[data-state="speaking"][data-lip-sync="3"] .teacher-mouth-wide { display: block; }
 .teacher-character[data-state="speaking"] .teacher-head { animation: teacher-head-talk 1.1s ease-in-out infinite; }
 .teacher-character[data-state="thinking"] .teacher-thoughts,
 .teacher-character[data-state="confused"] .teacher-thoughts { display: block; animation: teacher-think 1.8s ease-in-out infinite; }

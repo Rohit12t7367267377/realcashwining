@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import type { LipSyncLevel } from "@/hooks/use-teacher-audio";
 
 export type TeacherCharacterState =
   | "idle"
@@ -20,6 +21,7 @@ type TeacherCharacterProps = {
   gesture?: TeacherCharacterGesture;
   className?: string;
   showStatus?: boolean;
+  lipSyncLevel?: LipSyncLevel;
 };
 
 const STATUS: Record<TeacherCharacterState, string> = {
@@ -54,6 +56,7 @@ export function TeacherCharacter({
   gesture = "auto",
   className,
   showStatus = true,
+  lipSyncLevel,
 }: TeacherCharacterProps) {
   const activeGesture = resolveGesture(state, gesture);
   const isPositive = state === "happy" || state === "correct" || state === "encouraging";
@@ -64,6 +67,7 @@ export function TeacherCharacter({
       className={cn("teacher-character", className)}
       data-state={state}
       data-gesture={activeGesture}
+      data-lip-sync={state === "speaking" && lipSyncLevel !== undefined ? lipSyncLevel : undefined}
       aria-label={`${teacherName}, AI teacher. ${STATUS[state]}.`}
     >
       <div className="teacher-stage" aria-hidden="true">
@@ -155,7 +159,9 @@ export function TeacherCharacter({
                 ) : (
                   <path className="teacher-mouth-line" d="M116 142q14 10 28 0" />
                 )}
-                <ellipse className="teacher-mouth-open" cx="130" cy="145" rx="10" ry="7" />
+                <ellipse className="teacher-mouth-open teacher-mouth-small" cx="130" cy="145" rx="7" ry="3.5" />
+                <ellipse className="teacher-mouth-open teacher-mouth-medium" cx="130" cy="145" rx="9" ry="6" />
+                <ellipse className="teacher-mouth-open teacher-mouth-wide" cx="130" cy="145" rx="11" ry="8" />
               </g>
 
               <g className="teacher-glasses">

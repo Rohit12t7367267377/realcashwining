@@ -1,4 +1,5 @@
 import { TeacherCharacter } from "@/components/TeacherCharacter";
+import type { LipSyncLevel } from "@/hooks/use-teacher-audio";
 
 /**
  * Animated 2D AI teacher character standing at a whiteboard.
@@ -11,12 +12,14 @@ export function GuruTeacherBoard({
   revealed,
   speaking,
   teacher = "Guru",
+  lipSyncLevel,
 }: {
   title: string;
   lines: string[];
   revealed: number;
   speaking: boolean;
   teacher?: string;
+  lipSyncLevel?: LipSyncLevel;
 }) {
   return (
     <div className="rounded-3xl bg-gradient-to-br from-primary/10 via-card to-secondary/10 p-3 ring-1 ring-border">
@@ -40,6 +43,7 @@ export function GuruTeacherBoard({
           state={speaking ? "speaking" : revealed > 0 ? "explaining" : "idle"}
           className="w-[104px] sm:w-[118px]"
           showStatus={false}
+          lipSyncLevel={lipSyncLevel}
         />
       </div>
 
