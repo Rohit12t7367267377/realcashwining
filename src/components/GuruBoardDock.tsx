@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GuruTeacherBoard } from "@/components/GuruTeacherBoard";
 import { guruBoardLesson } from "@/lib/guru-board.functions";
-import { guruSpeak } from "@/lib/guru-extras.functions";
+import { guruEngineSpeak } from "@/lib/guru-engine.functions";
+import { useTeacherAudio } from "@/hooks/use-teacher-audio";
 import { GraduationCap, Loader2, X, Square, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useLang } from "@/lib/i18n";
@@ -16,15 +17,14 @@ import { useLang } from "@/lib/i18n";
  */
 export function GuruBoardDock() {
   const teach = useServerFn(guruBoardLesson);
-  const speak = useServerFn(guruSpeak);
+  const speak = useServerFn(guruEngineSpeak);
+  const teacherAudio = useTeacherAudio();
   const { lang } = useLang();
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState("");
   const [busy, setBusy] = useState(false);
   const [lesson, setLesson] = useState<{ title: string; lines: string[]; speech: string; teacher: string } | null>(null);
   const [revealed, setRevealed] = useState(0);
-  const [speaking, setSpeaking] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const stopRef = useRef(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
@@ -32,12 +32,7 @@ export function GuruBoardDock() {
     stopRef.current = true;
     timers.current.forEach(clearTimeout);
     timers.current = [];
-    setSpeaking(false);
-    const el = audioRef.current;
-    if (el) {
-      el.pause();
-      el.src = "";
-    }
+    teacherAudio.stop();
   }
 
   function revealLines(count: number) {
@@ -64,13 +59,7 @@ export function GuruBoardDock() {
       if (res.speech && !stopRef.current) {
         const audio = await speak({ data: { text: res.speech } });
         if (stopRef.current) return;
-        const el = audioRef.current ?? new Audio();
-        audioRef.current = el;
-        el.src = `data:${audio.mimeType || "audio/mpeg"};base64,${audio.audioBase64}`;
-        setSpeaking(true);
-        el.onended = () => setSpeaking(false);
-        el.onerror = () => setSpeaking(false);
-        await el.play().catch(() => setSpeaking(false));
+        await teacherAudio.play(audio);
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "The AI teacher is unavailable right now");
@@ -128,7 +117,8 @@ export function GuruBoardDock() {
           title={lesson?.title ?? (lang === "hi" ? "बोर्ड कक्षा" : "Board class")}
           lines={lesson?.lines ?? []}
           revealed={revealed}
-          speaking={speaking}
+          speaking={teacherAudio.speaking}
+          lipSyncLevel={teacherAudio.lipSyncLevel}
           teacher={lesson?.teacher ?? "Guru"}
         />
       </div>
@@ -155,7 +145,7 @@ export function GuruBoardDock() {
         {lang === "hi" ? "पूरी इंटरैक्टिव क्लास खोलें" : "Open full interactive classroom"}
       </Link>
 
-      {(speaking || busy) && (
+      {(teacherAudio.speaking || busy) && (
         <Button type="button" variant="destructive" className="mt-2 w-full" onClick={stopAll}>
           <Square className="mr-2 h-4 w-4" /> Stop
         </Button>

@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { GuruTeacherBoard } from "@/components/GuruTeacherBoard";
 import { useUser } from "@/lib/user-store";
-import { guruImageDoubt, guruSpeak } from "@/lib/guru-extras.functions";
+import { guruImageDoubt } from "@/lib/guru-extras.functions";
+import { guruEngineSpeak } from "@/lib/guru-engine.functions";
 import { guruBoardLesson } from "@/lib/guru-board.functions";
+import { useTeacherAudio } from "@/hooks/use-teacher-audio";
 import { ImagePlus, Loader2, Send, Sparkles, Volume2, X } from "lucide-react";
 import { toast } from "sonner";
 
@@ -35,7 +37,8 @@ function AskPage() {
   const { state } = useUser();
   const askImage = useServerFn(guruImageDoubt);
   const teach = useServerFn(guruBoardLesson);
-  const speak = useServerFn(guruSpeak);
+  const speak = useServerFn(guruEngineSpeak);
+  const teacherAudio = useTeacherAudio();
 
   const [image, setImage] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
@@ -43,10 +46,8 @@ function AskPage() {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [board, setBoard] = useState<{ title: string; lines: string[]; teacher: string } | null>(null);
   const [revealed, setRevealed] = useState(0);
-  const [speaking, setSpeaking] = useState(false);
   const sessionRef = useRef<string | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   function pickFile(file: File | undefined) {
     if (!file) return;
@@ -60,13 +61,7 @@ function AskPage() {
   async function play(text: string) {
     try {
       const res = await speak({ data: { text: text.slice(0, 2500) } });
-      const el = audioRef.current ?? new Audio();
-      audioRef.current = el;
-      el.src = `data:${res.mimeType || "audio/mpeg"};base64,${res.audioBase64}`;
-      setSpeaking(true);
-      el.onended = () => setSpeaking(false);
-      el.onerror = () => setSpeaking(false);
-      await el.play().catch(() => setSpeaking(false));
+      await teacherAudio.play(res);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Voice unavailable");
     }
@@ -133,7 +128,8 @@ function AskPage() {
           title={board?.title ?? "Board class"}
           lines={board?.lines ?? []}
           revealed={board ? revealed : 0}
-          speaking={speaking}
+          speaking={teacherAudio.speaking}
+          lipSyncLevel={teacherAudio.lipSyncLevel}
           teacher={board?.teacher ?? "Guru"}
         />
       </section>
