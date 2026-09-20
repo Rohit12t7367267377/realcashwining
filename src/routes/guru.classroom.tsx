@@ -8,7 +8,8 @@ import { GuruBoardCanvas } from "@/components/GuruBoardCanvas";
 import { TeacherCharacter, type TeacherCharacterState } from "@/components/TeacherCharacter";
 import type { BoardBlock } from "@/lib/guru-board-blocks";
 import { guruClassroomTurn, guruEvaluateAnswer, guruClassroomProgress } from "@/lib/guru-classroom.functions";
-import { guruSpeak } from "@/lib/guru-extras.functions";
+import { guruEngineSpeak } from "@/lib/guru-engine.functions";
+import { useTeacherAudio } from "@/hooks/use-teacher-audio";
 import { useUser } from "@/lib/user-store";
 import { toast } from "sonner";
 import {
@@ -40,7 +41,8 @@ function Classroom() {
   const turnFn = useServerFn(guruClassroomTurn);
   const evalFn = useServerFn(guruEvaluateAnswer);
   const saveFn = useServerFn(guruClassroomProgress);
-  const speakFn = useServerFn(guruSpeak);
+  const speakFn = useServerFn(guruEngineSpeak);
+  const teacherAudio = useTeacherAudio();
 
   const [topic, setTopic] = useState(topicParam ?? "");
   const [active, setActive] = useState<string | null>(null);
@@ -52,7 +54,6 @@ function Classroom() {
   const [revealed, setRevealed] = useState(0);
   const [speech, setSpeech] = useState("");
   const [teacher, setTeacher] = useState("Guru");
-  const [speaking, setSpeaking] = useState(false);
   const [question, setQuestion] = useState<{ prompt: string; hint: string | null; expected: string | null } | null>(null);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<{ verdict: string; text: string; miss: string | null } | null>(null);
@@ -66,7 +67,7 @@ function Classroom() {
     ? "listening"
     : busy
       ? "thinking"
-      : speaking
+    : teacherAudio.speaking
         ? "speaking"
         : feedback?.verdict === "correct"
           ? "correct"
@@ -78,24 +79,18 @@ function Classroom() {
                 ? "explaining"
                 : "idle";
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const recRef = useRef<any>(null);
   const voiceTarget = useRef<"doubt" | "answer">("doubt");
 
   useEffect(() => () => {
     timers.current.forEach(clearTimeout);
-    audioRef.current?.pause();
+    teacherAudio.stop();
     recRef.current?.stop?.();
-  }, []);
+  }, [teacherAudio.stop]);
 
   function stopVoice() {
-    const el = audioRef.current;
-    if (el) {
-      el.pause();
-      el.src = "";
-    }
-    setSpeaking(false);
+    teacherAudio.stop();
   }
 
   function reveal(count: number) {
@@ -111,15 +106,9 @@ function Classroom() {
     if (!text) return;
     try {
       const audio = await speakFn({ data: { text } });
-      const el = audioRef.current ?? new Audio();
-      audioRef.current = el;
-      el.src = `data:${audio.mimeType || "audio/mpeg"};base64,${audio.audioBase64}`;
-      setSpeaking(true);
-      el.onended = () => setSpeaking(false);
-      el.onerror = () => setSpeaking(false);
-      await el.play().catch(() => setSpeaking(false));
-    } catch {
-      setSpeaking(false);
+      await teacherAudio.play(audio);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Teacher voice is unavailable");
     }
   }
 
@@ -284,6 +273,7 @@ function Classroom() {
               teacherName={teacher}
               state={teacherState}
               className="w-[142px] sm:w-[196px]"
+              lipSyncLevel={teacherAudio.lipSyncLevel}
             />
           </div>
         </div>
@@ -292,8 +282,8 @@ function Classroom() {
           <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-bold">Level {level}/5</span>
           <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-bold">Answered {correct}/{asked}</span>
           {speech ? (
-            <Button size="sm" variant="outline" onClick={() => (speaking ? stopVoice() : void say(speech))}>
-              {speaking ? <><Square className="mr-1 h-3.5 w-3.5" /> Stop</> : <><Volume2 className="mr-1 h-3.5 w-3.5" /> Listen</>}
+            <Button size="sm" variant="outline" onClick={() => (teacherAudio.speaking ? stopVoice() : void say(speech))}>
+              {teacherAudio.speaking ? <><Square className="mr-1 h-3.5 w-3.5" /> Stop</> : <><Volume2 className="mr-1 h-3.5 w-3.5" /> Listen</>}
             </Button>
           ) : null}
         </div>
