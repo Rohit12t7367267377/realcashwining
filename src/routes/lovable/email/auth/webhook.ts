@@ -9,7 +9,7 @@ import { EmailChangeEmail } from '@/lib/email-templates/email-change'
 import { ReauthenticationEmail } from '@/lib/email-templates/reauthentication'
 
 // Configuration
-const SITE_NAME = "guru-g"
+const SITE_NAME = "Guru-G"
 const SENDER_DOMAIN = "notify.gurug.live"
 const ROOT_DOMAIN = "gurug.live"
 const FROM_DOMAIN = "notify.gurug.live"
