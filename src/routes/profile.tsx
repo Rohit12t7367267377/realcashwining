@@ -71,7 +71,6 @@ function ProfilePage() {
   const [postOpen, setPostOpen] = useState(false);
   const [postBody, setPostBody] = useState("");
   const [postFile, setPostFile] = useState<File | null>(null);
-  const [reelMode, setReelMode] = useState(false);
   const { lang, setLang } = useLang();
   const { theme, toggle: toggleTheme } = useTheme();
   const [posting, setPosting] = useState(false);
@@ -167,7 +166,7 @@ function ProfilePage() {
       });
       if (error) throw new Error(error.message);
       toast.success("Shared!");
-      setPostBody(""); setPostFile(null); setPostOpen(false); setReelMode(false);
+      setPostBody(""); setPostFile(null); setPostOpen(false);
       if (postFileRef.current) postFileRef.current.value = "";
       await loadSocial();
     } catch (e) {
@@ -257,11 +256,8 @@ function ProfilePage() {
           >
             <Pencil className="mr-1 h-4 w-4" /> Edit profile
           </Button>
-          <Button className="flex-1 bg-gradient-primary font-bold" onClick={() => { setReelMode(false); setPostOpen(true); }}>
+          <Button className="flex-1 bg-gradient-primary font-bold" onClick={() => { setPostOpen(true); }}>
             <ImagePlus className="mr-1 h-4 w-4" /> New post
-          </Button>
-          <Button variant="outline" className="flex-1 font-bold" onClick={() => { setReelMode(true); setPostOpen(true); }}>
-            <Play className="mr-1 h-4 w-4" /> Share reel
           </Button>
         </div>
       </section>
@@ -362,12 +358,12 @@ function ProfilePage() {
       {/* New post dialog */}
       <Dialog open={postOpen} onOpenChange={setPostOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle>{reelMode ? "Share a study reel" : "Share a photo or video"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Share a photo or video</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Textarea rows={3} placeholder={reelMode ? "Reel caption — keep it study related…" : "Write a caption…"} value={postBody} onChange={(e) => setPostBody(e.target.value)} maxLength={1000} />
-            <input ref={postFileRef} type="file" accept={reelMode ? "video/*" : "image/*,video/*"} className="hidden" onChange={(e) => setPostFile(e.target.files?.[0] ?? null)} />
+            <Textarea rows={3} placeholder="Write a caption…" value={postBody} onChange={(e) => setPostBody(e.target.value)} maxLength={1000} />
+            <input ref={postFileRef} type="file" accept="image/*,video/*" className="hidden" onChange={(e) => setPostFile(e.target.files?.[0] ?? null)} />
             <Button variant="outline" className="w-full" onClick={() => postFileRef.current?.click()}>
-              <ImagePlus className="mr-1 h-4 w-4" /> {postFile ? postFile.name : reelMode ? "Choose a short video" : "Choose photo / video"}
+              <ImagePlus className="mr-1 h-4 w-4" /> {postFile ? postFile.name : "Choose photo / video"}
             </Button>
             <Button className="w-full" onClick={publishPost} disabled={posting || (!postBody.trim() && !postFile)}>
               {posting ? "Sharing…" : "Share"}

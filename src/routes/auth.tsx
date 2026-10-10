@@ -1,21 +1,27 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
-import { Mail, Phone } from "lucide-react";
+import { Mail } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
-  head: () => ({ meta: [{ title: "Sign in — Guru-G" }] }),
+  head: () => ({ meta: [
+    { title: "Sign in — Guru-G" },
+    { name: "description", content: "Sign in or create your Guru-G account with Google or email." },
+    { property: "og:title", content: "Sign in — Guru-G" },
+    { property: "og:description", content: "Continue learning with your Guru-G Google or email account." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
 });
 
 type Mode = "signin" | "signup";
-type Method = "email" | "phone";
 
 function AuthPage() {
   const navigate = useNavigate();
@@ -25,54 +31,6 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [method, setMethod] = useState<Method>("phone");
-  const [phone, setPhone] = useState("");
-  const [otp, setOtp] = useState("");
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
-  const [resendIn, setResendIn] = useState(0);
-
-  useEffect(() => {
-    if (resendIn <= 0) return;
-    const t = setTimeout(() => setResendIn((v) => v - 1), 1000);
-    return () => clearTimeout(t);
-  }, [resendIn]);
-
-  function normalizedPhone() {
-    const digits = phone.replace(/[^0-9]/g, "");
-    if (!digits) return "";
-    return digits.length === 10 ? `+91${digits}` : `+${digits.replace(/^\+/, "")}`;
-  }
-
-  async function sendOtp() {
-    const to = normalizedPhone();
-    if (to.replace(/[^0-9]/g, "").length < 10) return toast.error("Enter a valid mobile number");
-    setOtpLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      phone: to,
-      options: { data: { full_name: fullName, phone: to } },
-    });
-    setOtpLoading(false);
-    if (error) return toast.error(error.message);
-    setOtpSent(true);
-    setResendIn(30);
-    toast.success("OTP sent to " + to);
-  }
-
-  async function verifyOtp() {
-    if (otp.trim().length < 4) return toast.error("Enter the OTP");
-    setOtpLoading(true);
-    const { error } = await supabase.auth.verifyOtp({
-      phone: normalizedPhone(),
-      token: otp.trim(),
-      type: "sms",
-    });
-    setOtpLoading(false);
-    if (error) return toast.error(error.message);
-    toast.success("Mobile verified!");
-    navigate({ to: "/" });
-  }
-
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!email.trim()) return toast.error("Enter your email");
@@ -80,7 +38,7 @@ function AuthPage() {
 
     setLoading(true);
     if (mode === "signup") {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
@@ -90,6 +48,11 @@ function AuthPage() {
       });
       setLoading(false);
       if (error) return toast.error(error.message);
+      if (!data.session) {
+        toast.success("Check your email to confirm your account before signing in.");
+        setMode("signin");
+        return;
+      }
       toast.success("Account created!");
       navigate({ to: "/" });
     } else {
@@ -173,83 +136,6 @@ function AuthPage() {
           </button>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 mb-4 rounded-lg border p-1">
-          <button
-            type="button"
-            onClick={() => setMethod("phone")}
-            className={`flex h-9 items-center justify-center gap-1.5 rounded-md text-sm font-medium ${method === "phone" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-          >
-            <Phone className="h-4 w-4" /> Mobile OTP
-          </button>
-          <button
-            type="button"
-            onClick={() => setMethod("email")}
-            className={`flex h-9 items-center justify-center gap-1.5 rounded-md text-sm font-medium ${method === "email" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
-          >
-            <Mail className="h-4 w-4" /> Email
-          </button>
-        </div>
-
-        {method === "phone" ? (
-          <div className="space-y-3">
-            {mode === "signup" && (
-              <div>
-                <Label>Full name</Label>
-                <Input value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your name" />
-              </div>
-            )}
-            <div>
-              <Label>Mobile number</Label>
-              <Input
-                type="tel"
-                inputMode="numeric"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                placeholder="9876543210"
-                autoComplete="tel"
-                disabled={otpSent}
-              />
-              <p className="mt-1 text-[11px] text-muted-foreground">Indian numbers get +91 automatically.</p>
-            </div>
-            {otpSent && (
-              <div>
-                <Label>Enter OTP</Label>
-                <Input
-                  inputMode="numeric"
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value.replace(/[^0-9]/g, ""))}
-                  placeholder="6-digit code"
-                  maxLength={6}
-                  autoComplete="one-time-code"
-                />
-              </div>
-            )}
-            {!otpSent ? (
-              <Button type="button" className="w-full h-11" onClick={sendOtp} disabled={otpLoading}>
-                {otpLoading ? "Sending OTP…" : "Send OTP"}
-              </Button>
-            ) : (
-              <div className="space-y-2">
-                <Button type="button" className="w-full h-11" onClick={verifyOtp} disabled={otpLoading}>
-                  {otpLoading ? "Verifying…" : "Verify & continue"}
-                </Button>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <button type="button" className="hover:underline" onClick={() => { setOtpSent(false); setOtp(""); }}>
-                    Change number
-                  </button>
-                  <button
-                    type="button"
-                    className="hover:underline disabled:opacity-50"
-                    disabled={resendIn > 0 || otpLoading}
-                    onClick={sendOtp}
-                  >
-                    {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend OTP"}
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
         <form onSubmit={submit} className="space-y-3">
           {mode === "signup" && (
             <div>
@@ -284,7 +170,6 @@ function AuthPage() {
             {loading ? "Please wait…" : mode === "signup" ? "Create account" : "Sign in"}
           </Button>
         </form>
-        )}
 
         <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
           <Link to="/" className="hover:underline">← Home</Link>
