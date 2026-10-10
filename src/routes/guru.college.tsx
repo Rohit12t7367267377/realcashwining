@@ -102,16 +102,16 @@ function CollegePage() {
     .slice(0, 300);
 
   const listMut = useMutation({
-    mutationFn: (input: { level: "regulations" | "terms" | "subjects" | "units" | "topics"; parentId?: string }) =>
+    mutationFn: (input: { level: "regulations" | "terms" | "subjects" | "units" | "topics"; parentId?: string; degree?: string; regulation?: string; term?: string; subject?: string; unit?: string }) =>
       loadCatalog({
         data: {
           level: input.level,
           parentId: input.parentId,
-          degree: degree?.name ?? "",
-          regulation: regulation?.name,
-          term: term?.name,
-          subject: subject?.name,
-          unit: unit?.name,
+          degree: input.degree ?? degree?.name ?? "",
+          regulation: input.regulation ?? regulation?.name,
+          term: input.term ?? term?.name,
+          subject: input.subject ?? subject?.name,
+          unit: input.unit ?? unit?.name,
         },
       }),
     onError: (e: unknown) => toast.error(e instanceof Error ? e.message : "Could not load the list"),
@@ -227,7 +227,7 @@ function CollegePage() {
                   setDegree({ id: d.id, name: d.name });
                   setRegulation(null);
                   setStep("regulation");
-                  listMut.mutate({ level: "regulations", parentId: d.id });
+                   listMut.mutate({ level: "regulations", parentId: d.id, degree: d.name });
                 }}
               >
                 <div className="flex items-start gap-3">
@@ -279,7 +279,7 @@ function CollegePage() {
                     setRegulation(item);
                     setTerm(null);
                     setStep("term");
-                    listMut.mutate({ level: "terms", parentId: item.fromDb ? item.id : undefined });
+                    listMut.mutate({ level: "terms", parentId: item.fromDb ? item.id : undefined, regulation: item.name });
                   } else if (step === "term") {
                     setTerm(item);
                     setSubject(null);
@@ -287,17 +287,18 @@ function CollegePage() {
                     listMut.mutate({
                       level: "subjects",
                       parentId: regulation?.fromDb ? regulation.id : undefined,
+                      term: item.name,
                     });
                   } else if (step === "subject") {
                     setSubject(item);
                     setUnit(null);
                     setStep("unit");
-                    listMut.mutate({ level: "units", parentId: item.fromDb ? item.id : undefined });
+                    listMut.mutate({ level: "units", parentId: item.fromDb ? item.id : undefined, subject: item.name });
                   } else if (step === "unit") {
                     setUnit(item);
                     setTopic(null);
                     setStep("topic");
-                    listMut.mutate({ level: "topics", parentId: item.fromDb ? item.id : undefined });
+                    listMut.mutate({ level: "topics", parentId: item.fromDb ? item.id : undefined, unit: item.name });
                   } else {
                     setTopic(item);
                     setNotes(null);
