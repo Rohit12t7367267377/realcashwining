@@ -28,7 +28,7 @@ function Page() {
   useEffect(() => { load(); }, []);
 
   async function save() {
-    try { await adminUpsertRow({ data: { table: "app_updates", id: edit?.id, values: f } }); toast.success("Saved"); setOpen(false); load(); }
+    try { await adminUpsertRow({ data: { table: "app_updates", id: edit?.id, values: { version: f.version, message: f.message ?? "", url: f.url ?? "", force_update: f.force_update, active: f.active } } }); toast.success("Saved"); setOpen(false); load(); }
     catch (e: any) { toast.error(e?.message ?? "Failed"); }
   }
   async function del(id: string) { if (!confirm("Delete?")) return; try { await adminDeleteRow({ data: { table: "app_updates", id } }); load(); } catch (e: any) { toast.error(e?.message ?? "Failed"); } }

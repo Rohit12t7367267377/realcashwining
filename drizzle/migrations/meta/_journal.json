@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1791612177621,
+      "tag": "0000_selected_security_access_controls",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1791612265834,
+      "tag": "0001_selected_social_visibility_and_wallet_purchase",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791612335673,
+      "tag": "0002_selected_xp_private_records",
+      "breakpoints": true
+    }
+  ]
+}

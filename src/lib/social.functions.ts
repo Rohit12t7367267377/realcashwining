@@ -78,7 +78,13 @@ export const submitKyc = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
     const { error } = await supabase.from("kyc_submissions").insert({
-      user_id: userId, ...data,
+      user_id: userId,
+      full_name: data.full_name,
+      doc_type: data.doc_type,
+      doc_number: data.doc_number,
+      doc_image_url: data.doc_image_url ?? null,
+      selfie_url: data.selfie_url ?? null,
+      status: "pending",
     });
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -134,19 +140,7 @@ export const purchaseMembership = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ membership_id: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const { data: m, error: me } = await supabase.from("memberships").select("*").eq("id", data.membership_id).single();
-    if (me || !m) throw new Error("Plan not found");
-    if (!m.active) throw new Error("Plan is inactive");
-    const { data: prof, error: pe } = await supabase.from("profiles").select("wallet_balance").eq("id", userId).single();
-    if (pe || !prof) throw new Error("Profile not found");
-    if (Number(prof.wallet_balance) < Number(m.price)) throw new Error("Insufficient wallet balance. Add money first.");
-    const ends = new Date(Date.now() + m.duration_days * 24 * 3600 * 1000).toISOString();
-    const { error: ue } = await supabase.from("profiles").update({ wallet_balance: Number(prof.wallet_balance) - Number(m.price) }).eq("id", userId);
-    if (ue) throw new Error(ue.message);
-    await supabase.from("transactions").insert({ user_id: userId, type: "debit", amount: m.price, note: `VIP: ${m.name}` });
-    const { error: ie } = await supabase.from("user_memberships").insert({
-      user_id: userId, membership_id: m.id, ends_at: ends, status: "active",
-    });
-    if (ie) throw new Error(ie.message);
+    const { data: ends, error } = await supabase.rpc("purchase_membership_wallet", { _membership_id: data.membership_id });
+    if (error) throw new Error(error.message);
     return { ok: true, ends_at: ends };
   });

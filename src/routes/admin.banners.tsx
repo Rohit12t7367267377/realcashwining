@@ -28,7 +28,7 @@ function Page() {
 
   async function save() {
     try {
-      await adminUpsertRow({ data: { table: "banners", id: edit?.id, values: { ...f, sort_order: Number(f.sort_order) } } });
+      await adminUpsertRow({ data: { table: "banners", id: edit?.id, values: { title: f.title, subtitle: f.subtitle ?? "", image_url: f.image_url ?? "", link_url: f.link_url ?? "", cta_label: f.cta_label ?? "", active: f.active, sort_order: Number(f.sort_order) } } });
       toast.success("Saved"); setOpen(false); load();
     } catch (e: any) { toast.error(e?.message ?? "Failed"); }
   }

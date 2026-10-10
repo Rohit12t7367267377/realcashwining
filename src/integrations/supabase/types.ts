@@ -4600,6 +4600,7 @@ export type Database = {
           new_xp: number
         }[]
       }
+      has_current_premium_membership: { Args: never; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -4644,6 +4645,10 @@ export type Database = {
           reward_xp: number
           tier: string
         }[]
+      }
+      purchase_membership_wallet: {
+        Args: { _membership_id: string }
+        Returns: string
       }
       queue_event_notification: {
         Args: {

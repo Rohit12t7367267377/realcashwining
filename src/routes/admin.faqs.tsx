@@ -29,7 +29,7 @@ function Page() {
 
   async function save() {
     try {
-      await adminUpsertRow({ data: { table: "faqs", id: edit?.id, values: { ...f, sort_order: Number(f.sort_order) } } });
+      await adminUpsertRow({ data: { table: "faqs", id: edit?.id, values: { question: f.question, answer: f.answer, category: f.category ?? "", active: f.active, sort_order: Number(f.sort_order) } } });
       toast.success("Saved"); setOpen(false); load();
     } catch (e: any) { toast.error(e?.message ?? "Failed"); }
   }
