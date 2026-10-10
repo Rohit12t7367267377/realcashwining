@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { catalogWriteSchemas } from "@/lib/admin-write-schemas";
 import { requireAdminPassword } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
@@ -64,7 +65,7 @@ export const adminSaveCatalogRow = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    // Catalogue tables share a loose shape here; the admin form supplies validated fields.
+    const values = catalogWriteSchemas[data.entity].parse(data.values);
     const table = TABLES[data.entity];
     const db = supabaseAdmin as unknown as {
       from: (t: string) => {
@@ -73,11 +74,11 @@ export const adminSaveCatalogRow = createServerFn({ method: "POST" })
       };
     };
     if (data.id) {
-      const { error } = await db.from(table).update(data.values).eq("id", data.id);
+      const { error } = await db.from(table).update(values).eq("id", data.id);
       if (error) throw new Error(error.message);
       return { ok: true, id: data.id };
     }
-    const { data: row, error } = await db.from(table).insert(data.values).select("id").maybeSingle();
+    const { data: row, error } = await db.from(table).insert(values).select("id").maybeSingle();
     if (error) throw new Error(error.message);
     return { ok: true, id: row?.id ?? null };
   });

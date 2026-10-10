@@ -31,7 +31,7 @@ function Page() {
   function openEdit(r: any) { setEdit(r); setF({ ...r, expires_at: r.expires_at ? String(r.expires_at).slice(0, 16) : "", note: r.note ?? "" }); setOpen(true); }
   async function save() {
     try {
-      const values = { ...f, code: String(f.code).toUpperCase(), amount: Number(f.amount), xp_amount: Number(f.xp_amount), max_redemptions: f.max_redemptions ? Number(f.max_redemptions) : null, per_user_limit: Number(f.per_user_limit), expires_at: f.expires_at ? new Date(f.expires_at).toISOString() : null };
+      const values = { kind: f.kind, active: f.active, note: f.note ?? "", code: String(f.code).toUpperCase(), amount: Number(f.amount), xp_amount: Number(f.xp_amount), max_redemptions: f.max_redemptions ? Number(f.max_redemptions) : null, per_user_limit: Number(f.per_user_limit), expires_at: f.expires_at ? new Date(f.expires_at).toISOString() : null };
       await adminUpsertRow({ data: { table: "coupons", id: edit?.id, values } });
       toast.success("Saved"); setOpen(false); load();
     } catch (e: any) { toast.error(e?.message ?? "Failed"); }

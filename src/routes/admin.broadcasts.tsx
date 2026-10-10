@@ -28,7 +28,7 @@ function Page() {
   useEffect(() => { load(); }, []);
 
   async function save() {
-    try { await adminUpsertRow({ data: { table: "broadcasts", id: edit?.id, values: f } }); toast.success("Saved"); setOpen(false); load(); }
+    try { await adminUpsertRow({ data: { table: "broadcasts", id: edit?.id, values: { title: f.title, body: f.body, audience: f.audience, active: f.active } } }); toast.success("Saved"); setOpen(false); load(); }
     catch (e: any) { toast.error(e?.message ?? "Failed"); }
   }
   async function del(id: string) {

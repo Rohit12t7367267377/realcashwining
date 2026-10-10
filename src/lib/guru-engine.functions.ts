@@ -48,6 +48,10 @@ export const guruEngineTurn = createServerFn({ method: "POST" })
     };
 
     const resolved = await resolveTeachingContext(db, context.userId, ctx);
+    if (resolved.premium) {
+      const { requirePremiumMembership } = await import("@/lib/premium-access.server");
+      await requirePremiumMembership(context.supabase, context.userId);
+    }
     const turn = await runTeachTurn({
       ctx,
       resolved,

@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { approvedKnowledgeProvider } from "@/lib/knowledge-provider-policy";
 import { requireAdminPassword } from "@/lib/admin-auth";
 
 type Db = { from: (t: string) => any };
@@ -79,6 +80,7 @@ export const adminSaveKnowledgeSource = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
+    if (data.endpoint) approvedKnowledgeProvider(data.provider, data.endpoint, data.api_key_secret_name);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const db = supabaseAdmin as never as Db;
     const clean = (v?: string) => {
@@ -166,7 +168,8 @@ export const adminTestKnowledgeSource = createServerFn({ method: "POST" })
     } | null;
     if (!src) throw new Error("Provider not found");
 
-    const envKey = src.api_key_secret_name ? process.env[src.api_key_secret_name] : undefined;
+    const approved = src.endpoint ? approvedKnowledgeProvider(src.provider, src.endpoint, src.api_key_secret_name) : null;
+    const envKey = src.api_key_secret_name && approved?.secretName ? process.env[approved.secretName] : undefined;
     const key = (src.api_key ?? envKey ?? "").trim();
 
     let ok = false;
@@ -177,9 +180,11 @@ export const adminTestKnowledgeSource = createServerFn({ method: "POST" })
       message = "No credential available. Paste a key, or set a backend secret and reference its name.";
     } else {
       try {
-        const url = new URL(src.endpoint);
+        const url = approved!.url;
         const res = await fetch(url.toString(), {
           method: "GET",
+          redirect: "error",
+          signal: AbortSignal.timeout(10000),
           headers: {
             Accept: "application/json",
             ...(key ? { Authorization: `Bearer ${key}`, "x-api-key": key } : {}),
@@ -188,9 +193,9 @@ export const adminTestKnowledgeSource = createServerFn({ method: "POST" })
         ok = res.ok;
         message = ok
           ? `Connected (HTTP ${res.status})`
-          : `Provider responded HTTP ${res.status}: ${(await res.text().catch(() => "")).slice(0, 160)}`;
+          : `Provider responded HTTP ${res.status}`;
       } catch (e) {
-        message = e instanceof Error ? `Request failed: ${e.message}` : "Request failed";
+        message = "Connection test failed; check the approved provider configuration.";
       }
     }
 

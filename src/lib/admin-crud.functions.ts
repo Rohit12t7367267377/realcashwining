@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { adminWriteSchemas } from "@/lib/admin-write-schemas";
 import { requireAdminPassword, requireAdminPermission } from "@/lib/admin-auth";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
@@ -27,12 +28,13 @@ export const adminUpsertRow = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const table = data.table as Table;
+    const values = adminWriteSchemas[table].parse(data.values);
     const client = supabaseAdmin as any;
     if (data.id) {
-      const { error } = await client.from(table).update(data.values).eq("id", data.id);
+      const { error } = await client.from(table).update(values).eq("id", data.id);
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await client.from(table).insert(data.values);
+      const { error } = await client.from(table).insert(values);
       if (error) throw new Error(error.message);
     }
     return { ok: true };

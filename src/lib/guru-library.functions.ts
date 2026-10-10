@@ -148,6 +148,10 @@ export const guruResource = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Resource not found");
     const r = row as LibraryResource & { content: string | null };
+    if (r.access_type === "premium") {
+      const { requirePremiumMembership } = await import("@/lib/premium-access.server");
+      await requirePremiumMembership(context.supabase, context.userId);
+    }
     return {
       ...r,
       content: (r.content ?? "").slice(0, 20000),
@@ -171,10 +175,14 @@ export const guruAskResource = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const { data: res } = await context.supabase
       .from("guru_resources")
-      .select("title, author, publisher, subject, class_name, board, license, source_name, chunk_count")
+      .select("title, author, publisher, subject, class_name, board, license, source_name, chunk_count, access_type")
       .eq("id", data.resource_id)
       .maybeSingle();
     if (!res) throw new Error("Resource not found");
+    if (res.access_type === "premium") {
+      const { requirePremiumMembership } = await import("@/lib/premium-access.server");
+      await requirePremiumMembership(context.supabase, context.userId);
+    }
 
     const { retrieveResourceContext, retrieveGuruContext, formatSources } = await import("@/lib/guru-rag.server");
     const { guruTeach } = await import("@/lib/guru.server");

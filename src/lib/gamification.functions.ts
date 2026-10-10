@@ -101,7 +101,9 @@ export const listActiveEvents = createServerFn({ method: "GET" })
 export const getHallOfFame = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data: top } = await context.supabase
+    // Sign-in is verified before the privileged read; only public ranking fields leave this action.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: top } = await supabaseAdmin
       .from("user_xp")
       .select("user_id, xp, level")
       .order("xp", { ascending: false })
@@ -109,7 +111,7 @@ export const getHallOfFame = createServerFn({ method: "GET" })
     const ids = (top ?? []).map((t) => t.user_id);
     let profiles: Record<string, { full_name: string | null }> = {};
     if (ids.length) {
-      const { data: profs } = await context.supabase
+      const { data: profs } = await supabaseAdmin
         .from("profiles")
         .select("id, full_name")
         .in("id", ids);

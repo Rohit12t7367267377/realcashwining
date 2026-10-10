@@ -53,7 +53,7 @@ function Page() {
   async function save() {
     try {
       const perks = String(f.perks || "").split("\n").map((s) => s.trim()).filter(Boolean);
-      await adminUpsertRow({ data: { table: "memberships", id: edit?.id, values: { ...f, perks, price: Number(f.price), duration_days: Number(f.duration_days), sort_order: Number(f.sort_order) } } });
+      await adminUpsertRow({ data: { table: "memberships", id: edit?.id, values: { code: f.code, name: f.name, description: f.description ?? "", active: f.active, perks, price: Number(f.price), duration_days: Number(f.duration_days), sort_order: Number(f.sort_order) } } });
       toast.success("Saved"); setOpen(false); load();
     } catch (e: any) { toast.error(e?.message ?? "Failed"); }
   }
