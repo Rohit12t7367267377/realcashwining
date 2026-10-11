@@ -23,14 +23,6 @@ export const NOTES_BOARDS = [
 
 export const NOTES_CLASSES = Array.from({ length: 12 }, (_, i) => String(i + 1));
 
-const PRIMARY = ["Mathematics", "English", "Hindi", "Environmental Studies (EVS)", "General Knowledge", "Computer Basics"];
-const MIDDLE = ["Mathematics", "Science", "Social Science", "English", "Hindi", "Sanskrit", "Computer Science"];
-const SECONDARY = ["Mathematics", "Science (Physics)", "Science (Chemistry)", "Science (Biology)", "Social Science", "English", "Hindi", "Information Technology"];
-const SENIOR = [
-  "Physics", "Chemistry", "Biology", "Mathematics", "Computer Science", "English Core",
-  "Accountancy", "Business Studies", "Economics", "History", "Geography", "Political Science", "Psychology",
-];
-
 /** Subjects offered for a given class number (1-12). */
 export function subjectsForClass(cls: string, board = "CBSE", stream: SchoolStream = "pcm"): string[] {
   return schoolSubjects(board, classNumber(cls), stream);

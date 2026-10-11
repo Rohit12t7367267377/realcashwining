@@ -11,7 +11,7 @@ import {
 } from "@/lib/guru-notes.server";
 
 const scope = {
-  board: z.string().trim().min(1).max(60),
+  board: z.string().trim().min(1).max(150),
   className: z.string().trim().min(1).max(10),
   subject: z.string().trim().min(1).max(80),
   language: z.enum(["en", "hi"]).default("en"),

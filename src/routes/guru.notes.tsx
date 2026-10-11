@@ -488,7 +488,7 @@ function GuruSchoolPage() {
         <nav className="mt-3 flex flex-wrap items-center gap-1 text-[11px]">
           <Crumb label="School" onClick={() => { setBoard(null); setKlass(null); setSubject(null); setChapter(null); }} />
           {board && <Crumb label={board.name} onClick={() => { setKlass(null); setSubject(null); setChapter(null); }} />}
-          {klass && <Crumb label={`Class ${klass.name}`} onClick={() => { setSubject(null); setChapter(null); }} />}
+          {klass && <Crumb label={`Class ${classNumber(klass.name)}`} onClick={() => { setSubject(null); setChapter(null); }} />}
           {subject && <Crumb label={subject.name} onClick={() => setChapter(null)} />}
           {chapter && <Crumb label={chapter.name} onClick={() => undefined} />}
         </nav>
@@ -550,7 +550,7 @@ function GuruSchoolPage() {
               >
                 <div className="text-sm font-black">{s.emoji} {s.name}</div>
                 <div className={`text-[11px] ${subject?.id === s.id ? "opacity-90" : "text-muted-foreground"}`}>
-                  Class {klass.name} • {board?.name}
+                  Class {classNumber(klass.name)} • {board?.name}
                 </div>
               </button>
             ))}
