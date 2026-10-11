@@ -9,6 +9,7 @@ import { useUser } from "@/lib/user-store";
 import { toast } from "sonner";
 import { getClassNotes, listNotesChapters, listNotesTopics, askNotesDoubt, getTopicQuiz } from "@/lib/guru-notes.functions";
 import { getSchoolCatalog } from "@/lib/guru-school.functions";
+import { SCHOOL_STREAMS, classNumber, officialBoardUrl, type SchoolStream } from "@/lib/school-curriculum";
 import {
   gradientFor, readProgress, saveProgress, getProgress,
   type NotesPayload, type QuizItem, type TopicProgress,
@@ -20,6 +21,15 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/guru/notes")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    boardId: typeof search.boardId === "string" ? search.boardId : undefined,
+    boardName: typeof search.boardName === "string" ? search.boardName : undefined,
+    classId: typeof search.classId === "string" ? search.classId : undefined,
+    className: typeof search.className === "string" ? search.className : undefined,
+    subjectId: typeof search.subjectId === "string" ? search.subjectId : undefined,
+    subjectName: typeof search.subjectName === "string" ? search.subjectName : undefined,
+    stream: SCHOOL_STREAMS.some((s) => s.id === search.stream) ? search.stream as SchoolStream : undefined,
+  }),
   head: () => ({
     meta: [
       { title: "School — Board, Class, Subject, Chapter & Topic | Guru.AI" },
@@ -54,6 +64,7 @@ const TABS: { key: Tab; label: string; icon: typeof ListChecks }[] = [
 
 function GuruSchoolPage() {
   const { state } = useUser();
+  const initial = Route.useSearch();
   const catalog = useServerFn(getSchoolCatalog);
   const loadChapters = useServerFn(listNotesChapters);
   const loadTopics = useServerFn(listNotesTopics);
@@ -62,9 +73,10 @@ function GuruSchoolPage() {
   const ask = useServerFn(askNotesDoubt);
 
   const [language, setLanguage] = useState<"en" | "hi">("en");
-  const [board, setBoard] = useState<Pick>(null);
-  const [klass, setKlass] = useState<Pick>(null);
-  const [subject, setSubject] = useState<Pick>(null);
+  const [board, setBoard] = useState<Pick>(initial.boardId && initial.boardName ? { id: initial.boardId, name: initial.boardName, emoji: "🏫" } : null);
+  const [klass, setKlass] = useState<Pick>(initial.classId && initial.className ? { id: initial.classId, name: initial.className, emoji: "📚" } : null);
+  const [subject, setSubject] = useState<Pick>(initial.subjectId && initial.subjectName ? { id: initial.subjectId, name: initial.subjectName, emoji: "📘" } : null);
+  const [stream, setStream] = useState<SchoolStream>(initial.stream ?? "pcm");
   const [chapter, setChapter] = useState<Pick>(null);
   const [topicInput, setTopicInput] = useState("");
   const [topic, setTopic] = useState("");
@@ -97,8 +109,8 @@ function GuruSchoolPage() {
     enabled: state.loggedIn && !!board,
   });
   const subjectsQ = useQuery({
-    queryKey: ["school-subjects", klass?.id, klass?.name],
-    queryFn: () => catalog({ data: { level: "subjects", parentId: klass!.id, className: klass!.name } }),
+    queryKey: ["school-subjects", klass?.id, klass?.name, board?.name, stream],
+    queryFn: () => catalog({ data: { level: "subjects", parentId: klass?.id, className: klass?.name, boardName: board?.name, stream } }),
     enabled: state.loggedIn && !!klass,
   });
   const chaptersQ = useQuery({
