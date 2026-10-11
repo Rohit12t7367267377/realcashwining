@@ -1478,6 +1478,7 @@ export type Database = {
           region: string | null
           short_name: string | null
           sort_order: number
+          syllabus_url: string | null
           updated_at: string
         }
         Insert: {
@@ -1491,6 +1492,7 @@ export type Database = {
           region?: string | null
           short_name?: string | null
           sort_order?: number
+          syllabus_url?: string | null
           updated_at?: string
         }
         Update: {
@@ -1504,6 +1506,7 @@ export type Database = {
           region?: string | null
           short_name?: string | null
           sort_order?: number
+          syllabus_url?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -2811,6 +2814,7 @@ export type Database = {
           name: string
           slug: string | null
           sort_order: number
+          streams: string[]
         }
         Insert: {
           active?: boolean
@@ -2823,6 +2827,7 @@ export type Database = {
           name: string
           slug?: string | null
           sort_order?: number
+          streams?: string[]
         }
         Update: {
           active?: boolean
@@ -2835,6 +2840,7 @@ export type Database = {
           name?: string
           slug?: string | null
           sort_order?: number
+          streams?: string[]
         }
         Relationships: [
           {

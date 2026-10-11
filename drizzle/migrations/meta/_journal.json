@@ -22,6 +22,13 @@
       "when": 1791612335673,
       "tag": "0002_selected_xp_private_records",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1791714850246,
+      "tag": "0003_school_curriculum_stream_metadata",
+      "breakpoints": true
     }
   ]
 }
