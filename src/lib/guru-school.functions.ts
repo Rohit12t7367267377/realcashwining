@@ -41,11 +41,11 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
     }
 
     if (level === "classes") {
-      if (isUuid(parentId)) {
+      if (parentId && isUuid(parentId)) {
         const { data: rows } = await supabase
           .from("guru_classes")
           .select("id, name, active, sort_order")
-          .eq("board_id", parentId!)
+          .eq("board_id", parentId)
           .eq("active", true)
           .order("sort_order");
         if (rows?.length) return rows.map((r) => ({ id: r.id, name: r.name, emoji: "📚", fromDb: true }));
@@ -54,11 +54,11 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
     }
 
     if (level === "subjects") {
-      if (isUuid(parentId)) {
+      if (parentId && isUuid(parentId)) {
         const { data: rows } = await supabase
           .from("guru_subjects")
-           .select("id, name, emoji, active, sort_order, streams")
-          .eq("class_id", parentId!)
+          .select("id, name, emoji, active, sort_order, streams")
+          .eq("class_id", parentId)
           .eq("active", true)
           .order("sort_order");
         if (rows?.length) {
@@ -71,11 +71,11 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
     }
 
     if (level === "chapters") {
-      if (isUuid(parentId)) {
+      if (parentId && isUuid(parentId)) {
         const { data: books } = await supabase
           .from("guru_books")
           .select("id")
-          .eq("subject_id", parentId!)
+          .eq("subject_id", parentId)
           .eq("active", true);
         const ids = (books ?? []).map((b) => b.id);
         if (ids.length) {
@@ -92,11 +92,11 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
     }
 
     // topics
-    if (isUuid(parentId)) {
+    if (parentId && isUuid(parentId)) {
       const { data: rows } = await supabase
         .from("guru_topics")
         .select("id, title, active, sort_order")
-        .eq("chapter_id", parentId!)
+        .eq("chapter_id", parentId)
         .eq("active", true)
         .order("sort_order");
       if (rows?.length) return rows.map((r) => ({ id: r.id, name: r.title, emoji: "✨", fromDb: true }));

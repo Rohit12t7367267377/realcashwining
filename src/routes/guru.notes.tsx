@@ -105,7 +105,7 @@ function GuruSchoolPage() {
   });
   const classesQ = useQuery({
     queryKey: ["school-classes", board?.id],
-    queryFn: () => catalog({ data: { level: "classes", parentId: board!.id } }),
+    queryFn: () => catalog({ data: { level: "classes", parentId: board?.id } }),
     enabled: state.loggedIn && !!board,
   });
   const subjectsQ = useQuery({
@@ -116,9 +116,10 @@ function GuruSchoolPage() {
   const chaptersQ = useQuery({
     queryKey: ["school-chapters", subject?.id, scope.board, scope.className, language],
     queryFn: async () => {
-      const db = await catalog({ data: { level: "chapters", parentId: subject!.id } });
+      if (!subject) return [];
+      const db = await catalog({ data: { level: "chapters", parentId: subject.id } });
       if (db.length) return db;
-      const ai = await loadChapters({ data: { ...scope, subject: subject!.name } });
+      const ai = await loadChapters({ data: { ...scope, subject: subject.name } });
       return ai.map((name) => ({ id: name, name, emoji: "🔖", fromDb: false }));
     },
     enabled: state.loggedIn && !!subject,
@@ -126,9 +127,10 @@ function GuruSchoolPage() {
   const topicsQ = useQuery({
     queryKey: ["school-topics", chapter?.id, scope.board, scope.className, scope.subject, language],
     queryFn: async () => {
-      const db = await catalog({ data: { level: "topics", parentId: chapter!.id } });
+      if (!chapter) return [];
+      const db = await catalog({ data: { level: "topics", parentId: chapter.id } });
       if (db.length) return db;
-      const ai = await loadTopics({ data: { ...scope, chapter: chapter!.name } });
+      const ai = await loadTopics({ data: { ...scope, chapter: chapter.name } });
       return ai.map((name) => ({ id: name, name, emoji: "✨", fromDb: false }));
     },
     enabled: state.loggedIn && !!chapter,
@@ -532,7 +534,10 @@ function GuruSchoolPage() {
 
       {klass && (
         <>
+          {classNumber(klass.name) >= 11 && <div className="mt-4 flex flex-wrap gap-2" aria-label="Study stream">{SCHOOL_STREAMS.map((s) => <Button key={s.id} size="sm" variant={stream === s.id ? "default" : "outline"} onClick={() => { setStream(s.id); setSubject(null); setChapter(null); }}>{s.name}</Button>)}</div>}
           <Step n={3} label="Choose a subject" />
+          {subjectsQ.isLoading && <Empty text="Loading subjects…" />}
+          {subjectsQ.isError && <p role="alert">Could not load subjects. <Button variant="outline" onClick={() => void subjectsQ.refetch()}>Try again</Button></p>}
           <div className="grid gap-2 sm:grid-cols-2">
             {(subjectsQ.data ?? []).map((s) => (
               <button
@@ -556,7 +561,10 @@ function GuruSchoolPage() {
       {subject && (
         <>
           <Step n={4} label="Choose a chapter" />
+          {officialBoardUrl(scope.board) && <a href={officialBoardUrl(scope.board)} target="_blank" rel="noopener noreferrer" className="mb-3 inline-block text-sm text-primary underline">Official board syllabus</a>}
+          {chaptersQ.data?.some((c) => !c.fromDb) && <p className="mb-3 text-xs text-muted-foreground">Study outline — check the official syllabus for current-year exam coverage.</p>}
           {chaptersQ.isLoading && <Empty text="Loading chapters…" />}
+          {chaptersQ.isError && <p role="alert">Could not load chapters. <Button variant="outline" onClick={() => void chaptersQ.refetch()}>Try again</Button></p>}
           <div className="grid gap-2">
             {(chaptersQ.data ?? []).map((c, i) => (
               <button
