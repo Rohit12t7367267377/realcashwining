@@ -6,3 +6,4 @@
 - Notes chat treats browser conversation history as untrusted student context, never as verified assistant messages.
 - Browser profile edits cannot change managed account fields; wallet membership purchases use an authenticated atomic database operation to preserve legitimate purchases.
 - XP records are owner-scoped; the authenticated Hall of Fame action projects only public ranking fields so private reward counters stay private.
+- School subject selection is board/class-aware with senior stream metadata; shared fallback choices and study outlines remain separate from administrator-published coursebooks to avoid presenting generated content as an official syllabus.

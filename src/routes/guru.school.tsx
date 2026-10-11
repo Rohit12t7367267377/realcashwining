@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
 import { browseCurriculum } from "@/lib/guru.functions";
 import { ChevronRight, GraduationCap } from "lucide-react";
+import { SCHOOL_STREAMS, classNumber, officialBoardUrl, type SchoolStream } from "@/lib/school-curriculum";
 
 export const Route = createFileRoute("/guru/school")({
   head: () => ({
@@ -37,13 +38,16 @@ function SchoolPage() {
   const { state } = useUser();
   const browse = useServerFn(browseCurriculum);
   const [trail, setTrail] = useState<{ level: Level; id: string; title: string }[]>([]);
+  const [stream, setStream] = useState<SchoolStream>("pcm");
+  const senior = classNumber(trail[1]?.title ?? "") >= 11;
+  const syllabusUrl = officialBoardUrl(trail[0]?.title ?? "");
 
   const level = ORDER[trail.length] ?? "topics";
   const parentId = trail[trail.length - 1]?.id;
 
-  const { data: items = [], isLoading } = useQuery({
-    queryKey: ["guru-curriculum", level, parentId ?? "root"],
-    queryFn: () => browse({ data: { level, ...(parentId ? { parentId } : {}) } }),
+  const { data: items = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ["guru-curriculum", level, parentId ?? "root", stream],
+    queryFn: () => browse({ data: { level, stream, ...(parentId ? { parentId } : {}) } }),
     enabled: state.loggedIn,
   });
 
@@ -85,10 +89,21 @@ function SchoolPage() {
         ))}
       </nav>
 
+      {level === "subjects" && senior && (
+        <div className="mt-3 flex flex-wrap gap-2" aria-label="Study stream">
+          {SCHOOL_STREAMS.map((s) => <Button key={s.id} size="sm" variant={stream === s.id ? "default" : "outline"} onClick={() => setStream(s.id)}>{s.name}</Button>)}
+        </div>
+      )}
+      {syllabusUrl && <a href={syllabusUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-block text-sm text-primary underline">Official board syllabus</a>}
+
       <section className="mt-4 grid gap-2">
         {isLoading && <div className="rounded-2xl bg-card p-4 text-sm text-muted-foreground shadow-soft">Loading…</div>}
-        {!isLoading && items.length === 0 && (
-          <div className="rounded-2xl bg-card p-4 text-sm text-muted-foreground shadow-soft">Nothing here yet.</div>
+        {isError && <div role="alert">Could not load this selection. <Button variant="outline" onClick={() => void refetch()}>Try again</Button></div>}
+        {!isLoading && !isError && items.length === 0 && (
+          <div className="p-4 text-sm text-muted-foreground">
+            {level === "books" ? "A verified coursebook has not been published for this subject yet." : "No published entries for this selection yet."}
+            {level === "books" && <Link to="/guru/notes" search={{ boardId: trail[0]?.id, boardName: trail[0]?.title, classId: trail[1]?.id, className: trail[1]?.title, subjectId: trail[2]?.id, subjectName: trail[2]?.title, stream }}><Button className="mt-3">Open subject study outline</Button></Link>}
+          </div>
         )}
         {items.map((it) =>
           level === "topics" ? (

@@ -175,6 +175,7 @@ export const browseCurriculum = createServerFn({ method: "GET" })
       .object({
         level: z.enum(["boards", "classes", "subjects", "books", "chapters", "topics"]),
         parentId: z.string().uuid().optional(),
+        stream: z.enum(["pcm", "pcb", "commerce", "humanities", "electives"]).default("pcm"),
       })
       .parse(d),
   )
@@ -202,7 +203,10 @@ export const browseCurriculum = createServerFn({ method: "GET" })
         .eq("class_id", parentId)
         .eq("active", true)
         .order("sort_order");
-      return (rows ?? []).map((r) => ({ id: r.id, title: `${r.emoji} ${r.name}`, subtitle: "" }));
+      const { data: klass } = await supabase.from("guru_classes").select("class_number").eq("id", parentId).maybeSingle();
+      const subjects = (klass?.class_number ?? 0) >= 11
+        ? (rows ?? []).filter((r) => !r.streams.length || r.streams.includes(data.stream)) : (rows ?? []);
+      return subjects.map((r) => ({ id: r.id, title: r.name, subtitle: "" }));
     }
     if (level === "books") {
       const { data: rows } = await supabase

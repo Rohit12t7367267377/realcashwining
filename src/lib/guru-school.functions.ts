@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { NOTES_BOARDS, NOTES_CLASSES, subjectsForClass } from "@/lib/guru-notes";
+import { classNumber } from "@/lib/school-curriculum";
 
 export type CatalogItem = { id: string; name: string; emoji: string; fromDb: boolean };
 
@@ -20,6 +21,8 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
         level: z.enum(["boards", "classes", "subjects", "chapters", "topics"]),
         parentId: z.string().max(80).optional(),
         className: z.string().max(10).optional(),
+        boardName: z.string().max(150).optional(),
+        stream: z.enum(["pcm", "pcb", "commerce", "humanities", "electives"]).default("pcm"),
       })
       .parse(d),
   )
@@ -38,11 +41,11 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
     }
 
     if (level === "classes") {
-      if (isUuid(parentId)) {
+      if (parentId && isUuid(parentId)) {
         const { data: rows } = await supabase
           .from("guru_classes")
           .select("id, name, active, sort_order")
-          .eq("board_id", parentId!)
+          .eq("board_id", parentId)
           .eq("active", true)
           .order("sort_order");
         if (rows?.length) return rows.map((r) => ({ id: r.id, name: r.name, emoji: "📚", fromDb: true }));
@@ -51,25 +54,28 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
     }
 
     if (level === "subjects") {
-      if (isUuid(parentId)) {
+      if (parentId && isUuid(parentId)) {
         const { data: rows } = await supabase
           .from("guru_subjects")
-          .select("id, name, emoji, active, sort_order")
-          .eq("class_id", parentId!)
+          .select("id, name, emoji, active, sort_order, streams")
+          .eq("class_id", parentId)
           .eq("active", true)
           .order("sort_order");
-        if (rows?.length)
-          return rows.map((r) => ({ id: r.id, name: r.name, emoji: r.emoji ?? "📘", fromDb: true }));
+        if (rows?.length) {
+          const filtered = classNumber(className ?? "") >= 11
+            ? rows.filter((r) => !r.streams.length || r.streams.includes(data.stream)) : rows;
+          return filtered.map((r) => ({ id: r.id, name: r.name, emoji: r.emoji ?? "📘", fromDb: true }));
+        }
       }
-      return subjectsForClass(className ?? "10").map((s) => ({ id: s, name: s, emoji: "📘", fromDb: false }));
+      return subjectsForClass(className ?? "10", data.boardName ?? "", data.stream).map((s) => ({ id: s, name: s, emoji: "📘", fromDb: false }));
     }
 
     if (level === "chapters") {
-      if (isUuid(parentId)) {
+      if (parentId && isUuid(parentId)) {
         const { data: books } = await supabase
           .from("guru_books")
           .select("id")
-          .eq("subject_id", parentId!)
+          .eq("subject_id", parentId)
           .eq("active", true);
         const ids = (books ?? []).map((b) => b.id);
         if (ids.length) {
@@ -86,11 +92,11 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
     }
 
     // topics
-    if (isUuid(parentId)) {
+    if (parentId && isUuid(parentId)) {
       const { data: rows } = await supabase
         .from("guru_topics")
         .select("id, title, active, sort_order")
-        .eq("chapter_id", parentId!)
+        .eq("chapter_id", parentId)
         .eq("active", true)
         .order("sort_order");
       if (rows?.length) return rows.map((r) => ({ id: r.id, name: r.title, emoji: "✨", fromDb: true }));
