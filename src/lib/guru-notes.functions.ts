@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { classNumber, seniorStudyOutline } from "./school-curriculum";
 import {
   buildClassNotes,
   answerNotesDoubt,
@@ -20,7 +21,11 @@ const scope = {
 export const listNotesChapters = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object(scope).parse(d))
-  .handler(async ({ data }) => suggestChapterList(data));
+  .handler(async ({ data }) => {
+    const outline = /up.board|uttar pradesh|cbse|central board|bihar|bseb/i.test(data.board)
+      ? seniorStudyOutline(classNumber(data.className), data.subject) : undefined;
+    return outline ?? suggestChapterList(data);
+  });
 
 /** Topics inside one chapter. */
 export const listNotesTopics = createServerFn({ method: "POST" })

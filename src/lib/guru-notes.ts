@@ -1,4 +1,5 @@
 /** Browser-safe catalogue for the Guru.AI Class Notes section (no server imports). */
+import { classNumber, schoolSubjects, type SchoolStream } from "./school-curriculum";
 
 export const NOTES_BOARDS = [
   { id: "cbse", name: "CBSE", emoji: "🏛️" },
@@ -31,12 +32,8 @@ const SENIOR = [
 ];
 
 /** Subjects offered for a given class number (1-12). */
-export function subjectsForClass(cls: string): string[] {
-  const n = Number(cls);
-  if (n <= 5) return PRIMARY;
-  if (n <= 8) return MIDDLE;
-  if (n <= 10) return SECONDARY;
-  return SENIOR;
+export function subjectsForClass(cls: string, board = "CBSE", stream: SchoolStream = "pcm"): string[] {
+  return schoolSubjects(board, classNumber(cls), stream);
 }
 
 /** Bright gradient token pairs so each subject card looks distinct. */

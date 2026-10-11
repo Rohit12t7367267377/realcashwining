@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { NOTES_BOARDS, NOTES_CLASSES, subjectsForClass } from "@/lib/guru-notes";
+import { classNumber } from "@/lib/school-curriculum";
 
 export type CatalogItem = { id: string; name: string; emoji: string; fromDb: boolean };
 
@@ -20,6 +21,8 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
         level: z.enum(["boards", "classes", "subjects", "chapters", "topics"]),
         parentId: z.string().max(80).optional(),
         className: z.string().max(10).optional(),
+        boardName: z.string().max(150).optional(),
+        stream: z.enum(["pcm", "pcb", "commerce", "humanities", "electives"]).default("pcm"),
       })
       .parse(d),
   )
@@ -54,14 +57,17 @@ export const getSchoolCatalog = createServerFn({ method: "POST" })
       if (isUuid(parentId)) {
         const { data: rows } = await supabase
           .from("guru_subjects")
-          .select("id, name, emoji, active, sort_order")
+           .select("id, name, emoji, active, sort_order, streams")
           .eq("class_id", parentId!)
           .eq("active", true)
           .order("sort_order");
-        if (rows?.length)
-          return rows.map((r) => ({ id: r.id, name: r.name, emoji: r.emoji ?? "📘", fromDb: true }));
+        if (rows?.length) {
+          const filtered = classNumber(className ?? "") >= 11
+            ? rows.filter((r) => !r.streams.length || r.streams.includes(data.stream)) : rows;
+          return filtered.map((r) => ({ id: r.id, name: r.name, emoji: r.emoji ?? "📘", fromDb: true }));
+        }
       }
-      return subjectsForClass(className ?? "10").map((s) => ({ id: s, name: s, emoji: "📘", fromDb: false }));
+      return subjectsForClass(className ?? "10", data.boardName ?? "", data.stream).map((s) => ({ id: s, name: s, emoji: "📘", fromDb: false }));
     }
 
     if (level === "chapters") {
