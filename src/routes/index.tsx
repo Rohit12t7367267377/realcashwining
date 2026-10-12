@@ -509,14 +509,7 @@ const LEARN_SKILLS = [
 
 function Landing() {
   return (
-    <div className="landing-dark relative isolate min-h-screen overflow-hidden">
-      {/* Aurora background */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-32 -left-24 h-96 w-96 rounded-full bg-primary/40 blur-3xl animate-blob" />
-        <div className="absolute top-1/3 -right-24 h-96 w-96 rounded-full bg-secondary/35 blur-3xl animate-blob" style={{ animationDelay: "4s" }} />
-        <div className="absolute bottom-0 left-1/4 h-80 w-80 rounded-full bg-accent/35 blur-3xl animate-blob" style={{ animationDelay: "8s" }} />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,transparent_0%,var(--background)_75%)]" />
-      </div>
+    <div className="public-brand relative isolate min-h-screen overflow-hidden">
 
       <div className="mx-auto flex max-w-2xl flex-col items-center px-6 pt-16 text-center [perspective:1000px]">
         {/* Logo mark */}
@@ -543,7 +536,7 @@ function Landing() {
             </Button>
           </Link>
           <Link to="/guru">
-            <Button size="lg" variant="outline" className="h-12 w-full border-primary/40 text-base font-semibold hover:bg-primary/10">
+            <Button size="lg" variant="outline" className="h-12 w-full border-primary/40 text-primary text-base font-semibold hover:bg-primary/10">
               Explore Guru.AI →
             </Button>
           </Link>
