@@ -27,14 +27,11 @@ export function ClassroomSettings({ preferences, apply, disabled = false }: { pr
             </div>
             <div className="grid grid-cols-3 gap-2">
               {([['background', 'Background'], ['foreground', 'Text'], ['accent', 'Highlight']] as const).map(([key, label]) => <Label key={key} className="flex flex-col gap-2 text-xs">{label}<input type="color" aria-label={`Board ${label.toLowerCase()} color`} value={draft[key] ?? (key === 'background' ? '#ffffff' : key === 'foreground' ? '#17212b' : '#2563eb')} className="h-9 w-full cursor-pointer rounded border border-border bg-background" onChange={(event) => {
-                const preview = document.querySelector('.classroom-preview .learning-board');
-                const styles = preview ? getComputedStyle(preview) : null;
                 // A pair of explicit custom colors ensures server-side contrast validation is reproducible.
                 patch({ [key]: event.target.value, ...(key !== 'accent' ? {
                   background: key === 'background' ? event.target.value : draft.background ?? '#ffffff',
                   foreground: key === 'foreground' ? event.target.value : draft.foreground ?? '#17212b',
                 } : {}) });
-                void styles;
               }} /></Label>)}
             </div>
             {([['fontSize', 'Font size', 14, 28, 1], ['lineSpacing', 'Line spacing', 1.3, 2.2, 0.1], ['zoom', 'Board zoom', 0.8, 1.5, 0.05]] as const).map(([key, label, min, max, step]) => <div key={key} className="space-y-2"><Label>{label}: {key === 'zoom' ? `${Math.round(draft[key] * 100)}%` : draft[key]}</Label><Slider aria-label={label} value={[draft[key]]} min={min} max={max} step={step} onValueChange={([value]) => { if (value !== undefined) patch({ [key]: value }); }} /></div>)}

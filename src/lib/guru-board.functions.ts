@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { lessonSegments } from "@/lib/lesson-segments";
 
 /**
  * Board lesson — the AI 2D teacher character writes short lines on a whiteboard
@@ -69,10 +70,13 @@ export const guruBoardLesson = createServerFn({ method: "POST" })
       ? parsed.lines.map((l) => String(l)).filter(Boolean).slice(0, 7)
       : [];
 
+    const displayedLines = lines.length ? lines : [String(data.topic)];
+    const segments = lessonSegments(data.topic, displayedLines.map((text) => ({ type: "text", text })));
     return {
       title: String(parsed.title ?? data.topic).slice(0, 80),
-      lines: lines.length ? lines : [String(data.topic)],
-      speech: String(parsed.speech ?? "").slice(0, 2000),
+      lines: displayedLines,
+      speech: segments.map((segment) => segment.narration).join("\n\n"),
+      segments,
       summary: parsed.summary ? String(parsed.summary).slice(0, 200) : null,
       language,
       teacher: character?.name ?? "Guru",

@@ -8,8 +8,11 @@ import { GuruBoardCanvas } from "@/components/GuruBoardCanvas";
 import { TeacherCharacter, type TeacherCharacterState } from "@/components/TeacherCharacter";
 import type { BoardBlock } from "@/lib/guru-board-blocks";
 import { guruClassroomTurn, guruEvaluateAnswer, guruClassroomProgress } from "@/lib/guru-classroom.functions";
-import { guruEngineSpeak } from "@/lib/guru-engine.functions";
-import { useTeacherAudio } from "@/hooks/use-teacher-audio";
+import { useLessonNarration } from "@/hooks/use-lesson-narration";
+import { useClassroomPreferences } from "@/hooks/use-classroom-preferences";
+import { ClassroomSettings } from "@/components/ClassroomSettings";
+import { LessonPlayback } from "@/components/LessonPlayback";
+import { lessonSegments, type LessonSegment } from "@/lib/lesson-segments";
 import { useUser } from "@/lib/user-store";
 import { toast } from "sonner";
 import {
@@ -41,8 +44,9 @@ function Classroom() {
   const turnFn = useServerFn(guruClassroomTurn);
   const evalFn = useServerFn(guruEvaluateAnswer);
   const saveFn = useServerFn(guruClassroomProgress);
-  const speakFn = useServerFn(guruEngineSpeak);
-  const teacherAudio = useTeacherAudio();
+  const teacherAudio = useLessonNarration();
+  const boardPreferences = useClassroomPreferences();
+  const [segments, setSegments] = useState<LessonSegment[]>([]);
 
   const [topic, setTopic] = useState(topicParam ?? "");
   const [active, setActive] = useState<string | null>(null);
@@ -79,37 +83,16 @@ function Classroom() {
                 ? "explaining"
                 : "idle";
 
-  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
   const recRef = useRef<any>(null);
   const voiceTarget = useRef<"doubt" | "answer">("doubt");
 
   useEffect(() => () => {
-    timers.current.forEach(clearTimeout);
     teacherAudio.stop();
     recRef.current?.stop?.();
   }, [teacherAudio.stop]);
 
   function stopVoice() {
     teacherAudio.stop();
-  }
-
-  function reveal(count: number) {
-    timers.current.forEach(clearTimeout);
-    timers.current = [];
-    setRevealed(count > 0 ? 1 : 0);
-    for (let i = 2; i <= count; i++) {
-      timers.current.push(setTimeout(() => setRevealed(i), (i - 1) * 1200));
-    }
-  }
-
-  async function say(text: string) {
-    if (!text) return;
-    try {
-      const audio = await speakFn({ data: { text } });
-      await teacherAudio.play(audio);
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Teacher voice is unavailable");
-    }
   }
 
   async function runTurn(mode: Mode, opts: { studentText?: string; nextLevel?: number; topicOverride?: string } = {}) {
@@ -139,7 +122,8 @@ function Classroom() {
       setTitle(res.title);
       setStepLabel(res.stepLabel);
       setBlocks(res.board as BoardBlock[]);
-      reveal(res.board.length);
+      setRevealed(res.board.length);
+      setSegments(res.segments);
       setSpeech(res.speech);
       setQuestion(res.question);
       if (res.question) setAsked((n) => n + 1);
@@ -148,7 +132,7 @@ function Classroom() {
         ...(opts.studentText ? ([{ role: "student", content: opts.studentText }] as Turn[]) : []),
         { role: "teacher", content: `${res.speech}${res.question ? ` Question: ${res.question.prompt}` : ""}` },
       ]);
-      void say(res.speech);
+      void teacherAudio.start(res.segments);
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "The classroom is busy, try again");
     } finally {
@@ -168,9 +152,11 @@ function Classroom() {
       setFeedback({ verdict: res.verdict, text: res.feedback, miss: res.misunderstanding });
       setLevel(res.nextLevel);
       if (res.board.length) {
-        setBlocks((b) => [...b, ...(res.board as BoardBlock[])]);
-        setRevealed((r) => r + res.board.length);
+        setBlocks(res.board as BoardBlock[]);
+        setRevealed(res.board.length);
       }
+      setSegments(res.segments);
+      setSpeech(res.speech);
       const isCorrect = res.verdict === "correct";
       if (isCorrect) setCorrect((n) => n + 1);
       setHistory((h) => [
@@ -180,11 +166,9 @@ function Classroom() {
       ]);
       setQuestion(null);
       setAnswer("");
-      void say(res.speech);
+      void teacherAudio.start(res.segments);
       void saveFn({ data: { questions: 1, correct: isCorrect ? 1 : 0, lessonCompleted: false } }).catch(() => {});
-      if (res.reteach) {
-        setTimeout(() => void runTurn("again", { nextLevel: res.nextLevel }), 1200);
-      }
+      // Correction remains visible and audible; the student chooses Explain again.
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Could not check that answer");
     } finally {
@@ -222,8 +206,10 @@ function Classroom() {
 
   async function finishLesson() {
     if (!active) return;
-    await saveFn({ data: { questions: 0, correct: 0, lessonCompleted: true } }).catch(() => {});
-    toast.success("Lesson saved — XP added to your profile");
+    try {
+      await saveFn({ data: { questions: 0, correct: 0, lessonCompleted: true } });
+      toast.success("Lesson saved — XP added to your profile");
+    } catch (err) { toast.error(err instanceof Error ? err.message : "Could not save your lesson"); }
   }
 
   if (!state.loggedIn) {
@@ -238,7 +224,7 @@ function Classroom() {
   }
 
   return (
-    <AppShell>
+    <AppShell wide>
       <section className="rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift animate-rise-in">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
           <GraduationCap className="h-3.5 w-3.5" /> AI Teacher Classroom
@@ -265,14 +251,20 @@ function Classroom() {
         </div>
       </section>
 
-      <section className="mt-4 rounded-3xl bg-card p-3 shadow-soft">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-          <GuruBoardCanvas title={title} blocks={blocks} revealed={revealed} stepLabel={stepLabel} />
-          <div className="flex items-center justify-center sm:block">
+      <section className="mt-5" aria-label="Interactive classroom">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <span className="text-sm font-semibold text-muted-foreground">{active ? "AI-generated lesson" : "Your classroom"}</span>
+          <ClassroomSettings preferences={boardPreferences.preferences} apply={boardPreferences.apply} disabled={!boardPreferences.ready} />
+        </div>
+        {boardPreferences.error && <p role="alert" className="mb-2 text-sm text-destructive">{boardPreferences.error}</p>}
+        <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-[minmax(0,1fr)_140px] lg:grid-cols-[minmax(0,1fr)_180px]">
+          <GuruBoardCanvas title={title} blocks={blocks} revealed={revealed} stepLabel={stepLabel} preferences={boardPreferences.preferences} activeSegment={teacherAudio.speaking || teacherAudio.paused || teacherAudio.loading ? teacherAudio.activeSegment : undefined} loading={busy} />
+          <div className="flex items-center justify-end sm:items-start sm:justify-center">
             <TeacherCharacter
               teacherName={teacher}
               state={teacherState}
-              className="w-[142px] sm:w-[196px]"
+              className="w-[76px] sm:w-[130px] lg:w-[160px]"
+              showStatus={false}
               lipSyncLevel={teacherAudio.lipSyncLevel}
             />
           </div>
@@ -281,15 +273,11 @@ function Classroom() {
         <div className="mt-2 flex flex-wrap items-center gap-2">
           <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-bold">Level {level}/5</span>
           <span className="rounded-full bg-secondary px-2.5 py-1 text-[11px] font-bold">Answered {correct}/{asked}</span>
-          {speech ? (
-            <Button size="sm" variant="outline" onClick={() => (teacherAudio.speaking ? stopVoice() : void say(speech))}>
-              {teacherAudio.speaking ? <><Square className="mr-1 h-3.5 w-3.5" /> Stop</> : <><Volume2 className="mr-1 h-3.5 w-3.5" /> Listen</>}
-            </Button>
-          ) : null}
         </div>
+        <LessonPlayback narration={teacherAudio} segments={segments} />
 
         {speech ? (
-          <p className="mt-2 rounded-2xl bg-secondary/60 p-3 text-[13px] leading-relaxed">{speech}</p>
+          <details className="mt-3 text-sm"><summary className="cursor-pointer text-muted-foreground">Lesson transcript</summary><p className="mt-2 whitespace-pre-wrap leading-relaxed">{speech}</p></details>
         ) : null}
       </section>
 

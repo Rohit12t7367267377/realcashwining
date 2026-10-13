@@ -20,7 +20,14 @@ export const classroomPreferencesSchema = z.object({
   background: color.nullable().default(null),
   foreground: color.nullable().default(null),
   accent: color.nullable().default(null),
-}).strict();
+}).strict().superRefine((value, ctx) => {
+  if (Boolean(value.background) !== Boolean(value.foreground)) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Custom background and text colors must be saved together" });
+  }
+  if (value.background && value.foreground && contrastRatio(value.background, value.foreground) < 4.5) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Text and background need a contrast ratio of at least 4.5" });
+  }
+});
 
 export type ClassroomPreferences = z.infer<typeof classroomPreferencesSchema>;
 export const DEFAULT_CLASSROOM_PREFERENCES = classroomPreferencesSchema.parse({});
