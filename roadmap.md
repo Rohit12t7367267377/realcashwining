@@ -1,5 +1,16 @@
 # Roadmap
 
+## Learning ecosystem upgrade
+- [x] Audit learning routes, classroom/voice flow, content, persistence, progress, search, and admin dependencies
+- [ ] Enlarge shared classroom boards and reduce teacher size without altering navigation
+- [ ] Add previewable student board settings with authenticated persistence and guest fallback
+- [ ] Use ordered lesson segments as the shared board/narration source with pause/resume and segment navigation
+- [ ] Verify signed-in classroom, preferences reload, voice playback, and affected entry points across screen sizes
+- [ ] Expand structured content and authorized document reading across existing learning sections
+- [ ] Extend accurate interactive visualizations, practice/revision, analytics, and saved study planning
+- [ ] Extend unified learning search, accessibility, and performance
+- [ ] Verify authoritative curriculum coverage (requires verified, licensed syllabus/material sources; do not invent missing content)
+
 - [x] Remove phone OTP authentication controls while preserving Google/email
 - [x] Remove profile reel button while preserving normal posts
 - [x] Fix discovered Guru.AI selection errors, including College and long board-name chapter validation
