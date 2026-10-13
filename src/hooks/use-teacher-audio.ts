@@ -5,6 +5,8 @@ export type LipSyncLevel = 0 | 1 | 2 | 3;
 type TeacherAudio = {
   audioBase64: string;
   mimeType?: string;
+  onEnded?: () => void;
+  onError?: () => void;
 };
 
 type WebkitAudioWindow = Window &
@@ -23,6 +25,8 @@ export function useTeacherAudio() {
   const levelRef = useRef<LipSyncLevel>(0);
   const [speaking, setSpeaking] = useState(false);
   const [lipSyncLevel, setLipSyncLevel] = useState<LipSyncLevel>(0);
+  const [paused, setPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
 
   const updateLevel = useCallback((next: LipSyncLevel) => {
     if (levelRef.current === next) return;
@@ -46,6 +50,8 @@ export function useTeacherAudio() {
       audio.load();
     }
     setSpeaking(false);
+    setPaused(false);
+    setProgress(0);
   }, [stopAnalysis]);
 
   const startAnalysis = useCallback(
@@ -92,7 +98,7 @@ export function useTeacherAudio() {
   );
 
   const play = useCallback(
-    async ({ audioBase64, mimeType }: TeacherAudio) => {
+    async ({ audioBase64, mimeType, onEnded, onError }: TeacherAudio) => {
       const token = ++tokenRef.current;
       stopAnalysis();
       const audio = audioRef.current ?? new Audio();
@@ -101,16 +107,30 @@ export function useTeacherAudio() {
       audio.preload = "auto";
 
       const analysed = startAnalysis(audio);
-      setSpeaking(true);
+      setPaused(false);
+      setProgress(0);
+      audio.onplaying = () => {
+        if (token !== tokenRef.current) return;
+        setSpeaking(true);
+        setPaused(false);
+      };
+      audio.ontimeupdate = () => {
+        if (token === tokenRef.current && Number.isFinite(audio.duration) && audio.duration > 0) {
+          setProgress(audio.currentTime / audio.duration);
+        }
+      };
       audio.onended = () => {
         if (token !== tokenRef.current) return;
         stopAnalysis();
         setSpeaking(false);
+        setProgress(1);
+        onEnded?.();
       };
       audio.onerror = () => {
         if (token !== tokenRef.current) return;
         stopAnalysis();
         setSpeaking(false);
+        onError?.();
       };
 
       try {
@@ -127,6 +147,23 @@ export function useTeacherAudio() {
     [startAnalysis, stopAnalysis, updateLevel],
   );
 
+  const pause = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio || audio.paused) return;
+    audio.pause();
+    stopAnalysis();
+    setSpeaking(false);
+    setPaused(true);
+  }, [stopAnalysis]);
+
+  const resume = useCallback(async () => {
+    const audio = audioRef.current;
+    if (!audio || !audio.src) return;
+    startAnalysis(audio);
+    try { await audio.play(); }
+    catch (err) { stopAnalysis(); setSpeaking(false); throw err; }
+  }, [startAnalysis, stopAnalysis]);
+
   useEffect(
     () => () => {
       tokenRef.current += 1;
@@ -139,5 +176,5 @@ export function useTeacherAudio() {
     [],
   );
 
-  return { play, stop, speaking, lipSyncLevel };
+  return { play, stop, pause, resume, speaking, paused, progress, lipSyncLevel };
 }
