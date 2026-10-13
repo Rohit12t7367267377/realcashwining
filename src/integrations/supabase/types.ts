@@ -2739,6 +2739,7 @@ export type Database = {
           best_streak: number
           board_id: string | null
           class_id: string | null
+          classroom_preferences: Json
           created_at: string
           last_active_date: string | null
           lessons_completed: number
@@ -2758,6 +2759,7 @@ export type Database = {
           best_streak?: number
           board_id?: string | null
           class_id?: string | null
+          classroom_preferences?: Json
           created_at?: string
           last_active_date?: string | null
           lessons_completed?: number
@@ -2777,6 +2779,7 @@ export type Database = {
           best_streak?: number
           board_id?: string | null
           class_id?: string | null
+          classroom_preferences?: Json
           created_at?: string
           last_active_date?: string | null
           lessons_completed?: number

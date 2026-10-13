@@ -1,0 +1,2 @@
+ALTER TABLE public.guru_student_xp ADD COLUMN IF NOT EXISTS classroom_preferences jsonb NOT NULL DEFAULT '{}'::jsonb;
+COMMENT ON COLUMN public.guru_student_xp.classroom_preferences IS 'Validated private classroom appearance preferences; existing owner-scoped RLS applies. Does not affect XP or global theme.';
