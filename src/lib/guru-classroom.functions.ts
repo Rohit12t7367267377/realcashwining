@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { normalizeBoardBlocks } from "@/lib/guru-board-blocks";
+import { lessonSegments } from "@/lib/lesson-segments";
 
 const MODES = [
   "start",
@@ -126,10 +127,13 @@ export const guruClassroomTurn = createServerFn({ method: "POST" })
     const q = parsed.question && typeof parsed.question === "object" ? (parsed.question as Record<string, unknown>) : null;
     const prompt = q ? String(q.prompt ?? "").trim() : "";
 
+    const displayedBoard = board.length ? board : [{ type: "text" as const, text: String(parsed.speech ?? data.topic).slice(0, 300) }];
+    const segments = lessonSegments(data.topic, displayedBoard);
     return {
       title: String(parsed.title ?? data.topic).slice(0, 90),
-      speech: String(parsed.speech ?? "").slice(0, 1800),
-      board: board.length ? board : [{ type: "text" as const, text: String(parsed.speech ?? data.topic).slice(0, 300) }],
+      speech: segments.map((segment) => segment.narration).join("\n\n"),
+      board: displayedBoard,
+      segments,
       question: prompt
         ? {
             prompt: prompt.slice(0, 400),
@@ -199,15 +203,19 @@ export const guruEvaluateAnswer = createServerFn({ method: "POST" })
     const change = Number(p.levelChange);
     const levelChange = change === 1 || change === -1 ? change : 0;
 
+    const correctionBoard = normalizeBoardBlocks(p.board, 3);
+    const displayedCorrection = correctionBoard.length ? correctionBoard : [{ type: "text" as const, text: String(p.feedback ?? "").slice(0, 400) }];
+    const segments = lessonSegments(data.topic, displayedCorrection);
     return {
       verdict: verdict as "correct" | "partial" | "wrong",
       score,
       misunderstanding: p.misunderstanding ? String(p.misunderstanding).slice(0, 300) : null,
       feedback: String(p.feedback ?? "").slice(0, 400),
-      speech: String(p.speech ?? p.feedback ?? "").slice(0, 900),
+      speech: segments.map((segment) => segment.narration).join("\n\n"),
+      segments,
       reteach: p.reteach === true || verdict === "wrong",
       nextLevel: Math.max(1, Math.min(5, data.level + levelChange)),
-      board: normalizeBoardBlocks(p.board, 3),
+      board: displayedCorrection,
       teacher: character?.name ?? "Guru",
       language,
     };
@@ -237,7 +245,7 @@ export const guruClassroomProgress = createServerFn({ method: "POST" })
       .maybeSingle();
 
     const newXp = Number(row?.xp ?? 0) + xpEarned;
-    await supabase.from("guru_student_xp").upsert(
+    const { error } = await supabase.from("guru_student_xp").upsert(
       {
         user_id: userId,
         xp: newXp,
@@ -247,6 +255,7 @@ export const guruClassroomProgress = createServerFn({ method: "POST" })
       },
       { onConflict: "user_id" },
     );
+    if (error) throw new Error(error.message);
 
     return { xpEarned, xp: newXp, level: guruProgress(newXp).level };
   });

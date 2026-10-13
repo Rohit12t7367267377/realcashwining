@@ -11,6 +11,7 @@
 import { callAiChat, extractJson } from "@/lib/ai-gateway.server";
 import { retrieveGuruContext, formatSources } from "@/lib/guru-rag.server";
 import { normalizeBoardBlocks } from "@/lib/guru-board-blocks";
+import { lessonSegments, type LessonSegment } from "@/lib/lesson-segments";
 import { teachingStyleDirective } from "@/lib/guru-teaching";
 
 type Db = { from: (t: string) => any; rpc: (n: string, a?: unknown) => any };
@@ -361,6 +362,7 @@ export type TeachTurn = {
   question: { prompt: string; hint: string | null; expected: string | null } | null;
   stepLabel: string | null;
   done: boolean;
+  segments: LessonSegment[];
 };
 
 /** Run one teaching turn through the engine. */
@@ -399,11 +401,14 @@ export async function runTeachTurn(args: {
   const q = p.question && typeof p.question === "object" ? (p.question as Record<string, unknown>) : null;
   const prompt = q ? String(q.prompt ?? "").trim() : "";
   const speech = String(p.speech ?? "").slice(0, 1800);
+  const displayedBoard = board.length ? board : normalizeBoardBlocks([{ type: "text", text: speech.slice(0, 300) || args.ctx.topic }]);
+  const segments = lessonSegments(args.ctx.refId ?? args.ctx.topic, displayedBoard);
 
   return {
     title: String(p.title ?? args.ctx.topic).slice(0, 90),
-    speech,
-    board: board.length ? board : normalizeBoardBlocks([{ type: "text", text: speech.slice(0, 300) || args.ctx.topic }]),
+    speech: segments.map((segment) => segment.narration).join("\n\n"),
+    board: displayedBoard,
+    segments,
     question: prompt
       ? {
           prompt: prompt.slice(0, 400),
