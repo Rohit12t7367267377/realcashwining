@@ -27,7 +27,7 @@ export function useClassroomPreferences() {
       setReady(true);
     }
     return () => { cancelled = true; };
-  }, [state.loggedIn, state.userId, load]);
+  }, [state.loggedIn, load]);
 
   async function apply(next: ClassroomPreferences) {
     if (state.loggedIn) await save({ data: next });
