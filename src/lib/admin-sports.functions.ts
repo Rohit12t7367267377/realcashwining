@@ -8,8 +8,10 @@ export const getSportsConfig = createServerFn({ method: "GET" })
   .handler(async () => {
     const { readSportsConfig } = await import("@/lib/sports.server");
     const cfg = await readSportsConfig();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: health } = await supabaseAdmin.from("app_settings").select("value").eq("key", "sports_sync_health").maybeSingle();
     const { apiKey: _omit, ...safe } = cfg;
-    return safe;
+    return { ...safe, health: health?.value ?? null };
   });
 
 export const saveSportsConfig = createServerFn({ method: "POST" })

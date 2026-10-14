@@ -68,56 +68,30 @@ export async function readSportsConfig(): Promise<SportsConfig> {
   };
 }
 
-type ScoreEntry = { r?: number; w?: number; o?: number; inning?: string };
-
-function formatScore(score: ScoreEntry[] | undefined, team: string) {
-  const e = (score ?? []).find((s) => (s.inning ?? "").toLowerCase().includes(team.toLowerCase()));
-  if (!e || e.r == null) return "";
-  return `${e.r}/${e.w ?? 0} (${e.o ?? 0} ov)`;
-}
-
-/** Pull the live match list from the provider and upsert verified facts. */
+/** Shared normalized provider ingestion used by both manual and scheduled refreshes. */
 export async function refreshSportsMatches() {
   const cfg = await readSportsConfig();
   if (!cfg.enabled) throw new Error("Sports live data is disabled.");
   if (!cfg.hasKey) throw new Error("Add the live sports API key first.");
-
-  const url = `https://api.cricapi.com/v1/currentMatches?apikey=${encodeURIComponent(cfg.apiKey)}&offset=0`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Live sports API returned HTTP ${res.status}`);
-  const json = (await res.json()) as { status?: string; reason?: string; data?: unknown[] };
-  if (json.status && json.status !== "success") throw new Error(json.reason || "Live sports API error");
-  const matches = Array.isArray(json.data) ? (json.data as Record<string, any>[]) : [];
-
-  let upserted = 0;
-  for (const m of matches) {
-    const teamA = m.teams?.[0] ?? m.teamInfo?.[0]?.name ?? "";
-    const teamB = m.teams?.[1] ?? m.teamInfo?.[1]?.name ?? "";
-    const row = {
-      external_id: String(m.id ?? ""),
-      name: m.name || `${teamA} vs ${teamB}`,
-      series: m.series ?? m.seriesName ?? null,
-      status: m.status || "",
-      venue: m.venue || "",
-      date_time: m.dateTimeGMT || m.date || null,
-      team_a: teamA,
-      team_b: teamB,
-      score_a: formatScore(m.score, teamA),
-      score_b: formatScore(m.score, teamB),
-      match_type: m.matchType || "",
-      is_live: !m.matchEnded && !!m.matchStarted,
-      squads: Array.isArray(m.teamInfo) ? m.teamInfo : [],
-      raw: m,
-      fetched_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-    if (!row.external_id) continue;
-    const { error } = await supabaseAdmin
-      .from("cricket_matches")
-      .upsert(row, { onConflict: "external_id" });
-    if (!error) upserted++;
+  if (cfg.provider !== "cricapi") throw new Error("This sports provider is not supported yet.");
+  const startedAt = new Date().toISOString();
+  try {
+    const { fetchCricketMatches } = await import("@/lib/sports-provider.server");
+    const feed = await fetchCricketMatches(cfg.apiKey);
+    const unique = [...new Map(feed.rows.map(row => [row.external_id, row])).values()];
+    if (unique.length) {
+      const { error } = await supabaseAdmin.from("cricket_matches").upsert(unique as unknown as import("@/integrations/supabase/types").Database["public"]["Tables"]["cricket_matches"]["Insert"][], { onConflict: "external_id" });
+      if (error) throw new Error("Verified matches could not be stored. Retry synchronization.");
+    }
+    const health = { provider: cfg.provider, status: "healthy", startedAt, finishedAt: new Date().toISOString(), total: feed.total, upserted: unique.length, rejected: feed.rejected, error: null };
+    const { error } = await supabaseAdmin.from("app_settings").upsert({ key: "sports_sync_health", value: health, updated_at: health.finishedAt });
+    if (error) throw new Error("Matches were stored but synchronization health could not be recorded.");
+    return { total: feed.total, upserted: unique.length, rejected: feed.rejected };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Sports synchronization failed.";
+    await supabaseAdmin.from("app_settings").upsert({ key: "sports_sync_health", value: { provider: cfg.provider, status: "failed", startedAt, finishedAt: new Date().toISOString(), error: message }, updated_at: new Date().toISOString() });
+    throw new Error(message);
   }
-  return { total: matches.length, upserted };
 }
 
 export type MatchFacts = {
@@ -318,8 +292,12 @@ Do not invent players, scores or results that are not in the facts.`;
  */
 export async function runSportsAutomation() {
   const cfg = await readSportsConfig();
-  const out = { enabled: cfg.enabled, drafted: 0, finalized: [] as string[], waiting: [] as string[] };
+  const out = { enabled: cfg.enabled, drafted: 0, finalized: [] as string[], waiting: [] as string[], syncError: null as string | null };
   if (!cfg.enabled) return out;
+  try { await refreshSportsMatches(); } catch (err) {
+    out.syncError = err instanceof Error ? err.message : "Sports synchronization failed.";
+    return out; // Never settle against a stale provider snapshot after failed synchronization.
+  }
 
   const { data: linked } = await supabaseAdmin
     .from("contests")

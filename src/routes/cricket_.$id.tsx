@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Radio, Trophy, Zap, BookOpenCheck, Clock } from "lucide-react";
+import { isStaleMatch } from "@/lib/sports-provider";
 
 export const Route = createFileRoute("/cricket_/$id")({
   head: () => ({
@@ -32,6 +33,7 @@ type Match = {
   score_b: string | null;
   is_live: boolean;
   date_time: string | null;
+  fetched_at: string | null;
 };
 
 function Page() {
@@ -81,7 +83,7 @@ function Page() {
         <>
           <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
             <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
-              <Radio className="h-3.5 w-3.5" /> {match.is_live ? "Live now" : match.match_type || "Match"}
+              <Radio className="h-3.5 w-3.5" /> {isStaleMatch(match.fetched_at, refresh) ? "Delayed data" : match.is_live ? "Live now" : match.match_type || "Match"}
             </div>
             <h1 className="mt-1 text-xl font-black">{match.name}</h1>
             {match.series && <p className="text-xs opacity-90">{match.series}</p>}
@@ -96,7 +98,8 @@ function Page() {
               </div>
             </div>
             <p className="mt-3 text-xs opacity-90">{match.status}</p>
-            <p className="mt-1 text-[10px] opacity-75">Auto-refreshes every {refresh}s · {match.venue}</p>
+            <p className="mt-1 text-xs opacity-90">{match.venue}</p>
+            <p className="mt-1 text-xs opacity-90">Last verified update: {match.fetched_at ? new Date(match.fetched_at).toLocaleString() : "Unavailable"}</p>
           </section>
 
           <h2 className="mt-6 flex items-center gap-2 text-lg font-bold"><Zap className="h-4 w-4" /> Match quizzes</h2>
