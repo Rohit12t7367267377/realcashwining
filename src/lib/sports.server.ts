@@ -86,17 +86,8 @@ export async function refreshSportsMatches() {
   const startedAt = new Date().toISOString();
   const attempts: Array<{ provider: string; status: "failed" | "healthy"; error?: string }> = [];
   try {
-    const { fetchProviderMatches } = await import("@/lib/sports-provider.server");
-    let feed;
-    if (cfg.hasKey) {
-      try { feed = await fetchProviderMatches("cricapi", cfg.apiKey); attempts.push({ provider: "cricapi", status: "healthy" }); }
-      catch (err) { attempts.push({ provider: "cricapi", status: "failed", error: err instanceof Error ? err.message : "Primary provider failed." }); }
-    } else attempts.push({ provider: "cricapi", status: "failed", error: "Primary credential is not configured." });
-    if (!feed && cfg.fallbackProvider === "sportmonks" && cfg.hasFallbackKey) {
-      try { feed = await fetchProviderMatches("sportmonks", cfg.fallbackApiKey); attempts.push({ provider: "sportmonks", status: "healthy" }); }
-      catch (err) { attempts.push({ provider: "sportmonks", status: "failed", error: err instanceof Error ? err.message : "Fallback provider failed." }); }
-    }
-    if (!feed) throw new Error(cfg.fallbackProvider === "none" ? "Primary sports provider failed and no fallback is enabled." : cfg.hasFallbackKey ? "Both sports providers are unavailable." : "Fallback provider is enabled but its credential is missing.");
+    const { fetchWithSportsFallback } = await import("@/lib/sports-provider.server");
+    const feed = await fetchWithSportsFallback(cfg, attempts);
     const unique = [...new Map(feed.rows.map(row => [row.external_id, row])).values()];
     if (unique.length) {
       const { error } = await supabaseAdmin.from("cricket_matches").upsert(unique as unknown as import("@/integrations/supabase/types").Database["public"]["Tables"]["cricket_matches"]["Insert"][], { onConflict: "external_id" });
@@ -105,7 +96,7 @@ export async function refreshSportsMatches() {
     const health = { provider: feed.provider, fallbackUsed: feed.provider !== "cricapi", attempts, status: "healthy", startedAt, finishedAt: new Date().toISOString(), total: feed.total, upserted: unique.length, rejected: feed.rejected, error: null };
     const { error } = await supabaseAdmin.from("app_settings").upsert({ key: "sports_sync_health", value: health, updated_at: health.finishedAt });
     if (error) throw new Error("Matches were stored but synchronization health could not be recorded.");
-    return { total: feed.total, upserted: unique.length, rejected: feed.rejected, provider: feed.provider, fallbackUsed: feed.provider !== "cricapi" };
+    return { total: feed.total, upserted: unique.length, rejected: feed.rejected, provider: feed.provider, fallbackUsed: feed.provider !== "cricapi", refreshedExternalIds: unique.map(row => row.external_id) };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Sports synchronization failed.";
     await supabaseAdmin.from("app_settings").upsert({ key: "sports_sync_health", value: { provider: cfg.provider, fallbackUsed: false, attempts, status: "failed", startedAt, finishedAt: new Date().toISOString(), error: message }, updated_at: new Date().toISOString() });
@@ -313,7 +304,8 @@ export async function runSportsAutomation() {
   const cfg = await readSportsConfig();
   const out = { enabled: cfg.enabled, drafted: 0, finalized: [] as string[], waiting: [] as string[], syncError: null as string | null };
   if (!cfg.enabled) return out;
-  try { await refreshSportsMatches(); } catch (err) {
+  let refreshedExternalIds: string[] = [];
+  try { refreshedExternalIds = (await refreshSportsMatches()).refreshedExternalIds; } catch (err) {
     out.syncError = err instanceof Error ? err.message : "Sports synchronization failed.";
     return out; // Never settle against a stale provider snapshot after failed synchronization.
   }
@@ -326,6 +318,8 @@ export async function runSportsAutomation() {
 
   for (const c of linked ?? []) {
     const matchId = c.match_id as string;
+    const { data: snapshot } = await supabaseAdmin.from("cricket_matches").select("external_id").eq("id", matchId).maybeSingle();
+    if (!snapshot || !refreshedExternalIds.includes(snapshot.external_id)) { out.waiting.push(c.id); continue; }
     if (cfg.autoQuiz && c.auto_quiz) {
       const { count } = await supabaseAdmin
         .from("sports_quiz_drafts")

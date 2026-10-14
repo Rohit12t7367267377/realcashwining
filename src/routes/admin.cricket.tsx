@@ -148,7 +148,7 @@ function Page() {
             <p className="font-semibold">Synchronization: {health?.status ?? "Not checked"}</p>
             {health?.finishedAt && <p className="text-xs text-muted-foreground">Last attempt {new Date(health.finishedAt).toLocaleString()}</p>}
             {health?.error && <p className="text-xs text-destructive">{health.error}</p>}
-            {health?.provider && <p className="text-xs text-muted-foreground">Last successful source: {health.provider === "sportmonks" ? "Fallback provider" : "CricAPI"}{health.fallbackUsed ? " (automatic fallback)" : ""}</p>}
+            {health?.status === "healthy" && health.provider && <p className="text-xs text-muted-foreground">Last successful source: {health.provider === "sportmonks" ? "Sportmonks" : "CricAPI"}{health.fallbackUsed ? " (automatic fallback)" : ""}</p>}
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>

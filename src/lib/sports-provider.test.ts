@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { isStaleMatch, matchState, normalizeCricketMatch, normalizeSportmonksMatch } from "./sports-provider";
-import { fetchCricketMatches, fetchSportmonksMatches } from "./sports-provider.server";
+import { fetchCricketMatches, fetchSportmonksMatches, fetchWithSportsFallback } from "./sports-provider.server";
 
 describe("verified sports provider", () => {
   it("normalizes UTC fixtures without inventing wickets or overs", () => {
@@ -31,13 +31,33 @@ describe("verified sports provider", () => {
     await expect(fetchCricketMatches("test-credential", fetcher)).rejects.toThrow("quota"); expect(fetcher).toHaveBeenCalledTimes(1);
   });
   it("normalizes fallback scores without merging provider identities", () => {
-    const m = normalizeSportmonksMatch({ id: 42, name: "A vs B", starting_at: "2026-10-14 11:00:00", state: { name: "Innings Break" }, participants: [{ id: 1, name: "A" }, { id: 2, name: "B" }], runs: [{ team_id: 1, score: 120, wickets: 4, overs: 18.2, innings: 1 }] }, "2026-10-14T11:05:00Z");
+    const m = normalizeSportmonksMatch({ id: 42, name: "A vs B", starting_at: "2026-10-14 11:00:00", status: "Innings Break", live: true, localteam: { id: 1, name: "A" }, visitorteam: { id: 2, name: "B" }, runs: [{ team_id: 1, score: 120, wickets: 4, overs: 18.2, inning: 1 }] }, "2026-10-14T11:05:00Z");
     expect(m).toMatchObject({ external_id: "sportmonks:42", team_a: "A", score_a: "120/4 (18.2 ov)", is_live: true });
   });
   it("uses a fixed fallback origin and rejects malformed feeds", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ data: [] })));
     await expect(fetchSportmonksMatches("fallback-credential", fetcher)).resolves.toMatchObject({ provider: "sportmonks", total: 0 });
-    expect(fetcher.mock.calls[0][0].origin).toBe("https://api.sportmonks.com");
+    expect(fetcher.mock.calls[0][0].origin).toBe("https://cricket.sportmonks.com");
     expect(fetcher.mock.calls[0][1].redirect).toBe("error");
+  });
+  it("falls back after primary rejection without sending primary credentials to fallback", async () => {
+    const fetcher = vi.fn().mockResolvedValueOnce(new Response("denied", { status: 401 })).mockResolvedValueOnce(new Response(JSON.stringify({ data: [] })));
+    const attempts: Array<{ provider: string; status: "healthy" | "failed" }> = [];
+    expect(await fetchWithSportsFallback({ apiKey: "primary-test", fallbackProvider: "sportmonks", fallbackApiKey: "fallback-test" }, attempts, fetcher)).toMatchObject({ provider: "sportmonks" });
+    expect(attempts.map(a => a.status)).toEqual(["failed", "healthy"]);
+    expect(fetcher.mock.calls[1][0].searchParams.get("api_token")).toBe("fallback-test");
+    expect(fetcher.mock.calls[1][0].searchParams.has("apikey")).toBe(false);
+  });
+  it("does not use fallback when primary succeeds, including a legitimate empty feed", async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ status: "success", data: [] })));
+    await fetchWithSportsFallback({ apiKey: "primary", fallbackProvider: "sportmonks", fallbackApiKey: "fallback" }, [], fetcher);
+    expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it("fails closed when both providers fail or fallback is disabled", async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response("private body", { status: 403 }));
+    await expect(fetchWithSportsFallback({ apiKey: "primary", fallbackProvider: "none", fallbackApiKey: "unused" }, [], fetcher)).rejects.toThrow("preserved");
+    expect(fetcher).toHaveBeenCalledTimes(1);
+    await expect(fetchWithSportsFallback({ apiKey: "primary", fallbackProvider: "sportmonks", fallbackApiKey: "fallback" }, [], fetcher)).rejects.toThrow("preserved");
+    expect(fetcher).toHaveBeenCalledTimes(3);
   });
 });
