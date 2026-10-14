@@ -28,7 +28,16 @@ import {
 } from "@/lib/admin-sports.functions";
 
 
-export const Route = createFileRoute("/admin/cricket")({ component: Page });
+export const Route = createFileRoute("/admin/cricket")({
+  head: () => ({ meta: [
+    { title: "Sports Automation Control — Guru-G" },
+    { name: "description", content: "Manage verified cricket synchronization, match-linked quizzes, and sports automation." },
+    { property: "og:title", content: "Sports Automation Control — Guru-G" },
+    { property: "og:description", content: "Manage verified cricket synchronization, match-linked quizzes, and sports automation." },
+    { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
+  component: Page,
+});
 
 type Cfg = Awaited<ReturnType<typeof getSportsConfig>>;
 type Match = Awaited<ReturnType<typeof listSportsMatchesAdmin>>[number];
@@ -78,6 +87,7 @@ function Page() {
   }, []);
 
   const set = <K extends keyof Cfg>(k: K) => (v: Cfg[K]) => setCfg((c) => (c ? { ...c, [k]: v } : c));
+  const health = cfg?.health && typeof cfg.health === "object" && !Array.isArray(cfg.health) ? cfg.health as { status?: string; finishedAt?: string; error?: string | null; upserted?: number } : null;
 
   async function save() {
     if (!cfg) return;
@@ -130,6 +140,11 @@ function Page() {
       <div className="max-w-4xl space-y-4">
         <Card className="space-y-3 p-5">
           <h2 className="font-semibold">Live sports data provider</h2>
+          <div role="status" className="border-l-2 border-border pl-3 text-sm">
+            <p className="font-semibold">Synchronization: {health?.status ?? "Not checked"}</p>
+            {health?.finishedAt && <p className="text-xs text-muted-foreground">Last attempt {new Date(health.finishedAt).toLocaleString()}</p>}
+            {health?.error && <p className="text-xs text-destructive">{health.error}</p>}
+          </div>
           <div className="flex items-center justify-between">
             <Label>Live sports feed enabled</Label>
             <Switch checked={!!cfg?.enabled} onCheckedChange={set("enabled")} />
@@ -202,6 +217,7 @@ function Page() {
               disabled={busy}
               onClick={() => act(async () => {
                 const r = await runSportsAutomationNow();
+                if (r.syncError) throw new Error(r.syncError);
                 return `Drafted ${r.drafted} question(s) · finalised ${r.finalized.length} contest(s)`;
               })}
             >

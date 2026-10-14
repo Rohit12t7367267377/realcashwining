@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Radio } from "lucide-react";
+import { isStaleMatch } from "@/lib/sports-provider";
 
 export const Route = createFileRoute("/cricket")({
   head: () => ({ meta: [
@@ -39,7 +40,7 @@ function Page() {
     <AppShell>
       <div className="max-w-3xl mx-auto p-4">
         <h1 className="text-3xl font-bold mb-1 flex items-center gap-2"><Radio className="w-7 h-7 text-destructive" /> Live Cricket</h1>
-        <p className="text-muted-foreground mb-6">Real-time scores. Auto-refreshes every {refresh}s.</p>
+        <p className="text-muted-foreground mb-6">Latest verified scores</p>
         <div className="space-y-3">
           {rows.map((r) => (
             <Link key={r.id} to="/cricket/$id" params={{ id: r.id }} className="block">
@@ -50,12 +51,16 @@ function Page() {
                   <div className="font-semibold truncate">{r.name}</div>
                   <div className="text-xs text-muted-foreground">{r.status}</div>
                 </div>
-                {r.is_live && <span className="text-xs font-bold text-destructive whitespace-nowrap">● LIVE</span>}
+                {r.is_live && !isStaleMatch(r.fetched_at, refresh) && <span className="text-xs font-bold text-destructive whitespace-nowrap">● LIVE</span>}
               </div>
               <div className="mt-2 grid grid-cols-2 text-sm">
                 <div><b>{r.team_a}</b><div className="font-mono">{r.score_a || "—"}</div></div>
                 <div className="text-right"><b>{r.team_b}</b><div className="font-mono">{r.score_b || "—"}</div></div>
               </div>
+              <p className="mt-3 text-xs text-muted-foreground">
+                {isStaleMatch(r.fetched_at, refresh) ? "Delayed data · " : "Updated · "}
+                {r.fetched_at ? new Date(r.fetched_at).toLocaleString() : "No verified update available"}
+              </p>
             </Card>
             </Link>
           ))}

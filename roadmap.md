@@ -2,12 +2,15 @@
 
 ## Automated sports and quiz contest engine
 - [x] Audit current cricket feed, sports admin controls, match-linked contests, question drafts, scoring, notifications, and automation endpoint
-- [ ] Centralize normalized provider models, lifecycle states, provider health, and safe synchronization checkpoints
+- [x] Centralize normalized provider models, lifecycle interpretation, stored provider health, bounded retries, and shared refresh actions
+- [ ] Add durable synchronization leases/checkpoints for concurrent scheduled jobs
 - [ ] Add admin-configurable contest templates and idempotent match-triggered generation
 - [ ] Add authoritative event verification, auditable settlement, deterministic rankings, and separate virtual rewards
-- [ ] Improve live score detail and stale/reconnecting states from verified provider data
+- [x] Show last verified timestamps and suppress misleading LIVE badges for stale cricket scores
+- [ ] Expand scorecards/events and reconnecting states after provider entitlement is verified
 - [ ] Extend admin operations, job visibility/retries, notification controls, and end-to-end simulation tests
-- [ ] Enable production scheduling only after the real provider credential and delivery schedule are confirmed
+- [ ] Verify real provider access (blocker: saved CricAPI credential currently returns a rejected or unavailable match feed)
+- [ ] Enable production scheduling only after the real provider credential and delivery schedule are confirmed (database scheduling is not currently installed)
 
 ## Learning ecosystem upgrade
 - [x] Audit learning routes, classroom/voice flow, content, persistence, progress, search, and admin dependencies
