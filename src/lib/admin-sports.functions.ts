@@ -10,7 +10,7 @@ export const getSportsConfig = createServerFn({ method: "GET" })
     const cfg = await readSportsConfig();
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: health } = await supabaseAdmin.from("app_settings").select("value").eq("key", "sports_sync_health").maybeSingle();
-    const { apiKey: _omit, ...safe } = cfg;
+    const { apiKey: _omit, fallbackApiKey: _omitFallback, ...safe } = cfg;
     return { ...safe, health: health?.value ?? null };
   });
 
@@ -27,6 +27,8 @@ export const saveSportsConfig = createServerFn({ method: "POST" })
         questionsPerMatch: z.number().int().min(1).max(25),
         requireReview: z.boolean(),
         apiKey: z.string().max(200).optional(),
+        fallbackProvider: z.enum(["none", "sportmonks"]),
+        fallbackApiKey: z.string().max(200).optional(),
       })
       .parse(d),
   )
@@ -41,12 +43,19 @@ export const saveSportsConfig = createServerFn({ method: "POST" })
       { key: "sports_auto_reading", value: data.autoReading, updated_at: now },
       { key: "sports_questions_per_match", value: data.questionsPerMatch, updated_at: now },
       { key: "sports_require_review", value: data.requireReview, updated_at: now },
+      { key: "sports_fallback_provider", value: data.fallbackProvider, updated_at: now },
     ];
     if (data.apiKey && data.apiKey.trim().length > 0) {
       const { sanitizeApiKey } = await import("@/lib/sports.server");
       const key = sanitizeApiKey(data.apiKey);
       if (!key) throw new Error("That API key looks empty — paste only the key itself.");
       rows.push({ key: "cricket_api_key", value: key, updated_at: now });
+    }
+    if (data.fallbackApiKey && data.fallbackApiKey.trim().length > 0) {
+      const { sanitizeApiKey } = await import("@/lib/sports.server");
+      const key = sanitizeApiKey(data.fallbackApiKey);
+      if (!key) throw new Error("That fallback API key looks empty — paste only the key itself.");
+      rows.push({ key: "sports_fallback_api_key", value: key, updated_at: now });
     }
 
     const { error } = await supabaseAdmin.from("app_settings").upsert(rows);

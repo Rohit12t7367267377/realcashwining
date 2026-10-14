@@ -8,6 +8,9 @@ export type SportsConfig = {
   hasKey: boolean;
   apiKey: string;
   provider: string;
+  fallbackProvider: "none" | "sportmonks";
+  hasFallbackKey: boolean;
+  fallbackApiKey: string;
   refreshSeconds: number;
   autoQuiz: boolean;
   autoResult: boolean;
@@ -20,6 +23,8 @@ const KEYS = [
   "cricket_enabled",
   "cricket_api_key",
   "cricket_api_provider",
+  "sports_fallback_provider",
+  "sports_fallback_api_key",
   "cricket_refresh_seconds",
   "sports_auto_quiz",
   "sports_auto_result",
@@ -54,11 +59,16 @@ export async function readSportsConfig(): Promise<SportsConfig> {
     .in("key", KEYS as unknown as string[]);
   const m = new Map<string, unknown>((data ?? []).map((r) => [r.key, r.value]));
   const apiKey = sanitizeApiKey(asStr(m.get("cricket_api_key")));
+  const fallbackApiKey = sanitizeApiKey(asStr(m.get("sports_fallback_api_key")));
+  const fallbackProvider = asStr(m.get("sports_fallback_provider"), "none") === "sportmonks" ? "sportmonks" : "none";
   return {
     enabled: asBool(m.get("cricket_enabled"), true),
     hasKey: apiKey.length > 0,
     apiKey,
     provider: asStr(m.get("cricket_api_provider"), "cricapi") || "cricapi",
+    fallbackProvider,
+    hasFallbackKey: fallbackApiKey.length > 0,
+    fallbackApiKey,
     refreshSeconds: Math.max(30, asNum(m.get("cricket_refresh_seconds"), 60)),
     autoQuiz: asBool(m.get("sports_auto_quiz"), false),
     autoResult: asBool(m.get("sports_auto_result"), true),
@@ -72,24 +82,24 @@ export async function readSportsConfig(): Promise<SportsConfig> {
 export async function refreshSportsMatches() {
   const cfg = await readSportsConfig();
   if (!cfg.enabled) throw new Error("Sports live data is disabled.");
-  if (!cfg.hasKey) throw new Error("Add the live sports API key first.");
   if (cfg.provider !== "cricapi") throw new Error("This sports provider is not supported yet.");
   const startedAt = new Date().toISOString();
+  const attempts: Array<{ provider: string; status: "failed" | "healthy"; error?: string }> = [];
   try {
-    const { fetchCricketMatches } = await import("@/lib/sports-provider.server");
-    const feed = await fetchCricketMatches(cfg.apiKey);
+    const { fetchWithSportsFallback } = await import("@/lib/sports-provider.server");
+    const feed = await fetchWithSportsFallback(cfg, attempts);
     const unique = [...new Map(feed.rows.map(row => [row.external_id, row])).values()];
     if (unique.length) {
       const { error } = await supabaseAdmin.from("cricket_matches").upsert(unique as unknown as import("@/integrations/supabase/types").Database["public"]["Tables"]["cricket_matches"]["Insert"][], { onConflict: "external_id" });
       if (error) throw new Error("Verified matches could not be stored. Retry synchronization.");
     }
-    const health = { provider: cfg.provider, status: "healthy", startedAt, finishedAt: new Date().toISOString(), total: feed.total, upserted: unique.length, rejected: feed.rejected, error: null };
+    const health = { provider: feed.provider, fallbackUsed: feed.provider !== "cricapi", attempts, status: "healthy", startedAt, finishedAt: new Date().toISOString(), total: feed.total, upserted: unique.length, rejected: feed.rejected, error: null };
     const { error } = await supabaseAdmin.from("app_settings").upsert({ key: "sports_sync_health", value: health, updated_at: health.finishedAt });
     if (error) throw new Error("Matches were stored but synchronization health could not be recorded.");
-    return { total: feed.total, upserted: unique.length, rejected: feed.rejected };
+    return { total: feed.total, upserted: unique.length, rejected: feed.rejected, provider: feed.provider, fallbackUsed: feed.provider !== "cricapi", refreshedExternalIds: unique.map(row => row.external_id) };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Sports synchronization failed.";
-    await supabaseAdmin.from("app_settings").upsert({ key: "sports_sync_health", value: { provider: cfg.provider, status: "failed", startedAt, finishedAt: new Date().toISOString(), error: message }, updated_at: new Date().toISOString() });
+    await supabaseAdmin.from("app_settings").upsert({ key: "sports_sync_health", value: { provider: cfg.provider, fallbackUsed: false, attempts, status: "failed", startedAt, finishedAt: new Date().toISOString(), error: message }, updated_at: new Date().toISOString() });
     throw new Error(message);
   }
 }
@@ -294,7 +304,8 @@ export async function runSportsAutomation() {
   const cfg = await readSportsConfig();
   const out = { enabled: cfg.enabled, drafted: 0, finalized: [] as string[], waiting: [] as string[], syncError: null as string | null };
   if (!cfg.enabled) return out;
-  try { await refreshSportsMatches(); } catch (err) {
+  let refreshedExternalIds: string[] = [];
+  try { refreshedExternalIds = (await refreshSportsMatches()).refreshedExternalIds; } catch (err) {
     out.syncError = err instanceof Error ? err.message : "Sports synchronization failed.";
     return out; // Never settle against a stale provider snapshot after failed synchronization.
   }
@@ -307,6 +318,8 @@ export async function runSportsAutomation() {
 
   for (const c of linked ?? []) {
     const matchId = c.match_id as string;
+    const { data: snapshot } = await supabaseAdmin.from("cricket_matches").select("external_id").eq("id", matchId).maybeSingle();
+    if (!snapshot?.external_id || !refreshedExternalIds.includes(snapshot.external_id)) { out.waiting.push(c.id); continue; }
     if (cfg.autoQuiz && c.auto_quiz) {
       const { count } = await supabaseAdmin
         .from("sports_quiz_drafts")
