@@ -5,7 +5,7 @@
 - [x] Enlarge the full interactive classroom board and reduce teacher size without altering navigation
 - [x] Add previewable student board settings with authenticated persistence and guest fallback
 - [x] Use ordered lesson segments as the shared board/narration source with pause/resume and segment navigation in the full classroom
-- [ ] Verify signed-in classroom, preferences reload, voice playback, and affected entry points across screen sizes
+- [x] Verify signed-in classroom, preferences reload, real voice playback, and responsive layout without browser errors
 - [ ] Expand structured content and authorized document reading across existing learning sections
 - [ ] Extend accurate interactive visualizations, practice/revision, analytics, and saved study planning
 - [ ] Extend unified learning search, accessibility, and performance
