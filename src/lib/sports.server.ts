@@ -319,7 +319,7 @@ export async function runSportsAutomation() {
   for (const c of linked ?? []) {
     const matchId = c.match_id as string;
     const { data: snapshot } = await supabaseAdmin.from("cricket_matches").select("external_id").eq("id", matchId).maybeSingle();
-    if (!snapshot || !refreshedExternalIds.includes(snapshot.external_id)) { out.waiting.push(c.id); continue; }
+    if (!snapshot?.external_id || !refreshedExternalIds.includes(snapshot.external_id)) { out.waiting.push(c.id); continue; }
     if (cfg.autoQuiz && c.auto_quiz) {
       const { count } = await supabaseAdmin
         .from("sports_quiz_drafts")
