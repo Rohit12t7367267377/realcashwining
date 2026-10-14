@@ -47,6 +47,7 @@ type Draft = Awaited<ReturnType<typeof listQuizDrafts>>[number];
 function Page() {
   const [cfg, setCfg] = useState<Cfg | null>(null);
   const [apiKey, setApiKey] = useState("");
+  const [fallbackApiKey, setFallbackApiKey] = useState("");
   const [matches, setMatches] = useState<Match[]>([]);
   const [contests, setContests] = useState<Contest[]>([]);
   const [drafts, setDrafts] = useState<Draft[]>([]);
@@ -87,7 +88,7 @@ function Page() {
   }, []);
 
   const set = <K extends keyof Cfg>(k: K) => (v: Cfg[K]) => setCfg((c) => (c ? { ...c, [k]: v } : c));
-  const health = cfg?.health && typeof cfg.health === "object" && !Array.isArray(cfg.health) ? cfg.health as { status?: string; finishedAt?: string; error?: string | null; upserted?: number } : null;
+  const health = cfg?.health && typeof cfg.health === "object" && !Array.isArray(cfg.health) ? cfg.health as { provider?: string; fallbackUsed?: boolean; status?: string; finishedAt?: string; error?: string | null; upserted?: number } : null;
 
   async function save() {
     if (!cfg) return;
@@ -103,9 +104,12 @@ function Page() {
           questionsPerMatch: cfg.questionsPerMatch,
           requireReview: cfg.requireReview,
           ...(apiKey.trim() ? { apiKey: apiKey.trim() } : {}),
+          fallbackProvider: cfg.fallbackProvider,
+          ...(fallbackApiKey.trim() ? { fallbackApiKey: fallbackApiKey.trim() } : {}),
         },
       });
       setApiKey("");
+      setFallbackApiKey("");
       toast.success("Sports settings saved");
       await load();
     } catch (e) {
@@ -144,6 +148,20 @@ function Page() {
             <p className="font-semibold">Synchronization: {health?.status ?? "Not checked"}</p>
             {health?.finishedAt && <p className="text-xs text-muted-foreground">Last attempt {new Date(health.finishedAt).toLocaleString()}</p>}
             {health?.error && <p className="text-xs text-destructive">{health.error}</p>}
+            {health?.provider && <p className="text-xs text-muted-foreground">Last successful source: {health.provider === "sportmonks" ? "Fallback provider" : "CricAPI"}{health.fallbackUsed ? " (automatic fallback)" : ""}</p>}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <Label>Fallback provider</Label>
+              <Select value={cfg?.fallbackProvider ?? "none"} onValueChange={(value) => set("fallbackProvider")(value as "none" | "sportmonks")}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent><SelectItem value="none">Disabled</SelectItem><SelectItem value="sportmonks">Sportmonks Cricket</SelectItem></SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label>Fallback API key {cfg?.hasFallbackKey ? "(saved — leave blank to keep)" : cfg?.fallbackProvider === "sportmonks" ? "(required)" : ""}</Label>
+              <Input value={fallbackApiKey} onChange={(e) => setFallbackApiKey(e.target.value)} placeholder={cfg?.hasFallbackKey ? "•••••••• saved" : "paste-fallback-api-key"} className="font-mono" type="password" disabled={cfg?.fallbackProvider === "none"} />
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <Label>Live sports feed enabled</Label>
@@ -178,7 +196,7 @@ function Page() {
               disabled={busy}
               onClick={() => act(async () => {
                 const r = await refreshSportsFeed();
-                return `Fetched ${r.total} matches (${r.upserted} stored)`;
+                return `Fetched ${r.total} matches (${r.upserted} stored) via ${r.fallbackUsed ? "fallback provider" : "CricAPI"}`;
               })}
             >
               <RefreshCw className={`mr-1 h-4 w-4 ${busy ? "animate-spin" : ""}`} /> Refresh live matches

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { isStaleMatch, matchState, normalizeCricketMatch } from "./sports-provider";
-import { fetchCricketMatches } from "./sports-provider.server";
+import { isStaleMatch, matchState, normalizeCricketMatch, normalizeSportmonksMatch } from "./sports-provider";
+import { fetchCricketMatches, fetchSportmonksMatches } from "./sports-provider.server";
 
 describe("verified sports provider", () => {
   it("normalizes UTC fixtures without inventing wickets or overs", () => {
@@ -29,5 +29,15 @@ describe("verified sports provider", () => {
   it("does not retry quota errors or expose provider bodies", async () => {
     const fetcher = vi.fn().mockResolvedValue(new Response("sensitive provider detail", { status: 429 }));
     await expect(fetchCricketMatches("test-credential", fetcher)).rejects.toThrow("quota"); expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+  it("normalizes fallback scores without merging provider identities", () => {
+    const m = normalizeSportmonksMatch({ id: 42, name: "A vs B", starting_at: "2026-10-14 11:00:00", state: { name: "Innings Break" }, participants: [{ id: 1, name: "A" }, { id: 2, name: "B" }], runs: [{ team_id: 1, score: 120, wickets: 4, overs: 18.2, innings: 1 }] }, "2026-10-14T11:05:00Z");
+    expect(m).toMatchObject({ external_id: "sportmonks:42", team_a: "A", score_a: "120/4 (18.2 ov)", is_live: true });
+  });
+  it("uses a fixed fallback origin and rejects malformed feeds", async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response(JSON.stringify({ data: [] })));
+    await expect(fetchSportmonksMatches("fallback-credential", fetcher)).resolves.toMatchObject({ provider: "sportmonks", total: 0 });
+    expect(fetcher.mock.calls[0][0].origin).toBe("https://api.sportmonks.com");
+    expect(fetcher.mock.calls[0][1].redirect).toBe("error");
   });
 });

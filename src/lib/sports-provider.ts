@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 export type SportsMatchState = "upcoming" | "live" | "completed" | "postponed" | "cancelled" | "abandoned" | "unknown";
+export type SportsProviderId = "cricapi" | "sportmonks";
 const scoreSchema = z.object({ r: z.number().nonnegative().optional(), w: z.number().nonnegative().optional(), o: z.number().nonnegative().optional(), inning: z.string().optional() });
 const matchSchema = z.object({
   id: z.string().min(1), name: z.string().optional(), status: z.string().optional(),
@@ -45,5 +46,38 @@ export function normalizeCricketMatch(input: unknown, fetchedAt: string) {
     team_a: teamA, team_b: teamB, score_a: scoreFor(teamA), score_b: scoreFor(teamB), match_type: m.matchType ?? "",
     is_live: matchState(m, m.status ?? "") === "live", squads: m.teamInfo ?? [],
     raw: JSON.parse(JSON.stringify(m)) as Record<string, unknown>, fetched_at: fetchedAt, updated_at: fetchedAt,
+  };
+}
+
+const sportmonksSchema = z.object({
+  id: z.union([z.string(), z.number()]), name: z.string().optional(), starting_at: z.string().optional(),
+  venue: z.object({ name: z.string().optional() }).optional(), league: z.object({ name: z.string().optional() }).optional(),
+  type: z.string().optional(), note: z.string().optional(),
+  state: z.object({ name: z.string().optional(), short_name: z.string().optional(), developer_name: z.string().optional() }).optional(),
+  participants: z.array(z.object({ id: z.union([z.string(), z.number()]), name: z.string().min(1) })).optional(),
+  runs: z.array(z.object({ team_id: z.union([z.string(), z.number()]), score: z.number().nonnegative(), wickets: z.number().nonnegative().optional(), overs: z.number().nonnegative().optional(), innings: z.number().int().positive().optional() })).optional(),
+}).passthrough();
+
+/** Convert the documented Sportmonks v3 live-score shape into the shared cache shape. */
+export function normalizeSportmonksMatch(input: unknown, fetchedAt: string) {
+  const parsed = sportmonksSchema.safeParse(input);
+  if (!parsed.success || (parsed.data.participants?.length ?? 0) < 2) return null;
+  const m = parsed.data;
+  const teams = m.participants ?? [];
+  const status = m.state?.name ?? m.note ?? "";
+  const stateText = `${status} ${m.state?.short_name ?? ""} ${m.state?.developer_name ?? ""}`;
+  const ended = /finished|completed|abandon|cancel|no result/i.test(stateText);
+  const live = !ended && /live|innings|break|stumps|lunch|tea|delayed/i.test(stateText);
+  const scoreFor = (teamId: string | number) => {
+    const innings = (m.runs ?? []).filter(run => String(run.team_id) === String(teamId)).sort((a, b) => (b.innings ?? 0) - (a.innings ?? 0));
+    return innings.map(run => `${run.score}${run.wickets === undefined ? "" : `/${run.wickets}`}${run.overs === undefined ? "" : ` (${run.overs} ov)`}`).join(" & ");
+  };
+  const date = m.starting_at && /^\d{4}-\d{2}-\d{2} /.test(m.starting_at) ? `${m.starting_at.replace(" ", "T")}Z` : m.starting_at;
+  const raw = { ...m, matchStarted: live || ended, matchEnded: ended, provider: "sportmonks" };
+  return {
+    external_id: `sportmonks:${m.id}`, name: m.name || `${teams[0].name} vs ${teams[1].name}`, series: m.league?.name ?? null,
+    status, venue: m.venue?.name ?? "", date_time: date && Number.isFinite(Date.parse(date)) ? new Date(date).toISOString() : null,
+    team_a: teams[0].name, team_b: teams[1].name, score_a: scoreFor(teams[0].id), score_b: scoreFor(teams[1].id), match_type: m.type ?? "",
+    is_live: live, squads: teams, raw: JSON.parse(JSON.stringify(raw)) as Record<string, unknown>, fetched_at: fetchedAt, updated_at: fetchedAt,
   };
 }

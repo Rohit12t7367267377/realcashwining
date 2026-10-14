@@ -1,7 +1,7 @@
 # Roadmap
 
 ## Automated sports and quiz contest engine
-- [ ] Add administrator-configurable sports fallback, safe provider identity handling, health visibility, and fallback regression tests
+- [x] Add administrator-configurable sports fallback, safe provider identity handling, health visibility, and fallback regression tests
 - [x] Audit current cricket feed, sports admin controls, match-linked contests, question drafts, scoring, notifications, and automation endpoint
 - [x] Centralize normalized provider models, lifecycle interpretation, stored provider health, bounded retries, and shared refresh actions
 - [ ] Add durable synchronization leases/checkpoints for concurrent scheduled jobs
