@@ -12,12 +12,12 @@ import { useLessonNarration } from "@/hooks/use-lesson-narration";
 import { useClassroomPreferences } from "@/hooks/use-classroom-preferences";
 import { ClassroomSettings } from "@/components/ClassroomSettings";
 import { LessonPlayback } from "@/components/LessonPlayback";
-import { lessonSegments, type LessonSegment } from "@/lib/lesson-segments";
+import type { LessonSegment } from "@/lib/lesson-segments";
 import { useUser } from "@/lib/user-store";
 import { toast } from "sonner";
 import {
   GraduationCap, Loader2, Mic, MicOff, Send, RefreshCw, Baby, Rocket,
-  Lightbulb, HelpCircle, ListChecks, ClipboardCheck, Square, Volume2, ArrowRight,
+  Lightbulb, HelpCircle, ListChecks, ClipboardCheck, ArrowRight,
 } from "lucide-react";
 
 export const Route = createFileRoute("/guru/classroom")({

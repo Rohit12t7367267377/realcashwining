@@ -7,3 +7,4 @@
 - Browser profile edits cannot change managed account fields; wallet membership purchases use an authenticated atomic database operation to preserve legitimate purchases.
 - XP records are owner-scoped; the authenticated Hall of Fame action projects only public ranking fields so private reward counters stay private.
 - School subject selection is board/class-aware with senior stream metadata; shared fallback choices and study outlines remain separate from administrator-published coursebooks to avoid presenting generated content as an official syllabus.
+- Classroom board appearance is stored as validated owner-scoped preferences, while ordered board-derived segments are the source for narration; this prevents cross-student theme leakage and lesson drift.
