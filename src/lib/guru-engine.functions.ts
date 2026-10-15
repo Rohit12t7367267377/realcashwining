@@ -16,6 +16,7 @@ const turnInput = z.object({
   subject: z.string().trim().max(120).optional(),
   levelLabel: z.string().trim().max(160).optional(),
   material: z.string().trim().max(6000).optional(),
+  language: z.enum(["en", "hi"]).optional(),
   mode: z.enum(MODES).default("start"),
   level: z.number().int().min(1).max(5).default(3),
   studentText: z.string().trim().max(1200).optional(),
@@ -48,6 +49,23 @@ export const guruEngineTurn = createServerFn({ method: "POST" })
     };
 
     const resolved = await resolveTeachingContext(db, context.userId, ctx);
+    if (data.language) resolved.language = data.language;
+    // Resource access is resolved on the server, not from browser-supplied material.
+    if (data.scope === "library" && data.refId) {
+      const { data: resource, error } = await context.supabase.from("guru_resources")
+        .select("title, subject, class_name, access_type").eq("id", data.refId).maybeSingle();
+      if (error || !resource) throw new Error("Resource not found or access is unavailable");
+      if (resource.access_type === "premium") {
+        const { requirePremiumMembership } = await import("@/lib/premium-access.server");
+        await requirePremiumMembership(context.supabase, context.userId);
+      }
+      const { retrieveResourceContext, formatSources } = await import("@/lib/guru-rag.server");
+      const passages = await retrieveResourceContext(context.supabase as never, { resourceId: data.refId, query: data.topic });
+      resolved.sources = formatSources(passages);
+      ctx.material = `Resource: ${resource.title}. Explain in your own words; never reproduce long copyrighted passages.`;
+      ctx.subject = resource.subject;
+      ctx.levelLabel = resource.class_name;
+    }
     if (resolved.premium) {
       const { requirePremiumMembership } = await import("@/lib/premium-access.server");
       await requirePremiumMembership(context.supabase, context.userId);
