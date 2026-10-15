@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "live.gurug.twa",
-        "sha256_cert_fingerprints": ["8D:FF:DC:D9:98:92:B7:41:9B:C4:4C:00:E9:F6:44:73:4D:70:8F:7B:7F:09:D7:91:73:91:6D:81:8A:1C:1C:17"]
-      }
-    }]

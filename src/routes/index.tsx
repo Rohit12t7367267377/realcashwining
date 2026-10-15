@@ -233,7 +233,7 @@ function Home() {
           <div className="min-w-0">
             <p className="text-xs uppercase tracking-widest opacity-80">Welcome back</p>
             <h1 className="mt-1 truncate text-2xl font-black">Hey {state.name.split(" ")[0]} 👋</h1>
-            <p className="mt-1 text-sm opacity-90">Ready to win some cash today?</p>
+            <p className="mt-1 text-sm opacity-90">Ready to learn and play today?</p>
           </div>
           <Link to="/wallet" className="press shrink-0 rounded-xl bg-white/15 px-3 py-2 text-[11px] font-bold backdrop-blur">
             Wallet →

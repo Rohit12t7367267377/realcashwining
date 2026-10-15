@@ -40,6 +40,7 @@ import { Route as SupportRouteImport } from './routes/support'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as VipRouteImport } from './routes/vip'
 import { Route as WalletRouteImport } from './routes/wallet'
+import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known.assetlinks[.]json'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAdsRouteImport } from './routes/admin.ads'
 import { Route as AdminAiRouteImport } from './routes/admin.ai'
@@ -270,6 +271,12 @@ const WalletRoute = WalletRouteImport.update({
   path: '/wallet',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DotwellKnownAssetlinksDotjsonRoute =
+  DotwellKnownAssetlinksDotjsonRouteImport.update({
+    id: '/.well-known/assetlinks.json',
+    path: '/.well-known/assetlinks.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -677,6 +684,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
@@ -782,6 +790,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
@@ -890,6 +899,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/vip': typeof VipRoute
   '/wallet': typeof WalletRouteWithChildren
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/ads': typeof AdminAdsRoute
   '/admin/ai': typeof AdminAiRoute
   '/admin/app-updates': typeof AdminAppUpdatesRoute
@@ -999,6 +1009,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/.well-known/assetlinks.json'
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
@@ -1104,6 +1115,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/.well-known/assetlinks.json'
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
@@ -1211,6 +1223,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/vip'
     | '/wallet'
+    | '/.well-known/assetlinks.json'
     | '/admin/ads'
     | '/admin/ai'
     | '/admin/app-updates'
@@ -1319,6 +1332,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   VipRoute: typeof VipRoute
   WalletRoute: typeof WalletRouteWithChildren
+  DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   CategoryIdRoute: typeof CategoryIdRoute
   ContestIdRoute: typeof ContestIdRoute
   CricketIdRoute: typeof CricketIdRoute
@@ -1554,6 +1568,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet'
       fullPath: '/wallet'
       preLoaderRoute: typeof WalletRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/assetlinks.json': {
+      id: '/.well-known/assetlinks.json'
+      path: '/.well-known/assetlinks.json'
+      fullPath: '/.well-known/assetlinks.json'
+      preLoaderRoute: typeof DotwellKnownAssetlinksDotjsonRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -2250,6 +2271,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   VipRoute: VipRoute,
   WalletRoute: WalletRouteWithChildren,
+  DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   CategoryIdRoute: CategoryIdRoute,
   ContestIdRoute: ContestIdRoute,
   CricketIdRoute: CricketIdRoute,
