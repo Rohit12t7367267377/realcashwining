@@ -1,3 +1,4 @@
+import { GuruLessonDepth } from "@/components/GuruLessonDepth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -328,6 +329,8 @@ function ExamDetailPage() {
           )}
         </section>
       )}
+
+      {activeSubject && <GuruLessonDepth scope="exam" topic={topic || activeSubject} subject={activeSubject} levelLabel={examName} language={language} />}
 
       {tab === "subjects" && (
         <section className="mt-3 rounded-3xl bg-card p-4 shadow-soft">

@@ -1,3 +1,4 @@
+import { GuruLessonDepth } from "@/components/GuruLessonDepth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -224,6 +225,8 @@ function UniversalAiPage() {
           <Input value={focusTopic} onChange={(e) => setFocusTopic(e.target.value)} placeholder="Topic (optional) e.g. Trigonometry" className="h-9 text-xs" />
         </div>
       </section>
+
+      <GuruLessonDepth scope="universal" topic={focusTopic || text || messages.filter((m) => m.role === "user").at(-1)?.content || ""} subject={domain} levelLabel={levelText} />
 
       {mode === "web" ? (
         <div className="mt-3 min-h-[40vh] rounded-2xl bg-card p-4 shadow-soft">
