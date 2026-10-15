@@ -1,5 +1,11 @@
 # Roadmap
 
+## Current request: scores and learning depth
+- [ ] Replace mixed live-score feeds with verified configured-API scores and a Google-style display
+- [ ] Add shared easy/deep lessons to School, College, Exams, Skills, Library, Universal AI and the teacher board
+- [ ] Add validated plotted graphs, topic-specific materials and continuation through the central teaching engine
+- [ ] Verify signed-in lessons, score sources and regression tests; report provider/content blockers honestly
+
 ## Automated sports and quiz contest engine
 - [x] Add administrator-configurable sports fallback, safe provider identity handling, health visibility, and fallback regression tests
 - [x] Audit current cricket feed, sports admin controls, match-linked contests, question drafts, scoring, notifications, and automation endpoint
