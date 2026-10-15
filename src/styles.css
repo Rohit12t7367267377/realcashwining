@@ -460,3 +460,24 @@
 @media (prefers-reduced-motion: reduce) {
   .teacher-character *, .teacher-character *::before, .teacher-character *::after { animation: none !important; transition: none !important; }
 }
+
+/* App-like behaviour when launched from the installed Android app (TWA/PWA).
+   Normal browser visits are not affected. */
+@media (display-mode: standalone), (display-mode: fullscreen), (display-mode: minimal-ui) {
+  html {
+    overscroll-behavior-y: contain; /* no pull-to-refresh / bounce */
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none; /* no long-press link/image menu */
+  }
+  input, textarea, select, [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  a, button, [role="button"] {
+    touch-action: manipulation; /* no double-tap zoom delay */
+  }
+}
