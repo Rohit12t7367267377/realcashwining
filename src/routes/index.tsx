@@ -18,9 +18,9 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Guru-G — Learn Everything You Want & Win" },
-      { name: "description", content: "AI-powered learning for School, College & Skills — plus live quizzes where your knowledge wins real cash." },
+      { name: "description", content: "AI-powered learning for School, College & Skills — plus live quizzes where your knowledge gets you on the leaderboard." },
       { property: "og:title", content: "Guru-G" },
-      { property: "og:description", content: "Play paid & free quiz contests on SSC, UPSC, Banking & more. Win real cash daily." },
+      { property: "og:description", content: "Play free quiz contests on SSC, UPSC, Banking & more. Learn daily and climb the leaderboard." },
     ],
   }),
   component: Home,
@@ -523,7 +523,7 @@ function Landing() {
         </div>
 
         <h1 className="text-5xl font-black leading-tight tracking-tight sm:text-6xl">
-          Learn with <span className="text-gradient-primary">Guru-G.</span><br />Win Real Cash.
+          Learn with <span className="text-gradient-primary">Guru-G.</span><br />Play, Learn, Grow.
         </h1>
         <p className="mt-4 max-w-md text-base text-muted-foreground">
           AI-powered learning for School, College & Skills — plus live quizzes where your knowledge wins real rewards.
