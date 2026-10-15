@@ -1,5 +1,6 @@
 import type { BoardBlock } from "@/lib/guru-board-blocks";
 import type { CSSProperties } from "react";
+import { LessonGraph } from "@/components/LessonGraph";
 import { DEFAULT_CLASSROOM_PREFERENCES, type ClassroomPreferences } from "@/lib/classroom-preferences";
 
 /**
@@ -56,6 +57,7 @@ export function GuruBoardCanvas({
 
 function Block({ block }: { block: BoardBlock }) {
   switch (block.type) {
+    case "graph": return <LessonGraph graph={block} />;
     case "heading":
       return <h3 className="board-heading font-bold">{block.text}</h3>;
 

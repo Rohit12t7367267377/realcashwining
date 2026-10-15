@@ -1,3 +1,4 @@
+import { GuruLessonDepth } from "@/components/GuruLessonDepth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -121,12 +122,14 @@ function TopicPage() {
         <section className="mt-4 rounded-2xl bg-card p-4 shadow-soft">
           <h2 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">You will learn</h2>
           <ul className="mt-2 grid gap-1 text-sm">
-            {topic!.objectives.map((o) => (
+            {topic?.objectives.map((o) => (
               <li key={o} className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />{o}</li>
             ))}
           </ul>
         </section>
       )}
+
+      {topic && <GuruLessonDepth scope="school" refId={id} topic={topic.title} subject={topic.breadcrumb.subject ?? undefined} levelLabel={[topic.breadcrumb.board, topic.breadcrumb.className].filter(Boolean).join(" · ")} material={JSON.stringify(topic.lessons)} />}
 
       <section className="mt-4">
         <h2 className="mb-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">Your AI teacher</h2>

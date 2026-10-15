@@ -9,6 +9,7 @@ const MODES = [
   "again",
   "easier",
   "harder",
+  "deeper",
   "example",
   "ask_me",
   "practice",
@@ -29,19 +30,6 @@ const turnInput = z.object({
     .optional(),
 });
 
-const MODE_BRIEF: Record<(typeof MODES)[number], string> = {
-  start: "Begin the lesson: hook the student, then explain the first step clearly.",
-  again: "Re-explain the SAME step differently and more slowly — the student did not understand.",
-  easier: "Explain far more simply, with everyday language and a tiny relatable analogy.",
-  harder: "Go one level deeper with a more advanced treatment of the same topic.",
-  example: "Teach through a fully solved example, showing every step on the board.",
-  ask_me: "Ask the student ONE question to check understanding. Keep the board short.",
-  practice: "Give 2-3 short practice problems on the board, then ask the first one.",
-  test: "Give a mini-test question worth checking mastery, one question at a time.",
-  doubt: "Answer the student's doubt precisely, then continue teaching the topic.",
-  next: "Continue the lesson from where you stopped with the next step.",
-};
-
 async function teacherProfile(supabase: {
   from: (t: string) => any;
 }, userId: string) {
@@ -61,93 +49,20 @@ async function teacherProfile(supabase: {
   return { language, character, stats: row ?? null };
 }
 
-function systemPrompt(args: {
-  language: string;
-  character: { name?: string; teaching_style?: string | null; tone?: string | null } | null;
-  level: number;
-  mode: string;
-}) {
-  return [
-    "You are a friendly 2D animated classroom teacher standing at an interactive digital board.",
-    args.character?.name
-      ? `Your name is ${args.character.name}. Teaching style: ${args.character.teaching_style ?? "clear"}. Tone: ${args.character.tone ?? "warm"}.`
-      : "Your name is Guru.",
-    args.language === "hi" ? "Speak and write in simple Hindi (Devanagari)." : "Speak and write in simple English.",
-    `Student difficulty level: ${args.level} of 5 (1 = beginner, 5 = advanced). Match your depth to this level.`,
-    `Task for this turn: ${MODE_BRIEF[args.mode as (typeof MODES)[number]] ?? MODE_BRIEF.next}`,
-    "You fully control the board. Return STRICT JSON only:",
-    '{"title":"short lesson title","speech":"what you say aloud","board":[block,...],"question":{"prompt":"...","hint":"...","expected":"ideal answer"}|null,"stepLabel":"e.g. Step 2 of 5","done":false}',
-    "Board blocks (use 3-6 per turn, mix types where useful):",
-    '{"type":"heading","text":"..."}',
-    '{"type":"text","text":"...","highlight":true|false}',
-    '{"type":"formula","text":"a^2 + b^2 = c^2","label":"Pythagoras"}',
-    '{"type":"steps","title":"Solution","items":["step 1","step 2"]}',
-    '{"type":"example","title":"Example","body":"..."}',
-    '{"type":"code","language":"python","code":"..."}',
-    '{"type":"table","columns":["A","B"],"rows":[["1","2"]]}',
-    '{"type":"diagram","caption":"Water cycle","nodes":["Evaporation","Condensation","Rain"],"arrows":true}',
-    "speech: 60-130 words, natural spoken classroom language, no markdown, no emojis, no asterisks.",
-    "question: include a question whenever the mode asks for one, or naturally to check understanding; otherwise null.",
-    "Never repeat the exact same wording as your previous turns.",
-  ]
-    .filter(Boolean)
-    .join("\n");
-}
-
 /** One turn of the interactive AI classroom lesson: speech + board + optional question. */
 export const guruClassroomTurn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => turnInput.parse(d))
   .handler(async ({ context, data }) => {
-    const { callAiChat, extractJson } = await import("@/lib/ai-gateway.server");
-    const { language, character } = await teacherProfile(context.supabase, context.userId);
-
-    const transcript = (data.history ?? [])
-      .map((m) => `${m.role === "teacher" ? "Teacher" : "Student"}: ${m.content}`)
-      .join("\n")
-      .slice(-3000);
-
-    const userParts = [
-      `Topic: ${data.topic}`,
-      data.context ? `Reference material:\n${data.context}` : "",
-      transcript ? `Lesson so far:\n${transcript}` : "",
-      data.studentText ? `Student says: ${data.studentText}` : "",
-    ].filter(Boolean);
-
-    const raw = await callAiChat(
-      [
-        { role: "system", content: systemPrompt({ language, character, level: data.level, mode: data.mode }) },
-        { role: "user", content: userParts.join("\n\n") },
-      ],
-      { temperature: 0.6, model: "google/gemini-3.7-flash", responseFormat: "json_object" },
-    );
-
-    const parsed = (extractJson(raw) ?? {}) as Record<string, unknown>;
-    const board = normalizeBoardBlocks(parsed.board);
-    const q = parsed.question && typeof parsed.question === "object" ? (parsed.question as Record<string, unknown>) : null;
-    const prompt = q ? String(q.prompt ?? "").trim() : "";
-
-    const displayedBoard = board.length ? board : [{ type: "text" as const, text: String(parsed.speech ?? data.topic).slice(0, 300) }];
-    const segments = lessonSegments(data.topic, displayedBoard);
-    return {
-      title: String(parsed.title ?? data.topic).slice(0, 90),
-      speech: segments.map((segment) => segment.narration).join("\n\n"),
-      board: displayedBoard,
-      segments,
-      question: prompt
-        ? {
-            prompt: prompt.slice(0, 400),
-            hint: q?.hint ? String(q.hint).slice(0, 240) : null,
-            expected: q?.expected ? String(q.expected).slice(0, 400) : null,
-          }
-        : null,
-      stepLabel: parsed.stepLabel ? String(parsed.stepLabel).slice(0, 40) : null,
-      done: parsed.done === true,
-      level: data.level,
-      mode: data.mode,
-      language,
-      teacher: character?.name ?? "Guru",
-    };
+    const { resolveTeachingContext, runTeachTurn } = await import("@/lib/guru-engine.server");
+    const ctx = { scope: "classroom" as const, topic: data.topic, material: data.context };
+    const resolved = await resolveTeachingContext(context.supabase as never, context.userId, ctx);
+    if (resolved.premium) {
+      const { requirePremiumMembership } = await import("@/lib/premium-access.server");
+      await requirePremiumMembership(context.supabase, context.userId);
+    }
+    const turn = await runTeachTurn({ ctx, resolved, mode: data.mode, level: data.level, studentText: data.studentText, history: data.history });
+    return { ...turn, level: data.level, mode: data.mode, language: resolved.language, teacher: resolved.teacher.name };
   });
 
 /** Evaluates the student's answer, detects misunderstanding and adapts difficulty. */

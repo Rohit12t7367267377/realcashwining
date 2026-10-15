@@ -1,3 +1,4 @@
+import { GuruLessonDepth } from "@/components/GuruLessonDepth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -255,6 +256,8 @@ function GuruSchoolPage() {
             </div>
           </div>
         </section>
+
+        <GuruLessonDepth key={notes.title} scope="school" topic={notes.title} subject={scope.subject} levelLabel={`${scope.board} · ${scope.className}`} language={language} material={JSON.stringify(notes)} />
 
         <nav className="mt-3 -mx-1 flex gap-1.5 overflow-x-auto px-1 pb-1">
           {TABS.map(({ key, label, icon: Icon }) => (

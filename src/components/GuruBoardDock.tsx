@@ -3,8 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { GuruTeacherBoard } from "@/components/GuruTeacherBoard";
-import { guruBoardLesson } from "@/lib/guru-board.functions";
+import { GuruLessonDepth, type LessonContext } from "@/components/GuruLessonDepth";
 import { guruEngineSpeak } from "@/lib/guru-engine.functions";
 import { useTeacherAudio } from "@/hooks/use-teacher-audio";
 import { GraduationCap, Loader2, X, Square, Sparkles } from "lucide-react";
@@ -16,12 +15,12 @@ import { useLang } from "@/lib/i18n";
  * Ask any topic and the animated character teaches it on the board, aloud.
  */
 export function GuruBoardDock() {
-  const teach = useServerFn(guruBoardLesson);
   const speak = useServerFn(guruEngineSpeak);
   const teacherAudio = useTeacherAudio();
   const { lang } = useLang();
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState("");
+  const [context, setContext] = useState<LessonContext>({ topic: "" });
   const [busy, setBusy] = useState(false);
   const [lesson, setLesson] = useState<{ title: string; lines: string[]; speech: string; teacher: string } | null>(null);
   const [revealed, setRevealed] = useState(0);
@@ -48,24 +47,7 @@ export function GuruBoardDock() {
     const t = raw.trim();
     if (!t || busy) return;
     stopAll();
-    stopRef.current = false;
-    setBusy(true);
-    setLesson(null);
-    setRevealed(0);
-    try {
-      const res = await teach({ data: { topic: t, context: document.querySelector("main")?.innerText?.slice(0, 1200) } });
-      setLesson({ title: res.title, lines: res.lines, speech: res.speech, teacher: res.teacher });
-      revealLines(res.lines.length);
-      if (res.speech && !stopRef.current) {
-        const audio = await speak({ data: { text: res.speech } });
-        if (stopRef.current) return;
-        await teacherAudio.play(audio);
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "The AI teacher is unavailable right now");
-    } finally {
-      setBusy(false);
-    }
+    setContext((previous) => ({ ...previous, topic: t }));
   }
 
   function run(e: React.FormEvent) {
@@ -76,11 +58,12 @@ export function GuruBoardDock() {
   /** Any Guru.AI screen can start a board lesson: window.dispatchEvent(new CustomEvent("guru:teach", { detail: { topic } })) */
   useEffect(() => {
     function onTeach(ev: Event) {
-      const t = (ev as CustomEvent<{ topic?: string }>).detail?.topic;
+      const detail = (ev as CustomEvent<LessonContext>).detail;
+      const t = detail?.topic;
       if (!t) return;
       setOpen(true);
       setTopic(t);
-      void teachTopic(t);
+      setContext(detail);
     }
     window.addEventListener("guru:teach", onTeach);
     return () => window.removeEventListener("guru:teach", onTeach);
@@ -102,7 +85,7 @@ export function GuruBoardDock() {
   }
 
   return (
-    <div className="fixed bottom-24 right-4 z-40 w-[min(26rem,calc(100vw-2rem))] rounded-3xl bg-card p-4 shadow-lift ring-1 ring-border">
+    <div className="fixed bottom-24 right-4 z-40 max-h-[calc(100dvh-8rem)] w-[min(42rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl bg-card p-4 shadow-lift ring-1 ring-border">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-bold">
           <Sparkles className="h-4 w-4 text-primary" /> AI Teacher Board
@@ -113,14 +96,7 @@ export function GuruBoardDock() {
       </div>
 
       <div className="mt-3">
-        <GuruTeacherBoard
-          title={lesson?.title ?? (lang === "hi" ? "बोर्ड कक्षा" : "Board class")}
-          lines={lesson?.lines ?? []}
-          revealed={revealed}
-          speaking={teacherAudio.speaking}
-          lipSyncLevel={teacherAudio.lipSyncLevel}
-          teacher={lesson?.teacher ?? "Guru"}
-        />
+        <GuruLessonDepth {...context} />
       </div>
 
       <form onSubmit={run} className="mt-3 flex gap-2">

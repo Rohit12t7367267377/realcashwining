@@ -1,3 +1,4 @@
+import { GuruLessonDepth } from "@/components/GuruLessonDepth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -398,6 +399,8 @@ function ResourceView({ resource, onBack }: { resource: LibraryResource; onBack:
           </p>
         )}
       </section>
+
+      <GuruLessonDepth scope="library" refId={resource.id} topic={question || resource.topic || resource.title} subject={resource.subject ?? undefined} levelLabel={[resource.board, resource.class_name, resource.degree, resource.exam].filter(Boolean).join(" · ")} language={resource.language === "hi" ? "hi" : "en"} />
 
       <section className="mt-4 rounded-3xl bg-card p-4 shadow-soft">
         <h2 className="flex items-center gap-1.5 text-sm font-black">

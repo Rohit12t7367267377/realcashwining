@@ -1,3 +1,4 @@
+import { GuruLessonDepth } from "@/components/GuruLessonDepth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -143,6 +144,8 @@ function GuruSkillsPage() {
             </button>
           ))}
         </div>
+
+        <GuruLessonDepth key={`${track.slug}-${stage}`} scope="skill" topic={`${track.title} — ${track.stages[stage]}`} subject={track.title} levelLabel={stage} material={lesson} />
 
         <div className="mt-3 flex flex-wrap gap-1.5">
           {([["learn", "Learn"], ["simple", "Explain simply"], ["revise", "Revise"], ["practice", "Practice"]] as const).map(([intent, label]) => (

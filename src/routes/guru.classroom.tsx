@@ -35,7 +35,7 @@ export const Route = createFileRoute("/guru/classroom")({
   component: Classroom,
 });
 
-type Mode = "start" | "again" | "easier" | "harder" | "example" | "ask_me" | "practice" | "test" | "doubt" | "next";
+type Mode = "start" | "again" | "easier" | "harder" | "deeper" | "example" | "ask_me" | "practice" | "test" | "doubt" | "next";
 type Turn = { role: "teacher" | "student"; content: string };
 
 function Classroom() {
@@ -327,8 +327,8 @@ function Classroom() {
         <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Tell your teacher what you need</div>
         <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
           <Act icon={RefreshCw} label="Explain again" onClick={() => void runTurn("again")} disabled={busy || !active} />
-          <Act icon={Baby} label="Make it easier" onClick={() => void runTurn("easier", { nextLevel: Math.max(1, level - 1) })} disabled={busy || !active} />
-          <Act icon={Rocket} label="Go deeper" onClick={() => void runTurn("harder", { nextLevel: Math.min(5, level + 1) })} disabled={busy || !active} />
+          <Act icon={Baby} label="Explain Easy" onClick={() => void runTurn("easier", { nextLevel: Math.max(1, level - 1) })} disabled={busy || !active} />
+          <Act icon={Rocket} label="Explain Deeply" onClick={() => void runTurn("deeper")} disabled={busy || !active} />
           <Act icon={Lightbulb} label="Give an example" onClick={() => void runTurn("example")} disabled={busy || !active} />
           <Act icon={HelpCircle} label="Ask me a question" onClick={() => void runTurn("ask_me")} disabled={busy || !active} />
           <Act icon={ListChecks} label="Give practice" onClick={() => void runTurn("practice")} disabled={busy || !active} />

@@ -10,7 +10,8 @@ export type BoardBlock =
   | { type: "example"; title?: string; body: string }
   | { type: "code"; language?: string; code: string }
   | { type: "table"; columns: string[]; rows: string[][] }
-  | { type: "diagram"; caption?: string; nodes: string[]; arrows?: boolean };
+  | { type: "diagram"; caption?: string; nodes: string[]; arrows?: boolean }
+  | { type: "graph"; caption: string; xLabel: string; yLabel: string; basis: string; points: { x: number; y: number }[] };
 
 /** Coerces loose AI JSON into safe, renderable board blocks. */
 export function normalizeBoardBlocks(input: unknown, limit = 12): BoardBlock[] {
@@ -70,6 +71,16 @@ export function normalizeBoardBlocks(input: unknown, limit = 12): BoardBlock[] {
             nodes,
             arrows: b.arrows === undefined ? true : Boolean(b.arrows),
           });
+        break;
+      }
+      case "graph": {
+        const points = Array.isArray(b.points) ? b.points.flatMap((p) => {
+          if (!p || typeof p !== "object") return [];
+          const point = p as Record<string, unknown>;
+          return typeof point.x === "number" && typeof point.y === "number" && Number.isFinite(point.x) && Number.isFinite(point.y) && Math.abs(point.x) <= 1e12 && Math.abs(point.y) <= 1e12 ? [{ x: point.x, y: point.y }] : [];
+        }).slice(0, 100).sort((a, b) => a.x - b.x) : [];
+        const basis = s(b.basis, 400);
+        if (points.length >= 2 && basis && s(b.xLabel) && s(b.yLabel)) out.push({ type: "graph", caption: s(b.caption, 90) || "Topic graph", xLabel: s(b.xLabel, 60), yLabel: s(b.yLabel, 60), basis, points });
         break;
       }
       default:

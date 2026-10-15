@@ -1,3 +1,4 @@
+import { GuruLessonDepth } from "@/components/GuruLessonDepth";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -324,6 +325,7 @@ function CollegePage() {
 
       {step === "study" && topic && (
         <>
+          <GuruLessonDepth key={nodeKey} scope="college" topic={topic.name} subject={subject?.name} levelLabel={[degree?.name, regulation?.name, term?.name].filter(Boolean).join(" · ")} material={notes ? JSON.stringify(notes) : undefined} />
           <div className="mt-4 flex gap-1.5 overflow-x-auto pb-1">
             {([
               { id: "notes", label: "Notes", icon: Lightbulb },
