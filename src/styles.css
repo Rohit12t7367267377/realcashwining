@@ -481,3 +481,6 @@
     touch-action: manipulation; /* no double-tap zoom delay */
   }
 }
+
+/* Never let a stray wide element make the phone shrink the whole page to fit. */
+html, body { max-width: 100%; overflow-x: clip; }
