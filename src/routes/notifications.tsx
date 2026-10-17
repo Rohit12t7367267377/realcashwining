@@ -33,6 +33,7 @@ const ICONS: Record<AppNotification["kind"], any> = {
   withdrawal: ArrowUpFromLine,
   reward: Gift,
   mission: Target,
+  prediction: Trophy,
 };
 
 function NotificationsPage() {

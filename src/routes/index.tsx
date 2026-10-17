@@ -291,6 +291,17 @@ function Home() {
         </section>
       )}
 
+      {/* Free match predictions */}
+      <section className="mt-6">
+        <Link to="/predict" className="card-lift flex items-center justify-between rounded-2xl border border-primary/30 bg-card p-4 shadow-soft">
+          <div className="min-w-0">
+            <div className="text-sm font-bold">🏏 Free Match Predictions</div>
+            <div className="text-[11px] text-muted-foreground">Predict every over, earn points, climb the leaderboard. 100% free.</div>
+          </div>
+          <span className="ml-3 shrink-0 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground">Play</span>
+        </Link>
+      </section>
+
       {/* 3 · Live contests */}
       <section className="mt-6">
         <SectionHeader title="🔥 Live Contests" subtitle="Open now — join and play" />

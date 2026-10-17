@@ -24,6 +24,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { to: "/admin/contests", label: "Contests", icon: Trophy },
       { to: "/admin/live-scores", label: "Live Scores", icon: Radio },
       { to: "/admin/cricket", label: "Cricket API", icon: Radio },
+      { to: "/admin/predict", label: "Prediction Engine", icon: Radio },
     ],
   },
   {

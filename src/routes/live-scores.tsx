@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { RefreshCw, Radio } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { CricketScoreboard } from "@/components/CricketScoreboard";
 
 export const Route = createFileRoute("/live-scores")({
   ssr: false,
@@ -24,7 +25,10 @@ function LiveScores() {
           </h1>
           <p className="text-xs text-muted-foreground">Real-time cricket & sports scores · may be slightly delayed</p>
         </div>
-        <Link to="/" className="text-xs text-primary hover:underline">← Home</Link>
+        <div className="flex flex-col items-end gap-1">
+          <Link to="/predict" className="text-xs font-bold text-primary hover:underline">Predict free →</Link>
+          <Link to="/" className="text-xs text-muted-foreground hover:underline">← Home</Link>
+        </div>
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
@@ -35,7 +39,7 @@ function LiveScores() {
           <TabsTrigger value="Basketball">🏀 Basket</TabsTrigger>
         </TabsList>
         {tab === "Cricket" ? (
-          <TabsContent value="Cricket" className="mt-4"><CricketFeed active /></TabsContent>
+          <TabsContent value="Cricket" className="mt-4"><CricketScoreboard active /></TabsContent>
         ) : null}
         {["Soccer", "Tennis", "Basketball"].map((s) => (
           <TabsContent key={s} value={s} className="mt-4">
@@ -79,67 +83,6 @@ async function fetchAdminScores(sport: string): Promise<Match[]> {
     time: r.match_time ?? "",
     isLive: true,
   }));
-}
-
-// ---------- Cricket (admin-managed + TheSportsDB fallback) ----------
-async function fetchCricket(): Promise<Match[]> {
-  // Admin-managed matches always shown first
-  const admin = await fetchAdminScores("Cricket");
-
-  // TheSportsDB free public feed (key "3") — silent fail
-  try {
-    const r = await fetch("https://www.thesportsdb.com/api/v1/json/3/livescore.php?s=Cricket");
-    const j = await r.json();
-    const list: any[] = j?.events ?? j?.livescore ?? [];
-    return [...admin, ...list.map((e) => ({
-      id: String(e.idEvent),
-      league: String(e.strLeague ?? "Cricket"),
-      home: String(e.strHomeTeam),
-      away: String(e.strAwayTeam),
-      homeScore: String(e.intHomeScore ?? "-"),
-      awayScore: String(e.intAwayScore ?? "-"),
-      status: String(e.strStatus ?? e.strProgress ?? "Live"),
-      time: `${e.dateEvent ?? ""} ${(e.strTime ?? "").slice(0, 5)}`,
-      isLive: (e.strStatus ?? "").toLowerCase() !== "ns",
-    }))];
-  } catch {
-    return admin;
-  }
-}
-
-function CricketFeed({ active }: { active: boolean }) {
-  const [matches, setMatches] = useState<Match[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  async function load() {
-    setLoading(true);
-    try { setMatches(await fetchCricket()); }
-    finally { setLoading(false); }
-  }
-  useEffect(() => {
-    if (!active) return;
-    load();
-    const t = setInterval(load, 45_000);
-    return () => clearInterval(t);
-  }, [active]);
-
-  return (
-    <div>
-      <div className="flex justify-end mb-2">
-        <Button size="sm" variant="ghost" onClick={load} disabled={loading}>
-          <RefreshCw className={`h-3 w-3 mr-1 ${loading ? "animate-spin" : ""}`} /> Refresh
-        </Button>
-      </div>
-      {!loading && matches.length === 0 && (
-        <Card className="p-6 text-center text-sm text-muted-foreground">
-          No live cricket matches right now. Check back closer to match time.
-        </Card>
-      )}
-      <div className="space-y-2">
-        {matches.map((m) => <MatchCard key={m.id} m={m} />)}
-      </div>
-    </div>
-  );
 }
 
 // ---------- Non-cricket via TheSportsDB (best-effort, silent fail) ----------

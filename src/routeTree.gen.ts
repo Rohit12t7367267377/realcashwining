@@ -30,6 +30,7 @@ import { Route as LiveScoresRouteImport } from './routes/live-scores'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as MissionsRouteImport } from './routes/missions'
 import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as PredictRouteImport } from './routes/predict'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ReferRouteImport } from './routes/refer'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
@@ -70,6 +71,7 @@ import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
+import { Route as AdminPredictRouteImport } from './routes/admin.predict'
 import { Route as AdminPrizesRouteImport } from './routes/admin.prizes'
 import { Route as AdminQuestionsRouteImport } from './routes/admin.questions'
 import { Route as AdminReadingRouteImport } from './routes/admin.reading'
@@ -102,6 +104,7 @@ import { Route as GuruUniversalRouteImport } from './routes/guru.universal'
 import { Route as MessagesIndexRouteImport } from './routes/messages.index'
 import { Route as MessagesIdRouteImport } from './routes/messages.$id'
 import { Route as PlayIdRouteImport } from './routes/play.$id'
+import { Route as PredictIdRouteImport } from './routes/predict_.$id'
 import { Route as ReadingIndexRouteImport } from './routes/reading.index'
 import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
@@ -109,6 +112,7 @@ import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as GuruExamsCodeRouteImport } from './routes/guru.exams_.$code'
 import { Route as GuruTopicIdRouteImport } from './routes/guru.topic.$id'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
+import { Route as ApiPublicHooksPredTickRouteImport } from './routes/api/public/hooks/pred-tick'
 import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
 import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
 import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
@@ -219,6 +223,11 @@ const MissionsRoute = MissionsRouteImport.update({
 const NotificationsRoute = NotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PredictRoute = PredictRouteImport.update({
+  id: '/predict',
+  path: '/predict',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -422,6 +431,11 @@ const AdminPaymentsRoute = AdminPaymentsRouteImport.update({
   path: '/payments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPredictRoute = AdminPredictRouteImport.update({
+  id: '/predict',
+  path: '/predict',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminPrizesRoute = AdminPrizesRouteImport.update({
   id: '/prizes',
   path: '/prizes',
@@ -582,6 +596,11 @@ const PlayIdRoute = PlayIdRouteImport.update({
   path: '/play/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PredictIdRoute = PredictIdRouteImport.update({
+  id: '/predict_/$id',
+  path: '/predict/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReadingIndexRoute = ReadingIndexRouteImport.update({
   id: '/reading/',
   path: '/reading/',
@@ -618,6 +637,11 @@ const ApiPublicHooksAutomationRoute =
     path: '/api/public/hooks/automation',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksPredTickRoute = ApiPublicHooksPredTickRouteImport.update({
+  id: '/api/public/hooks/pred-tick',
+  path: '/api/public/hooks/pred-tick',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksPushConfigRoute =
   ApiPublicHooksPushConfigRouteImport.update({
     id: '/api/public/hooks/push-config',
@@ -674,6 +698,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
+  '/predict': typeof PredictRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -713,6 +738,7 @@ export interface FileRoutesByFullPath {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/predict': typeof AdminPredictRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
@@ -743,6 +769,7 @@ export interface FileRoutesByFullPath {
   '/guru/universal': typeof GuruUniversalRoute
   '/messages/$id': typeof MessagesIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/predict/$id': typeof PredictIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
@@ -753,6 +780,7 @@ export interface FileRoutesByFullPath {
   '/guru/exams/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
@@ -780,6 +808,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
+  '/predict': typeof PredictRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -819,6 +848,7 @@ export interface FileRoutesByTo {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/predict': typeof AdminPredictRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
@@ -849,6 +879,7 @@ export interface FileRoutesByTo {
   '/guru/universal': typeof GuruUniversalRoute
   '/messages/$id': typeof MessagesIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/predict/$id': typeof PredictIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
@@ -859,6 +890,7 @@ export interface FileRoutesByTo {
   '/guru/exams/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
@@ -889,6 +921,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/missions': typeof MissionsRoute
   '/notifications': typeof NotificationsRoute
+  '/predict': typeof PredictRoute
   '/profile': typeof ProfileRoute
   '/refer': typeof ReferRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -928,6 +961,7 @@ export interface FileRoutesById {
   '/admin/missions': typeof AdminMissionsRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
+  '/admin/predict': typeof AdminPredictRoute
   '/admin/prizes': typeof AdminPrizesRoute
   '/admin/questions': typeof AdminQuestionsRoute
   '/admin/reading': typeof AdminReadingRoute
@@ -958,6 +992,7 @@ export interface FileRoutesById {
   '/guru/universal': typeof GuruUniversalRoute
   '/messages/$id': typeof MessagesIdRoute
   '/play/$id': typeof PlayIdRoute
+  '/predict_/$id': typeof PredictIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
   '/wallet/history': typeof WalletHistoryRoute
@@ -968,6 +1003,7 @@ export interface FileRoutesById {
   '/guru/exams_/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
@@ -999,6 +1035,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/missions'
     | '/notifications'
+    | '/predict'
     | '/profile'
     | '/refer'
     | '/reset-password'
@@ -1038,6 +1075,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/notifications'
     | '/admin/payments'
+    | '/admin/predict'
     | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
@@ -1068,6 +1106,7 @@ export interface FileRouteTypes {
     | '/guru/universal'
     | '/messages/$id'
     | '/play/$id'
+    | '/predict/$id'
     | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
@@ -1078,6 +1117,7 @@ export interface FileRouteTypes {
     | '/guru/exams/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
@@ -1105,6 +1145,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/missions'
     | '/notifications'
+    | '/predict'
     | '/profile'
     | '/refer'
     | '/reset-password'
@@ -1144,6 +1185,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/notifications'
     | '/admin/payments'
+    | '/admin/predict'
     | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
@@ -1174,6 +1216,7 @@ export interface FileRouteTypes {
     | '/guru/universal'
     | '/messages/$id'
     | '/play/$id'
+    | '/predict/$id'
     | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
@@ -1184,6 +1227,7 @@ export interface FileRouteTypes {
     | '/guru/exams/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
@@ -1213,6 +1257,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/missions'
     | '/notifications'
+    | '/predict'
     | '/profile'
     | '/refer'
     | '/reset-password'
@@ -1252,6 +1297,7 @@ export interface FileRouteTypes {
     | '/admin/missions'
     | '/admin/notifications'
     | '/admin/payments'
+    | '/admin/predict'
     | '/admin/prizes'
     | '/admin/questions'
     | '/admin/reading'
@@ -1282,6 +1328,7 @@ export interface FileRouteTypes {
     | '/guru/universal'
     | '/messages/$id'
     | '/play/$id'
+    | '/predict_/$id'
     | '/reading/$id'
     | '/result/$id'
     | '/wallet/history'
@@ -1292,6 +1339,7 @@ export interface FileRouteTypes {
     | '/guru/exams_/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
     | '/api/public/hooks/razorpay'
@@ -1322,6 +1370,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   MissionsRoute: typeof MissionsRoute
   NotificationsRoute: typeof NotificationsRoute
+  PredictRoute: typeof PredictRoute
   ProfileRoute: typeof ProfileRoute
   ReferRoute: typeof ReferRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -1338,11 +1387,13 @@ export interface RootRouteChildren {
   CricketIdRoute: typeof CricketIdRoute
   MessagesIdRoute: typeof MessagesIdRoute
   PlayIdRoute: typeof PlayIdRoute
+  PredictIdRoute: typeof PredictIdRoute
   ReadingIdRoute: typeof ReadingIdRoute
   ResultIdRoute: typeof ResultIdRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
   ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
+  ApiPublicHooksPredTickRoute: typeof ApiPublicHooksPredTickRoute
   ApiPublicHooksPushConfigRoute: typeof ApiPublicHooksPushConfigRoute
   ApiPublicHooksPushDispatchRoute: typeof ApiPublicHooksPushDispatchRoute
   ApiPublicHooksRazorpayRoute: typeof ApiPublicHooksRazorpayRoute
@@ -1498,6 +1549,13 @@ declare module '@tanstack/react-router' {
       path: '/notifications'
       fullPath: '/notifications'
       preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/predict': {
+      id: '/predict'
+      path: '/predict'
+      fullPath: '/predict'
+      preLoaderRoute: typeof PredictRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -1780,6 +1838,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPaymentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/predict': {
+      id: '/admin/predict'
+      path: '/predict'
+      fullPath: '/admin/predict'
+      preLoaderRoute: typeof AdminPredictRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/prizes': {
       id: '/admin/prizes'
       path: '/prizes'
@@ -2004,6 +2069,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PlayIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/predict_/$id': {
+      id: '/predict_/$id'
+      path: '/predict/$id'
+      fullPath: '/predict/$id'
+      preLoaderRoute: typeof PredictIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reading/': {
       id: '/reading/'
       path: '/reading'
@@ -2051,6 +2123,13 @@ declare module '@tanstack/react-router' {
       path: '/api/public/hooks/automation'
       fullPath: '/api/public/hooks/automation'
       preLoaderRoute: typeof ApiPublicHooksAutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/pred-tick': {
+      id: '/api/public/hooks/pred-tick'
+      path: '/api/public/hooks/pred-tick'
+      fullPath: '/api/public/hooks/pred-tick'
+      preLoaderRoute: typeof ApiPublicHooksPredTickRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/hooks/push-config': {
@@ -2127,6 +2206,7 @@ interface AdminRouteChildren {
   AdminMissionsRoute: typeof AdminMissionsRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
+  AdminPredictRoute: typeof AdminPredictRoute
   AdminPrizesRoute: typeof AdminPrizesRoute
   AdminQuestionsRoute: typeof AdminQuestionsRoute
   AdminReadingRoute: typeof AdminReadingRoute
@@ -2170,6 +2250,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminMissionsRoute: AdminMissionsRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
+  AdminPredictRoute: AdminPredictRoute,
   AdminPrizesRoute: AdminPrizesRoute,
   AdminQuestionsRoute: AdminQuestionsRoute,
   AdminReadingRoute: AdminReadingRoute,
@@ -2261,6 +2342,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   MissionsRoute: MissionsRoute,
   NotificationsRoute: NotificationsRoute,
+  PredictRoute: PredictRoute,
   ProfileRoute: ProfileRoute,
   ReferRoute: ReferRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -2277,11 +2359,13 @@ const rootRouteChildren: RootRouteChildren = {
   CricketIdRoute: CricketIdRoute,
   MessagesIdRoute: MessagesIdRoute,
   PlayIdRoute: PlayIdRoute,
+  PredictIdRoute: PredictIdRoute,
   ReadingIdRoute: ReadingIdRoute,
   ResultIdRoute: ResultIdRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   ReadingIndexRoute: ReadingIndexRoute,
   ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
+  ApiPublicHooksPredTickRoute: ApiPublicHooksPredTickRoute,
   ApiPublicHooksPushConfigRoute: ApiPublicHooksPushConfigRoute,
   ApiPublicHooksPushDispatchRoute: ApiPublicHooksPushDispatchRoute,
   ApiPublicHooksRazorpayRoute: ApiPublicHooksRazorpayRoute,

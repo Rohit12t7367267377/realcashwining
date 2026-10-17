@@ -564,25 +564,39 @@ GRANT SELECT ON public.pred_sports, public.pred_categories, public.pred_contests
   public.pred_wallets, public.pred_notifications TO authenticated;
 GRANT SELECT, INSERT, UPDATE ON public.pred_notification_prefs TO authenticated;
 
+DROP POLICY IF EXISTS "pred sports readable" ON public.pred_sports;
 CREATE POLICY "pred sports readable" ON public.pred_sports FOR SELECT TO authenticated USING (enabled);
+DROP POLICY IF EXISTS "pred categories readable" ON public.pred_categories;
 CREATE POLICY "pred categories readable" ON public.pred_categories FOR SELECT TO authenticated USING (enabled);
+DROP POLICY IF EXISTS "pred contests readable" ON public.pred_contests;
 CREATE POLICY "pred contests readable" ON public.pred_contests FOR SELECT TO authenticated
   USING (status IN ('published','locked','settling','completed','cancelled'));
+DROP POLICY IF EXISTS "pred questions readable" ON public.pred_questions;
 CREATE POLICY "pred questions readable" ON public.pred_questions FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.pred_contests c WHERE c.id = contest_id
                  AND c.status IN ('published','locked','settling','completed','cancelled')));
+DROP POLICY IF EXISTS "pred events readable" ON public.pred_events;
 CREATE POLICY "pred events readable" ON public.pred_events FOR SELECT TO authenticated USING (true);
+DROP POLICY IF EXISTS "pred own entries" ON public.pred_entries;
 CREATE POLICY "pred own entries" ON public.pred_entries FOR SELECT TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "pred own answers" ON public.pred_answers;
 CREATE POLICY "pred own answers" ON public.pred_answers FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.pred_entries e WHERE e.id = entry_id AND e.user_id = auth.uid()));
+DROP POLICY IF EXISTS "pred own scores" ON public.pred_scores;
 CREATE POLICY "pred own scores" ON public.pred_scores FOR SELECT TO authenticated
   USING (EXISTS (SELECT 1 FROM public.pred_entries e WHERE e.id = entry_id AND e.user_id = auth.uid()));
+DROP POLICY IF EXISTS "pred own ledger" ON public.pred_ledger;
 CREATE POLICY "pred own ledger" ON public.pred_ledger FOR SELECT TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "pred own wallet" ON public.pred_wallets;
 CREATE POLICY "pred own wallet" ON public.pred_wallets FOR SELECT TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "pred own and broadcast notifications" ON public.pred_notifications;
 CREATE POLICY "pred own and broadcast notifications" ON public.pred_notifications FOR SELECT TO authenticated
   USING (user_id IS NULL OR user_id = auth.uid());
+DROP POLICY IF EXISTS "pred own prefs read" ON public.pred_notification_prefs;
 CREATE POLICY "pred own prefs read" ON public.pred_notification_prefs FOR SELECT TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "pred own prefs insert" ON public.pred_notification_prefs;
 CREATE POLICY "pred own prefs insert" ON public.pred_notification_prefs FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "pred own prefs update" ON public.pred_notification_prefs;
 CREATE POLICY "pred own prefs update" ON public.pred_notification_prefs FOR UPDATE TO authenticated
   USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
 

@@ -72,6 +72,38 @@ export const getPredAdmin = createServerFn({ method: "GET" })
     };
   });
 
+/** Read-only monitoring: leaderboard, notification delivery, audit trail, activity counters. */
+export const getPredMonitoring = createServerFn({ method: "GET" })
+  .middleware([requireAdminPermission(PERM)])
+  .handler(async () => {
+    const since = new Date(Date.now() - 24 * 3_600_000).toISOString();
+    const [board, notices, audit, entries, credits, statuses] = await Promise.all([
+      db.rpc("pred_board", { _scope: "overall", _scope_id: "", _since: null, _until: null, _limit: 20, _only_user: null, _friends: false }),
+      db.from("pred_notifications").select("id, user_id, kind, title, created_at").order("created_at", { ascending: false }).limit(200),
+      db.from("admin_audit_logs").select("id, action, target_id, result, metadata, created_at").like("action", "pred.%").order("created_at", { ascending: false }).limit(40),
+      db.from("pred_entries").select("id", { count: "exact", head: true }).gte("created_at", since),
+      db.from("pred_ledger").select("id", { count: "exact", head: true }).gte("created_at", since),
+      db.from("pred_contests").select("status"),
+    ]);
+    for (const r of [board, notices, audit, entries, credits, statuses]) if (r.error) throw new Error(r.error.message);
+    const kinds: Record<string, { total: number; last24h: number }> = {};
+    for (const n of notices.data as any[]) {
+      const k = (kinds[n.kind] ??= { total: 0, last24h: 0 });
+      k.total += 1;
+      if (n.created_at >= since) k.last24h += 1;
+    }
+    const byStatus: Record<string, number> = {};
+    for (const c of statuses.data as any[]) byStatus[c.status] = (byStatus[c.status] ?? 0) + 1;
+    return {
+      leaderboard: (board.data as any[]).map((r) => ({ rank: Number(r.rank_no), name: r.username, points: Number(r.points), correct: Number(r.correct), contests: Number(r.contests) })),
+      notificationKinds: kinds,
+      recentNotifications: (notices.data as any[]).slice(0, 25).map((n) => ({ id: n.id, kind: n.kind, title: n.title, audience: n.user_id ? "one user" : "everyone", created_at: n.created_at })),
+      audit: (audit.data as any[]).map((a) => ({ id: String(a.id), action: String(a.action), target_id: (a.target_id ?? null) as string | null, result: String(a.result), actor: String(a.metadata?.actor ?? ""), created_at: String(a.created_at) })),
+      activity24h: { entries: entries.count ?? 0, pointCredits: credits.count ?? 0 },
+      contestsByStatus: byStatus,
+    };
+  });
+
 export const savePredSettings = createServerFn({ method: "POST" })
   .middleware([requireAdminPermission(PERM)])
   .inputValidator((d) => z.object({

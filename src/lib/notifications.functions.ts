@@ -3,19 +3,23 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type AppNotification = {
   id: string;
-  kind: "broadcast" | "result" | "wallet" | "deposit" | "withdrawal" | "reward" | "mission";
+  kind: "broadcast" | "result" | "wallet" | "deposit" | "withdrawal" | "reward" | "mission" | "prediction";
   title: string;
   body: string;
   created_at: string;
   link?: string;
 };
 
+// The pred_* tables are not in the generated Supabase types until the migration is applied.
+// Query errors (e.g. table not created yet) return empty data, so the feed still works.
+const predDb = (c: unknown) => c as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
 export const listMyNotifications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
 
-    const [broadcasts, txns, attempts, boxes, deposits, withdrawals, missions] = await Promise.all([
+    const [broadcasts, txns, attempts, boxes, deposits, withdrawals, missions, predAlerts, predPrefs] = await Promise.all([
       supabase
         .from("broadcasts")
         .select("id,title,body,created_at")
@@ -62,6 +66,13 @@ export const listMyNotifications = createServerFn({ method: "GET" })
         .is("claimed_at", null)
         .order("completed_at", { ascending: false })
         .limit(10),
+      // Free-to-play prediction alerts (own + broadcast rows; RLS enforces this).
+      predDb(supabase)
+        .from("pred_notifications")
+        .select("id,kind,title,body,link,created_at")
+        .order("created_at", { ascending: false })
+        .limit(20),
+      predDb(supabase).from("pred_notification_prefs").select("*").eq("user_id", userId).maybeSingle(),
     ]);
 
     const items: AppNotification[] = [];
@@ -158,6 +169,20 @@ export const listMyNotifications = createServerFn({ method: "GET" })
           link: "/missions",
         });
       }
+    }
+
+    // Respect the user's per-type prediction alert preferences (default: all on).
+    const prefs = (predPrefs.data ?? {}) as Record<string, unknown>;
+    for (const n of (predAlerts.data ?? []) as Array<{ id: string; kind: string; title: string; body: string; link: string | null; created_at: string }>) {
+      if (prefs[n.kind] === false) continue;
+      items.push({
+        id: `pred:${n.id}`,
+        kind: "prediction",
+        title: n.title,
+        body: n.body,
+        created_at: n.created_at,
+        link: n.link ?? "/predict",
+      });
     }
 
     items.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
