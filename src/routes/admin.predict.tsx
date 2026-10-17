@@ -225,15 +225,15 @@ function ResultsDialog({ contest, onClose, reload }: { contest: any; onClose: ()
 
 // ---------------------------------------------------------------------------
 type TForm = {
-  id?: string; categoryId: string; name: string; sport: string; formats: string; generator: "match_winner" | "over_by_over" | "innings_total";
-  innings: number; over: number; balls: number; thresholds: string; points: string;
+  id?: string; categoryId: string; name: string; sport: string; formats: string; generator: "match_winner" | "over_by_over" | "innings_balls" | "innings_total";
+  innings: number; over: number; balls: number; overs: string; thresholds: string; points: string;
   trigger: "pre_match" | "innings_break" | "after_over" | "match_completed";
   createBeforeMin: number; opensBeforeMin: number; locksBeforeMin: number; lockAfterMin: number; catchUp: "skip" | "shorten"; minOpenMin: number; afterOver: number; tInnings: number;
   pointsPerCorrect: number; negativePerWrong: number; participantLimit: string;
   autoGenerate: boolean; requireApproval: boolean; allowEdit: boolean; enabled: boolean; rawPlan?: any;
 };
 const blankTemplate = (): TForm => ({
-  categoryId: "", name: "", sport: "cricket", formats: "t20, odi", generator: "match_winner", innings: 1, over: 1, balls: 6, thresholds: "", points: "",
+  categoryId: "", name: "", sport: "cricket", formats: "t20, odi", generator: "match_winner", innings: 1, over: 1, balls: 6, overs: "", thresholds: "", points: "",
   trigger: "pre_match", createBeforeMin: 60, opensBeforeMin: 30, locksBeforeMin: 1, lockAfterMin: 5, catchUp: "shorten", minOpenMin: 5, afterOver: 1, tInnings: 1,
   pointsPerCorrect: 10, negativePerWrong: 0, participantLimit: "", autoGenerate: true, requireApproval: false, allowEdit: false, enabled: true,
 });
@@ -241,8 +241,8 @@ function toForm(t: any): TForm {
   const f = blankTemplate();
   return {
     ...f, id: t.id, categoryId: t.category_id ?? "", name: t.name, sport: t.sport, formats: (t.formats ?? []).join(", "),
-    generator: ["match_winner", "over_by_over", "innings_total"].includes(t.plan.generator) ? t.plan.generator : "match_winner",
-    innings: t.plan.innings ?? 1, over: t.plan.over ?? 1, balls: t.plan.balls ?? 6, thresholds: (t.plan.thresholds ?? []).join(", "), points: t.plan.points ? String(t.plan.points) : "",
+    generator: ["match_winner", "over_by_over", "innings_balls", "innings_total"].includes(t.plan.generator) ? t.plan.generator : "match_winner",
+    innings: t.plan.innings ?? 1, over: t.plan.over ?? 1, balls: t.plan.balls ?? 6, overs: t.plan.overs ? String(t.plan.overs) : "", thresholds: (t.plan.thresholds ?? []).join(", "), points: t.plan.points ? String(t.plan.points) : "",
     trigger: t.timing.trigger, createBeforeMin: t.timing.createBeforeMin, opensBeforeMin: t.timing.opensBeforeMin, locksBeforeMin: t.timing.locksBeforeMin,
     lockAfterMin: t.timing.lockAfterMin, catchUp: t.timing.catchUp, minOpenMin: t.timing.minOpenMin, afterOver: t.timing.afterOver ?? 1, tInnings: t.timing.innings ?? 1,
     pointsPerCorrect: t.scoring.pointsPerCorrect, negativePerWrong: t.scoring.negativePerWrong, participantLimit: t.participant_limit ? String(t.participant_limit) : "",
@@ -288,6 +288,7 @@ function payload(f: TForm) {
   const plan = f.rawPlan ?? {
     generator: f.generator,
     ...(f.generator === "over_by_over" ? { innings: f.innings, over: f.over, balls: f.balls } : {}),
+    ...(f.generator === "innings_balls" ? { innings: f.innings, ...(f.overs ? { overs: Number(f.overs) } : {}) } : {}),
     ...(f.generator === "innings_total" ? { innings: f.innings, ...(nums(f.thresholds).length ? { thresholds: nums(f.thresholds) } : {}) } : {}),
     ...(f.points ? { points: Number(f.points) } : {}),
   };
@@ -331,12 +332,13 @@ function TemplateDialog({ init, cats, onClose, reload }: { init: TForm; cats: an
           {f.rawPlan ? <p className="col-span-2 text-xs text-muted-foreground">This is a trivia template; its questions are kept unchanged.</p> : (<>
             <div><Label className="text-[11px]">What it asks</Label>
               <Select value={f.generator} onValueChange={(v) => set("generator", v as TForm["generator"])}><SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="match_winner">Match winner</SelectItem><SelectItem value="innings_total">Innings total (score range)</SelectItem><SelectItem value="over_by_over">Over, ball by ball</SelectItem></SelectContent></Select></div>
+                <SelectContent><SelectItem value="match_winner">Match winner</SelectItem><SelectItem value="innings_total">Innings total (score range)</SelectItem><SelectItem value="over_by_over">One over, ball by ball</SelectItem><SelectItem value="innings_balls">Every ball of the innings (4 options)</SelectItem></SelectContent></Select></div>
             <div><Label className="text-[11px]">Points per question (blank = scoring default)</Label><Input value={f.points} onChange={(e) => set("points", e.target.value.replace(/\D/g, ""))} /></div>
             {f.generator !== "match_winner" && <NumField label="Innings" value={f.innings} min={1} max={4} onChange={(n) => set("innings", n)} />}
             {f.generator === "over_by_over" && <><NumField label="Over" value={f.over} min={1} max={50} onChange={(n) => set("over", n)} /><NumField label="Balls asked" value={f.balls} min={1} max={6} onChange={(n) => set("balls", n)} /></>}
             {f.generator === "innings_total" && <div className="col-span-2"><Label className="text-[11px]">Score thresholds (comma separated, blank = format defaults)</Label><Input value={f.thresholds} onChange={(e) => set("thresholds", e.target.value)} placeholder="140, 170, 200" /></div>}
-            {f.generator === "over_by_over" && <p className="col-span-2 rounded-md bg-amber-500/10 p-2 text-[11px] text-amber-700 dark:text-amber-300">Over-by-over contests settle from ball-by-ball data. Keep this template disabled until “Test feed” in Settings recognises your provider's data.</p>}
+            {f.generator === "innings_balls" && <><div className="space-y-1"><Label className="text-xs">Overs (blank = full innings)</Label><Input inputMode="numeric" value={f.overs} onChange={(e) => set("overs", e.target.value.replace(/\D/g, "").slice(0, 2))} /></div></>}
+            {(f.generator === "over_by_over" || f.generator === "innings_balls") && <p className="col-span-2 rounded-md bg-amber-500/10 p-2 text-[11px] text-amber-700 dark:text-amber-300">Over-by-over contests settle from ball-by-ball data. Keep this template disabled until “Test feed” in Settings recognises your provider's data.</p>}
           </>)}
           <div><Label className="text-[11px]">Trigger</Label>
             <Select value={f.trigger} onValueChange={(v) => set("trigger", v as TForm["trigger"])}><SelectTrigger><SelectValue /></SelectTrigger>

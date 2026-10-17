@@ -22,7 +22,8 @@ const timingSchema = z.object({
   innings: z.number().int().min(1).max(4).optional(),
 });
 const planSchema = z.object({
-  generator: z.enum(["match_winner", "over_by_over", "innings_total", "static"]),
+  generator: z.enum(["match_winner", "over_by_over", "innings_balls", "innings_total", "static"]),
+  overs: z.number().int().min(1).max(50).optional(),
   innings: z.number().int().min(1).max(4).optional(),
   over: z.number().int().min(1).max(50).optional(),
   balls: z.number().int().min(1).max(6).optional(),

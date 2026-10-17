@@ -78,7 +78,7 @@ export const submitPredAnswers = createServerFn({ method: "POST" })
   .inputValidator((d) =>
     z.object({
       contestId: z.string().uuid(),
-      answers: z.record(z.string().uuid(), z.string().min(1).max(40)).refine((o) => Object.keys(o).length >= 1 && Object.keys(o).length <= 50, "Invalid answers"),
+      answers: z.record(z.string().uuid(), z.string().min(1).max(40)).refine((o) => Object.keys(o).length >= 1 && Object.keys(o).length <= 300, "Invalid answers"),
     }).parse(d),
   )
   .handler(async ({ data, context }) => {

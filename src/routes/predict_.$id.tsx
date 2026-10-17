@@ -61,46 +61,29 @@ function ContestPage() {
   const { contest, questions, entry, scores, match } = data;
   const open = contest.status === "published" && left !== null && left > 0 && Date.now() >= 0;
   const canEdit = open && (!entry || contest.allow_edit);
-  const answeredAll = questions.length > 0 && questions.every((q: any) => picked[q.id]);
+  // Long "every ball" contests: group by over, and allow a partial entry (unanswered balls score 0).
+  const OVER_RE = /Over (\d+) · Ball (\d+)/;
+  const grouped = questions.length > 12 && questions.every((q: any) => OVER_RE.test(q.prompt));
+  const answeredCount = questions.filter((q: any) => picked[q.id]).length;
+  const answeredAll = questions.length > 0 && (grouped ? answeredCount >= 1 : answeredCount === questions.length);
+  const overs: Array<{ over: number; qs: any[] }> = [];
+  if (grouped) {
+    for (const q of questions as any[]) {
+      const o = Number(OVER_RE.exec(q.prompt)![1]);
+      (overs.at(-1)?.over === o ? overs.at(-1)! : overs[overs.push({ over: o, qs: [] }) - 1]).qs.push(q);
+    }
+  }
   const dirty = JSON.stringify(picked) !== JSON.stringify(data.answers);
   const showResults = ["locked", "settling", "completed"].includes(contest.status);
   const total = Object.values(scores).reduce((s: number, x: any) => s + x.points, 0);
 
-  return (
-    <AppShell>
-      <Link to="/predict" className="mb-3 inline-flex items-center gap-1 text-xs text-primary hover:underline"><ArrowLeft className="h-3 w-3" /> All contests</Link>
-      <Card className="mb-4 p-4">
-        <div className="flex items-start justify-between gap-2">
-          <h1 className="text-lg font-black leading-tight">{contest.title}</h1>
-          <Badge variant={contest.status === "published" ? "default" : "secondary"}>{contest.status === "published" ? "Open" : contest.status}</Badge>
-        </div>
-        {match && (
-          <div className="mt-1 text-xs text-muted-foreground">
-            {match.team_a} vs {match.team_b}{match.status ? ` · ${match.status}` : ""}
-          </div>
-        )}
-        <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
-          {open && left !== null ? <span className="inline-flex items-center gap-1 font-semibold text-primary"><Timer className="h-3.5 w-3.5" /> Locks in {fmtLeft(left)}</span> : <span className="inline-flex items-center gap-1"><Lock className="h-3.5 w-3.5" /> Answers locked</span>}
-          <span>{data.participants} playing</span>
-          <span>Free · virtual points</span>
-        </div>
-        {contest.status === "cancelled" && <p className="mt-2 text-xs text-destructive">This contest was cancelled{contest.cancel_reason ? `: ${contest.cancel_reason}` : "."}</p>}
-        {entry && showResults && (
-          <div className="mt-3 rounded-md bg-primary/10 p-2 text-sm font-semibold">
-            Your score: {contest.status === "completed" ? entry.points : total} pts · {entry.correct} correct
-            {contest.status !== "completed" && <span className="ml-1 text-[11px] font-normal text-muted-foreground">(provisional until verified)</span>}
-          </div>
-        )}
-      </Card>
-
-      <div className="space-y-3">
-        {questions.map((q: any) => {
+  const renderQuestion = (q: any) => {
           const mine = picked[q.id];
           const score = scores[q.id];
           return (
             <Card key={q.id} className="p-4">
               <div className="mb-2 flex items-start justify-between gap-2">
-                <div className="text-sm font-semibold"><span className="mr-1.5 text-muted-foreground">{q.position}.</span>{q.prompt}</div>
+                <div className="text-sm font-semibold">{!grouped && <span className="mr-1.5 text-muted-foreground">{q.position}.</span>}{grouped ? `Ball ${OVER_RE.exec(q.prompt)?.[2] ?? q.position}` : q.prompt}</div>
                 <span className="shrink-0 text-[11px] text-muted-foreground">{q.points} pts</span>
               </div>
               <div className="grid grid-cols-2 gap-2">
@@ -138,15 +121,68 @@ function ContestPage() {
               )}
             </Card>
           );
-        })}
-      </div>
+  };
+
+  return (
+    <AppShell>
+      <Link to="/predict" className="mb-3 inline-flex items-center gap-1 text-xs text-primary hover:underline"><ArrowLeft className="h-3 w-3" /> All contests</Link>
+      <Card className="mb-4 p-4">
+        <div className="flex items-start justify-between gap-2">
+          <h1 className="text-lg font-black leading-tight">{contest.title}</h1>
+          <Badge variant={contest.status === "published" ? "default" : "secondary"}>{contest.status === "published" ? "Open" : contest.status}</Badge>
+        </div>
+        {match && (
+          <div className="mt-1 text-xs text-muted-foreground">
+            {match.team_a} vs {match.team_b}{match.status ? ` · ${match.status}` : ""}
+          </div>
+        )}
+        <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
+          {open && left !== null ? <span className="inline-flex items-center gap-1 font-semibold text-primary"><Timer className="h-3.5 w-3.5" /> Locks in {fmtLeft(left)}</span> : <span className="inline-flex items-center gap-1"><Lock className="h-3.5 w-3.5" /> Answers locked</span>}
+          <span>{data.participants} playing</span>
+          <span>Free · virtual points</span>
+        </div>
+        {contest.status === "cancelled" && <p className="mt-2 text-xs text-destructive">This contest was cancelled{contest.cancel_reason ? `: ${contest.cancel_reason}` : "."}</p>}
+        {entry && showResults && (
+          <div className="mt-3 rounded-md bg-primary/10 p-2 text-sm font-semibold">
+            Your score: {contest.status === "completed" ? entry.points : total} pts · {entry.correct} correct
+            {contest.status !== "completed" && <span className="ml-1 text-[11px] font-normal text-muted-foreground">(provisional until verified)</span>}
+          </div>
+        )}
+      </Card>
+
+      {grouped && (
+        <Card className="mb-3 p-3 text-xs text-muted-foreground">
+          <div className="font-semibold text-foreground">How it works</div>
+          Pick what happens on each ball. <b>+{questions[0]?.points ?? 5}</b> for a correct pick, <b>−{contest.scoring?.negativePerWrong ?? 1}</b> for a wrong one, <b>0</b> if you skip a ball.
+          Wides and no-balls don't count as a ball. Picks lock when the first ball is bowled.
+        </Card>
+      )}
+      {grouped ? (
+        <div className="space-y-4">
+          {overs.map((g) => {
+            const done = g.qs.filter((q: any) => picked[q.id]).length;
+            return (
+              <section key={g.over}>
+                <h2 className="mb-2 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  <span>Over {g.over}</span><span className={done === g.qs.length ? "text-emerald-600" : ""}>{done}/{g.qs.length}</span>
+                </h2>
+                <div className="space-y-2">{g.qs.map((q: any) => renderQuestion(q))}</div>
+              </section>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="space-y-3">{questions.map((q: any) => renderQuestion(q))}</div>
+      )}
 
       {canEdit && (
         <div className="sticky bottom-24 z-30 mt-4">
           <Button className="w-full" size="lg" disabled={!answeredAll || !dirty || save.isPending} onClick={() => save.mutate()}>
             {save.isPending ? "Saving…" : entry ? "Update answers" : "Lock in my answers"}
           </Button>
-          {!answeredAll && <p className="mt-1 text-center text-[11px] text-muted-foreground">Answer every question to submit.</p>}
+          {grouped
+            ? <p className="mt-1 text-center text-[11px] text-muted-foreground">{answeredCount}/{questions.length} balls picked · skipped balls score 0</p>
+            : !answeredAll && <p className="mt-1 text-center text-[11px] text-muted-foreground">Answer every question to submit.</p>}
           {!contest.allow_edit && !entry && <p className="mt-1 text-center text-[11px] text-muted-foreground">Answers are final once submitted.</p>}
         </div>
       )}

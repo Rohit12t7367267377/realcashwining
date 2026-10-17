@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { MemoryStore } from "./memory-store";
 import { approveContest, correctQuestion, runTick as engineTick } from "./engine";
-import { bucketIndex, bucketOptions, generateForTemplate, maxOvers, validateQuestions } from "./generate";
+import { bucketIndex, bucketOptions, FOUR_BALL_OPTIONS, generateForTemplate, maxOvers, validateQuestions } from "./generate";
 import { classifyBall, resolveQuestion } from "./outcomes";
 import { applyDailyCap, desiredRewards } from "./rewards";
-import { rankEntries } from "./scoring";
+import { rankEntries, scoreEntry } from "./scoring";
 import { detectMilestone, planMilestoneWindow, planPreMatchWindow, validateTiming } from "./timing";
 import {
   DEFAULT_SCORING,
@@ -344,5 +344,74 @@ describe("full match simulation", () => {
     await runTick(s, T0 + 11 * MIN);
     expect(contest.status).toBe("completed");
     expect(s.balance("u1")).toBeGreaterThan(s.balance("u2"));
+  });
+});
+
+// ---------------------------------------------------------------------------
+describe("every-ball contests (20 overs x 6 balls, 4 options, +5 / -1)", () => {
+  const everyBall = (over: Partial<ContestTemplate> = {}) =>
+    template({ name: "Every ball", plan: { generator: "innings_balls", innings: 1 }, scoring: { pointsPerCorrect: 5, negativePerWrong: 1 }, ...over });
+
+  it("builds 120 questions for a T20 with exactly four options each", () => {
+    const g = generateForTemplate(match(), everyBall());
+    if (!g.ok) throw new Error(g.reason);
+    expect(g.questions).toHaveLength(120);
+    expect(g.questions.every((q) => q.options.length === 4 && q.points === 5)).toBe(true);
+    expect(g.questions[0].rule).toMatchObject({ kind: "ball_outcome", innings: 1, over: 1, ball: 1, grouped: true });
+    expect(g.questions[119].rule).toMatchObject({ over: 20, ball: 6 });
+    expect(FOUR_BALL_OPTIONS.map((o) => o.id)).toEqual(["dot", "run", "boundary", "wicket"]);
+  });
+  it("covers 10 overs for T10, nothing for Tests, and honours a smaller overs setting", () => {
+    const t10 = generateForTemplate(match({ format: "T10" }), everyBall());
+    expect(t10.ok && t10.questions.length).toBe(60);
+    expect(generateForTemplate(match({ format: "Test" }), everyBall())).toEqual({ ok: false, reason: "format_not_supported" });
+    const six = generateForTemplate(match(), everyBall({ plan: { generator: "innings_balls", innings: 1, overs: 6 } }));
+    expect(six.ok && six.questions.length).toBe(36);
+  });
+  it("fours and sixes both settle as 'boundary'; other balls keep their own option", () => {
+    const rule = { kind: "ball_outcome", innings: 1, over: 1, ball: 1, grouped: true } as const;
+    const at = (o: Partial<BallEvent>) => resolveQuestion(rule, { facts: facts(), events: [{ matchId: "m1", revision: 1, ...ball(1, 1, o) }] });
+    expect(at({ runsBat: 4 })).toEqual({ status: "resolved", optionId: "boundary" });
+    expect(at({ runsBat: 6 })).toEqual({ status: "resolved", optionId: "boundary" });
+    expect(at({ runsBat: 2 })).toEqual({ status: "resolved", optionId: "run" });
+    expect(at({ runsBat: 0 })).toEqual({ status: "resolved", optionId: "dot" });
+    expect(at({ wicket: true })).toEqual({ status: "resolved", optionId: "wicket" });
+  });
+  it("scores +5 for a right pick, -1 for a wrong pick and 0 for an unanswered ball", () => {
+    const g = generateForTemplate(match(), everyBall());
+    if (!g.ok) throw new Error(g.reason);
+    const qs = g.questions.slice(0, 4).map((q, i): import("./types").QuestionRecord => ({
+      ...q, id: `q${i}`, contestId: "c1", status: i === 3 ? "void" : "resolved", resolvedOption: i === 3 ? null : ["dot", "boundary", "wicket"][i], voidReason: i === 3 ? "delivery_not_bowled" : null,
+    }));
+    const rules = { pointsPerCorrect: 5, negativePerWrong: 1 };
+    // q0 right (+5), q1 wrong (-1), q2 unanswered (0), q3 void (not counted at all)
+    const s = scoreEntry({ answers: { q0: "dot", q1: "dot", q3: "wicket" } }, qs, rules);
+    expect(s.points).toBe(4);
+    expect(s.correct).toBe(1);
+    expect(s.scores.find((x) => x.questionId === "q3")?.counted).toBe(false);
+  });
+  it("creates the innings-1 contest 60 minutes before the match and opens it right away", async () => {
+    const s = setup({ tpl: everyBall({ timing: { ...DEFAULT_TIMING, createBeforeMin: 60, opensBeforeMin: 60, locksBeforeMin: 1 } }) });
+    expect((await runTick(s, T0 - 61 * MIN)).generated).toBe(0);
+    expect((await runTick(s, T0 - 60 * MIN)).generated).toBe(1);
+    const c = [...s.contests.values()][0];
+    expect(c.opensAt).toBe(iso(T0 - 60 * MIN));
+    expect(c.locksAt).toBe(iso(T0 - 1 * MIN));
+  });
+  it("an innings-2 contest locks the moment innings 2 begins, even before its scheduled lock", async () => {
+    const tpl = everyBall({ plan: { generator: "innings_balls", innings: 2 }, timing: { ...DEFAULT_TIMING, trigger: "innings_break", innings: 1, createBeforeMin: 0, opensBeforeMin: 0, locksBeforeMin: 0, lockAfterMin: 20, minOpenMin: 3 } });
+    const s = setup({ tpl, match: { state: "live" } });
+    s.facts.set("m1", facts({ innings: [{ no: 1, team: "India", runs: 180, wickets: 5, overs: 20, complete: true }] }));
+    const t1 = T0 + 100 * MIN;
+    expect((await runTick(s, t1)).generated).toBe(1);
+    await runTick(s, t1 + MIN);
+    const c = [...s.contests.values()][0];
+    expect(c.status).toBe("published");
+    s.facts.set("m1", facts({ innings: [
+      { no: 1, team: "India", runs: 180, wickets: 5, overs: 20, complete: true },
+      { no: 2, team: "Australia", runs: 2, wickets: 0, overs: 0.4, complete: false },
+    ] }));
+    await runTick(s, t1 + 2 * MIN); // far earlier than the 20 minute lock
+    expect(c.status).toBe("locked");
   });
 });

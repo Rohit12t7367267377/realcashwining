@@ -117,6 +117,23 @@ export async function generateContests(store: PredStore, matches: MatchRef[], no
 // ---------------------------------------------------------------------------
 // Step 2: lifecycle (draft/scheduled -> published -> locked, cancellations)
 // ---------------------------------------------------------------------------
+/**
+ * True once play that the contest asks about has begun, so answers must close even if the
+ * scheduled lock time has not arrived (a late provider update must never leave picks open
+ * after the ball is bowled).
+ */
+async function playStartedBeforeLock(store: PredStore, c: ContestRecord, mState: string | undefined): Promise<boolean> {
+  if (mState === "completed") return true;
+  if (c.trigger === "pre_match") return mState === "live";
+  if (c.trigger === "innings_break" && c.matchId) {
+    const n = Number(/(?:^|:)inn(\d+)$/.exec(c.generationKey)?.[1]);
+    if (!n) return false;
+    const f = await store.getFacts(c.matchId);
+    return Boolean(f?.innings.some((i) => i.no === n + 1 && (i.overs > 0 || i.runs > 0)));
+  }
+  return false;
+}
+
 export async function advanceLifecycle(store: PredStore, matches: MatchRef[], nowMs: number, r: TickReport) {
   const stateOf = new Map(matches.map((m) => [m.id, m.state]));
   const open = await store.listContests(["draft", "scheduled", "published"]);
@@ -148,7 +165,7 @@ export async function advanceLifecycle(store: PredStore, matches: MatchRef[], no
     }
 
     // published
-    const startedEarly = c.trigger === "pre_match" && (mState === "live" || mState === "completed");
+    const startedEarly = await playStartedBeforeLock(store, c, mState);
     if (nowMs >= locksAt || startedEarly) {
       if (await store.transition(c.id, ["published"], "locked")) r.locked++;
     } else if (locksAt - nowMs <= DEADLINE_REMINDER_MS) {

@@ -59,6 +59,17 @@ export const BALL_OPTIONS: QuestionOption[] = [
   { id: "wicket", label: "Wicket" },
 ];
 
+/** Four simple options for every delivery (4 and 6 are one "boundary" option). */
+export const FOUR_BALL_OPTIONS: QuestionOption[] = [
+  { id: "dot", label: "Dot ball (0)" },
+  { id: "run", label: "1–3 runs" },
+  { id: "boundary", label: "Four or Six" },
+  { id: "wicket", label: "Wicket" },
+];
+
+/** Hard cap on questions per contest (a full 50-over innings is 300 deliveries). */
+export const MAX_QUESTIONS = 300;
+
 function validThresholds(t: unknown): t is number[] {
   return (
     Array.isArray(t) &&
@@ -70,7 +81,7 @@ function validThresholds(t: unknown): t is number[] {
 
 /** Structural validation applied to every question set before it can exist. */
 export function validateQuestions(qs: PlannedQuestion[]): string | null {
-  if (qs.length < 1 || qs.length > 50) return "A contest needs between 1 and 50 questions.";
+  if (qs.length < 1 || qs.length > MAX_QUESTIONS) return `A contest needs between 1 and ${MAX_QUESTIONS} questions.`;
   const seen = new Set<number>();
   for (const q of qs) {
     if (!Number.isInteger(q.position) || q.position < 1 || seen.has(q.position)) return "Question positions must be unique, starting at 1.";
@@ -132,6 +143,26 @@ export function generateForTemplate(match: MatchRef, tpl: ContestTemplate, miles
         });
       }
       return finish(`${base} · Over ${over} (innings ${innings})`, qs);
+    }
+
+    case "innings_balls": {
+      const fullInnings = maxOvers(format);
+      if (fullInnings === null) return { ok: false, reason: "format_not_supported" };
+      const innings = plan.innings ?? 1;
+      const overs = Math.min(fullInnings, Math.max(1, plan.overs ?? fullInnings));
+      const qs: PlannedQuestion[] = [];
+      for (let over = 1; over <= overs; over++) {
+        for (let ball = 1; ball <= 6; ball++) {
+          qs.push({
+            position: qs.length + 1,
+            prompt: `Innings ${innings} · Over ${over} · Ball ${ball}: what happens?`,
+            options: FOUR_BALL_OPTIONS,
+            rule: { kind: "ball_outcome", innings, over, ball, grouped: true },
+            points,
+          });
+        }
+      }
+      return finish(`${base} · Every ball, innings ${innings}`, qs);
     }
 
     case "innings_total": {

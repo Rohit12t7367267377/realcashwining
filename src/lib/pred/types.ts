@@ -75,7 +75,7 @@ export interface Bucketed {
 }
 
 export type QuestionRule =
-  | { kind: "ball_outcome"; innings: number; over: number; ball: number }
+  | { kind: "ball_outcome"; innings: number; over: number; ball: number; /** four options: 4 and 6 count as one "boundary" */ grouped?: boolean }
   | ({ kind: "over_runs"; innings: number; over: number } & Bucketed)
   | ({ kind: "innings_total"; innings: number } & Bucketed)
   | { kind: "match_winner" }
@@ -116,7 +116,9 @@ export interface TemplateTiming {
 }
 
 export interface PlanSpec {
-  generator: "match_winner" | "over_by_over" | "innings_total" | "static";
+  generator: "match_winner" | "over_by_over" | "innings_balls" | "innings_total" | "static";
+  /** innings_balls: how many overs to cover (defaults to the format's full innings, e.g. 20 for T20) */
+  overs?: number;
   /** over_by_over */
   innings?: number;
   over?: number;

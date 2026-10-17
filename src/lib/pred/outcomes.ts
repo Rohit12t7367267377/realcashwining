@@ -81,7 +81,8 @@ function resolveRule(rule: QuestionRule, ctx: ResolveCtx): Resolution {
         const nth = legal[rule.ball - 1];
         const prefix = list.filter((e) => e.seq <= nth.seq);
         if (!contiguous(prefix)) return { status: "pending" }; // a record before it is missing
-        return { status: "resolved", optionId: classifyBall(nth) };
+        const outcome = classifyBall(nth);
+        return { status: "resolved", optionId: rule.grouped && (outcome === "four" || outcome === "six") ? "boundary" : outcome };
       }
       return inningsDone(facts, rule.innings) ? { status: "void", reason: "delivery_not_bowled" } : { status: "pending" };
     }

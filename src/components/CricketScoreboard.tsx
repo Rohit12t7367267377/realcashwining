@@ -39,7 +39,7 @@ function ballLabel(b: Ball) {
   return b.runs_bat === 0 ? "•" : String(b.runs_bat);
 }
 
-export function CricketScoreboard({ active }: { active: boolean }) {
+export function CricketScoreboard({ active, compact = false, limit = 3 }: { active: boolean; compact?: boolean; limit?: number }) {
   const [rows, setRows] = useState<Row[] | null>(null);
   const [manual, setManual] = useState<any[]>([]);
   const [error, setError] = useState(false);
@@ -91,6 +91,30 @@ export function CricketScoreboard({ active }: { active: boolean }) {
 
   const newest = useMemo(() => (rows ?? []).reduce<string | null>((n, r) => (r.fetched_at && (!n || r.fetched_at > n) ? r.fetched_at : n), null), [rows]);
   const feedStale = isStaleMatch(newest, REFRESH_SECONDS * 5, now);
+
+  if (compact) {
+    // Home-page strip: live matches first, then the next upcoming ones. Nothing if no verified data.
+    const featured = [...groups.live, ...groups.upcoming].slice(0, limit);
+    const fallback = featured.length === 0 ? groups.done.slice(0, 1) : [];
+    const shown = [...featured, ...fallback];
+    if (shown.length === 0 && manual.length === 0) return null;
+    return (
+      <div>
+        <div className="mb-2 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            {groups.live.length > 0 && <Radio className="h-3.5 w-3.5 animate-pulse text-destructive" />} {groups.live.length > 0 ? "Live cricket" : "Cricket scores"}
+          </h2>
+          <span className={cn("inline-flex items-center gap-1 text-[10px] text-muted-foreground", feedStale && "text-amber-600")}>
+            <Clock className="h-3 w-3" /> {newest ? `Verified ${ago(newest, now)}${feedStale ? " · delayed" : ""}` : ""}
+          </span>
+        </div>
+        {error && <div className="mb-2 flex items-center gap-1 text-[11px] text-amber-700"><WifiOff className="h-3 w-3" /> Reconnecting… showing last verified scores.</div>}
+        <div className="space-y-2">
+          {shown.map((r) => <MatchCard key={r.id} row={r} now={now} open={open === r.id} onToggle={() => setOpen(open === r.id ? null : r.id)} />)}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
