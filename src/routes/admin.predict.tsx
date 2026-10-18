@@ -231,7 +231,7 @@ function ResultsDialog({ contest, onClose, reload }: { contest: any; onClose: ()
 
 // ---------------------------------------------------------------------------
 type TForm = {
-  id?: string; categoryId: string; name: string; sport: string; formats: string; generator: "match_winner" | "over_by_over" | "innings_balls" | "innings_total" | "over_markets";
+  id?: string; categoryId: string; name: string; sport: string; formats: string; generator: "match_winner" | "over_by_over" | "innings_balls" | "innings_total" | "over_markets" | "innings_wickets" | "match_total" | "score_pack";
   marketMode: "legal" | "event"; inningsList: string; optionOn: Record<string, boolean>; optionLabel: Record<string, string>;
   entryFee: number; minParticipants: number; prizeSplit: string;
   innings: number; over: number; balls: number; overs: string; thresholds: string; points: string;
@@ -251,7 +251,7 @@ function toForm(t: any): TForm {
   const f = blankTemplate();
   return {
     ...f, id: t.id, categoryId: t.category_id ?? "", name: t.name, sport: t.sport, formats: (t.formats ?? []).join(", "),
-    generator: ["match_winner", "over_by_over", "innings_balls", "innings_total", "over_markets"].includes(t.plan.generator) ? t.plan.generator : "match_winner",
+    generator: ["match_winner", "over_by_over", "innings_balls", "innings_total", "over_markets", "innings_wickets", "match_total", "score_pack"].includes(t.plan.generator) ? t.plan.generator : "match_winner",
     marketMode: t.plan.marketMode ?? "legal", inningsList: (t.plan.inningsList ?? [1, 2]).join(", "),
     optionOn: Object.fromEntries(DELIVERY_OPTIONS.map((o) => [o.id, (t.plan.optionIds ?? DELIVERY_OPTIONS.filter((x) => !x.eventModeOnly).map((x) => x.id)).includes(o.id)])),
     optionLabel: t.plan.optionLabels ?? {},
@@ -303,6 +303,7 @@ function payload(f: TForm) {
     generator: f.generator,
     ...(f.generator === "over_by_over" ? { innings: f.innings, over: f.over, balls: f.balls } : {}),
     ...(f.generator === "innings_balls" ? { innings: f.innings, ...(f.overs ? { overs: Number(f.overs) } : {}) } : {}),
+    ...(f.generator === "innings_wickets" ? { innings: f.innings } : {}),
     ...(f.generator === "innings_total" ? { innings: f.innings, ...(nums(f.thresholds).length ? { thresholds: nums(f.thresholds) } : {}) } : {}),
     ...(f.generator === "over_markets" ? {
       marketMode: f.marketMode, inningsList: nums(f.inningsList),
@@ -352,9 +353,9 @@ function TemplateDialog({ init, cats, onClose, reload }: { init: TForm; cats: an
           {f.rawPlan ? <p className="col-span-2 text-xs text-muted-foreground">This is a trivia template; its questions are kept unchanged.</p> : (<>
             <div><Label className="text-[11px]">What it asks</Label>
               <Select value={f.generator} onValueChange={(v) => set("generator", v as TForm["generator"])}><SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="match_winner">Match winner</SelectItem><SelectItem value="innings_total">Innings total (score range)</SelectItem><SelectItem value="over_by_over">One over, ball by ball</SelectItem><SelectItem value="innings_balls">Every ball of the innings (4 options)</SelectItem><SelectItem value="over_markets">Every over: one contest per over (configurable options)</SelectItem></SelectContent></Select></div>
+                <SelectContent><SelectItem value="match_winner">Match winner</SelectItem><SelectItem value="innings_total">Innings total (score range)</SelectItem><SelectItem value="over_by_over">One over, ball by ball</SelectItem><SelectItem value="innings_balls">Every ball of the innings (4 options)</SelectItem><SelectItem value="score_pack">Score pack: winner + innings runs + wickets + match total (score only)</SelectItem><SelectItem value="innings_wickets">Innings wickets (score only)</SelectItem><SelectItem value="match_total">Match total runs (score only)</SelectItem><SelectItem value="over_markets">Every over: one contest per over (configurable options)</SelectItem></SelectContent></Select></div>
             <div><Label className="text-[11px]">Points per question (blank = scoring default)</Label><Input value={f.points} onChange={(e) => set("points", e.target.value.replace(/\D/g, ""))} /></div>
-            {f.generator !== "match_winner" && f.generator !== "over_markets" && <NumField label="Innings" value={f.innings} min={1} max={4} onChange={(n) => set("innings", n)} />}
+            {f.generator !== "match_winner" && f.generator !== "over_markets" && f.generator !== "score_pack" && f.generator !== "match_total" && <NumField label="Innings" value={f.innings} min={1} max={4} onChange={(n) => set("innings", n)} />}
             {f.generator === "over_markets" && (<>
               <div><Label className="text-[11px]">Slot counts…</Label>
                 <Select value={f.marketMode} onValueChange={(v) => set("marketMode", v as "legal" | "event")}><SelectTrigger><SelectValue /></SelectTrigger>

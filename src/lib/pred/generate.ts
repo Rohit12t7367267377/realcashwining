@@ -37,6 +37,13 @@ const DEFAULT_THRESHOLDS: Record<string, number[]> = {
   t20: [140, 170, 200],
   odi: [220, 280, 330],
 };
+const DEFAULT_WICKET_THRESHOLDS = [4, 7, 10];
+/** Both innings added together. */
+const DEFAULT_MATCH_THRESHOLDS: Record<string, number[]> = {
+  t10: [160, 200, 240],
+  t20: [290, 340, 390],
+  odi: [450, 550, 650],
+};
 
 export function bucketOptions(thresholds: number[], unit = ""): QuestionOption[] {
   const t = [...thresholds];
@@ -249,6 +256,42 @@ export function generateForTemplate(match: MatchRef, tpl: ContestTemplate, miles
         }
       }
       return finish(`${base} · Every ball, innings ${innings}`, qs);
+    }
+
+    case "innings_wickets": {
+      const innings = plan.innings ?? 1;
+      if (maxOvers(format) === null) return { ok: false, reason: "format_not_supported" };
+      const thresholds = plan.thresholds ?? DEFAULT_WICKET_THRESHOLDS;
+      if (!validThresholds(thresholds)) return { ok: false, reason: "thresholds_required" };
+      return finish(title, [{
+        position: 1, prompt: `Innings ${innings}: how many wickets will fall?`,
+        options: bucketOptions(thresholds, " wkts"), rule: { kind: "innings_wickets", innings, thresholds }, points,
+      }]);
+    }
+
+    case "match_total": {
+      const thresholds = plan.thresholds ?? DEFAULT_MATCH_THRESHOLDS[format];
+      if (!validThresholds(thresholds)) return { ok: false, reason: "thresholds_required" };
+      return finish(title, [{
+        position: 1, prompt: "How many runs will both teams score in total?",
+        options: bucketOptions(thresholds), rule: { kind: "match_total", thresholds }, points,
+      }]);
+    }
+
+    /** One contest, six questions, all settled from the verified score only (no ball-by-ball data). */
+    case "score_pack": {
+      if (maxOvers(format) === null) return { ok: false, reason: "format_not_supported" };
+      const totals = DEFAULT_THRESHOLDS[format];
+      const matchT = DEFAULT_MATCH_THRESHOLDS[format];
+      const qs: PlannedQuestion[] = [
+        { position: 1, prompt: `Who will win ${base}?`, options: [{ id: "a", label: match.teamA }, { id: "b", label: match.teamB }], rule: { kind: "match_winner" }, points },
+        { position: 2, prompt: "Innings 1: how many runs will be scored?", options: bucketOptions(totals), rule: { kind: "innings_total", innings: 1, thresholds: totals }, points },
+        { position: 3, prompt: "Innings 2: how many runs will be scored?", options: bucketOptions(totals), rule: { kind: "innings_total", innings: 2, thresholds: totals }, points },
+        { position: 4, prompt: "Innings 1: how many wickets will fall?", options: bucketOptions(DEFAULT_WICKET_THRESHOLDS, " wkts"), rule: { kind: "innings_wickets", innings: 1, thresholds: DEFAULT_WICKET_THRESHOLDS }, points },
+        { position: 5, prompt: "Innings 2: how many wickets will fall?", options: bucketOptions(DEFAULT_WICKET_THRESHOLDS, " wkts"), rule: { kind: "innings_wickets", innings: 2, thresholds: DEFAULT_WICKET_THRESHOLDS }, points },
+        { position: 6, prompt: "How many runs will both teams score in total?", options: bucketOptions(matchT), rule: { kind: "match_total", thresholds: matchT }, points },
+      ];
+      return finish(`${base} · Score pack`, qs);
     }
 
     case "innings_total": {

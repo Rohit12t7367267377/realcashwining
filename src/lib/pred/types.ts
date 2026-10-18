@@ -93,6 +93,10 @@ export type QuestionRule =
   | { kind: "delivery_outcome"; innings: number; over: number; slot: number; mode: "legal" | "event" }
   | ({ kind: "over_runs"; innings: number; over: number } & Bucketed)
   | ({ kind: "innings_total"; innings: number } & Bucketed)
+  /** Wickets lost in an innings (from the verified scorecard summary; no ball-by-ball data needed). */
+  | ({ kind: "innings_wickets"; innings: number } & Bucketed)
+  /** Combined runs of both innings once the match is complete. */
+  | ({ kind: "match_total" } & Bucketed)
   | { kind: "match_winner" }
   | { kind: "static" } // trivia / custom: answer fixed at creation
   | { kind: "manual" }; // resolved by an administrator through the logged process
@@ -131,7 +135,7 @@ export interface TemplateTiming {
 }
 
 export interface PlanSpec {
-  generator: "match_winner" | "over_by_over" | "over_markets" | "innings_balls" | "innings_total" | "static";
+  generator: "match_winner" | "over_by_over" | "over_markets" | "innings_balls" | "innings_total" | "innings_wickets" | "match_total" | "score_pack" | "static";
   /** over_markets: "legal" (default) = Nth legal delivery, "event" = Nth delivery of any kind. */
   marketMode?: "legal" | "event";
   /** over_markets: which outcome options are offered (ids from DELIVERY_OPTIONS). Omit for all valid ones. */

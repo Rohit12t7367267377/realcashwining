@@ -22,7 +22,7 @@ const timingSchema = z.object({
   innings: z.number().int().min(1).max(4).optional(),
 });
 const planSchema = z.object({
-  generator: z.enum(["match_winner", "over_by_over", "innings_balls", "innings_total", "static", "over_markets"]),
+  generator: z.enum(["match_winner", "over_by_over", "innings_balls", "innings_total", "innings_wickets", "match_total", "score_pack", "static", "over_markets"]),
   marketMode: z.enum(["legal", "event"]).optional(),
   optionIds: z.array(z.string().min(1).max(20)).min(2).max(10).optional(),
   optionLabels: z.record(z.string().max(20), z.string().trim().min(1).max(40)).optional(),

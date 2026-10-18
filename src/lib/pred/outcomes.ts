@@ -68,6 +68,19 @@ function resolveRule(rule: QuestionRule, ctx: ResolveCtx): Resolution {
       return { status: "resolved", optionId: `b${bucketIndex(inn.runs, rule.thresholds)}` };
     }
 
+    case "innings_wickets": {
+      const inn = facts?.innings.find((i) => i.no === rule.innings);
+      if (!inn || !inningsDone(facts, rule.innings)) return { status: "pending" };
+      return { status: "resolved", optionId: `b${bucketIndex(inn.wickets, rule.thresholds)}` };
+    }
+
+    case "match_total": {
+      if (!facts || facts.state !== "completed") return { status: "pending" };
+      if (facts.innings.length < 2 || !facts.innings.every((i) => i.complete)) return { status: "void", reason: "incomplete_scorecard" };
+      const total = facts.innings.reduce((t, i) => t + i.runs, 0);
+      return { status: "resolved", optionId: `b${bucketIndex(total, rule.thresholds)}` };
+    }
+
     case "over_runs": {
       const list = overEvents(events, rule.innings, rule.over);
       if (!list.length || !contiguous(list)) return { status: "pending" };

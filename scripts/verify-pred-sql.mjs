@@ -14,7 +14,7 @@ await db.exec(`
  create table public.cricket_matches (id uuid primary key default gen_random_uuid());
  create table public.app_settings (key text primary key, value jsonb not null, updated_at timestamptz not null default now());
 `);
-for (const f of ["20261016000000_pred_engine.sql", "20261017000000_pred_full_innings_templates.sql", "20261018000000_pred_virtual_economy.sql"]) {
+for (const f of ["20261016000000_pred_engine.sql", "20261017000000_pred_full_innings_templates.sql", "20261018000000_pred_virtual_economy.sql", "20261018000001_pred_score_pack_template.sql"]) {
   try { await db.exec(readFileSync(R + f, "utf8")); ok.push("applied " + f); }
   catch (e) { bad.push("apply " + f + ": " + e.message); console.log(bad.at(-1)); break; }
 }

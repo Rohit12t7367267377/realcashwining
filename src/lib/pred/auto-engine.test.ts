@@ -463,3 +463,49 @@ describe("18. recovery after a worker restart", () => {
     expect(c.refundedAt).toBeTruthy();
   });
 });
+
+describe("score-only contests (no ball-by-ball data needed)", () => {
+  const pack = (over: Partial<ContestTemplate> = {}) => ballTemplate({ id: "t-pack", name: "Score pack", plan: { generator: "score_pack" }, minParticipants: 0, ...over });
+  const done = (r1: number, w1: number, r2: number, w2: number, winner: "A" | "B") => facts({
+    state: "completed", winner, statusText: `${winner === "A" ? "India" : "Australia"} won`,
+    innings: [
+      { no: 1, team: "India", runs: r1, wickets: w1, overs: 20, complete: true },
+      { no: 2, team: "Australia", runs: r2, wickets: w2, overs: 20, complete: true },
+    ],
+  });
+  it("creates one six-question pack 3 hours before the match, once", async () => {
+    const s = new MemoryStore(); s.matches.set("m1", match()); s.templates = [pack()];
+    expect((await runTick(s, T0 - 180 * MIN)).generated).toBe(1);
+    expect((await runTick(s, T0 - 170 * MIN)).generated).toBe(0);
+    const c = [...s.contests.values()][0];
+    expect(c.locksAt).toBe(iso(T0 - 5 * MIN));
+    expect(await s.listQuestions(c.id)).toHaveLength(6);
+  });
+  it("settles every question from the final score alone and pays +2 / -1", async () => {
+    const s = new MemoryStore(); s.matches.set("m1", match()); s.templates = [pack()];
+    await runTick(s, T0 - 180 * MIN); await runTick(s, T0 - 179 * MIN);
+    const c = [...s.contests.values()][0]; const qs = await s.listQuestions(c.id);
+    fund(s, "u1", 100); fund(s, "u2", 100);
+    // match: India 182/6, Australia 160/10 -> winner a, inn1 b2 (170-199), inn2 b1 (140-169), wkts 6 -> b1 (4-6), 10 -> b3, total 342 -> b2 (340-389)
+    s.join(c.id, "u1", { [qs[0].id]: "a", [qs[1].id]: "b2", [qs[2].id]: "b1", [qs[3].id]: "b1", [qs[4].id]: "b3", [qs[5].id]: "b2" }, T0 - 60 * MIN);
+    s.join(c.id, "u2", { [qs[0].id]: "b", [qs[1].id]: "b0" }, T0 - 59 * MIN);
+    await runTick(s, T0 - 5 * MIN);
+    s.matches.set("m1", match({ state: "completed" }));
+    s.facts.set("m1", done(182, 6, 160, 10, "A"));
+    await runTick(s, T0 + 300 * MIN);
+    const e = Object.fromEntries((await s.listEntries(c.id)).map((x) => [x.userId, x]));
+    expect(e.u1.points).toBe(12); // six correct
+    expect(e.u2.points).toBe(-2); // two wrong, four unanswered
+    expect(c.status).toBe("completed");
+    expect(s.balance("u1")).toBe(100 - 13 + 18); // pool 26 -> 70% = 18
+    expect(s.balance("u2")).toBe(87);
+  });
+  it("stays unsettled while the score is still live or unverified", async () => {
+    const s = new MemoryStore(); s.matches.set("m1", match({ state: "live" })); s.templates = [pack()];
+    s.facts.set("m1", facts({ innings: [{ no: 1, team: "India", runs: 90, wickets: 2, overs: 10, complete: false }] }));
+    const rule = { kind: "match_total" as const, thresholds: [290, 340, 390] };
+    expect(resolveQuestion(rule, { facts: s.facts.get("m1")!, events: [] })).toEqual({ status: "pending" });
+    expect(resolveQuestion({ kind: "innings_wickets", innings: 1, thresholds: [4, 7, 10] }, { facts: s.facts.get("m1")!, events: [] })).toEqual({ status: "pending" });
+    expect(resolveQuestion(rule, { facts: null, events: [] })).toEqual({ status: "pending" });
+  });
+});
