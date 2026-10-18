@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuthSession } from "@/hooks/use-auth-session";
 import {
-  getPredBoard, getPredWallet, listPredContests, listPredNotifications, savePredNotificationPrefs,
+  claimPredBonus, getPredBoard, getPredWallet, listPredContests, listPredNotifications, redeemPredInvite, savePredNotificationPrefs,
 } from "@/lib/pred.functions";
 import { cn } from "@/lib/utils";
 
@@ -63,7 +63,24 @@ function PredictPage() {
   );
 }
 
-const STATUS_LABEL: Record<string, string> = { published: "Open", locked: "Locked", settling: "Settling", completed: "Completed" };
+const STATUS_LABEL: Record<string, string> = { published: "Open", locked: "Locked", live: "Live", settling: "Pending settlement", completed: "Settled", cancelled: "Cancelled", void: "Void" };
+
+function InviteBox() {
+  const redeem = useServerFn(redeemPredInvite);
+  const qc = useQueryClient();
+  const [code, setCode] = useState("");
+  const go = useMutation({
+    mutationFn: () => redeem({ data: { code } }),
+    onSuccess: () => { toast.success("Private contest unlocked"); setCode(""); qc.invalidateQueries({ queryKey: ["pred-contests"] }); },
+    onError: (e: Error) => toast.error(e.message || "Invalid invite code"),
+  });
+  return (
+    <div className="mb-3 flex gap-2">
+      <input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Private contest invite code" className="h-9 min-w-0 flex-1 rounded-md border bg-background px-3 text-sm" />
+      <Button size="sm" variant="outline" disabled={code.trim().length < 4 || go.isPending} onClick={() => go.mutate()}>Join</Button>
+    </div>
+  );
+}
 
 function Contests() {
   const list = useServerFn(listPredContests);
@@ -71,12 +88,13 @@ function Contests() {
   if (isLoading) return <p className="text-sm text-muted-foreground">Loading contests…</p>;
   if (error) return <Card className="p-4 text-sm text-destructive">Could not load contests. Please try again.</Card>;
   if (!data?.length) {
-    return <Card className="p-6 text-center text-sm text-muted-foreground">No contests are open right now. New free contests appear automatically before each match.</Card>;
+    return <><InviteBox /><Card className="p-6 text-center text-sm text-muted-foreground">No contests are open right now. New contests appear automatically about 3 hours before each match.</Card></>;
   }
-  const order = { published: 0, locked: 1, settling: 2, completed: 3 } as Record<string, number>;
+  const order = { published: 0, live: 1, locked: 2, settling: 3, completed: 4, cancelled: 5, void: 5 } as Record<string, number>;
   const sorted = [...data].sort((a, b) => (order[a.status] ?? 9) - (order[b.status] ?? 9));
   return (
     <div className="space-y-2">
+      <InviteBox />
       {sorted.map((c) => (
         <Link key={c.id} to="/predict/$id" params={{ id: c.id }}>
           <Card className="p-4 transition-colors hover:bg-accent/40">
@@ -84,7 +102,8 @@ function Contests() {
               <div className="min-w-0">
                 <div className="truncate font-semibold">{c.title}</div>
                 <div className="mt-0.5 text-[11px] text-muted-foreground">
-                  {c.status === "published" ? `Locks ${fmt(c.locks_at)}` : `Locked ${fmt(c.locks_at)}`} · {c.participants} playing
+                  {c.status === "published" ? `Locks ${fmt(c.locks_at)}` : `Locked ${fmt(c.locks_at)}`} · {c.participants} playing · {c.entry_fee > 0 ? `${c.entry_fee} pts` : "Free"}
+                  {c.cancel_reason && ["cancelled", "void"].includes(c.status) ? ` · ${String(c.cancel_reason).replace(/_/g, " ")}` : ""}
                 </div>
               </div>
               <div className="flex shrink-0 flex-col items-end gap-1">
@@ -153,11 +172,23 @@ function Board() {
 
 const KIND_LABEL: Record<string, string> = {
   participation: "Participation", answers: "Correct answers", rank_bonus: "Rank bonus", contest_reward: "Contest reward", adjustment: "Adjustment",
+  entry_fee: "Contest entry", prize: "Contest prize", refund: "Entry refunded", welcome_bonus: "Welcome points", daily_bonus: "Daily free points",
 };
 
 function Wallet() {
   const fetchWallet = useServerFn(getPredWallet);
+  const claim = useServerFn(claimPredBonus);
+  const qc = useQueryClient();
   const { data, isLoading } = useQuery({ queryKey: ["pred-wallet"], queryFn: () => fetchWallet(), staleTime: 15_000 });
+  const bonus = useMutation({
+    mutationFn: () => claim(),
+    onSuccess: (r) => {
+      const total = r.welcome + r.daily;
+      if (total > 0) toast.success(`${total} free points added`); else toast.message("You already claimed today's free points");
+      qc.invalidateQueries({ queryKey: ["pred-wallet"] });
+    },
+    onError: (e: Error) => toast.error(e.message || "Could not claim points"),
+  });
   return (
     <div>
       <Card className="mb-3 flex items-center justify-between bg-gradient-primary p-4 text-primary-foreground">
@@ -167,6 +198,7 @@ function Wallet() {
         </div>
         <Coins className="h-8 w-8 opacity-80" />
       </Card>
+      <Button className="mb-3 w-full" variant="outline" disabled={bonus.isPending} onClick={() => bonus.mutate()}>Claim free daily points</Button>
       <p className="mb-3 text-[11px] text-muted-foreground">Virtual points are for fun and ranking only. They have no cash value and cannot be bought, sold or withdrawn.</p>
       {isLoading ? null : !data?.ledger.length ? (
         <Card className="p-6 text-center text-sm text-muted-foreground">No points yet. Play a contest — points are added after the results are verified.</Card>

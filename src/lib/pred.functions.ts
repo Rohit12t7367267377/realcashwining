@@ -7,7 +7,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const db = (ctx: { supabase: unknown }) => ctx.supabase as any; // eslint-disable-line @typescript-eslint/no-explicit-any
 
-const PUBLIC_STATUSES = ["published", "locked", "settling", "completed"];
+const PUBLIC_STATUSES = ["published", "locked", "live", "settling", "completed", "cancelled", "void"];
 
 export const listPredContests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -16,7 +16,7 @@ export const listPredContests = createServerFn({ method: "GET" })
     const since = new Date(Date.now() - 3 * 24 * 3_600_000).toISOString();
     const { data: contests, error } = await sb
       .from("pred_contests")
-      .select("id, title, status, sport, trigger, opens_at, locks_at, participant_limit, match_id, category_id, allow_edit")
+      .select("id, title, status, sport, trigger, opens_at, locks_at, participant_limit, match_id, category_id, allow_edit, entry_fee, min_participants, prize_split, is_private, cancel_reason, refunded_at")
       .in("status", PUBLIC_STATUSES)
       .gte("locks_at", since)
       .order("locks_at", { ascending: false })
@@ -70,7 +70,14 @@ export const getPredContest = createServerFn({ method: "GET" })
       ? await sb.from("cricket_matches").select("id, name, team_a, team_b, score_a, score_b, status, is_live, date_time, fetched_at").eq("id", contest.match_id).maybeSingle()
       : { data: null };
     const { count } = await sb.from("pred_entries").select("id", { count: "exact", head: true }).eq("contest_id", data.id);
-    return { contest, questions: questions ?? [], entry: entry ?? null, answers, scores, match, participants: count ?? 0, serverNow: new Date().toISOString() };
+    const [{ data: settlement }, { data: wallet }] = await Promise.all([
+      sb.from("pred_settlements").select("version, participants, pool, prize_total, platform_share, payouts").eq("contest_id", data.id).order("version", { ascending: false }).limit(1).maybeSingle(),
+      sb.from("pred_wallets").select("balance").eq("user_id", context.userId).maybeSingle(),
+    ]);
+    return {
+      contest, questions: questions ?? [], entry: entry ?? null, answers, scores, match, participants: count ?? 0,
+      settlement: settlement ?? null, balance: Number(wallet?.balance ?? 0), serverNow: new Date().toISOString(),
+    };
   });
 
 export const submitPredAnswers = createServerFn({ method: "POST" })
@@ -86,6 +93,24 @@ export const submitPredAnswers = createServerFn({ method: "POST" })
     const { data: entryId, error } = await db(context).rpc("pred_submit_answers", { _contest_id: data.contestId, _answers: data.answers });
     if (error) throw new Error(error.message);
     return { entryId: entryId as string };
+  });
+
+/** Free virtual points: one welcome grant and one daily grant per player (idempotent in the database). */
+export const claimPredBonus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await db(context).rpc("pred_claim_bonus");
+    if (error) throw new Error(error.message);
+    return data as { welcome: number; daily: number };
+  });
+
+export const redeemPredInvite = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ code: z.string().trim().min(4).max(20) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: id, error } = await db(context).rpc("pred_redeem_invite", { _code: data.code });
+    if (error) throw new Error(error.message);
+    return { contestId: id as string };
   });
 
 const periodSchema = z.enum(["daily", "weekly", "monthly", "all"]);

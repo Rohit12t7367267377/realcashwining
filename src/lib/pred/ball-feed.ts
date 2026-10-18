@@ -6,7 +6,18 @@
 //
 // STATUS: written against documented/assumed field names and unit-tested with
 // mock fixtures only. It has NOT been verified against the live provider.
-import type { BallEvent } from "./types";
+import type { BallEvent, ExtraType } from "./types";
+
+/** Provider extra-type label -> our ExtraType. Unknown labels return undefined (never guessed). */
+export function parseExtraType(v: unknown): ExtraType | undefined {
+  if (typeof v !== "string") return undefined;
+  const s = v.trim().toLowerCase().replace(/[\s_-]/g, "");
+  if (s === "wide" || s === "wd") return "wide";
+  if (s === "noball" || s === "nb") return "noball";
+  if (s === "bye" || s === "b") return "bye";
+  if (s === "legbye" || s === "lb") return "legbye";
+  return undefined;
+}
 
 export interface BallFeedResult {
   events: Array<Omit<BallEvent, "matchId" | "revision">>;
@@ -84,7 +95,8 @@ export function normalizeBalls(payload: unknown): BallFeedResult {
     ) { rejected++; continue; }
 
     const eventKey = `${innings}.${over}.${seq}`;
-    byKey.set(eventKey, { eventKey, innings, over, seq, legal, runsBat, extras, wicket });
+    const extraType = parseExtraType(pick(r, ["extra_type", "extraType"]));
+    byKey.set(eventKey, { eventKey, innings, over, seq, legal, runsBat, extras, wicket, ...(extraType ? { extraType } : {}) });
   }
   // Duplicate rows for the same delivery collapse to the last one (idempotent).
   return { events: [...byKey.values()], total: rows.length, rejected };

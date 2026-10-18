@@ -35,12 +35,12 @@ export async function fetchBallPayload(externalId: string, apiKey: string, fetch
 /** Idempotent upsert. A changed delivery bumps `revision`, which the engine treats as a correction. */
 export async function ingestBallEvents(
   matchId: string,
-  events: Array<{ eventKey: string; innings: number; over: number; seq: number; legal: boolean; runsBat: number; extras: number; wicket: boolean }>,
+  events: Array<{ eventKey: string; innings: number; over: number; seq: number; legal: boolean; runsBat: number; extras: number; wicket: boolean; extraType?: string | null }>,
 ): Promise<{ inserted: number; revised: number }> {
   if (!events.length) return { inserted: 0, revised: 0 };
   const { data: existing, error } = await db
     .from("pred_events")
-    .select("id, event_key, innings, over, seq, legal, runs_bat, extras, wicket, revision")
+    .select("id, event_key, innings, over, seq, legal, runs_bat, extras, wicket, revision, extra_type")
     .eq("match_id", matchId)
     .limit(5000);
   if (error) throw new Error(`Could not read existing events: ${error.message}`);
@@ -49,10 +49,10 @@ export async function ingestBallEvents(
   const fresh: any[] = [];
   for (const e of events) {
     const p = prev.get(e.eventKey);
-    const row = { match_id: matchId, event_key: e.eventKey, innings: e.innings, over: e.over, seq: e.seq, legal: e.legal, runs_bat: e.runsBat, extras: e.extras, wicket: e.wicket };
+    const row = { match_id: matchId, event_key: e.eventKey, innings: e.innings, over: e.over, seq: e.seq, legal: e.legal, runs_bat: e.runsBat, extras: e.extras, wicket: e.wicket, extra_type: e.extraType ?? null };
     if (!p) { fresh.push({ ...row, revision: 1 }); continue; }
     const same = p.innings === e.innings && p.over === e.over && p.seq === e.seq && p.legal === e.legal
-      && p.runs_bat === e.runsBat && p.extras === e.extras && p.wicket === e.wicket;
+      && p.runs_bat === e.runsBat && p.extras === e.extras && p.wicket === e.wicket && (p.extra_type ?? null) === (e.extraType ?? null);
     if (same) continue;
     const { error: ue } = await db.from("pred_events").update({ ...row, revision: p.revision + 1, received_at: new Date().toISOString() }).eq("id", p.id).eq("revision", p.revision);
     if (ue) throw new Error(`Could not revise event: ${ue.message}`);
@@ -115,7 +115,7 @@ export async function runPredTick(opts: { trigger: "cron" | "manual"; refreshFix
     await syncBallEvents(report);
     const tick = await runTick(new SupabasePredStore({ refreshSeconds }), Date.now());
     report.generated += tick.generated; report.published += tick.published; report.locked += tick.locked;
-    report.cancelled += tick.cancelled; report.resolved += tick.resolved; report.completed += tick.completed;
+    report.cancelled += tick.cancelled; report.voided += tick.voided; report.refunded += tick.refunded; report.resolved += tick.resolved; report.completed += tick.completed;
     report.corrections += tick.corrections; report.credited += tick.credited; report.notices += tick.notices;
     report.errors.push(...tick.errors);
     for (const [k, v] of Object.entries(tick.skipped)) report.skipped[k] = (report.skipped[k] ?? 0) + v;

@@ -7,6 +7,7 @@ import type {
   QuestionRule,
 } from "./types";
 import type { Milestone } from "./timing";
+import { buildOptions, defaultOptionIds, validateOptionIds, type MarketMode } from "./delivery";
 
 export type GenResult =
   | { ok: true; title: string; questions: PlannedQuestion[] }
@@ -103,6 +104,85 @@ function finish(title: string, questions: PlannedQuestion[]): GenResult {
   return err ? { ok: false, reason: err } : { ok: true, title, questions };
 }
 
+export interface ExpandedContest {
+  /** Appended to the generation key so every contest of a template/match pair has a stable, unique identity. */
+  keySuffix: string;
+  title: string;
+  questions: PlannedQuestion[];
+}
+export type ExpandResult = { ok: true; contests: ExpandedContest[] } | { ok: false; reason: string };
+
+/** Validates the delivery-market part of a plan. Returns a message, or null when it is usable. */
+export function validateDeliveryPlan(plan: PlanSpec): string | null {
+  if (plan.generator !== "over_markets") return null;
+  const mode: MarketMode = plan.marketMode ?? "legal";
+  const ids = plan.optionIds ?? defaultOptionIds(mode);
+  const labelErr = validateOptionIds(ids, mode, plan.optionLabels ?? {});
+  if (labelErr) return labelErr;
+  if (plan.inningsList && (plan.inningsList.length < 1 || plan.inningsList.some((n) => !Number.isInteger(n) || n < 1 || n > 4))) return "Innings must be 1–4.";
+  return null;
+}
+
+/**
+ * One contest per over (per innings) with a question for every delivery slot of that over.
+ * Pre-match: every over of every listed innings at once. In-match triggers: just the overs that are still in the future.
+ */
+function overMarketContests(match: MatchRef, tpl: ContestTemplate, milestone?: Milestone): ExpandResult {
+  const plan = tpl.plan;
+  const maxO = maxOvers(normalizeFormat(match.format));
+  if (maxO === null) return { ok: false, reason: "format_not_supported" };
+  const invalid = validateDeliveryPlan(plan);
+  if (invalid) return { ok: false, reason: invalid };
+  const mode: MarketMode = plan.marketMode ?? "legal";
+  const options = buildOptions(plan.optionIds ?? defaultOptionIds(mode), plan.optionLabels ?? {});
+  const slots = Math.min(6, Math.max(1, plan.balls ?? 6));
+  const overLimit = Math.min(maxO, Math.max(1, plan.overs ?? maxO));
+  const points = plan.points ?? tpl.scoring.pointsPerCorrect;
+  const base = `${match.teamA} vs ${match.teamB}`;
+
+  const targets: Array<{ innings: number; over: number }> = [];
+  const trigger = tpl.timing.trigger;
+  if (trigger === "pre_match") {
+    for (const innings of plan.inningsList ?? [1, 2]) for (let over = 1; over <= overLimit; over++) targets.push({ innings, over });
+  } else if (trigger === "after_over") {
+    const innings = milestone?.innings ?? tpl.timing.innings ?? 1;
+    const over = (milestone?.over ?? 0) + 1;
+    if (over > overLimit) return { ok: false, reason: "over_out_of_range" };
+    targets.push({ innings, over });
+  } else if (trigger === "innings_break") {
+    const innings = (milestone?.innings ?? tpl.timing.innings ?? 1) + 1;
+    for (let over = 1; over <= overLimit; over++) targets.push({ innings, over });
+  } else {
+    return { ok: false, reason: "trigger_not_supported" };
+  }
+
+  const noun = mode === "legal" ? "Ball" : "Delivery";
+  const contests: ExpandedContest[] = [];
+  for (const t of targets) {
+    const questions: PlannedQuestion[] = [];
+    for (let slot = 1; slot <= slots; slot++) {
+      questions.push({
+        position: slot,
+        prompt: `Innings ${t.innings} · Over ${t.over} · ${noun} ${slot}: what happens?`,
+        options,
+        rule: { kind: "delivery_outcome", innings: t.innings, over: t.over, slot, mode },
+        points,
+      });
+    }
+    const err = validateQuestions(questions);
+    if (err) return { ok: false, reason: err };
+    contests.push({ keySuffix: `i${t.innings}o${t.over}`, title: `${base} · Innings ${t.innings} · Over ${t.over}`, questions });
+  }
+  return { ok: true, contests };
+}
+
+/** All contests a template produces for a match (one for most generators, many for over_markets). */
+export function expandTemplate(match: MatchRef, tpl: ContestTemplate, milestone?: Milestone): ExpandResult {
+  if (tpl.plan.generator === "over_markets") return overMarketContests(match, tpl, milestone);
+  const one = generateForTemplate(match, tpl, milestone);
+  return one.ok ? { ok: true, contests: [{ keySuffix: "", title: one.title, questions: one.questions }] } : one;
+}
+
 /**
  * Turns a declarative plan into questions. Generators are building blocks; the
  * categories and templates that use them are data an admin controls.
@@ -115,6 +195,12 @@ export function generateForTemplate(match: MatchRef, tpl: ContestTemplate, miles
   const title = `${base} · ${tpl.name}`;
 
   switch (plan.generator) {
+    case "over_markets": {
+      // Single-contest view (used to dry-run a template): the first contest of the set.
+      const all = overMarketContests(match, tpl, milestone);
+      return all.ok ? { ok: true, title: all.contests[0].title, questions: all.contests[0].questions } : all;
+    }
+
     case "match_winner": {
       const options: QuestionOption[] = [
         { id: "a", label: match.teamA },

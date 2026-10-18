@@ -1,5 +1,5 @@
-// Free-to-play sports prediction engine: shared domain types.
-// Virtual points only. Nothing in this module moves real money.
+// Sports prediction engine: shared domain types.
+// Virtual points only (non-redeemable, never bought). Nothing in this module moves real money.
 
 export type ContestStatus =
   | "draft"
@@ -8,7 +8,9 @@ export type ContestStatus =
   | "locked"
   | "settling"
   | "completed"
-  | "cancelled";
+  | "cancelled"
+  | "live" // locked, and the match is in play (spec: LIVE)
+  | "void"; // ran but could not be settled (e.g. abandoned): entry fees are refunded
 
 export type MatchState =
   | "upcoming"
@@ -32,6 +34,8 @@ export interface MatchRef {
   teamA: string;
   teamB: string;
   statusText: string;
+  /** Competition / series name when the provider supplies one. */
+  series?: string | null;
 }
 
 export interface InningsFacts {
@@ -56,6 +60,8 @@ export interface MatchFacts {
   verifiedAt: string;
 }
 
+export type ExtraType = "wide" | "noball" | "bye" | "legbye";
+
 export interface BallEvent {
   eventKey: string; // stable provider identity (idempotency)
   matchId: string;
@@ -66,6 +72,8 @@ export interface BallEvent {
   runsBat: number;
   extras: number;
   wicket: boolean;
+  /** Why the delivery carried extras, when the provider says. Unknown stays null (never guessed). */
+  extraType?: ExtraType | null;
   revision: number; // bumped when the provider corrects an earlier record
 }
 
@@ -76,6 +84,13 @@ export interface Bucketed {
 
 export type QuestionRule =
   | { kind: "ball_outcome"; innings: number; over: number; ball: number; /** four options: 4 and 6 count as one "boundary" */ grouped?: boolean }
+  /**
+   * Primary outcome of one delivery slot of an over.
+   *  mode "legal": slot = the Nth LEGAL delivery (wides / no-balls never advance the number)
+   *  mode "event": slot = the Nth delivery of any kind, in the order bowled
+   * Precedence when several things happen on one delivery: wicket > wide > no-ball > six > four > 3 > 2 > 1 > dot > other.
+   */
+  | { kind: "delivery_outcome"; innings: number; over: number; slot: number; mode: "legal" | "event" }
   | ({ kind: "over_runs"; innings: number; over: number } & Bucketed)
   | ({ kind: "innings_total"; innings: number } & Bucketed)
   | { kind: "match_winner" }
@@ -116,7 +131,15 @@ export interface TemplateTiming {
 }
 
 export interface PlanSpec {
-  generator: "match_winner" | "over_by_over" | "innings_balls" | "innings_total" | "static";
+  generator: "match_winner" | "over_by_over" | "over_markets" | "innings_balls" | "innings_total" | "static";
+  /** over_markets: "legal" (default) = Nth legal delivery, "event" = Nth delivery of any kind. */
+  marketMode?: "legal" | "event";
+  /** over_markets: which outcome options are offered (ids from DELIVERY_OPTIONS). Omit for all valid ones. */
+  optionIds?: string[];
+  /** over_markets: renamed option labels, keyed by option id. */
+  optionLabels?: Record<string, string>;
+  /** over_markets: which innings to cover (default [1, 2]). */
+  inningsList?: number[];
   /** innings_balls: how many overs to cover (defaults to the format's full innings, e.g. 20 for T20) */
   overs?: number;
   /** over_by_over */
@@ -146,6 +169,12 @@ export interface ContestTemplate {
   timing: TemplateTiming;
   scoring: ScoringRules;
   participantLimit: number | null;
+  /** Virtual points charged to join (0 = free practice contest). */
+  entryFee: number;
+  /** Contest is cancelled and refunded at lock time if fewer people joined (0 = no minimum). */
+  minParticipants: number;
+  /** Percent of the entry pool paid per rank (rank 1 first). The remainder goes to the platform bucket. */
+  prizeSplit: number[];
   autoGenerate: boolean;
   requireApproval: boolean;
   allowEdit: boolean;
@@ -165,9 +194,15 @@ export interface ContestRecord {
   opensAt: string;
   locksAt: string;
   participantLimit: number | null;
+  entryFee: number;
+  minParticipants: number;
+  prizeSplit: number[];
+  isPrivate: boolean;
   allowEdit: boolean;
   scoring: ScoringRules;
   correctionVersion: number;
+  /** Set once every entry fee of a cancelled / voided contest has been returned. */
+  refundedAt?: string | null;
 }
 
 export interface QuestionRecord extends PlannedQuestion {
@@ -187,6 +222,8 @@ export interface EntryRecord {
   points: number;
   correct: number;
   answered: number;
+  /** Virtual points this entry paid to join (refunded if the contest is cancelled or voided). */
+  feePaid: number;
 }
 
 export type Resolution =
@@ -211,6 +248,52 @@ export const DEFAULT_REWARDS: RewardRules = {
 };
 
 export const DEFAULT_SCORING: ScoringRules = { pointsPerCorrect: 10, negativePerWrong: 0 };
+
+/** Spec defaults for ball-by-ball markets: +2 correct, -1 wrong, 0 when unanswered or void. */
+export const BALL_MARKET_SCORING: ScoringRules = { pointsPerCorrect: 2, negativePerWrong: 1 };
+export const DEFAULT_ENTRY_FEE = 13;
+export const DEFAULT_PRIZE_SPLIT: number[] = [70];
+
+/** Operator switches read by the scheduler. Anything not listed here is allowed. */
+export type AbandonPolicy = "settle_verified" | "refund_all";
+
+export interface EngineControls {
+  pauseGeneration: boolean;
+  pausePublication: boolean;
+  pauseSettlement: boolean;
+  /** Match abandoned / cancelled after contests locked: settle what was verified, or void and refund everything. */
+  abandonPolicy: AbandonPolicy;
+  disabledSports: string[];
+  disabledSeries: string[];
+  excludedMatchIds: string[];
+}
+
+export const NO_CONTROLS: EngineControls = {
+  pauseGeneration: false, pausePublication: false, pauseSettlement: false, abandonPolicy: "settle_verified",
+  disabledSports: [], disabledSeries: [], excludedMatchIds: [],
+};
+
+/** Auditable result of paying out one contest from its virtual-point pool. */
+export interface SettlementRecord {
+  contestId: string;
+  version: number;
+  participants: number;
+  pool: number;
+  prizeTotal: number;
+  platformShare: number;
+  payouts: Array<{ userId: string; rank: number; amount: number }>;
+}
+
+/** Spec defaults for pre-match markets: generate and open 3 hours before the start, lock 5 minutes before it. */
+export const BALL_MARKET_TIMING: TemplateTiming = {
+  trigger: "pre_match",
+  createBeforeMin: 180,
+  opensBeforeMin: 180,
+  locksBeforeMin: 5,
+  lockAfterMin: 5,
+  catchUp: "shorten",
+  minOpenMin: 5,
+};
 
 export const DEFAULT_TIMING: TemplateTiming = {
   trigger: "pre_match",

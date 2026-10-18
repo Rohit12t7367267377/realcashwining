@@ -7,6 +7,10 @@ import type { AnswerScore } from "./scoring";
 import type { CreditInput, NewContest, Notice, PredStore, ResolveOutcome } from "./store";
 import {
   DEFAULT_REWARDS,
+  NO_CONTROLS,
+  DEFAULT_PRIZE_SPLIT,
+  type EngineControls,
+  type SettlementRecord,
   type BallEvent,
   type ContestRecord,
   type ContestStatus,
@@ -48,6 +52,11 @@ function mapContest(r: any): ContestRecord & { cancelReason?: string | null } {
     allowEdit: r.allow_edit,
     scoring: r.scoring,
     correctionVersion: r.correction_version ?? 0,
+    entryFee: r.entry_fee ?? 0,
+    minParticipants: r.min_participants ?? 0,
+    prizeSplit: Array.isArray(r.prize_split) ? r.prize_split : [...DEFAULT_PRIZE_SPLIT],
+    isPrivate: Boolean(r.is_private),
+    refundedAt: r.refunded_at ?? null,
     cancelReason: r.cancel_reason,
   };
 }
@@ -63,6 +72,9 @@ export function mapTemplate(r: any): ContestTemplate {
     timing: r.timing,
     scoring: r.scoring,
     participantLimit: r.participant_limit,
+    entryFee: r.entry_fee ?? 0,
+    minParticipants: r.min_participants ?? 0,
+    prizeSplit: Array.isArray(r.prize_split) ? r.prize_split : [...DEFAULT_PRIZE_SPLIT],
     autoGenerate: r.auto_generate,
     requireApproval: r.require_approval,
     allowEdit: r.allow_edit,
@@ -116,7 +128,7 @@ export class SupabasePredStore implements PredStore {
   async listEvents(matchId: string): Promise<BallEvent[]> {
     const { data, error } = await db
       .from("pred_events")
-      .select("match_id, event_key, innings, over, seq, legal, runs_bat, extras, wicket, revision")
+      .select("match_id, event_key, innings, over, seq, legal, runs_bat, extras, wicket, revision, extra_type")
       .eq("match_id", matchId)
       .order("innings")
       .order("over")
@@ -126,6 +138,7 @@ export class SupabasePredStore implements PredStore {
     return (data as any[]).map((e) => ({
       eventKey: e.event_key, matchId: e.match_id, innings: e.innings, over: e.over, seq: e.seq,
       legal: e.legal, runsBat: e.runs_bat, extras: e.extras, wicket: e.wicket, revision: e.revision,
+      extraType: e.extra_type ?? undefined,
     }));
   }
 
@@ -134,6 +147,21 @@ export class SupabasePredStore implements PredStore {
     const { data, error } = await db.from("pred_templates").select("*").eq("enabled", true);
     if (error) fail("Could not load templates", error);
     return (data as any[]).map(mapTemplate);
+  }
+
+  async getControls(): Promise<EngineControls> {
+    const { data } = await db.from("app_settings").select("value").eq("key", "pred_controls").maybeSingle();
+    const v = (data?.value ?? {}) as Partial<EngineControls>;
+    const list = (x: unknown) => (Array.isArray(x) ? x.filter((i): i is string => typeof i === "string").slice(0, 500) : []);
+    return {
+      pauseGeneration: v.pauseGeneration === true,
+      pausePublication: v.pausePublication === true,
+      pauseSettlement: v.pauseSettlement === true,
+      abandonPolicy: v.abandonPolicy === "refund_all" ? "refund_all" : NO_CONTROLS.abandonPolicy,
+      disabledSports: list(v.disabledSports),
+      disabledSeries: list(v.disabledSeries),
+      excludedMatchIds: list(v.excludedMatchIds),
+    };
   }
 
   async getRewardRules(): Promise<RewardRules> {
@@ -160,6 +188,27 @@ export class SupabasePredStore implements PredStore {
     const contest = await this.getContest(id);
     if (!contest) throw new Error("Contest was created but could not be read back");
     return { contest, created: Boolean((data as { created: boolean }).created) };
+  }
+
+  async existingContestKeys(keys: string[]): Promise<Set<string>> {
+    const out = new Set<string>();
+    for (let i = 0; i < keys.length; i += 100) {
+      const { data, error } = await db.from("pred_contests").select("generation_key").in("generation_key", keys.slice(i, i + 100));
+      if (error) fail("Could not check existing contests", error);
+      for (const r of data as Array<{ generation_key: string }>) out.add(r.generation_key);
+    }
+    return out;
+  }
+
+  async countEntries(contestId: string): Promise<number> {
+    const { count, error } = await db.from("pred_entries").select("id", { count: "exact", head: true }).eq("contest_id", contestId);
+    if (error) fail("Could not count entries", error);
+    return count ?? 0;
+  }
+
+  async markRefunded(contestId: string): Promise<void> {
+    const { error } = await db.from("pred_contests").update({ refunded_at: new Date(this.now()).toISOString() }).eq("id", contestId).is("refunded_at", null);
+    if (error) fail("Could not mark contest refunded", error);
   }
 
   async getContest(id: string): Promise<ContestRecord | null> {
@@ -241,7 +290,7 @@ export class SupabasePredStore implements PredStore {
   async listEntries(contestId: string): Promise<EntryRecord[]> {
     const { data: entries, error } = await db
       .from("pred_entries")
-      .select("id, contest_id, user_id, submitted_at, points, correct")
+      .select("id, contest_id, user_id, submitted_at, points, correct, fee_paid")
       .eq("contest_id", contestId)
       .limit(20_000);
     if (error) fail("Could not load entries", error);
@@ -261,7 +310,7 @@ export class SupabasePredStore implements PredStore {
       const ans = byEntry.get(e.id) ?? {};
       return {
         id: e.id, contestId: e.contest_id, userId: e.user_id, submittedAt: e.submitted_at,
-        answers: ans, points: e.points, correct: e.correct, answered: Object.keys(ans).length,
+        answers: ans, points: e.points, correct: e.correct, answered: Object.keys(ans).length, feePaid: e.fee_paid ?? 0,
       };
     });
   }
@@ -283,6 +332,7 @@ export class SupabasePredStore implements PredStore {
   async creditedSince(userId: string, sinceMs: number): Promise<number> {
     const { data, error } = await db
       .from("pred_ledger").select("amount").eq("user_id", userId).gt("amount", 0)
+      .in("kind", ["participation", "answers", "rank_bonus", "contest_reward", "adjustment"])
       .gte("created_at", new Date(sinceMs).toISOString());
     if (error) fail("Could not read ledger", error);
     return (data as Array<{ amount: number }>).reduce((s, r) => s + r.amount, 0);
@@ -294,6 +344,35 @@ export class SupabasePredStore implements PredStore {
     });
     if (error) fail("Could not credit points", error);
     return Boolean(data);
+  }
+
+  async walletBalance(userId: string): Promise<number> {
+    const { data, error } = await db.from("pred_ledger").select("amount").eq("user_id", userId).limit(100_000);
+    if (error) fail("Could not read balance", error);
+    return (data as Array<{ amount: number }>).reduce((t, r) => t + r.amount, 0);
+  }
+
+  async platformCredit(i: { contestId: string; amount: number; kind: string; refKey: string }): Promise<boolean> {
+    const { data, error } = await db
+      .from("pred_platform_ledger")
+      .upsert({ contest_id: i.contestId, amount: i.amount, kind: i.kind, ref_key: i.refKey }, { onConflict: "ref_key", ignoreDuplicates: true })
+      .select("id");
+    if (error) fail("Could not record platform share", error);
+    return (data as unknown[]).length > 0;
+  }
+
+  async platformHeld(contestId: string): Promise<number> {
+    const { data, error } = await db.from("pred_platform_ledger").select("amount").eq("contest_id", contestId);
+    if (error) fail("Could not read platform ledger", error);
+    return (data as Array<{ amount: number }>).reduce((t, r) => t + r.amount, 0);
+  }
+
+  async saveSettlement(s: SettlementRecord): Promise<void> {
+    const { error } = await db.from("pred_settlements").upsert(
+      { contest_id: s.contestId, version: s.version, participants: s.participants, pool: s.pool, prize_total: s.prizeTotal, platform_share: s.platformShare, payouts: s.payouts },
+      { onConflict: "contest_id,version" },
+    );
+    if (error) fail("Could not save settlement", error);
   }
 
   // ---- notifications / audit ---------------------------------------------

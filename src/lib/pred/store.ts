@@ -1,6 +1,8 @@
 import type {
   BallEvent,
   ContestRecord,
+  EngineControls,
+  SettlementRecord,
   ContestStatus,
   ContestTemplate,
   EntryRecord,
@@ -27,6 +29,12 @@ export interface NewContest {
   opensAt: string;
   locksAt: string;
   participantLimit: number | null;
+  entryFee: number;
+  minParticipants: number;
+  prizeSplit: number[];
+  isPrivate?: boolean;
+  /** Private contests only: the code players redeem to get in (stored apart from the contest). */
+  inviteCode?: string | null;
   allowEdit: boolean;
   scoring: ScoringRules;
   questions: PlannedQuestion[];
@@ -46,7 +54,7 @@ export interface Notice {
 export interface CreditInput {
   userId: string;
   amount: number; // may be negative for a logged correction
-  kind: "participation" | "answers" | "rank_bonus" | "contest_reward" | "adjustment";
+  kind: "participation" | "answers" | "rank_bonus" | "contest_reward" | "adjustment" | "prize" | "refund" | "entry_fee" | "welcome_bonus" | "daily_bonus";
   refKey: string; // unique: the same credit can never apply twice
   contestId?: string;
 }
@@ -67,10 +75,16 @@ export interface PredStore {
   // configuration
   listTemplates(): Promise<ContestTemplate[]>;
   getRewardRules(): Promise<RewardRules>;
+  /** Operator switches: pauses, disabled sports / competitions, excluded matches. */
+  getControls(): Promise<EngineControls>;
 
   // contests
   insertContest(c: NewContest): Promise<{ contest: ContestRecord; created: boolean }>;
   getContest(contestId: string): Promise<ContestRecord | null>;
+  /** Which of these generation keys already exist (any status). One query instead of one insert per contest. */
+  existingContestKeys(keys: string[]): Promise<Set<string>>;
+  countEntries(contestId: string): Promise<number>;
+  markRefunded(contestId: string): Promise<void>;
   listContests(statuses: ContestStatus[], opts?: { updatedAfterMs?: number }): Promise<ContestRecord[]>;
   /** Atomic compare-and-set. Returns false if the contest was not in a `from` state. */
   transition(contestId: string, from: ContestStatus[], to: ContestStatus, reason?: string): Promise<boolean>;
@@ -93,6 +107,12 @@ export interface PredStore {
   ledgerTotal(userId: string, refPrefix: string): Promise<number>;
   creditedSince(userId: string, sinceMs: number): Promise<number>;
   credit(input: CreditInput): Promise<boolean>;
+  walletBalance(userId: string): Promise<number>;
+  /** The platform's own virtual-points bucket (never a player). Idempotent by refKey. */
+  platformCredit(input: { contestId: string; amount: number; kind: string; refKey: string }): Promise<boolean>;
+  /** Virtual points the platform bucket already holds from this contest (for correction deltas). */
+  platformHeld(contestId: string): Promise<number>;
+  saveSettlement(s: SettlementRecord): Promise<void>;
 
   // notifications (idempotent by dedupeKey)
   notify(n: Notice): Promise<boolean>;

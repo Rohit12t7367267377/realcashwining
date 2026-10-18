@@ -1,4 +1,5 @@
 import { bucketIndex } from "./generate";
+import { classifyDelivery, mapToOffered } from "./delivery";
 import type { BallEvent, BallOutcome, MatchFacts, QuestionRule, Resolution } from "./types";
 
 /**
@@ -24,6 +25,8 @@ export interface ResolveCtx {
   staticCorrect?: string | null;
   /** Whether the contest's match has the Draw option (Test cricket). */
   hasDrawOption?: boolean;
+  /** Option ids this question actually offers (lets the resolver map a switched-off outcome onto "other"). */
+  optionIds?: string[];
 }
 
 function overEvents(events: BallEvent[], innings: number, over: number) {
@@ -72,6 +75,21 @@ function resolveRule(rule: QuestionRule, ctx: ResolveCtx): Resolution {
       if (!complete) return { status: "pending" };
       const runs = list.reduce((s, e) => s + e.runsBat + e.extras, 0);
       return { status: "resolved", optionId: `b${bucketIndex(runs, rule.thresholds)}` };
+    }
+
+    case "delivery_outcome": {
+      const list = overEvents(events, rule.innings, rule.over);
+      const pool = rule.mode === "legal" ? list.filter((e) => e.legal) : list;
+      if (pool.length >= rule.slot) {
+        const nth = pool[rule.slot - 1];
+        const prefix = list.filter((e) => e.seq <= nth.seq);
+        if (!contiguous(prefix)) return { status: "pending" }; // an earlier record is missing: do not guess the numbering
+        const outcome = classifyDelivery(nth, rule.mode);
+        if (outcome === "unknown") return inningsDone(facts, rule.innings) ? { status: "void", reason: "delivery_type_unknown" } : { status: "pending" };
+        const mapped = mapToOffered(outcome, ctx.optionIds);
+        return mapped.ok ? { status: "resolved", optionId: mapped.optionId } : { status: "void", reason: mapped.reason };
+      }
+      return inningsDone(facts, rule.innings) ? { status: "void", reason: "delivery_not_bowled" } : { status: "pending" };
     }
 
     case "ball_outcome": {

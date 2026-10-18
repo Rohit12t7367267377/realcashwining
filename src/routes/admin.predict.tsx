@@ -14,9 +14,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import {
   approvePredContest, cancelPredContest, correctPredQuestion, createCustomPredContest, deletePredTemplate,
-  getPredAdmin, getPredMonitoring, listPredContestQuestions, runPredNow, savePredSettings, setPredSportEnabled,
+  generatePredForMatch, getPredAccounting, getPredAdmin, getPredMonitoring, listPredContestQuestions, listPredEligibleMatches,
+  rerunPredContest, runPredNow, savePredBonus, savePredControls, savePredSettings, setPredSportEnabled,
   testPredBallFeed, upsertPredCategory, upsertPredTemplate,
 } from "@/lib/admin-pred.functions";
+import { DELIVERY_OPTIONS } from "@/lib/pred/delivery";
 import { listSportsMatchesAdmin } from "@/lib/admin-sports.functions";
 
 export const Route = createFileRoute("/admin/predict")({
@@ -29,7 +31,7 @@ const fmt = (iso?: string | null) => (iso ? new Date(iso).toLocaleString("en-IN"
 const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Something went wrong");
 
 const STATUS_TONE: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  published: "default", scheduled: "secondary", draft: "outline", locked: "secondary", settling: "secondary", completed: "default", cancelled: "destructive",
+  published: "default", scheduled: "secondary", draft: "outline", locked: "secondary", live: "default", settling: "secondary", completed: "default", cancelled: "destructive", void: "destructive",
   ok: "default", failed: "destructive", running: "secondary",
 };
 
@@ -149,6 +151,9 @@ function ReasonDialog({ title, open, onClose, onConfirm, confirmLabel }: { title
 function ContestsTab({ d, reload }: { d: Overview; reload: () => void }) {
   const [cancelId, setCancelId] = useState<string | null>(null);
   const [review, setReview] = useState<any | null>(null);
+  async function rerun(id: string) {
+    try { const r = await rerunPredContest({ data: { id } }); toast.success(`Re-run done · refunded ${r.refunded} · credited ${r.credited}${r.errors.length ? ` · ${r.errors.length} error(s)` : ""}`); reload(); } catch (e) { toast.error(errMsg(e)); }
+  }
   async function approve(id: string) {
     try { await approvePredContest({ data: { id } }); toast.success("Approved. It publishes automatically when its window opens."); reload(); } catch (e) { toast.error(errMsg(e)); }
   }
@@ -159,19 +164,20 @@ function ContestsTab({ d, reload }: { d: Overview; reload: () => void }) {
         <Card key={c.id} className="flex flex-wrap items-center justify-between gap-2 p-3">
           <div className="min-w-0">
             <div className="truncate text-sm font-semibold">{c.title}</div>
-            <div className="text-[11px] text-muted-foreground">Opens {fmt(c.opens_at)} · locks {fmt(c.locks_at)} · {c.trigger.replace("_", " ")}{c.correction_version ? ` · corrections v${c.correction_version}` : ""}</div>
-            {c.cancel_reason && <div className="text-[11px] text-destructive">Cancelled: {c.cancel_reason}</div>}
+            <div className="text-[11px] text-muted-foreground">Opens {fmt(c.opens_at)} · locks {fmt(c.locks_at)} · {c.trigger.replace("_", " ")} · {c.entry_fee > 0 ? `${c.entry_fee} pts entry, min ${c.min_participants}, prizes ${(c.prize_split ?? []).join("/")}%` : "free"}{c.correction_version ? ` · corrections v${c.correction_version}` : ""}</div>
+            {c.cancel_reason && <div className="text-[11px] text-destructive">{c.status === "void" ? "Voided" : "Cancelled"}: {String(c.cancel_reason).replace(/_/g, " ")}{c.refunded_at ? " · entries refunded" : c.status === "cancelled" || c.status === "void" ? " · refund pending" : ""}</div>}
           </div>
           <div className="flex items-center gap-1.5">
             <Badge variant={STATUS_TONE[c.status]}>{c.status}</Badge>
             {c.status === "draft" && <Button size="sm" onClick={() => approve(c.id)}>Approve</Button>}
-            {["locked", "settling", "completed"].includes(c.status) && <Button size="sm" variant="outline" onClick={() => setReview(c)}>Results</Button>}
-            {["draft", "scheduled", "published"].includes(c.status) && <Button size="sm" variant="ghost" onClick={() => setCancelId(c.id)}>Cancel</Button>}
+            {["locked", "live", "settling", "completed"].includes(c.status) && <Button size="sm" variant="outline" onClick={() => setReview(c)}>Results</Button>}
+            {["locked", "live", "settling", "completed", "cancelled", "void"].includes(c.status) && <Button size="sm" variant="ghost" onClick={() => rerun(c.id)}>Re-run</Button>}
+            {["draft", "scheduled", "published", "locked", "live", "settling"].includes(c.status) && <Button size="sm" variant="ghost" onClick={() => setCancelId(c.id)}>{["draft", "scheduled", "published"].includes(c.status) ? "Cancel" : "Void"}</Button>}
           </div>
         </Card>
       ))}
-      <ReasonDialog title="Cancel contest" open={!!cancelId} onClose={() => setCancelId(null)} confirmLabel="Cancel contest"
-        onConfirm={async (reason) => { await cancelPredContest({ data: { id: cancelId!, reason } }); toast.success("Contest cancelled"); reload(); }} />
+      <ReasonDialog title="Cancel or void contest (entry points are refunded)" open={!!cancelId} onClose={() => setCancelId(null)} confirmLabel="Cancel / void contest"
+        onConfirm={async (reason) => { await cancelPredContest({ data: { id: cancelId!, reason } }); toast.success("Contest closed and entries refunded"); reload(); }} />
       {review && <ResultsDialog contest={review} onClose={() => setReview(null)} reload={reload} />}
 
       {d.corrections.length > 0 && (
@@ -225,7 +231,9 @@ function ResultsDialog({ contest, onClose, reload }: { contest: any; onClose: ()
 
 // ---------------------------------------------------------------------------
 type TForm = {
-  id?: string; categoryId: string; name: string; sport: string; formats: string; generator: "match_winner" | "over_by_over" | "innings_balls" | "innings_total";
+  id?: string; categoryId: string; name: string; sport: string; formats: string; generator: "match_winner" | "over_by_over" | "innings_balls" | "innings_total" | "over_markets";
+  marketMode: "legal" | "event"; inningsList: string; optionOn: Record<string, boolean>; optionLabel: Record<string, string>;
+  entryFee: number; minParticipants: number; prizeSplit: string;
   innings: number; over: number; balls: number; overs: string; thresholds: string; points: string;
   trigger: "pre_match" | "innings_break" | "after_over" | "match_completed";
   createBeforeMin: number; opensBeforeMin: number; locksBeforeMin: number; lockAfterMin: number; catchUp: "skip" | "shorten"; minOpenMin: number; afterOver: number; tInnings: number;
@@ -233,7 +241,9 @@ type TForm = {
   autoGenerate: boolean; requireApproval: boolean; allowEdit: boolean; enabled: boolean; rawPlan?: any;
 };
 const blankTemplate = (): TForm => ({
-  categoryId: "", name: "", sport: "cricket", formats: "t20, odi", generator: "match_winner", innings: 1, over: 1, balls: 6, overs: "", thresholds: "", points: "",
+  categoryId: "", name: "", sport: "cricket", formats: "t20, odi", generator: "match_winner",
+  marketMode: "legal", inningsList: "1, 2", optionOn: Object.fromEntries(DELIVERY_OPTIONS.filter((o) => !o.eventModeOnly).map((o) => [o.id, true])), optionLabel: {},
+  entryFee: 0, minParticipants: 0, prizeSplit: "70", innings: 1, over: 1, balls: 6, overs: "", thresholds: "", points: "",
   trigger: "pre_match", createBeforeMin: 60, opensBeforeMin: 30, locksBeforeMin: 1, lockAfterMin: 5, catchUp: "shorten", minOpenMin: 5, afterOver: 1, tInnings: 1,
   pointsPerCorrect: 10, negativePerWrong: 0, participantLimit: "", autoGenerate: true, requireApproval: false, allowEdit: false, enabled: true,
 });
@@ -241,7 +251,11 @@ function toForm(t: any): TForm {
   const f = blankTemplate();
   return {
     ...f, id: t.id, categoryId: t.category_id ?? "", name: t.name, sport: t.sport, formats: (t.formats ?? []).join(", "),
-    generator: ["match_winner", "over_by_over", "innings_balls", "innings_total"].includes(t.plan.generator) ? t.plan.generator : "match_winner",
+    generator: ["match_winner", "over_by_over", "innings_balls", "innings_total", "over_markets"].includes(t.plan.generator) ? t.plan.generator : "match_winner",
+    marketMode: t.plan.marketMode ?? "legal", inningsList: (t.plan.inningsList ?? [1, 2]).join(", "),
+    optionOn: Object.fromEntries(DELIVERY_OPTIONS.map((o) => [o.id, (t.plan.optionIds ?? DELIVERY_OPTIONS.filter((x) => !x.eventModeOnly).map((x) => x.id)).includes(o.id)])),
+    optionLabel: t.plan.optionLabels ?? {},
+    entryFee: t.entry_fee ?? 0, minParticipants: t.min_participants ?? 0, prizeSplit: (t.prize_split ?? [70]).join(", "),
     innings: t.plan.innings ?? 1, over: t.plan.over ?? 1, balls: t.plan.balls ?? 6, overs: t.plan.overs ? String(t.plan.overs) : "", thresholds: (t.plan.thresholds ?? []).join(", "), points: t.plan.points ? String(t.plan.points) : "",
     trigger: t.timing.trigger, createBeforeMin: t.timing.createBeforeMin, opensBeforeMin: t.timing.opensBeforeMin, locksBeforeMin: t.timing.locksBeforeMin,
     lockAfterMin: t.timing.lockAfterMin, catchUp: t.timing.catchUp, minOpenMin: t.timing.minOpenMin, afterOver: t.timing.afterOver ?? 1, tInnings: t.timing.innings ?? 1,
@@ -290,6 +304,11 @@ function payload(f: TForm) {
     ...(f.generator === "over_by_over" ? { innings: f.innings, over: f.over, balls: f.balls } : {}),
     ...(f.generator === "innings_balls" ? { innings: f.innings, ...(f.overs ? { overs: Number(f.overs) } : {}) } : {}),
     ...(f.generator === "innings_total" ? { innings: f.innings, ...(nums(f.thresholds).length ? { thresholds: nums(f.thresholds) } : {}) } : {}),
+    ...(f.generator === "over_markets" ? {
+      marketMode: f.marketMode, inningsList: nums(f.inningsList),
+      optionIds: DELIVERY_OPTIONS.filter((o) => f.optionOn[o.id]).map((o) => o.id),
+      optionLabels: Object.fromEntries(Object.entries(f.optionLabel).filter(([k, v]) => v.trim() && f.optionOn[k])),
+    } : {}),
     ...(f.points ? { points: Number(f.points) } : {}),
   };
   return {
@@ -302,6 +321,7 @@ function payload(f: TForm) {
     },
     scoring: { pointsPerCorrect: f.pointsPerCorrect, negativePerWrong: f.negativePerWrong },
     participantLimit: f.participantLimit ? Number(f.participantLimit) : null,
+    entryFee: f.entryFee, minParticipants: f.minParticipants, prizeSplit: nums(f.prizeSplit),
     autoGenerate: f.autoGenerate, requireApproval: f.requireApproval, allowEdit: f.allowEdit, enabled: f.enabled,
   };
 }
@@ -332,13 +352,32 @@ function TemplateDialog({ init, cats, onClose, reload }: { init: TForm; cats: an
           {f.rawPlan ? <p className="col-span-2 text-xs text-muted-foreground">This is a trivia template; its questions are kept unchanged.</p> : (<>
             <div><Label className="text-[11px]">What it asks</Label>
               <Select value={f.generator} onValueChange={(v) => set("generator", v as TForm["generator"])}><SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="match_winner">Match winner</SelectItem><SelectItem value="innings_total">Innings total (score range)</SelectItem><SelectItem value="over_by_over">One over, ball by ball</SelectItem><SelectItem value="innings_balls">Every ball of the innings (4 options)</SelectItem></SelectContent></Select></div>
+                <SelectContent><SelectItem value="match_winner">Match winner</SelectItem><SelectItem value="innings_total">Innings total (score range)</SelectItem><SelectItem value="over_by_over">One over, ball by ball</SelectItem><SelectItem value="innings_balls">Every ball of the innings (4 options)</SelectItem><SelectItem value="over_markets">Every over: one contest per over (configurable options)</SelectItem></SelectContent></Select></div>
             <div><Label className="text-[11px]">Points per question (blank = scoring default)</Label><Input value={f.points} onChange={(e) => set("points", e.target.value.replace(/\D/g, ""))} /></div>
-            {f.generator !== "match_winner" && <NumField label="Innings" value={f.innings} min={1} max={4} onChange={(n) => set("innings", n)} />}
+            {f.generator !== "match_winner" && f.generator !== "over_markets" && <NumField label="Innings" value={f.innings} min={1} max={4} onChange={(n) => set("innings", n)} />}
+            {f.generator === "over_markets" && (<>
+              <div><Label className="text-[11px]">Slot counts…</Label>
+                <Select value={f.marketMode} onValueChange={(v) => set("marketMode", v as "legal" | "event")}><SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="legal">Legal balls only (6 per over; wides/no-balls skipped)</SelectItem><SelectItem value="event">Every delivery (wides and no-balls are deliveries)</SelectItem></SelectContent></Select></div>
+              <div><Label className="text-[11px]">Innings (comma separated)</Label><Input value={f.inningsList} onChange={(e) => set("inningsList", e.target.value)} placeholder="1, 2" /></div>
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-[11px]">Answer options (one primary outcome per ball: wicket first, then wide, no-ball, six, four, 3, 2, 1, dot)</Label>
+                {DELIVERY_OPTIONS.map((o) => {
+                  const blocked = o.eventModeOnly && f.marketMode === "legal";
+                  return (
+                    <div key={o.id} className="flex items-center gap-2 text-xs">
+                      <Switch checked={!!f.optionOn[o.id] && !blocked} disabled={blocked} onCheckedChange={(v) => set("optionOn", { ...f.optionOn, [o.id]: v })} />
+                      <Input className="h-8" disabled={blocked} placeholder={o.label} value={f.optionLabel[o.id] ?? ""} onChange={(e) => set("optionLabel", { ...f.optionLabel, [o.id]: e.target.value })} />
+                      <span className="hidden text-[10px] text-muted-foreground md:inline">{o.help}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </>)}
             {f.generator === "over_by_over" && <><NumField label="Over" value={f.over} min={1} max={50} onChange={(n) => set("over", n)} /><NumField label="Balls asked" value={f.balls} min={1} max={6} onChange={(n) => set("balls", n)} /></>}
             {f.generator === "innings_total" && <div className="col-span-2"><Label className="text-[11px]">Score thresholds (comma separated, blank = format defaults)</Label><Input value={f.thresholds} onChange={(e) => set("thresholds", e.target.value)} placeholder="140, 170, 200" /></div>}
             {f.generator === "innings_balls" && <><div className="space-y-1"><Label className="text-xs">Overs (blank = full innings)</Label><Input inputMode="numeric" value={f.overs} onChange={(e) => set("overs", e.target.value.replace(/\D/g, "").slice(0, 2))} /></div></>}
-            {(f.generator === "over_by_over" || f.generator === "innings_balls") && <p className="col-span-2 rounded-md bg-amber-500/10 p-2 text-[11px] text-amber-700 dark:text-amber-300">Over-by-over contests settle from ball-by-ball data. Keep this template disabled until “Test feed” in Settings recognises your provider's data.</p>}
+            {(f.generator === "over_by_over" || f.generator === "innings_balls" || f.generator === "over_markets") && <p className="col-span-2 rounded-md bg-amber-500/10 p-2 text-[11px] text-amber-700 dark:text-amber-300">Over-by-over contests settle from ball-by-ball data. Keep this template disabled until “Test feed” in Settings recognises your provider's data.</p>}
           </>)}
           <div><Label className="text-[11px]">Trigger</Label>
             <Select value={f.trigger} onValueChange={(v) => set("trigger", v as TForm["trigger"])}><SelectTrigger><SelectValue /></SelectTrigger>
@@ -357,6 +396,9 @@ function TemplateDialog({ init, cats, onClose, reload }: { init: TForm; cats: an
           <NumField label="Points per correct" value={f.pointsPerCorrect} min={1} max={1000} onChange={(n) => set("pointsPerCorrect", n)} />
           <NumField label="Penalty per wrong" value={f.negativePerWrong} min={0} max={1000} onChange={(n) => set("negativePerWrong", n)} />
           <div><Label className="text-[11px]">Participant limit (blank = none)</Label><Input value={f.participantLimit} onChange={(e) => set("participantLimit", e.target.value.replace(/\D/g, ""))} /></div>
+          <NumField label="Entry fee (virtual points, 0 = free practice)" value={f.entryFee} max={100000} onChange={(n) => set("entryFee", n)} />
+          <NumField label="Minimum players (else refund)" value={f.minParticipants} max={1000000} onChange={(n) => set("minParticipants", n)} />
+          <div className="col-span-2"><Label className="text-[11px]">Prize split, % of the entry pool for rank 1, 2, 3… (rest goes to the platform bucket)</Label><Input value={f.prizeSplit} onChange={(e) => set("prizeSplit", e.target.value)} placeholder="70" /></div>
         </div>
         <div className="grid grid-cols-2 gap-2 text-xs">
           {([["autoGenerate", "Generate automatically"], ["requireApproval", "Needs admin approval"], ["allowEdit", "Players may edit before lock"], ["enabled", "Enabled"]] as const).map(([k, label]) => (
@@ -480,6 +522,10 @@ function ConfigTab({ d, reload }: { d: Overview; reload: () => void }) {
         <Button onClick={saveSettings}><CheckCircle2 className="mr-1 h-4 w-4" /> Save settings</Button>
       </Card>
 
+      <ControlsCard d={d} reload={reload} />
+      <MatchesCard d={d} reload={reload} />
+      <BonusCard d={d} reload={reload} />
+
       <Card className="space-y-3 p-4">
         <div className="text-sm font-semibold">Ball-by-ball feed check</div>
         <p className="text-xs text-muted-foreground">Fetches the provider's ball-by-ball data for one match and shows how many rows were recognised. Nothing is stored. Over-by-over contests should only be enabled when this recognises the data.</p>
@@ -521,6 +567,115 @@ function ConfigTab({ d, reload }: { d: Overview; reload: () => void }) {
 }
 
 // ---------------------------------------------------------------------------
+function ControlsCard({ d, reload }: { d: Overview; reload: () => void }) {
+  const c = (d.settings.controls ?? {}) as any;
+  const [v, setV] = useState({
+    pauseGeneration: c.pauseGeneration === true, pausePublication: c.pausePublication === true, pauseSettlement: c.pauseSettlement === true,
+    abandonPolicy: (c.abandonPolicy === "refund_all" ? "refund_all" : "settle_verified") as "settle_verified" | "refund_all",
+    disabledSeries: (c.disabledSeries ?? []).join(", ") as string,
+    disabledSports: (c.disabledSports ?? []) as string[], excludedMatchIds: (c.excludedMatchIds ?? []) as string[],
+  });
+  async function save() {
+    try {
+      await savePredControls({ data: { ...v, disabledSeries: v.disabledSeries.split(",").map((x) => x.trim()).filter(Boolean) } });
+      toast.success("Controls saved"); reload();
+    } catch (e) { toast.error(errMsg(e)); }
+  }
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="text-sm font-semibold">Automation controls</div>
+      <p className="text-xs text-muted-foreground">Each stage can be paused on its own. Pausing publication keeps generating but holds contests back; pausing settlement keeps results unpaid until you resume. Locking and refunds are never paused.</p>
+      <div className="grid grid-cols-1 gap-2 text-xs md:grid-cols-3">
+        {([["pauseGeneration", "Pause generation"], ["pausePublication", "Pause publication"], ["pauseSettlement", "Pause settlement"]] as const).map(([k, label]) => (
+          <label key={k} className="flex items-center justify-between rounded-md border p-2">{label}<Switch checked={v[k]} onCheckedChange={(x) => setV({ ...v, [k]: x })} /></label>
+        ))}
+      </div>
+      <div>
+        <Label className="text-[11px]">Match abandoned / cancelled after contests locked</Label>
+        <Select value={v.abandonPolicy} onValueChange={(x) => setV({ ...v, abandonPolicy: x as typeof v.abandonPolicy })}><SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="settle_verified">Settle what was verified, void the rest</SelectItem><SelectItem value="refund_all">Void everything and refund all entries</SelectItem></SelectContent></Select>
+        <p className="mt-1 text-[11px] text-muted-foreground">A postponed match always voids its locked contests and refunds entries; a changed start time replaces not-yet-played contests.</p>
+      </div>
+      <div><Label className="text-[11px]">Disabled competitions (comma separated, exact series names)</Label><Input value={v.disabledSeries} onChange={(e) => setV({ ...v, disabledSeries: e.target.value })} /></div>
+      <Button onClick={save}><CheckCircle2 className="mr-1 h-4 w-4" /> Save controls</Button>
+    </Card>
+  );
+}
+
+function MatchesCard({ d, reload }: { d: Overview; reload: () => void }) {
+  const [rows, setRows] = useState<any[] | null>(null);
+  const c = (d.settings.controls ?? {}) as any;
+  const [excluded, setExcluded] = useState<string[]>(c.excludedMatchIds ?? []);
+  useEffect(() => { listPredEligibleMatches().then(setRows).catch(() => setRows([])); }, []);
+  async function toggle(id: string, on: boolean) {
+    const next = on ? [...excluded, id] : excluded.filter((x) => x !== id);
+    try {
+      await savePredControls({ data: { pauseGeneration: c.pauseGeneration === true, pausePublication: c.pausePublication === true, pauseSettlement: c.pauseSettlement === true, abandonPolicy: c.abandonPolicy === "refund_all" ? "refund_all" : "settle_verified", disabledSports: c.disabledSports ?? [], disabledSeries: c.disabledSeries ?? [], excludedMatchIds: next } });
+      setExcluded(next); reload();
+    } catch (e) { toast.error(errMsg(e)); }
+  }
+  async function generate(id: string) {
+    try { const r = await generatePredForMatch({ data: { matchId: id } }); toast.success(`${r.generated} contest(s) generated${Object.keys(r.skipped).length ? ` · skipped: ${Object.entries(r.skipped).map(([k, n]) => `${k} ${n}`).join(", ")}` : ""}`); reload(); } catch (e) { toast.error(errMsg(e)); }
+  }
+  return (
+    <Card className="space-y-2 p-4">
+      <div className="text-sm font-semibold">Matches (real provider data)</div>
+      <p className="text-xs text-muted-foreground">Exclude a match from automation, or generate its contests now. Manual generation is safe to repeat: existing contests are never duplicated, and excluded/cancelled ones are never recreated by the scheduler.</p>
+      {rows === null ? <p className="text-xs text-muted-foreground">Loading…</p> : rows.length === 0 ? <p className="text-xs text-muted-foreground">No upcoming matches in the provider cache. Run “Fetch fixtures” from Overview.</p> : rows.map((m) => (
+        <div key={m.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border p-2 text-xs">
+          <div className="min-w-0"><div className="truncate font-medium">{m.name ?? `${m.team_a} vs ${m.team_b}`}</div><div className="text-[11px] text-muted-foreground">{fmt(m.date_time)} · {m.match_type ?? "—"} · {m.status ?? ""}</div></div>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-1 text-[11px]">Exclude<Switch checked={excluded.includes(m.id)} onCheckedChange={(on) => toggle(m.id, on)} /></label>
+            <Button size="sm" variant="outline" onClick={() => generate(m.id)}>Generate now</Button>
+          </div>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+function BonusCard({ d, reload }: { d: Overview; reload: () => void }) {
+  const b = (d.settings.bonus ?? { enabled: true, welcome: 100, daily: 20 }) as any;
+  const [v, setV] = useState({ enabled: b.enabled !== false, welcome: Number(b.welcome ?? 100), daily: Number(b.daily ?? 20) });
+  return (
+    <Card className="space-y-3 p-4">
+      <div className="text-sm font-semibold">Free virtual points for players</div>
+      <p className="text-xs text-muted-foreground">Players need points to join paid-entry contests. These grants are the only way points are created besides contest rewards; they cannot be bought, sold, transferred or withdrawn.</p>
+      <div className="grid grid-cols-3 gap-3">
+        <label className="flex items-center justify-between rounded-md border p-2 text-xs">Enabled<Switch checked={v.enabled} onCheckedChange={(x) => setV({ ...v, enabled: x })} /></label>
+        <NumField label="Welcome grant (once)" value={v.welcome} max={10000} onChange={(n) => setV({ ...v, welcome: n })} />
+        <NumField label="Daily grant" value={v.daily} max={10000} onChange={(n) => setV({ ...v, daily: n })} />
+      </div>
+      <Button onClick={async () => { try { await savePredBonus({ data: v }); toast.success("Saved"); reload(); } catch (e) { toast.error(errMsg(e)); } }}>Save free points</Button>
+    </Card>
+  );
+}
+
+function AccountingCard() {
+  const [a, setA] = useState<Awaited<ReturnType<typeof getPredAccounting>> | null>(null);
+  useEffect(() => { getPredAccounting().then(setA).catch(() => setA(null)); }, []);
+  if (!a) return null;
+  const t = a.totals;
+  const diff = t.feesCollected - t.prizesPaid - t.platformBucket - 0;
+  return (
+    <Card className="space-y-2 p-4">
+      <div className="text-sm font-semibold">Virtual-points accounting</div>
+      <div className="grid grid-cols-2 gap-2 text-xs md:grid-cols-4">
+        <div className="rounded-md border p-2">Entry fees<div className="text-base font-black">{t.feesCollected}</div></div>
+        <div className="rounded-md border p-2">Prizes paid<div className="text-base font-black">{t.prizesPaid}</div></div>
+        <div className="rounded-md border p-2">Refunded<div className="text-base font-black">{t.refunded}</div></div>
+        <div className="rounded-md border p-2">Platform bucket<div className="text-base font-black">{t.platformBucket}</div></div>
+      </div>
+      <p className="text-[11px] text-muted-foreground">Fees − prizes − platform − refunds still held in unsettled contests = {diff - t.refunded}. A non-zero value is normal while contests are open; it must return to 0 once everything is settled or refunded.</p>
+      {a.settlements.length > 0 && (
+        <table className="w-full text-xs"><thead className="text-left text-muted-foreground"><tr><th className="p-1">When</th><th className="p-1">Players</th><th className="p-1">Pool</th><th className="p-1">Prizes</th><th className="p-1">Platform</th><th className="p-1">v</th></tr></thead>
+          <tbody>{a.settlements.map((x: any) => <tr key={`${x.contest_id}-${x.version}`} className="border-t"><td className="p-1">{fmt(x.created_at)}</td><td className="p-1">{x.participants}</td><td className="p-1">{x.pool}</td><td className="p-1">{x.prize_total}</td><td className="p-1">{x.platform_share}</td><td className="p-1">{x.version}</td></tr>)}</tbody></table>
+      )}
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
 type Monitoring = Awaited<ReturnType<typeof getPredMonitoring>>;
 function MonitorTab() {
   const [m, setM] = useState<Monitoring | null>(null);
@@ -538,6 +693,7 @@ function MonitorTab() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end"><Button size="sm" variant="outline" onClick={load} disabled={busy}><RefreshCw className={`mr-1 h-3 w-3 ${busy ? "animate-spin" : ""}`} /> Refresh</Button></div>
+      <AccountingCard />
       <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
         <Stat label="Entries (24h)" value={String(m.activity24h.entries)} tone="ok" />
         <Stat label="Point credits (24h)" value={String(m.activity24h.pointCredits)} tone="ok" />

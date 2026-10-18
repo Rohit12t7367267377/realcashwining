@@ -22,7 +22,11 @@ const timingSchema = z.object({
   innings: z.number().int().min(1).max(4).optional(),
 });
 const planSchema = z.object({
-  generator: z.enum(["match_winner", "over_by_over", "innings_balls", "innings_total", "static"]),
+  generator: z.enum(["match_winner", "over_by_over", "innings_balls", "innings_total", "static", "over_markets"]),
+  marketMode: z.enum(["legal", "event"]).optional(),
+  optionIds: z.array(z.string().min(1).max(20)).min(2).max(10).optional(),
+  optionLabels: z.record(z.string().max(20), z.string().trim().min(1).max(40)).optional(),
+  inningsList: z.array(z.number().int().min(1).max(4)).min(1).max(4).optional(),
   overs: z.number().int().min(1).max(50).optional(),
   innings: z.number().int().min(1).max(4).optional(),
   over: z.number().int().min(1).max(50).optional(),
@@ -34,6 +38,20 @@ const planSchema = z.object({
     correctIndex: z.number().int().min(0).max(7),
   })).max(50).optional(),
   points: z.number().int().min(1).max(1000).optional(),
+});
+const economySchema = {
+  entryFee: z.number().int().min(0).max(100_000).default(13),
+  minParticipants: z.number().int().min(0).max(1_000_000).default(0),
+  prizeSplit: z.array(z.number().int().min(0).max(100)).min(1).max(10).default([70]),
+};
+const controlsSchema = z.object({
+  pauseGeneration: z.boolean(),
+  pausePublication: z.boolean(),
+  pauseSettlement: z.boolean(),
+  abandonPolicy: z.enum(["settle_verified", "refund_all"]),
+  disabledSports: z.array(z.string().max(60)).max(100),
+  disabledSeries: z.array(z.string().max(200)).max(500),
+  excludedMatchIds: z.array(z.string().max(120)).max(1000),
 });
 const scoringSchema = z.object({
   pointsPerCorrect: z.number().int().min(1).max(1000),
@@ -52,9 +70,9 @@ export const getPredAdmin = createServerFn({ method: "GET" })
       db.from("pred_sports").select("*").order("sort_order"),
       db.from("pred_categories").select("*").order("sort_order"),
       db.from("pred_templates").select("*").order("created_at"),
-      db.from("pred_contests").select("id, title, status, sport, trigger, opens_at, locks_at, match_id, template_id, generation_key, cancel_reason, correction_version, participant_limit").order("created_at", { ascending: false }).limit(80),
+      db.from("pred_contests").select("id, title, status, sport, trigger, opens_at, locks_at, match_id, template_id, generation_key, cancel_reason, correction_version, participant_limit, entry_fee, min_participants, prize_split, refunded_at").order("created_at", { ascending: false }).limit(80),
       db.from("pred_jobs").select("*").order("started_at", { ascending: false }).limit(30),
-      db.from("app_settings").select("key, value").in("key", ["pred_engine_enabled", "pred_bbb_enabled", "pred_reward_rules", "sports_sync_health"]),
+      db.from("app_settings").select("key, value").in("key", ["pred_engine_enabled", "pred_bbb_enabled", "pred_reward_rules", "sports_sync_health", "pred_controls", "pred_bonus"]),
       db.from("pred_corrections").select("id, question_id, contest_id, before_state, after_state, actor, reason, created_at").order("created_at", { ascending: false }).limit(30),
     ]);
     for (const r of [sports, categories, templates, contests, jobs, settings, corrections]) if (r.error) throw new Error(r.error.message);
@@ -68,6 +86,8 @@ export const getPredAdmin = createServerFn({ method: "GET" })
         engineEnabled: s.get("pred_engine_enabled") !== false,
         bbbEnabled: s.get("pred_bbb_enabled") === true,
         rewards: s.get("pred_reward_rules") ?? null,
+        controls: s.get("pred_controls") ?? null,
+        bonus: s.get("pred_bonus") ?? null,
       },
       providerHealth: s.get("sports_sync_health") ?? null,
     };
@@ -136,6 +156,12 @@ export const setPredSportEnabled = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { error } = await db.from("pred_sports").update({ enabled: data.enabled }).eq("key", data.key);
     if (error) throw new Error(error.message);
+    // The engine reads its switches from pred_controls: keep the two in step.
+    const store = await engine();
+    const controls = await store.getControls();
+    const rest = controls.disabledSports.filter((k) => k !== data.key);
+    const disabledSports = data.enabled ? rest : [...rest, data.key];
+    await db.from("app_settings").upsert({ key: "pred_controls", value: { ...controls, disabledSports }, updated_at: new Date().toISOString() });
     await (await engine()).audit("sport.toggled", context.adminUserId, data.key, { enabled: data.enabled });
     return { ok: true };
   });
@@ -173,6 +199,7 @@ export const upsertPredTemplate = createServerFn({ method: "POST" })
     timing: timingSchema,
     scoring: scoringSchema,
     participantLimit: z.number().int().min(1).max(1_000_000).nullable().optional(),
+    ...economySchema,
     autoGenerate: z.boolean(),
     requireApproval: z.boolean(),
     allowEdit: z.boolean(),
@@ -180,9 +207,16 @@ export const upsertPredTemplate = createServerFn({ method: "POST" })
   }).parse(d))
   .handler(async ({ data, context }) => {
     const { validateTiming } = await import("@/lib/pred/timing");
-    const { generateForTemplate } = await import("@/lib/pred/generate");
+    const { generateForTemplate, validateDeliveryPlan } = await import("@/lib/pred/generate");
+    const { validatePrizeSplit } = await import("@/lib/pred/economy");
     const timingError = validateTiming(data.timing);
     if (timingError) throw new Error(timingError);
+    const splitError = validatePrizeSplit(data.prizeSplit);
+    if (splitError) throw new Error(splitError);
+    if (data.plan.generator === "over_markets") {
+      const planError = validateDeliveryPlan(data.plan);
+      if (planError) throw new Error(planError);
+    }
     // Dry-run the generator so an invalid plan is rejected now, not at 3am.
     const probe = generateForTemplate(
       { id: "probe", sport: data.sport, format: data.formats[0] ?? "t20", startsAt: null, state: "upcoming", teamA: "Team A", teamB: "Team B", statusText: "" },
@@ -192,6 +226,7 @@ export const upsertPredTemplate = createServerFn({ method: "POST" })
     const row = {
       category_id: data.categoryId ?? null, name: data.name, description: data.description ?? null, sport: data.sport, formats: data.formats,
       plan: data.plan, timing: data.timing, scoring: data.scoring, participant_limit: data.participantLimit ?? null,
+      entry_fee: data.entryFee, min_participants: data.minParticipants, prize_split: data.prizeSplit,
       auto_generate: data.autoGenerate, require_approval: data.requireApproval, allow_edit: data.allowEdit, enabled: data.enabled,
       updated_at: new Date().toISOString(),
     };
@@ -229,7 +264,7 @@ export const cancelPredContest = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { cancelContest } = await import("@/lib/pred/engine");
     const ok = await cancelContest(await engine(), data.id, context.adminUserId, data.reason);
-    if (!ok) throw new Error("Only draft, scheduled or published contests can be cancelled.");
+    if (!ok) throw new Error("This contest is already settled, cancelled or voided.");
     return { ok: true };
   });
 
@@ -245,6 +280,10 @@ export const createCustomPredContest = createServerFn({ method: "POST" })
     locksAt: z.string().datetime(),
     participantLimit: z.number().int().min(1).max(1_000_000).nullable().optional(),
     allowEdit: z.boolean().default(false),
+    entryFee: z.number().int().min(0).max(100_000).default(0),
+    minParticipants: z.number().int().min(0).max(1_000_000).default(0),
+    prizeSplit: z.array(z.number().int().min(0).max(100)).min(1).max(10).default([70]),
+    isPrivate: z.boolean().default(false),
     scoring: scoringSchema,
     publish: z.boolean().default(false), // false => draft awaiting approval
     questions: z.array(z.object({
@@ -270,15 +309,95 @@ export const createCustomPredContest = createServerFn({ method: "POST" })
     });
     const invalid = validateQuestions(questions);
     if (invalid) throw new Error(invalid);
+    const { validatePrizeSplit } = await import("@/lib/pred/economy");
+    const splitError = validatePrizeSplit(data.prizeSplit);
+    if (splitError) throw new Error(splitError);
     const store = await engine();
+    const inviteCode = data.isPrivate ? crypto.randomUUID().replace(/-/g, "").slice(0, 10).toUpperCase() : null;
     const { contest, created } = await store.insertContest({
       generationKey: `custom:${crypto.randomUUID()}`, templateId: null, categoryId: data.categoryId ?? null, matchId: data.matchId ?? null,
       sport: data.sport, trigger: "pre_match", title: data.title, status: data.publish ? "scheduled" : "draft",
       opensAt: data.opensAt, locksAt: data.locksAt, participantLimit: data.participantLimit ?? null, allowEdit: data.allowEdit,
+      entryFee: data.entryFee, minParticipants: data.minParticipants, prizeSplit: data.prizeSplit, isPrivate: data.isPrivate, inviteCode,
       scoring: data.scoring, questions,
     });
     await store.audit("contest.custom_created", context.adminUserId, contest.id, { title: data.title, publish: data.publish });
-    return { id: contest.id, created };
+    return { id: contest.id, created, inviteCode };
+  });
+
+/** Pause switches, include/exclude lists and the abandoned-match policy. */
+export const savePredControls = createServerFn({ method: "POST" })
+  .middleware([requireAdminPermission(PERM)])
+  .inputValidator((d) => controlsSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await db.from("app_settings").upsert({ key: "pred_controls", value: data, updated_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+    await (await engine()).audit("controls.saved", context.adminUserId, "pred_controls", data as unknown as Record<string, unknown>);
+    return { ok: true };
+  });
+
+export const savePredBonus = createServerFn({ method: "POST" })
+  .middleware([requireAdminPermission(PERM)])
+  .inputValidator((d) => z.object({ enabled: z.boolean(), welcome: z.number().int().min(0).max(10000), daily: z.number().int().min(0).max(10000) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await db.from("app_settings").upsert({ key: "pred_bonus", value: data, updated_at: new Date().toISOString() });
+    if (error) throw new Error(error.message);
+    await (await engine()).audit("bonus.saved", context.adminUserId, "pred_bonus", data);
+    return { ok: true };
+  });
+
+/** Upcoming matches an admin can generate contests for (or exclude). Real provider rows only. */
+export const listPredEligibleMatches = createServerFn({ method: "GET" })
+  .middleware([requireAdminPermission(PERM)])
+  .handler(async () => {
+    const { data, error } = await db.from("cricket_matches").select("id, name, status, date_time, match_type, team_a, team_b, fetched_at")
+      .gte("date_time", new Date(Date.now() - 6 * 3_600_000).toISOString()).order("date_time", { ascending: true }).limit(100);
+    if (error) throw new Error(error.message);
+    return data as Array<{ id: string; name: string | null; status: string | null; date_time: string | null; match_type: string | null; team_a: string | null; team_b: string | null; fetched_at: string | null }>;
+  });
+
+/** Manual generation for one match (optionally one template). Idempotent: never duplicates existing contests. */
+export const generatePredForMatch = createServerFn({ method: "POST" })
+  .middleware([requireAdminPermission(PERM)])
+  .inputValidator((d) => z.object({ matchId: z.string().min(1).max(120), templateId: id.optional() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const store = await engine();
+    const { emptyReport, generateContests } = await import("@/lib/pred/engine");
+    const matches = (await store.listActiveMatches()).filter((m) => m.id === data.matchId);
+    if (!matches.length) throw new Error("Match not found in the verified provider data.");
+    const r = emptyReport();
+    await generateContests(store, matches, Date.now(), r, { force: true, matchIds: [data.matchId], templateIds: data.templateId ? [data.templateId] : undefined });
+    await store.audit("contest.manual_generate", context.adminUserId, data.matchId, { generated: r.generated, skipped: r.skipped });
+    return { generated: r.generated, skipped: r.skipped, errors: r.errors };
+  });
+
+/** Re-runs settlement / refunds for one contest. Safe to repeat. */
+export const rerunPredContest = createServerFn({ method: "POST" })
+  .middleware([requireAdminPermission(PERM)])
+  .inputValidator((d) => z.object({ id }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { rerunContest } = await import("@/lib/pred/engine");
+    const r = await rerunContest(await engine(), data.id, context.adminUserId, Date.now());
+    return { refunded: r.refunded, credited: r.credited, errors: r.errors };
+  });
+
+/** Virtual-points accounting: settlements, the platform bucket and a conservation check. */
+export const getPredAccounting = createServerFn({ method: "GET" })
+  .middleware([requireAdminPermission(PERM)])
+  .handler(async () => {
+    const [settlements, platform, fees, prizes, refunds] = await Promise.all([
+      db.from("pred_settlements").select("contest_id, version, participants, pool, prize_total, platform_share, created_at").order("created_at", { ascending: false }).limit(50),
+      db.from("pred_platform_ledger").select("amount"),
+      db.from("pred_ledger").select("amount").eq("kind", "entry_fee"),
+      db.from("pred_ledger").select("amount").in("kind", ["prize"]),
+      db.from("pred_ledger").select("amount").eq("kind", "refund"),
+    ]);
+    for (const r of [settlements, platform, fees, prizes, refunds]) if (r.error) throw new Error(r.error.message);
+    const sum = (rows: any[]) => rows.reduce((t, r) => t + Number(r.amount), 0);
+    return {
+      settlements: settlements.data as any[],
+      totals: { feesCollected: -sum(fees.data), prizesPaid: sum(prizes.data), refunded: sum(refunds.data), platformBucket: sum(platform.data) },
+    };
   });
 
 export const listPredContestQuestions = createServerFn({ method: "GET" })

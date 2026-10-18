@@ -28,7 +28,7 @@ const match = (over: Partial<MatchRef> = {}): MatchRef => ({
 const template = (over: Partial<ContestTemplate> = {}): ContestTemplate => ({
   id: "t-over1", categoryId: null, name: "First over", sport: "cricket", formats: ["t20"],
   plan: { generator: "over_by_over", innings: 1, over: 1, balls: 6 }, timing: { ...DEFAULT_TIMING },
-  scoring: { ...DEFAULT_SCORING }, participantLimit: null, autoGenerate: true, requireApproval: false, allowEdit: false, enabled: true, ...over,
+  scoring: { ...DEFAULT_SCORING }, participantLimit: null, entryFee: 0, minParticipants: 0, prizeSplit: [70], autoGenerate: true, requireApproval: false, allowEdit: false, enabled: true, ...over,
 });
 const facts = (over: Partial<MatchFacts> = {}): MatchFacts => ({
   matchId: "m1", state: "live", statusText: "Live", teamA: "India", teamB: "Australia", winner: null, innings: [], verifiedAt: iso(T0), ...over,
@@ -325,8 +325,8 @@ describe("full match simulation", () => {
     await runTick(s, T0 - 30_000);
     s.matches.set("m1", match({ state: "abandoned" })); s.facts.set("m1", facts({ state: "abandoned", statusText: "Match abandoned" }));
     const r = await runTick(s, T0 + 30 * MIN);
-    expect(c.status).toBe("cancelled");
-    expect(r.cancelled).toBe(1);
+    expect(c.status).toBe("void");
+    expect(r.voided).toBe(1);
     expect(s.balance("u1")).toBe(0);
   });
 
@@ -334,7 +334,7 @@ describe("full match simulation", () => {
     const s = new MemoryStore();
     const { contest } = await s.insertContest({
       generationKey: "custom:1", templateId: null, categoryId: null, matchId: null, sport: "general", trigger: "pre_match", title: "GK",
-      status: "scheduled", opensAt: iso(T0), locksAt: iso(T0 + 10 * MIN), participantLimit: null, allowEdit: false, scoring: DEFAULT_SCORING,
+      status: "scheduled", opensAt: iso(T0), locksAt: iso(T0 + 10 * MIN), participantLimit: null, entryFee: 0, minParticipants: 0, prizeSplit: [70], allowEdit: false, scoring: DEFAULT_SCORING,
       questions: [{ position: 1, prompt: "Capital of India?", options: [{ id: "o1", label: "Delhi" }, { id: "o2", label: "Mumbai" }], rule: { kind: "static" }, points: 10, staticCorrect: "o1" }],
     });
     await runTick(s, T0 + MIN);
@@ -412,6 +412,6 @@ describe("every-ball contests (20 overs x 6 balls, 4 options, +5 / -1)", () => {
       { no: 2, team: "Australia", runs: 2, wickets: 0, overs: 0.4, complete: false },
     ] }));
     await runTick(s, t1 + 2 * MIN); // far earlier than the 20 minute lock
-    expect(c.status).toBe("locked");
+    expect(["locked", "live"]).toContain(c.status); // closed to answers; "live" because the match is in play
   });
 });

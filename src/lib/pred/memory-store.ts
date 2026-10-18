@@ -2,6 +2,9 @@ import type { AnswerScore } from "./scoring";
 import type { CreditInput, NewContest, Notice, PredStore, ResolveOutcome } from "./store";
 import {
   DEFAULT_REWARDS,
+  NO_CONTROLS,
+  type EngineControls,
+  type SettlementRecord,
   type BallEvent,
   type ContestRecord,
   type ContestStatus,
@@ -24,6 +27,10 @@ export class MemoryStore implements PredStore {
   events = new Map<string, Map<string, BallEvent>>(); // matchId -> eventKey -> event
   templates: ContestTemplate[] = [];
   rewardRules: RewardRules = { ...DEFAULT_REWARDS };
+  controls: EngineControls = { ...NO_CONTROLS };
+  settlements: SettlementRecord[] = [];
+  platformLedger = new Map<string, { contestId: string; amount: number; kind: string }>();
+  inviteCodes = new Map<string, string>(); // contestId -> code
   contests = new Map<string, ContestRecord & { updatedAt: number; cancelReason?: string }>();
   questions = new Map<string, QuestionRecord[]>();
   staticKeys = new Map<string, string>();
@@ -56,6 +63,7 @@ export class MemoryStore implements PredStore {
   // ---- configuration ----
   async listTemplates() { return this.templates; }
   async getRewardRules() { return this.rewardRules; }
+  async getControls() { return this.controls; }
 
   // ---- contests ----
   async insertContest(c: NewContest) {
@@ -65,8 +73,10 @@ export class MemoryStore implements PredStore {
     const rec: ContestRecord & { updatedAt: number } = {
       id, generationKey: c.generationKey, templateId: c.templateId, categoryId: c.categoryId, matchId: c.matchId,
       sport: c.sport, trigger: c.trigger, title: c.title, status: c.status, opensAt: c.opensAt, locksAt: c.locksAt,
-      participantLimit: c.participantLimit, allowEdit: c.allowEdit, scoring: c.scoring, correctionVersion: 0, updatedAt: this.clock(),
+      participantLimit: c.participantLimit, entryFee: c.entryFee, minParticipants: c.minParticipants, prizeSplit: [...c.prizeSplit],
+      isPrivate: c.isPrivate ?? false, allowEdit: c.allowEdit, scoring: c.scoring, correctionVersion: 0, refundedAt: null, updatedAt: this.clock(),
     };
+    if (c.inviteCode) this.inviteCodes.set(id, c.inviteCode);
     this.contests.set(id, rec);
     this.questions.set(id, c.questions.map((q) => {
       const qid = this.id("q");
@@ -78,6 +88,12 @@ export class MemoryStore implements PredStore {
     return { contest: rec, created: true };
   }
   async getContest(id: string) { return this.contests.get(id) ?? null; }
+  async existingContestKeys(keys: string[]) {
+    const want = new Set(keys);
+    return new Set([...this.contests.values()].map((c) => c.generationKey).filter((k) => want.has(k)));
+  }
+  async countEntries(id: string) { return this.entries.get(id)?.length ?? 0; }
+  async markRefunded(id: string) { const c = this.contests.get(id); if (c) c.refundedAt = new Date(this.clock()).toISOString(); }
   async listContests(statuses: ContestStatus[], opts?: { updatedAfterMs?: number }) {
     return [...this.contests.values()].filter((c) => statuses.includes(c.status) && (opts?.updatedAfterMs === undefined || c.updatedAt >= opts.updatedAfterMs));
   }
@@ -112,7 +128,7 @@ export class MemoryStore implements PredStore {
 
   // ---- entries ----
   /** Mirrors the SQL RPC rules: published only, before lock, one entry per user, valid options. */
-  join(contestId: string, userId: string, answers: Record<string, string>, nowMs: number) {
+  join(contestId: string, userId: string, answers: Record<string, string>, nowMs: number, inviteCode?: string) {
     const c = this.contests.get(contestId);
     if (!c) throw new Error("Contest not found");
     if (c.status !== "published") throw new Error("Contest is not open");
@@ -121,14 +137,17 @@ export class MemoryStore implements PredStore {
     const existing = list.find((e) => e.userId === userId);
     if (existing && !c.allowEdit) throw new Error("Answers are final once submitted");
     if (!existing && c.participantLimit !== null && list.length >= c.participantLimit) throw new Error("Contest is full");
+    if (c.isPrivate && !existing && this.inviteCodes.get(contestId) !== inviteCode) throw new Error("Invite code required");
+    if (!existing && c.entryFee > 0 && this.balance(userId) < c.entryFee) throw new Error("Not enough virtual points");
     const qs = this.questions.get(contestId)!;
     for (const [qid, opt] of Object.entries(answers)) {
       const q = qs.find((x) => x.id === qid);
       if (!q || !q.options.some((o) => o.id === opt)) throw new Error("Invalid answer");
     }
     if (existing) { existing.answers = { ...answers }; return existing; }
-    const e: EntryRecord = { id: this.id("entry"), contestId, userId, submittedAt: new Date(nowMs).toISOString(), answers: { ...answers }, points: 0, correct: 0, answered: Object.keys(answers).length };
+    const e: EntryRecord = { id: this.id("entry"), contestId, userId, submittedAt: new Date(nowMs).toISOString(), answers: { ...answers }, points: 0, correct: 0, answered: Object.keys(answers).length, feePaid: c.entryFee };
     list.push(e);
+    if (c.entryFee > 0) this.ledger.set(`fee:${contestId}:${userId}`, { userId, amount: -c.entryFee, kind: "entry_fee", refKey: `fee:${contestId}:${userId}`, contestId, at: nowMs });
     return e;
   }
   async listEntries(id: string) { return (this.entries.get(id) ?? []).map((e) => ({ ...e, answers: { ...e.answers } })); }
@@ -148,13 +167,29 @@ export class MemoryStore implements PredStore {
   }
   async creditedSince(userId: string, sinceMs: number) {
     let t = 0;
-    for (const v of this.ledger.values()) if (v.userId === userId && v.amount > 0 && v.at >= sinceMs) t += v.amount;
+    const rewardKinds = ["participation", "answers", "rank_bonus", "contest_reward", "adjustment"];
+    for (const v of this.ledger.values()) if (v.userId === userId && v.amount > 0 && v.at >= sinceMs && rewardKinds.includes(v.kind)) t += v.amount;
     return t;
   }
   async credit(i: CreditInput) {
     if (this.ledger.has(i.refKey)) return false; // unique(ref_key)
     this.ledger.set(i.refKey, { ...i, at: this.clock() });
     return true;
+  }
+  async walletBalance(userId: string) { return this.balance(userId); }
+  async platformCredit(i: { contestId: string; amount: number; kind: string; refKey: string }) {
+    if (this.platformLedger.has(i.refKey)) return false;
+    this.platformLedger.set(i.refKey, { contestId: i.contestId, amount: i.amount, kind: i.kind });
+    return true;
+  }
+  async platformHeld(contestId: string) {
+    let t = 0;
+    for (const v of this.platformLedger.values()) if (v.contestId === contestId) t += v.amount;
+    return t;
+  }
+  async saveSettlement(s: SettlementRecord) {
+    const i = this.settlements.findIndex((x) => x.contestId === s.contestId && x.version === s.version);
+    if (i >= 0) this.settlements[i] = s; else this.settlements.push(s); // unique (contest, version), like the table
   }
   balance(userId: string) {
     let t = 0;

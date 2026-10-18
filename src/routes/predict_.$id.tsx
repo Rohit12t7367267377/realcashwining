@@ -43,15 +43,16 @@ function ContestPage() {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["pred-contest", id],
     queryFn: () => fetchContest({ data: { id } }),
-    refetchInterval: (q) => (q.state.data?.contest.status === "completed" ? false : 20_000),
+    refetchInterval: (q) => (["completed", "cancelled", "void"].includes(q.state.data?.contest.status ?? "") ? false : 20_000),
   });
   const [picked, setPicked] = useState<Record<string, string>>({});
+  const [reviewing, setReviewing] = useState(false);
   useEffect(() => { if (data) setPicked(data.answers); }, [data?.entry?.id, data?.contest.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const left = useCountdown(data?.contest.locks_at, data?.serverNow);
   const save = useMutation({
     mutationFn: () => submit({ data: { contestId: id, answers: picked } }),
-    onSuccess: () => { toast.success("Answers saved"); qc.invalidateQueries({ queryKey: ["pred-contests"] }); refetch(); },
+    onSuccess: () => { setReviewing(false); toast.success("Answers saved"); qc.invalidateQueries({ queryKey: ["pred-contests"] }); refetch(); },
     onError: (e: Error) => { toast.error(e.message || "Could not save your answers"); refetch(); },
   });
 
@@ -62,7 +63,7 @@ function ContestPage() {
   const open = contest.status === "published" && left !== null && left > 0 && Date.now() >= 0;
   const canEdit = open && (!entry || contest.allow_edit);
   // Long "every ball" contests: group by over, and allow a partial entry (unanswered balls score 0).
-  const OVER_RE = /Over (\d+) · Ball (\d+)/;
+  const OVER_RE = /Over (\d+) · (?:Ball|Delivery) (\d+)/;
   const grouped = questions.length > 12 && questions.every((q: any) => OVER_RE.test(q.prompt));
   const answeredCount = questions.filter((q: any) => picked[q.id]).length;
   const answeredAll = questions.length > 0 && (grouped ? answeredCount >= 1 : answeredCount === questions.length);
@@ -74,7 +75,11 @@ function ContestPage() {
     }
   }
   const dirty = JSON.stringify(picked) !== JSON.stringify(data.answers);
-  const showResults = ["locked", "settling", "completed"].includes(contest.status);
+  const showResults = ["locked", "live", "settling", "completed", "void"].includes(contest.status);
+  const fee: number = contest.entry_fee ?? 0;
+  const split: number[] = Array.isArray(contest.prize_split) ? contest.prize_split : [70];
+  const tooPoor = !entry && fee > 0 && data.balance < fee;
+  const label: Record<string, string> = { published: "Open", locked: "Locked", live: "Live", settling: "Pending settlement", completed: "Settled", cancelled: "Cancelled", void: "Void" };
   const total = Object.values(scores).reduce((s: number, x: any) => s + x.points, 0);
 
   const renderQuestion = (q: any) => {
@@ -129,7 +134,7 @@ function ContestPage() {
       <Card className="mb-4 p-4">
         <div className="flex items-start justify-between gap-2">
           <h1 className="text-lg font-black leading-tight">{contest.title}</h1>
-          <Badge variant={contest.status === "published" ? "default" : "secondary"}>{contest.status === "published" ? "Open" : contest.status}</Badge>
+          <Badge variant={contest.status === "published" ? "default" : "secondary"}>{label[contest.status] ?? contest.status}</Badge>
         </div>
         {match && (
           <div className="mt-1 text-xs text-muted-foreground">
@@ -139,9 +144,21 @@ function ContestPage() {
         <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
           {open && left !== null ? <span className="inline-flex items-center gap-1 font-semibold text-primary"><Timer className="h-3.5 w-3.5" /> Locks in {fmtLeft(left)}</span> : <span className="inline-flex items-center gap-1"><Lock className="h-3.5 w-3.5" /> Answers locked</span>}
           <span>{data.participants} playing</span>
-          <span>Free · virtual points</span>
+          <span className="font-semibold">{fee > 0 ? `${fee} pts to join` : "Free practice"}</span>
         </div>
-        {contest.status === "cancelled" && <p className="mt-2 text-xs text-destructive">This contest was cancelled{contest.cancel_reason ? `: ${contest.cancel_reason}` : "."}</p>}
+        {fee > 0 && (
+          <p className="mt-2 rounded-md bg-muted p-2 text-[11px] text-muted-foreground">
+            Prize pool = every player's entry points added together ({data.participants} × {fee} = {data.participants * fee} pts so far).
+            Rank 1 gets {split[0] ?? 0}% of the pool{split.length > 1 ? `, rank 2 gets ${split[1]}%` : ""}; whatever is left (and any rounding) goes to the platform's virtual-points bucket.
+            {contest.min_participants > 0 ? ` At least ${contest.min_participants} players are needed, otherwise everyone is refunded.` : ""}
+            {" "}Entries are refunded if the contest is cancelled or voided. Points have no cash value.
+          </p>
+        )}
+        {contest.status === "cancelled" && <p className="mt-2 text-xs text-destructive">This contest was cancelled{contest.cancel_reason ? `: ${String(contest.cancel_reason).replace(/_/g, " ")}` : "."}{fee > 0 ? " Your entry points were refunded." : ""}</p>}
+        {contest.status === "void" && <p className="mt-2 text-xs text-destructive">This contest was voided{contest.cancel_reason ? `: ${String(contest.cancel_reason).replace(/_/g, " ")}` : "."}{fee > 0 ? " Your entry points were refunded." : ""}</p>}
+        {data.settlement && contest.status === "completed" && (
+          <p className="mt-2 text-[11px] text-muted-foreground">Settled: pool {data.settlement.pool} pts · prizes {data.settlement.prize_total} · platform bucket {data.settlement.platform_share}.</p>
+        )}
         {entry && showResults && (
           <div className="mt-3 rounded-md bg-primary/10 p-2 text-sm font-semibold">
             Your score: {contest.status === "completed" ? entry.points : total} pts · {entry.correct} correct
@@ -177,9 +194,26 @@ function ContestPage() {
 
       {canEdit && (
         <div className="sticky bottom-24 z-30 mt-4">
-          <Button className="w-full" size="lg" disabled={!answeredAll || !dirty || save.isPending} onClick={() => save.mutate()}>
-            {save.isPending ? "Saving…" : entry ? "Update answers" : "Lock in my answers"}
+          {reviewing && (
+            <Card className="mb-2 max-h-64 overflow-y-auto p-3 text-xs">
+              <div className="mb-1 font-semibold">Review your picks ({answeredCount}/{questions.length})</div>
+              {(questions as any[]).map((q) => (
+                <div key={q.id} className="flex justify-between gap-2 py-0.5">
+                  <span className="truncate text-muted-foreground">{q.prompt.replace(/: what happens\?$/, "")}</span>
+                  <span className="shrink-0 font-medium">{q.options.find((o: any) => o.id === picked[q.id])?.label ?? "— skip (0 pts)"}</span>
+                </div>
+              ))}
+              {!entry && fee > 0 && <div className="mt-2 font-semibold">{fee} points will be taken from your balance of {data.balance}.</div>}
+            </Card>
+          )}
+          <Button
+            className="w-full" size="lg"
+            disabled={!answeredAll || !dirty || save.isPending || tooPoor}
+            onClick={() => (reviewing ? save.mutate() : setReviewing(true))}
+          >
+            {save.isPending ? "Saving…" : !reviewing ? "Review my picks" : entry ? "Confirm update" : fee > 0 ? `Confirm & join for ${fee} pts` : "Confirm & lock my answers"}
           </Button>
+          {tooPoor && <p className="mt-1 text-center text-[11px] text-destructive">You need {fee} points (you have {data.balance}). Claim your free points in the Points tab.</p>}
           {grouped
             ? <p className="mt-1 text-center text-[11px] text-muted-foreground">{answeredCount}/{questions.length} balls picked · skipped balls score 0</p>
             : !answeredAll && <p className="mt-1 text-center text-[11px] text-muted-foreground">Answer every question to submit.</p>}
