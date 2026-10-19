@@ -13,7 +13,7 @@ import { getMyContestStats } from "@/lib/stats.functions";
 import { getMyXp } from "@/lib/gamification.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Trophy, Sparkles, Timer, PlayCircle } from "lucide-react";
+import { Trophy, Sparkles, Timer, PlayCircle, GraduationCap, School, Target, Code2 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -327,6 +327,27 @@ function Home() {
           </div>
         </section>
       )}
+
+      {/* Learn & compete: real routes into the Guru.AI learning sections */}
+      <section className="mt-6" aria-label="Learn with Guru.AI">
+        <SectionHeader title="Learn with Guru.AI" subtitle="School · College · Exams · Coding" />
+        <div className="mt-3 grid grid-cols-2 gap-3">
+          {([
+            { to: "/guru/college", icon: GraduationCap, title: "Learn with Guru.AI", sub: "College — degree, semester, subject" },
+            { to: "/guru/exams", icon: Target, title: "General Knowledge", sub: "Competitive Exams — JEE, NEET, UPSC, SSC…" },
+            { to: "/guru/notes", icon: School, title: "School Learning", sub: "Classes 10, 11 & 12 — every board" },
+            { to: "/guru/skills", icon: Code2, title: "Coding & DSA", sub: "Roadmaps, practice and coding quizzes" },
+          ] as const).map((c) => (
+            <Link key={c.to} to={c.to} className="press card-lift flex min-h-[104px] flex-col justify-between rounded-2xl bg-card p-3.5 shadow-soft">
+              <c.icon className="h-6 w-6 text-primary" aria-hidden />
+              <div>
+                <div className="text-sm font-black leading-tight">{c.title}</div>
+                <div className="mt-0.5 text-[11px] leading-snug text-muted-foreground">{c.sub}</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
 
       {/* 4 · Quiz categories */}
       <section className="mt-6">

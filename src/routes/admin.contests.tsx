@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { upsertContest, deleteContest } from "@/lib/admin-contests.functions";
+import { QuizAutogenPanel } from "@/components/QuizAutogenPanel";
 
 
 export const Route = createFileRoute("/admin/contests")({ component: Page });
@@ -100,6 +101,8 @@ function Page() {
         </div>
         <Button onClick={openNew}><Plus className="w-4 h-4 mr-1" /> Add Contest</Button>
       </div>
+
+      <QuizAutogenPanel onChanged={() => void load()} />
 
       <div className="grid md:grid-cols-2 gap-4">
         {rows.map((r) => (

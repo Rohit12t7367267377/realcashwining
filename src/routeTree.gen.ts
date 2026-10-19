@@ -115,6 +115,7 @@ import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/publi
 import { Route as ApiPublicHooksPredTickRouteImport } from './routes/api/public/hooks/pred-tick'
 import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
 import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
+import { Route as ApiPublicHooksQuizAutogenRouteImport } from './routes/api/public/hooks/quiz-autogen'
 import { Route as ApiPublicHooksRazorpayRouteImport } from './routes/api/public/hooks/razorpay'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
@@ -654,6 +655,12 @@ const ApiPublicHooksPushDispatchRoute =
     path: '/api/public/hooks/push-dispatch',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksQuizAutogenRoute =
+  ApiPublicHooksQuizAutogenRouteImport.update({
+    id: '/api/public/hooks/quiz-autogen',
+    path: '/api/public/hooks/quiz-autogen',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksRazorpayRoute = ApiPublicHooksRazorpayRouteImport.update({
   id: '/api/public/hooks/razorpay',
   path: '/api/public/hooks/razorpay',
@@ -783,6 +790,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
+  '/api/public/hooks/quiz-autogen': typeof ApiPublicHooksQuizAutogenRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -893,6 +901,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
+  '/api/public/hooks/quiz-autogen': typeof ApiPublicHooksQuizAutogenRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1006,6 +1015,7 @@ export interface FileRoutesById {
   '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
+  '/api/public/hooks/quiz-autogen': typeof ApiPublicHooksQuizAutogenRoute
   '/api/public/hooks/razorpay': typeof ApiPublicHooksRazorpayRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -1120,6 +1130,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
+    | '/api/public/hooks/quiz-autogen'
     | '/api/public/hooks/razorpay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1230,6 +1241,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
+    | '/api/public/hooks/quiz-autogen'
     | '/api/public/hooks/razorpay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1342,6 +1354,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
+    | '/api/public/hooks/quiz-autogen'
     | '/api/public/hooks/razorpay'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -1396,6 +1409,7 @@ export interface RootRouteChildren {
   ApiPublicHooksPredTickRoute: typeof ApiPublicHooksPredTickRoute
   ApiPublicHooksPushConfigRoute: typeof ApiPublicHooksPushConfigRoute
   ApiPublicHooksPushDispatchRoute: typeof ApiPublicHooksPushDispatchRoute
+  ApiPublicHooksQuizAutogenRoute: typeof ApiPublicHooksQuizAutogenRoute
   ApiPublicHooksRazorpayRoute: typeof ApiPublicHooksRazorpayRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -2146,6 +2160,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPushDispatchRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/quiz-autogen': {
+      id: '/api/public/hooks/quiz-autogen'
+      path: '/api/public/hooks/quiz-autogen'
+      fullPath: '/api/public/hooks/quiz-autogen'
+      preLoaderRoute: typeof ApiPublicHooksQuizAutogenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/razorpay': {
       id: '/api/public/hooks/razorpay'
       path: '/api/public/hooks/razorpay'
@@ -2368,6 +2389,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksPredTickRoute: ApiPublicHooksPredTickRoute,
   ApiPublicHooksPushConfigRoute: ApiPublicHooksPushConfigRoute,
   ApiPublicHooksPushDispatchRoute: ApiPublicHooksPushDispatchRoute,
+  ApiPublicHooksQuizAutogenRoute: ApiPublicHooksQuizAutogenRoute,
   ApiPublicHooksRazorpayRoute: ApiPublicHooksRazorpayRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
