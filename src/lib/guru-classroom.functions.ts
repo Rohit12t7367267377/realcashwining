@@ -35,7 +35,7 @@ async function teacherProfile(supabase: {
 }, userId: string) {
   const { data: row } = await supabase
     .from("guru_student_xp")
-    .select("preferred_language, selected_character_id, xp, questions_solved, lessons_completed, level")
+    .select("preferred_language, selected_character_id, xp, questions_solved, lessons_completed, level, classroom_preferences")
     .eq("user_id", userId)
     .maybeSingle();
   const language = row?.preferred_language === "hi" ? "hi" : "en";
@@ -46,7 +46,9 @@ async function teacherProfile(supabase: {
         .eq("id", row.selected_character_id)
         .maybeSingle()
     : { data: null };
-  return { language, character, stats: row ?? null };
+  const { parseClassroomPreferences } = await import("@/lib/classroom-preferences");
+  const provider = parseClassroomPreferences(row?.classroom_preferences).aiModel === "openai" ? ("openai" as const) : undefined;
+  return { language, character, stats: row ?? null, provider };
 }
 
 /** One turn of the interactive AI classroom lesson: speech + board + optional question. */
@@ -81,7 +83,7 @@ export const guruEvaluateAnswer = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const { callAiChat, extractJson } = await import("@/lib/ai-gateway.server");
-    const { language, character } = await teacherProfile(context.supabase, context.userId);
+    const { language, character, provider } = await teacherProfile(context.supabase, context.userId);
 
     const raw = await callAiChat(
       [
@@ -109,7 +111,7 @@ export const guruEvaluateAnswer = createServerFn({ method: "POST" })
             .join("\n"),
         },
       ],
-      { temperature: 0.3, model: "google/gemini-3.7-flash", responseFormat: "json_object" },
+      { temperature: 0.3, model: "google/gemini-3.7-flash", responseFormat: "json_object", provider },
     );
 
     const p = (extractJson(raw) ?? {}) as Record<string, unknown>;

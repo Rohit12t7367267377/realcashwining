@@ -13,6 +13,7 @@ import { retrieveGuruContext, formatSources } from "@/lib/guru-rag.server";
 import { normalizeBoardBlocks } from "@/lib/guru-board-blocks";
 import { lessonSegments, type LessonSegment } from "@/lib/lesson-segments";
 import { teachingStyleDirective } from "@/lib/guru-teaching";
+import { parseClassroomPreferences } from "@/lib/classroom-preferences";
 
 type Db = { from: (t: string) => any; rpc: (n: string, a?: unknown) => any };
 
@@ -136,7 +137,14 @@ export type ResolvedTeachingContext = {
   sources: string;
   toolkit: string;
   premium: boolean;
+  /** Student-chosen model provider (classroom setting). Undefined = platform default. */
+  aiProvider?: "lovable" | "openai";
 };
+
+/** Adds the student's chosen provider to a call's options (model id is chosen by the provider). */
+export function withProvider<T extends object>(r: { aiProvider?: "lovable" | "openai" }, opts: T): T & { provider?: "lovable" | "openai" } {
+  return r.aiProvider === "openai" ? { ...opts, provider: "openai" } : opts;
+}
 
 const DEFAULT_VOICE = { provider: "lovable", voiceId: "alloy", speed: 1, label: "Alloy", code: "alloy" };
 
@@ -264,7 +272,7 @@ export async function resolveTeachingContext(
   const [{ data: student }, config] = await Promise.all([
     db
       .from("guru_student_xp")
-      .select("preferred_language, selected_character_id, preferred_teaching_style, preferred_voice_code, preferred_voice_speed, level")
+      .select("preferred_language, selected_character_id, preferred_teaching_style, preferred_voice_code, preferred_voice_speed, level, classroom_preferences")
       .eq("user_id", userId)
       .maybeSingle(),
     resolveTeachingConfig(db, ctx),
@@ -301,6 +309,7 @@ export async function resolveTeachingContext(
     sources,
     toolkit: config?.tools.length ? config.tools.join(", ") : toolkitFor(ctx.subject, ctx.topic),
     premium: config?.access === "premium",
+    aiProvider: parseClassroomPreferences(s?.classroom_preferences).aiModel === "openai" ? "openai" : "lovable",
   };
 }
 
@@ -395,7 +404,7 @@ export async function runTeachTurn(args: {
           .join("\n\n"),
       },
     ],
-    { temperature: 0.6, model: "google/gemini-3.7-flash", responseFormat: "json_object" },
+    withProvider(args.resolved, { temperature: 0.6, model: "google/gemini-3.7-flash", responseFormat: "json_object" as const }),
   );
 
   const p = (extractJson(raw) ?? {}) as Record<string, unknown>;
@@ -471,7 +480,7 @@ export async function runLessonOutline(args: { ctx: TeachContextInput; resolved:
         },
         { role: "user", content: `Topic: ${args.ctx.topic}` },
       ],
-      { temperature: 0.3, model: LESSON_MODEL, responseFormat: "json_object", timeoutMs: SECTION_TIMEOUT_MS },
+      withProvider(args.resolved, { temperature: 0.3, model: LESSON_MODEL, responseFormat: "json_object" as const, timeoutMs: SECTION_TIMEOUT_MS }),
     );
     const p = (extractJson(raw) ?? {}) as Record<string, unknown>;
     plan = buildPlan(p.sections);
@@ -534,7 +543,7 @@ export async function runLessonSection(args: {
       : "";
     const raw = await callAiChat(
       [{ role: "system", content: system }, { role: "user", content: user + extra }],
-      { temperature: 0.5, model: LESSON_MODEL, responseFormat: "json_object", timeoutMs: SECTION_TIMEOUT_MS },
+      withProvider(args.resolved, { temperature: 0.5, model: LESSON_MODEL, responseFormat: "json_object" as const, timeoutMs: SECTION_TIMEOUT_MS }),
     );
     return (extractJson(raw) ?? {}) as Record<string, unknown>;
   };
@@ -599,7 +608,7 @@ export async function runPracticeSet(args: {
       },
       { role: "user", content: `Topic: ${args.ctx.topic}` },
     ],
-    { temperature: 0.8, model: LESSON_MODEL, responseFormat: "json_object", timeoutMs: SECTION_TIMEOUT_MS },
+    withProvider(args.resolved, { temperature: 0.8, model: LESSON_MODEL, responseFormat: "json_object" as const, timeoutMs: SECTION_TIMEOUT_MS }),
   );
   const p = (extractJson(raw) ?? {}) as Record<string, unknown>;
   const list = Array.isArray(p.questions) ? p.questions : [];

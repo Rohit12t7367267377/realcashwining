@@ -26,6 +26,9 @@ export function ClassroomSettings({ preferences, apply, disabled = false }: { pr
               <Label htmlFor="teacher-visible" className="flex-1">Show teacher<span className="block text-xs font-normal text-muted-foreground">Hiding the teacher never pauses or changes the lesson.</span></Label>
               <Switch id="teacher-visible" checked={draft.teacherVisible} onCheckedChange={(teacherVisible) => patch({ teacherVisible })} />
             </div>
+            <Label>AI model for my lessons</Label>
+            <Select value={draft.aiModel} onValueChange={(aiModel: ClassroomPreferences['aiModel']) => patch({ aiModel })}><SelectTrigger aria-label="AI model"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="default">Guru.AI default (Gemini)</SelectItem><SelectItem value="openai">ChatGPT (OpenAI)</SelectItem></SelectContent></Select>
+            <p className="text-xs text-muted-foreground">All features stay the same; only the model that writes your lessons, practice and feedback changes.</p>
             <Label>Teacher size</Label>
             <Select value={draft.teacherSize} onValueChange={(teacherSize: ClassroomPreferences['teacherSize']) => patch({ teacherSize })}><SelectTrigger aria-label="Teacher size"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="small">Small</SelectItem><SelectItem value="medium">Medium</SelectItem><SelectItem value="large">Large</SelectItem></SelectContent></Select>
             <Label>Board theme</Label>

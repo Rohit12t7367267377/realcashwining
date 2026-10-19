@@ -23,6 +23,8 @@ export const classroomPreferencesSchema = z.object({
   // Teacher visibility is independent of the board: hiding never touches lesson content or progress.
   teacherVisible: z.boolean().default(true),
   teacherSize: z.enum(["small", "medium", "large"]).default("medium"),
+  // Which AI answers the student's lessons. Same features either way; only the model changes.
+  aiModel: z.enum(["default", "openai"]).default("default"),
 }).strict().superRefine((value, ctx) => {
   if (Boolean(value.background) !== Boolean(value.foreground)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Custom background and text colors must be saved together" });

@@ -11,16 +11,21 @@ export type AiChatOptions = {
   responseFormat?: "text" | "json_object";
   /** Abort the request after this many ms so a stuck provider cannot hang a lesson. */
   timeoutMs?: number;
+  /** "openai" sends the request to OpenAI (ChatGPT) with the server-side OPENAI_API_KEY; default is the Lovable gateway. */
+  provider?: "lovable" | "openai";
 };
 
 const DEFAULT_MODEL = "google/gemini-3-flash-preview";
+const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
+const OPENAI_DEFAULT_MODEL = "gpt-4o-mini"; // override with the OPENAI_MODEL secret
 
 export async function callAiChat(messages: ChatMessage[], opts: AiChatOptions = {}): Promise<string> {
-  const key = process.env.LOVABLE_API_KEY;
-  if (!key) throw new Error("AI is not configured (missing LOVABLE_API_KEY)");
+  const openai = opts.provider === "openai";
+  const key = openai ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
+  if (!key) throw new Error(openai ? "ChatGPT is not configured yet (missing OPENAI_API_KEY). Choose the default model in Classroom settings." : "AI is not configured (missing LOVABLE_API_KEY)");
 
   const body: Record<string, unknown> = {
-    model: opts.model || DEFAULT_MODEL,
+    model: openai ? process.env.OPENAI_MODEL || OPENAI_DEFAULT_MODEL : opts.model || DEFAULT_MODEL,
     messages,
   };
   if (typeof opts.temperature === "number") body.temperature = opts.temperature;
@@ -30,13 +35,11 @@ export async function callAiChat(messages: ChatMessage[], opts: AiChatOptions = 
   const timer = controller ? setTimeout(() => controller.abort(), opts.timeoutMs) : null;
   let res: Response;
   try {
-    res = await fetch(GATEWAY_URL, {
+    res = await fetch(openai ? OPENAI_URL : GATEWAY_URL, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Lovable-API-Key": key,
-        "X-Lovable-AIG-SDK": "fetch",
-      },
+      headers: openai
+        ? { "Content-Type": "application/json", Authorization: `Bearer ${key}` }
+        : { "Content-Type": "application/json", "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },
       body: JSON.stringify(body),
       signal: controller?.signal,
     });
@@ -50,7 +53,7 @@ export async function callAiChat(messages: ChatMessage[], opts: AiChatOptions = 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
     if (res.status === 429) throw new Error("AI is busy right now. Please retry in a moment.");
-    if (res.status === 402) throw new Error("AI credits exhausted. Ask the admin to top up.");
+    if (res.status === 402 || (openai && res.status === 401)) throw new Error(openai ? "ChatGPT key was rejected or has no credit. Ask the admin to check OPENAI_API_KEY." : "AI credits exhausted. Ask the admin to top up.");
     throw new Error(`AI request failed (${res.status}): ${text.slice(0, 300)}`);
   }
   const data = (await res.json()) as {
