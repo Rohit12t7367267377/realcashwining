@@ -157,6 +157,12 @@ describe("section generation pipeline (AI mocked)", () => {
     expect(out.sections.map((s) => s.kind)).toEqual(defaultPlan().map((s) => s.kind));
   });
 
+  it("does NOT hide provider failures (missing key, credit, timeout) behind the fallback outline", async () => {
+    const { runLessonOutline } = await import("./guru-engine.server");
+    failing = async () => { throw new Error("ChatGPT is not configured yet (missing OPENAI_API_KEY)."); };
+    await expect(runLessonOutline({ ctx, resolved })).rejects.toThrow(/OPENAI_API_KEY/);
+  });
+
   it("practice sets drop repeats and unusable questions, and never exceed the requested count", async () => {
     const { runPracticeSet } = await import("./guru-engine.server");
     const q = (prompt: string) => ({ prompt, difficulty: "basic", kind: "numerical", hint: "h", steps: ["s1", "s2"], answer: "5 m/s" });

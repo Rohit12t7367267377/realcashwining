@@ -485,7 +485,10 @@ export async function runLessonOutline(args: { ctx: TeachContextInput; resolved:
     const p = (extractJson(raw) ?? {}) as Record<string, unknown>;
     plan = buildPlan(p.sections);
     roadmap = p.roadmap ? String(p.roadmap).slice(0, 600) : null;
-  } catch {
+  } catch (err) {
+    // Only a malformed model reply may fall back to the standard structure. Key, credit, quota, timeout or
+    // network problems are real failures the student must see (otherwise a broken provider looks like it works).
+    if (!(err instanceof Error) || !/valid JSON/i.test(err.message)) throw err;
     plan = defaultPlan();
     fallback = true;
   }
