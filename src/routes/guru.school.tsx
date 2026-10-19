@@ -2,11 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
 import { browseCurriculum } from "@/lib/guru.functions";
-import { ChevronRight, GraduationCap } from "lucide-react";
+import { ArrowLeft, ChevronRight, GraduationCap } from "lucide-react";
 import { SCHOOL_STREAMS, classNumber, officialBoardUrl, type SchoolStream } from "@/lib/school-curriculum";
 
 export const Route = createFileRoute("/guru/school")({
@@ -42,6 +43,8 @@ function SchoolPage() {
   const senior = classNumber(trail[1]?.title ?? "") >= 11;
   const syllabusUrl = officialBoardUrl(trail[0]?.title ?? "");
 
+  // After every pick, the next list starts at the top of the content instead of below the fold.
+  useScrollOnChange(trail.length, () => document.querySelector("[data-school-top]"));
   const level = ORDER[trail.length] ?? "topics";
   const parentId = trail[trail.length - 1]?.id;
 
@@ -71,7 +74,12 @@ function SchoolPage() {
         <h1 className="mt-1 text-2xl font-black">{LABEL[level]}</h1>
       </header>
 
-      <nav className="mt-3 flex flex-wrap items-center gap-1 text-[11px]">
+      {trail.length > 0 && (
+        <button type="button" onClick={() => setTrail(trail.slice(0, -1))} className="press mt-3 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-[11px] font-bold">
+          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        </button>
+      )}
+      <nav data-school-top className="mt-3 flex scroll-mt-20 flex-wrap items-center gap-1 text-[11px]">
         <button type="button" onClick={() => setTrail([])} className="press rounded-full bg-muted px-2.5 py-1 font-bold">
           Boards
         </button>

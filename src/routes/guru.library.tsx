@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
+import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -84,6 +85,7 @@ function GuruLibraryPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [openResource, setOpenResource] = useState<LibraryResource | null>(null);
   const [openBook, setOpenBook] = useState<{ id: string; title: string } | null>(null);
+  useScrollOnChange(`${openResource?.id ?? ""}|${openBook?.id ?? ""}`);
 
   const { data: facets } = useQuery({
     queryKey: ["guru-resource-filters"],

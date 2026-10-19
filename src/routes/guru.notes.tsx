@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
+import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -91,6 +92,18 @@ function GuruSchoolPage() {
   const [progress, setProgress] = useState<Record<string, TopicProgress>>({});
 
   useEffect(() => setProgress(readProgress()), []);
+
+  // Each new choice (board → class → subject → chapter) opens the next step right in view; no manual scrolling.
+  useScrollOnChange(`${board?.id}|${klass?.id}|${subject?.id}|${chapter?.id}`, () => {
+    const steps = document.querySelectorAll("[data-step]");
+    return steps[steps.length - 1] ?? null;
+  });
+  const stepBack = () => {
+    if (chapter) setChapter(null);
+    else if (subject) setSubject(null);
+    else if (klass) setKlass(null);
+    else setBoard(null);
+  };
 
   const scope = {
     board: board?.name ?? "",
@@ -488,6 +501,11 @@ function GuruSchoolPage() {
       </section>
 
       {(board || klass || subject || chapter) && (
+        <button type="button" onClick={stepBack} className="press mt-3 inline-flex items-center gap-1 rounded-full bg-secondary px-3 py-1 text-[11px] font-bold">
+          <ArrowLeft className="h-3.5 w-3.5" /> Back
+        </button>
+      )}
+      {(board || klass || subject || chapter) && (
         <nav className="mt-3 flex flex-wrap items-center gap-1 text-[11px]">
           <Crumb label="School" onClick={() => { setBoard(null); setKlass(null); setSubject(null); setChapter(null); }} />
           {board && <Crumb label={board.name} onClick={() => { setKlass(null); setSubject(null); setChapter(null); }} />}
@@ -649,7 +667,7 @@ function Crumb({ label, onClick }: { label: string; onClick: () => void }) {
 
 function Step({ n, label }: { n: number; label: string }) {
   return (
-    <h2 className="mb-2 mt-5 flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
+    <h2 data-step={n} className="mb-2 mt-5 flex scroll-mt-20 items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
       <span className="grid h-5 w-5 place-items-center rounded-full bg-primary/15 text-[10px] font-black text-primary">{n}</span>
       {label}
     </h2>

@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
@@ -51,6 +52,7 @@ function GuruSkillsPage() {
 
   const [category, setCategory] = useState<string>("All");
   const [track, setTrack] = useState<SkillTrack | null>(null);
+  useScrollOnChange(track?.slug ?? null);
   const [stage, setStage] = useState<SkillStage>("Beginner");
   const [lesson, setLesson] = useState<string>("");
   const [questions, setQuestions] = useState<Q[]>([]);

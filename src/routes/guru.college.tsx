@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
+import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -64,6 +65,7 @@ function CollegePage() {
   const loadProgress = useServerFn(getLearnProgress);
 
   const [step, setStep] = useState<Step>("degree");
+  useScrollOnChange(step); // every new step opens at the top
   const [degree, setDegree] = useState<{ id: string; name: string } | null>(null);
   const [regulation, setRegulation] = useState<CollegeItem | null>(null);
   const [term, setTerm] = useState<CollegeItem | null>(null);
