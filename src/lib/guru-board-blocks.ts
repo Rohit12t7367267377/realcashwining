@@ -10,7 +10,7 @@ export type BoardBlock =
   | { type: "example"; title?: string; body: string }
   | { type: "code"; language?: string; code: string }
   | { type: "table"; columns: string[]; rows: string[][] }
-  | { type: "diagram"; caption?: string; nodes: string[]; arrows?: boolean }
+  | { type: "diagram"; caption?: string; nodes: string[]; arrows?: boolean; parts?: { label: string; note: string }[] }
   | { type: "graph"; caption: string; xLabel: string; yLabel: string; basis: string; points: { x: number; y: number }[] };
 
 /** Coerces loose AI JSON into safe, renderable board blocks. */
@@ -30,7 +30,7 @@ export function normalizeBoardBlocks(input: unknown, limit = 12): BoardBlock[] {
         break;
       }
       case "text": {
-        const text = s(b.text, 400);
+        const text = s(b.text, 900);
         if (text) out.push({ type: "text", text, highlight: Boolean(b.highlight) });
         break;
       }
@@ -40,12 +40,12 @@ export function normalizeBoardBlocks(input: unknown, limit = 12): BoardBlock[] {
         break;
       }
       case "steps": {
-        const items = list(b.items, 10);
+        const items = Array.isArray(b.items) ? b.items.map((x) => s(x, 500)).filter(Boolean).slice(0, 14) : [];
         if (items.length) out.push({ type: "steps", title: b.title ? s(b.title, 70) : undefined, items });
         break;
       }
       case "example": {
-        const body = s(b.body, 600);
+        const body = s(b.body, 1400);
         if (body) out.push({ type: "example", title: b.title ? s(b.title, 70) : undefined, body });
         break;
       }
@@ -63,13 +63,22 @@ export function normalizeBoardBlocks(input: unknown, limit = 12): BoardBlock[] {
         break;
       }
       case "diagram": {
-        const nodes = list(b.nodes, 6);
+        const nodes = list(b.nodes, 10);
         if (nodes.length)
           out.push({
             type: "diagram",
             caption: b.caption ? s(b.caption, 90) : undefined,
             nodes,
             arrows: b.arrows === undefined ? true : Boolean(b.arrows),
+            parts: Array.isArray(b.parts)
+              ? b.parts.flatMap((p) => {
+                  if (!p || typeof p !== "object") return [];
+                  const part = p as Record<string, unknown>;
+                  const label = s(part.label, 60);
+                  const note = s(part.note, 240);
+                  return label && note ? [{ label, note }] : [];
+                }).slice(0, 8)
+              : undefined,
           });
         break;
       }

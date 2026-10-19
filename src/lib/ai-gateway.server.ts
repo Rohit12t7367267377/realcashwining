@@ -9,6 +9,8 @@ export type AiChatOptions = {
   model?: string;
   temperature?: number;
   responseFormat?: "text" | "json_object";
+  /** Abort the request after this many ms so a stuck provider cannot hang a lesson. */
+  timeoutMs?: number;
 };
 
 const DEFAULT_MODEL = "google/gemini-3-flash-preview";
@@ -24,15 +26,26 @@ export async function callAiChat(messages: ChatMessage[], opts: AiChatOptions = 
   if (typeof opts.temperature === "number") body.temperature = opts.temperature;
   if (opts.responseFormat === "json_object") body.response_format = { type: "json_object" };
 
-  const res = await fetch(GATEWAY_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Lovable-API-Key": key,
-      "X-Lovable-AIG-SDK": "fetch",
-    },
-    body: JSON.stringify(body),
-  });
+  const controller = opts.timeoutMs ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => controller.abort(), opts.timeoutMs) : null;
+  let res: Response;
+  try {
+    res = await fetch(GATEWAY_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Lovable-API-Key": key,
+        "X-Lovable-AIG-SDK": "fetch",
+      },
+      body: JSON.stringify(body),
+      signal: controller?.signal,
+    });
+  } catch (err) {
+    if (controller?.signal.aborted) throw new Error("The AI took too long to answer. Please retry.");
+    throw err;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");

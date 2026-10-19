@@ -20,6 +20,9 @@ export const classroomPreferencesSchema = z.object({
   background: color.nullable().default(null),
   foreground: color.nullable().default(null),
   accent: color.nullable().default(null),
+  // Teacher visibility is independent of the board: hiding never touches lesson content or progress.
+  teacherVisible: z.boolean().default(true),
+  teacherSize: z.enum(["small", "medium", "large"]).default("medium"),
 }).strict().superRefine((value, ctx) => {
   if (Boolean(value.background) !== Boolean(value.foreground)) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "Custom background and text colors must be saved together" });

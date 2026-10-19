@@ -1,5 +1,5 @@
 import type { BoardBlock } from "@/lib/guru-board-blocks";
-import type { CSSProperties } from "react";
+import { Component, useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 import { LessonGraph } from "@/components/LessonGraph";
 import { DEFAULT_CLASSROOM_PREFERENCES, type ClassroomPreferences } from "@/lib/classroom-preferences";
 
@@ -16,6 +16,7 @@ export function GuruBoardCanvas({
   preferences = DEFAULT_CLASSROOM_PREFERENCES,
   activeSegment,
   loading = false,
+  scrollToSegment,
 }: {
   title: string;
   blocks: BoardBlock[];
@@ -24,7 +25,14 @@ export function GuruBoardCanvas({
   preferences?: ClassroomPreferences;
   activeSegment?: number;
   loading?: boolean;
+  /** When set, the board scrolls this segment into view (used to keep position across view/mode switches). */
+  scrollToSegment?: number;
 }) {
+  const contentRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollToSegment === undefined) return;
+    contentRef.current?.querySelector<HTMLElement>(`[data-segment="${scrollToSegment}"]`)?.scrollIntoView({ block: "nearest" });
+  }, [scrollToSegment, revealed]);
   const custom = {
     "--board-font-size": `${preferences.fontSize * preferences.zoom}px`,
     "--board-line-spacing": preferences.lineSpacing,
@@ -41,10 +49,10 @@ export function GuruBoardCanvas({
         ) : null}
       </div>
 
-      <div className="board-content" tabIndex={0} aria-label="Scrollable lesson content">
+      <div ref={contentRef} className="board-content" tabIndex={0} aria-label="Scrollable lesson content">
         {blocks.slice(0, revealed).map((b, i) => (
-          <div key={i} className="board-segment animate-rise-in" data-active={activeSegment === i} aria-current={activeSegment === i ? "step" : undefined}>
-            <Block block={b} />
+          <div key={i} data-segment={i} className="board-segment animate-rise-in" data-active={activeSegment === i} aria-current={activeSegment === i ? "step" : undefined}>
+            <BoardBlockView block={b} />
           </div>
         ))}
         {revealed === 0 && (
@@ -53,6 +61,21 @@ export function GuruBoardCanvas({
       </div>
     </div>
   );
+}
+
+/** A broken block must never blank the board or show a misleading picture. */
+class BlockGuard extends Component<{ children: ReactNode }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  render() {
+    return this.state.failed
+      ? <p role="status" className="board-example rounded-lg p-3 text-sm opacity-80">This visual could not be drawn. The explanation around it is still correct.</p>
+      : this.props.children;
+  }
+}
+
+export function BoardBlockView({ block }: { block: BoardBlock }) {
+  return <BlockGuard><Block block={block} /></BlockGuard>;
 }
 
 function Block({ block }: { block: BoardBlock }) {
@@ -149,6 +172,13 @@ function Block({ block }: { block: BoardBlock }) {
               </span>
             ))}
           </div>
+          {block.parts?.length ? (
+            <dl className="mt-2 space-y-1 text-[0.9em]">
+              {block.parts.map((part, i) => (
+                <div key={i} className="flex gap-2"><dt className="shrink-0 font-bold">{part.label}:</dt><dd className="min-w-0 break-words opacity-90">{part.note}</dd></div>
+              ))}
+            </dl>
+          ) : null}
         </div>
       );
 

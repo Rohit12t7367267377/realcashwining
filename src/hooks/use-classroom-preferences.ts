@@ -30,10 +30,17 @@ export function useClassroomPreferences() {
   }, [state.loggedIn, load]);
 
   async function apply(next: ClassroomPreferences) {
-    if (state.loggedIn) await save({ data: next });
-    else localStorage.setItem(GUEST_KEY, JSON.stringify(next));
+    // Optimistic: the board/teacher change is instant; it reverts (and the caller sees the error) if saving fails.
+    const previous = preferences;
     setPreferences(next);
-    setError(null);
+    try {
+      if (state.loggedIn) await save({ data: next });
+      else localStorage.setItem(GUEST_KEY, JSON.stringify(next));
+      setError(null);
+    } catch (err) {
+      setPreferences(previous);
+      throw err;
+    }
   }
   return { preferences, apply, error, ready };
 }

@@ -484,3 +484,15 @@
 
 /* Never let a stray wide element make the phone shrink the whole page to fit. */
 html, body { max-width: 100%; overflow-x: clip; }
+
+/* Classroom: distraction-free full-screen board and book reading view. The same DOM is only restyled, never remounted. */
+body.classroom-lock { overflow: hidden; }
+.classroom-fullscreen { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)); background: var(--background); }
+.classroom-fullscreen .classroom-stage { flex: 1 1 auto; min-height: 0; }
+.classroom-fullscreen .learning-board { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+.classroom-fullscreen .board-content { max-height: none; flex: 1 1 auto; min-height: 0; }
+.classroom-fullscreen .graph-frame { height: min(60dvh, 520px); }
+.book-view .board-content { max-height: 70dvh; }
+.book-view .board-segment { max-width: 72ch; }
+.classroom-fullscreen .book-view .board-segment { max-width: 78ch; margin-inline: auto; }
+@media (prefers-reduced-motion: reduce) { .board-segment { animation: none !important; } }

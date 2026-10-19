@@ -174,3 +174,71 @@ export const guruClassroomProgress = createServerFn({ method: "POST" })
 
     return { xpEarned, xp: newXp, level: guruProgress(newXp).level };
   });
+
+const sectionKinds = ["objectives","intro","concepts","theory","formulas","derivation","examples","numericals","mistakes","practice","recap","mastery"] as const;
+const planItem = z.object({ kind: z.enum(sectionKinds), title: z.string().max(90), focus: z.string().max(300), required: z.boolean() });
+
+async function classroomContext(context: { supabase: unknown; userId: string }, topic: string) {
+  const { resolveTeachingContext } = await import("@/lib/guru-engine.server");
+  const ctx = { scope: "classroom" as const, topic };
+  const resolved = await resolveTeachingContext(context.supabase as never, context.userId, ctx);
+  if (resolved.premium) {
+    const { requirePremiumMembership } = await import("@/lib/premium-access.server");
+    await requirePremiumMembership(context.supabase as never, context.userId);
+  }
+  return { ctx, resolved };
+}
+
+/** Textbook outline for a topic: which sections apply (required ones can never be dropped). */
+export const guruLessonOutline = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ topic: z.string().trim().min(2).max(300) }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { runLessonOutline } = await import("@/lib/guru-engine.server");
+    const { ctx, resolved } = await classroomContext(context, data.topic);
+    const outline = await runLessonOutline({ ctx, resolved });
+    return { ...outline, teacher: resolved.teacher.name, language: resolved.language };
+  });
+
+/** One textbook section per request, with context of earlier sections and optional continuation. */
+export const guruLessonSection = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      topic: z.string().trim().min(2).max(300),
+      level: z.number().int().min(1).max(5).default(3),
+      plan: z.array(planItem).min(1).max(12),
+      index: z.number().int().min(0).max(11),
+      previous: z.string().max(3000).default(""),
+      existing: z.array(z.record(z.string(), z.unknown())).max(14).optional(),
+    }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const { runLessonSection } = await import("@/lib/guru-engine.server");
+    const { normalizeBoardBlocks } = await import("@/lib/guru-board-blocks");
+    const { ctx, resolved } = await classroomContext(context, data.topic);
+    const result = await runLessonSection({
+      ctx, resolved, level: data.level, plan: data.plan, index: data.index, previous: data.previous,
+      existing: data.existing ? normalizeBoardBlocks(data.existing, 14) : undefined,
+    });
+    return { ...result, index: data.index };
+  });
+
+/** More topic-specific practice on demand. The only limits are model/infrastructure ones. */
+export const guruPracticeSet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      topic: z.string().trim().min(2).max(300),
+      difficulty: z.enum(["basic", "intermediate", "advanced", "exam"]).default("intermediate"),
+      kind: z.enum(["mixed", "numerical", "conceptual", "derivation"]).default("mixed"),
+      count: z.number().int().min(1).max(5).default(3),
+      avoid: z.array(z.string().max(700)).max(60).default([]),
+    }).parse(d),
+  )
+  .handler(async ({ context, data }) => {
+    const { runPracticeSet } = await import("@/lib/guru-engine.server");
+    const { ctx, resolved } = await classroomContext(context, data.topic);
+    const questions = await runPracticeSet({ ctx, resolved, difficulty: data.difficulty, kind: data.kind, count: data.count, avoid: data.avoid.slice(-30) });
+    return { questions, requested: data.count };
+  });

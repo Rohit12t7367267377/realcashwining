@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Settings2, RotateCcw, Check, Loader2 } from "lucide-react";
@@ -21,6 +22,12 @@ export function ClassroomSettings({ preferences, apply, disabled = false }: { pr
         <DialogHeader><DialogTitle>Classroom settings</DialogTitle><DialogDescription>Your board appearance. Lesson content stays unchanged.</DialogDescription></DialogHeader>
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+              <Label htmlFor="teacher-visible" className="flex-1">Show teacher<span className="block text-xs font-normal text-muted-foreground">Hiding the teacher never pauses or changes the lesson.</span></Label>
+              <Switch id="teacher-visible" checked={draft.teacherVisible} onCheckedChange={(teacherVisible) => patch({ teacherVisible })} />
+            </div>
+            <Label>Teacher size</Label>
+            <Select value={draft.teacherSize} onValueChange={(teacherSize: ClassroomPreferences['teacherSize']) => patch({ teacherSize })}><SelectTrigger aria-label="Teacher size"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="small">Small</SelectItem><SelectItem value="medium">Medium</SelectItem><SelectItem value="large">Large</SelectItem></SelectContent></Select>
             <Label>Board theme</Label>
             <div className="grid grid-cols-2 gap-2">
               {BOARD_PRESETS.map((preset) => <Button key={preset.id} variant={draft.preset === preset.id ? "default" : "outline"} className="h-auto justify-start whitespace-normal py-2 text-left text-xs" onClick={() => patch({ preset: preset.id, background: null, foreground: null, accent: null })}>{draft.preset === preset.id && <Check className="shrink-0" />}{preset.label}</Button>)}

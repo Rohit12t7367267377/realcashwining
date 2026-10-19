@@ -12,7 +12,7 @@ export function boardBlockText(block: BoardBlock): string {
     case "example": return [block.title, block.body].filter(Boolean).join("\n");
     case "code": return [block.language, block.code].filter(Boolean).join("\n");
     case "table": return [block.columns.join(", "), ...block.rows.map((row) => row.map((cell, i) => `${block.columns[i] ?? ""}: ${cell}`).join(", "))].join("\n");
-    case "diagram": return [block.caption, block.nodes.join(block.arrows === false ? ", " : " → ")].filter(Boolean).join("\n");
+    case "diagram": return [block.caption, block.nodes.join(block.arrows === false ? ", " : " → "), ...(block.parts ?? []).map((part) => `${part.label}: ${part.note}`)].filter(Boolean).join("\n");
     case "graph": return `${block.caption}. ${block.xLabel} versus ${block.yLabel}. ${block.basis}\n${block.points.map((p) => `${block.xLabel}: ${p.x}, ${block.yLabel}: ${p.y}`).join("; ")}`;
   }
 }
