@@ -12,6 +12,7 @@ import { Plus, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { upsertContest, deleteContest } from "@/lib/admin-contests.functions";
 import { QuizAutogenPanel } from "@/components/QuizAutogenPanel";
+import { ContestControlCenter } from "@/components/ContestControlCenter";
 
 
 export const Route = createFileRoute("/admin/contests")({ component: Page });
@@ -103,6 +104,7 @@ function Page() {
       </div>
 
       <QuizAutogenPanel onChanged={() => void load()} />
+      <ContestControlCenter />
 
       <div className="grid md:grid-cols-2 gap-4">
         {rows.map((r) => (
@@ -154,6 +156,7 @@ function Page() {
                     <SelectItem value="paid">Paid</SelectItem>
                     <SelectItem value="free">Free</SelectItem>
                     <SelectItem value="mega">Mega</SelectItem>
+                    <SelectItem value="coding">Coding (free, judged)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

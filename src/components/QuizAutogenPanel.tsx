@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Play, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { getQuizAutogen, saveQuizAutogen, runQuizAutogenNow } from "@/lib/quiz-autogen.functions";
-import { DEFAULT_QUIZ_AUTOGEN, type QuizAutogenConfig } from "@/lib/quiz-autogen";
+import { DEFAULT_QUIZ_AUTOGEN, EXAM_PRESETS, type QuizAutogenConfig } from "@/lib/quiz-autogen";
 
 type Runs = Awaited<ReturnType<typeof getQuizAutogen>>["runs"];
 
@@ -28,6 +28,7 @@ export function QuizAutogenPanel({ onChanged }: { onChanged?: () => void }) {
     <div><Label className="text-xs">{label}</Label>
       <Input type="number" min={min} max={max} value={Number(cfg[k])} onChange={(e) => setCfg({ ...cfg, [k]: Number(e.target.value) })} /></div>
   );
+  const presetFields = (key: string) => { const p = EXAM_PRESETS[key]; return p ? { questionCount: p.questionCount, durationMinutes: p.durationMinutes, marksCorrect: p.marksCorrect, marksWrong: p.marksWrong, difficulty: p.difficulty } : {}; };
   const patchScope = (i: number, p: Partial<QuizAutogenConfig["scopes"][number]>) => setCfg({ ...cfg, scopes: cfg.scopes.map((s, n) => (n === i ? { ...s, ...p } : s)) });
 
   async function save() {
@@ -52,7 +53,7 @@ export function QuizAutogenPanel({ onChanged }: { onChanged?: () => void }) {
     <Card className="mb-6 p-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold">Automatic school quiz contests</h2>
+          <h2 className="text-lg font-bold">Automatic quiz contests (school, college, exams)</h2>
           <p className="text-xs text-muted-foreground">Free contests only (no entry fee or cash prize). Needs the cron call to <code>/api/public/hooks/quiz-autogen</code> with the automation secret.</p>
         </div>
         <label className="flex items-center gap-2 text-sm font-bold"><Switch checked={cfg.enabled} onCheckedChange={(enabled) => setCfg({ ...cfg, enabled })} /> {cfg.enabled ? "On" : "Off"}</label>
@@ -74,18 +75,34 @@ export function QuizAutogenPanel({ onChanged }: { onChanged?: () => void }) {
       </div>
 
       <div className="mt-4">
-        <div className="flex items-center justify-between"><Label>Board / class / subject rotation</Label>
-          <Button size="sm" variant="outline" onClick={() => setCfg({ ...cfg, scopes: [...cfg.scopes, { board: "UP Board", className: "10", subject: "", topic: "", difficulty: "medium", language: "en" }] })}><Plus /> Add</Button></div>
+        <div className="flex items-center justify-between"><Label>School / college / exam rotation</Label>
+          <Button size="sm" variant="outline" onClick={() => setCfg({ ...cfg, scopes: [...cfg.scopes, { track: "school", board: "UP Board", className: "10", subject: "", topic: "", difficulty: "medium", language: "en" }] })}><Plus /> School</Button>
+          <Button size="sm" variant="outline" onClick={() => setCfg({ ...cfg, scopes: [...cfg.scopes, { track: "college", board: "University", className: "Year 1", subject: "", topic: "", difficulty: "medium", language: "en" }] })}><Plus /> College</Button>
+          <Button size="sm" variant="outline" onClick={() => setCfg({ ...cfg, scopes: [...cfg.scopes, { track: "exam", board: "Exam", className: "Prelims", subject: "", topic: "", difficulty: "medium", language: "en", examPreset: "ssc-cgl", ...presetFields("ssc-cgl") }] })}><Plus /> Exam</Button></div>
         <p className="text-xs text-muted-foreground">Each slot uses the next row in turn. Only rows you add here are ever generated.</p>
         <div className="mt-2 space-y-2">
           {cfg.scopes.map((s, i) => (
             <div key={i} className="grid grid-cols-2 items-end gap-2 rounded-xl border border-border p-2 md:grid-cols-7">
               <Input aria-label="Board" placeholder="Board" value={s.board} onChange={(e) => patchScope(i, { board: e.target.value })} />
-              <Select value={s.className} onValueChange={(className: "10" | "11" | "12") => patchScope(i, { className })}><SelectTrigger aria-label="Class"><SelectValue /></SelectTrigger><SelectContent>{["10", "11", "12"].map((c) => <SelectItem key={c} value={c}>Class {c}</SelectItem>)}</SelectContent></Select>
+              {s.track === "school"
+                ? <Select value={s.className} onValueChange={(className) => patchScope(i, { className })}><SelectTrigger aria-label="Class"><SelectValue /></SelectTrigger><SelectContent>{["10", "11", "12"].map((c) => <SelectItem key={c} value={c}>Class {c}</SelectItem>)}</SelectContent></Select>
+                : <Input aria-label={s.track === "exam" ? "Paper / stage" : "Year / semester"} placeholder={s.track === "exam" ? "Paper / stage" : "Year / semester"} value={s.className} onChange={(e) => patchScope(i, { className: e.target.value })} />}
               <Input aria-label="Subject" placeholder="Subject" value={s.subject} onChange={(e) => patchScope(i, { subject: e.target.value })} />
               <Input aria-label="Topic (optional)" placeholder="Topic (optional)" value={s.topic} onChange={(e) => patchScope(i, { topic: e.target.value })} />
               <Select value={s.difficulty} onValueChange={(difficulty: "easy" | "medium" | "hard") => patchScope(i, { difficulty })}><SelectTrigger aria-label="Difficulty"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="easy">Easy</SelectItem><SelectItem value="medium">Medium</SelectItem><SelectItem value="hard">Hard</SelectItem></SelectContent></Select>
               <Select value={s.language} onValueChange={(language: "en" | "hi") => patchScope(i, { language })}><SelectTrigger aria-label="Language"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="en">English</SelectItem><SelectItem value="hi">हिन्दी</SelectItem></SelectContent></Select>
+              {s.track === "exam" && (
+                <Select value={s.examPreset ?? ""} onValueChange={(examPreset) => patchScope(i, { examPreset, board: EXAM_PRESETS[examPreset]?.label ?? s.board, ...presetFields(examPreset) })}>
+                  <SelectTrigger aria-label="Exam preset"><SelectValue placeholder="Exam" /></SelectTrigger>
+                  <SelectContent>{Object.entries(EXAM_PRESETS).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}</SelectContent>
+                </Select>
+              )}
+              {s.track !== "school" && (<>
+                <Input aria-label="Questions" type="number" min={5} max={100} placeholder="Questions" value={s.questionCount ?? ""} onChange={(e) => patchScope(i, { questionCount: e.target.value ? Number(e.target.value) : undefined })} />
+                <Input aria-label="Minutes" type="number" min={5} max={240} placeholder="Minutes" value={s.durationMinutes ?? ""} onChange={(e) => patchScope(i, { durationMinutes: e.target.value ? Number(e.target.value) : undefined })} />
+                <Input aria-label="Marks per correct" type="number" step="0.25" min={0.25} placeholder="+ marks" value={s.marksCorrect ?? ""} onChange={(e) => patchScope(i, { marksCorrect: e.target.value ? Number(e.target.value) : undefined })} />
+                <Input aria-label="Marks per wrong" type="number" step="0.25" max={0} placeholder="− marks" value={s.marksWrong ?? ""} onChange={(e) => patchScope(i, { marksWrong: e.target.value === "" ? undefined : Number(e.target.value) })} />
+              </>)}
               <Button size="icon" variant="ghost" aria-label="Remove row" onClick={() => setCfg({ ...cfg, scopes: cfg.scopes.filter((_, n) => n !== i) })}><Trash2 className="h-4 w-4" /></Button>
             </div>
           ))}

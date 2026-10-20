@@ -84,6 +84,7 @@ import { Route as AdminTeachingRouteImport } from './routes/admin.teaching'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminXpRouteImport } from './routes/admin.xp'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
+import { Route as CodingIdRouteImport } from './routes/coding.$id'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
 import { Route as GuruIndexRouteImport } from './routes/guru.index'
@@ -497,6 +498,11 @@ const CategoryIdRoute = CategoryIdRouteImport.update({
   path: '/category/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CodingIdRoute = CodingIdRouteImport.update({
+  id: '/coding/$id',
+  path: '/coding/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ContestIdRoute = ContestIdRouteImport.update({
   id: '/contest/$id',
   path: '/contest/$id',
@@ -758,6 +764,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
+  '/coding/$id': typeof CodingIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
@@ -869,6 +876,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
+  '/coding/$id': typeof CodingIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
@@ -983,6 +991,7 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
+  '/coding/$id': typeof CodingIdRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket_/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
@@ -1098,6 +1107,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
+    | '/coding/$id'
     | '/contest/$id'
     | '/cricket/$id'
     | '/guru/achievements'
@@ -1209,6 +1219,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
+    | '/coding/$id'
     | '/contest/$id'
     | '/cricket/$id'
     | '/guru/achievements'
@@ -1322,6 +1333,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/admin/xp'
     | '/category/$id'
+    | '/coding/$id'
     | '/contest/$id'
     | '/cricket_/$id'
     | '/guru/achievements'
@@ -1396,6 +1408,7 @@ export interface RootRouteChildren {
   WalletRoute: typeof WalletRouteWithChildren
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   CategoryIdRoute: typeof CategoryIdRoute
+  CodingIdRoute: typeof CodingIdRoute
   ContestIdRoute: typeof ContestIdRoute
   CricketIdRoute: typeof CricketIdRoute
   MessagesIdRoute: typeof MessagesIdRoute
@@ -1943,6 +1956,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategoryIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/coding/$id': {
+      id: '/coding/$id'
+      path: '/coding/$id'
+      fullPath: '/coding/$id'
+      preLoaderRoute: typeof CodingIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/contest/$id': {
       id: '/contest/$id'
       path: '/contest/$id'
@@ -2376,6 +2396,7 @@ const rootRouteChildren: RootRouteChildren = {
   WalletRoute: WalletRouteWithChildren,
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   CategoryIdRoute: CategoryIdRoute,
+  CodingIdRoute: CodingIdRoute,
   ContestIdRoute: ContestIdRoute,
   CricketIdRoute: CricketIdRoute,
   MessagesIdRoute: MessagesIdRoute,

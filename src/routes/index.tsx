@@ -1,3 +1,4 @@
+import { ContestExplorer } from "@/components/ContestExplorer";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CricketScoreboard } from "@/components/CricketScoreboard";
 import { useEffect, useState } from "react";
@@ -327,6 +328,8 @@ function Home() {
           </div>
         </section>
       )}
+
+      <ContestExplorer />
 
       {/* Learn & compete: real routes into the Guru.AI learning sections */}
       <section className="mt-6" aria-label="Learn with Guru.AI">

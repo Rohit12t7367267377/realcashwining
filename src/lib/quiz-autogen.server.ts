@@ -4,7 +4,7 @@
  * bounded retry count, and an incomplete or invalid contest is never published.
  */
 import {
-  computeSlot, contestTitle, contestWindow, parseQuizAutogenConfig, validateGeneratedQuestions,
+  computeSlot, contestTitle, contestWindow, parseQuizAutogenConfig, resolveScopeSettings, validateGeneratedQuestions,
   QUIZ_AUTOGEN_SETTING_KEY, type GeneratedQuestion, type QuizAutogenConfig, type QuizScope,
 } from "@/lib/quiz-autogen";
 
@@ -40,20 +40,21 @@ export async function runQuizAutogen(deps: { store: QuizAutogenStore; generate: 
 
   try {
     // Ask for a few extra so a rejected question does not sink the whole contest.
-    const raw = await deps.generate(slot.scope, cfg.questionCount + 5);
+    const eff = resolveScopeSettings(slot.scope, cfg);
+    const raw = await deps.generate(slot.scope, eff.questionCount + 5);
     const list = raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as { questions?: unknown }).questions : raw;
     const { valid, rejected } = validateGeneratedQuestions(list, { subject: slot.scope.subject, topic: slot.scope.topic, difficulty: slot.scope.difficulty });
-    if (valid.length < cfg.questionCount) {
-      throw new Error(`Only ${valid.length} of ${cfg.questionCount} questions passed validation (${rejected.slice(0, 3).map((r) => r.reason).join("; ") || "too few returned"}).`);
+    if (valid.length < eff.questionCount) {
+      throw new Error(`Only ${valid.length} of ${eff.questionCount} questions passed validation (${rejected.slice(0, 3).map((r) => r.reason).join("; ") || "too few returned"}).`);
     }
     const win = contestWindow(now, slot, cfg);
     const { contestId } = await deps.store.createContest({
       slotKey: slot.key, scope: slot.scope, title: contestTitle(slot.scope, win.startsAt),
-      questions: valid.slice(0, cfg.questionCount), startsAt: win.startsAt, endsAt: win.endsAt,
+      questions: valid.slice(0, eff.questionCount), startsAt: win.startsAt, endsAt: win.endsAt,
       publish: cfg.publishMode === "auto", cfg,
     });
     await deps.store.finishRun(slot.key, { status: "succeeded", contestId, questionCount: cfg.questionCount, error: null });
-    return { status: "created", slotKey: slot.key, contestId, published: cfg.publishMode === "auto", questions: cfg.questionCount };
+    return { status: "created", slotKey: slot.key, contestId, published: cfg.publishMode === "auto", questions: eff.questionCount };
   } catch (e) {
     const error = e instanceof Error ? e.message : "Generation failed";
     await deps.store.finishRun(slot.key, { status: "failed", error: error.slice(0, 500) });
@@ -87,11 +88,12 @@ export function supabaseQuizAutogenStore(db: Db): QuizAutogenStore {
       return upd.data?.length ? { state: "claimed", attempts: row.attempts + 1 } : { state: "busy" };
     },
     async createContest({ slotKey, scope, title, questions, startsAt, endsAt, publish, cfg }) {
+      const eff = resolveScopeSettings(scope, cfg);
       // Each generated contest gets its own private category, so the existing play/score logic (which
       // reads a contest's questions by category) serves exactly these questions. It stays inactive so it
       // never appears in the public category list.
       const slug = `auto-${slotKey.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`;
-      const cat = await db.from("categories").insert({ name: title.slice(0, 120), slug, active: false, description: "Auto-generated school quiz" }).select("id").single();
+      const cat = await db.from("categories").insert({ name: title.slice(0, 120), slug, active: false, description: `Auto-generated ${scope.track} quiz` }).select("id").single();
       if (cat.error) throw new Error(`Could not create the question set: ${cat.error.message}`);
       const categoryId = cat.data.id as string;
       try {
@@ -102,7 +104,7 @@ export function supabaseQuizAutogenStore(db: Db): QuizAutogenStore {
         if (q.error) throw new Error(`Could not save questions: ${q.error.message}`);
         const c = await db.from("contests").insert({
           title, category_id: categoryId, entry_fee: 0, prize_pool: 0, first_prize: 0, contest_type: "free",
-          duration_minutes: cfg.durationMinutes, num_questions: questions.length, max_participants: cfg.maxParticipants,
+          duration_minutes: eff.durationMinutes, marks_correct: eff.marksCorrect, marks_wrong: eff.marksWrong, num_questions: questions.length, max_participants: cfg.maxParticipants,
           active: publish, starts_at: startsAt.toISOString(), ends_at: endsAt.toISOString(),
           auto_quiz: true, review_required: !publish, auto_slot_key: slotKey, auto_scope: scope,
         }).select("id").single();
@@ -130,10 +132,10 @@ export async function aiQuizGenerator(scope: QuizScope, count: number): Promise<
       {
         role: "system",
         content: [
-          "You write school exam multiple-choice questions. Accuracy matters more than cleverness.",
-          `Board: ${scope.board}. Class: ${scope.className}. Subject: ${scope.subject}.${scope.topic ? ` Topic: ${scope.topic}.` : ""} Difficulty: ${scope.difficulty}.`,
+          scope.track === "exam" ? "You write competitive-exam multiple-choice questions in the style of the named exam. Accuracy matters more than cleverness." : scope.track === "college" ? "You write college/university multiple-choice questions at the stated level. Accuracy matters more than cleverness." : "You write school exam multiple-choice questions. Accuracy matters more than cleverness.",
+          `${scope.track === "exam" ? "Exam" : scope.track === "college" ? "University/Program" : "Board"}: ${scope.board}${scope.examPreset ? ` (${scope.examPreset})` : ""}. ${scope.track === "school" ? "Class" : scope.track === "college" ? "Year/Semester" : "Paper/Stage"}: ${scope.className}. Subject: ${scope.subject}.${scope.topic ? ` Topic: ${scope.topic}.` : ""} Difficulty: ${scope.difficulty}.`,
           scope.language === "hi" ? "Write in simple Hindi (Devanagari)." : "Write in simple English.",
-          `Write ${count} DIFFERENT questions that follow this class syllabus. Each must have exactly 4 options and exactly one unambiguously correct option. Do not use \"all of the above\" or \"none of the above\". Do not repeat concepts.`,
+          `Write ${count} DIFFERENT questions that follow the stated syllabus/exam pattern. Each must have exactly 4 options and exactly one unambiguously correct option. Do not use \"all of the above\" or \"none of the above\". Do not repeat concepts.`,
           'Return STRICT JSON only: {"questions":[{"question":"...","options":["A","B","C","D"],"correct_index":0,"explanation":"why the answer is correct","topic":"the specific chapter/topic this question belongs to"}]}',
         ].join("\n"),
       },

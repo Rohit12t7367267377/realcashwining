@@ -6,13 +6,45 @@ import { dedupeQuestions } from "@/lib/lesson-sections";
  * Generated contests are always FREE (no entry fee, no cash prize): paid contests stay disabled until the
  * legal/payment review is done. Everything here is deterministic and unit-tested.
  */
+export const TRACKS = ["school", "college", "exam"] as const;
+export type Track = (typeof TRACKS)[number];
+
+/**
+ * Exam presets: question count, duration and marking used as DEFAULTS. They are editable per scope
+ * in the admin panel; check them against the exam's current official pattern before relying on them.
+ */
+export const EXAM_PRESETS: Record<string, { label: string; questionCount: number; durationMinutes: number; marksCorrect: number; marksWrong: number; difficulty: "easy" | "medium" | "hard" }> = {
+  "jee-main": { label: "JEE Main", questionCount: 30, durationMinutes: 60, marksCorrect: 4, marksWrong: -1, difficulty: "hard" },
+  neet: { label: "NEET", questionCount: 45, durationMinutes: 45, marksCorrect: 4, marksWrong: -1, difficulty: "medium" },
+  "ssc-cgl": { label: "SSC CGL", questionCount: 25, durationMinutes: 20, marksCorrect: 2, marksWrong: -0.5, difficulty: "medium" },
+  "upsc-prelims": { label: "UPSC Prelims (GS)", questionCount: 25, durationMinutes: 30, marksCorrect: 2, marksWrong: -0.66, difficulty: "hard" },
+  cuet: { label: "CUET", questionCount: 25, durationMinutes: 30, marksCorrect: 5, marksWrong: -1, difficulty: "medium" },
+  gate: { label: "GATE", questionCount: 20, durationMinutes: 40, marksCorrect: 1, marksWrong: -0.33, difficulty: "hard" },
+  cat: { label: "CAT", questionCount: 20, durationMinutes: 40, marksCorrect: 3, marksWrong: -1, difficulty: "hard" },
+  "bank-prelims": { label: "Bank PO/Clerk Prelims", questionCount: 30, durationMinutes: 20, marksCorrect: 1, marksWrong: -0.25, difficulty: "medium" },
+};
+
 export const scopeSchema = z.object({
+  track: z.enum(TRACKS).default("school"),
   board: z.string().trim().min(2).max(60),
-  className: z.enum(["10", "11", "12"]),
+  /** School: "10" | "11" | "12". College: a year/semester label. Exam: the stage/paper label. */
+  className: z.string().trim().min(1).max(40),
   subject: z.string().trim().min(2).max(80),
   topic: z.string().trim().max(120).default(""),
   difficulty: z.enum(["easy", "medium", "hard"]).default("medium"),
   language: z.enum(["en", "hi"]).default("en"),
+  examPreset: z.string().trim().max(40).optional(),
+  questionCount: z.number().int().min(5).max(100).optional(),
+  durationMinutes: z.number().int().min(5).max(240).optional(),
+  marksCorrect: z.number().gt(0).max(100).optional(),
+  marksWrong: z.number().min(-100).max(0).optional(),
+}).superRefine((s, ctx) => {
+  if (s.track === "school" && !["10", "11", "12"].includes(s.className)) {
+    ctx.addIssue({ code: "custom", path: ["className"], message: "School class must be 10, 11 or 12" });
+  }
+  if (s.examPreset && !EXAM_PRESETS[s.examPreset]) {
+    ctx.addIssue({ code: "custom", path: ["examPreset"], message: "Unknown exam preset" });
+  }
 });
 export type QuizScope = z.infer<typeof scopeSchema>;
 
@@ -56,9 +88,22 @@ export function contestWindow(now: Date, slot: Slot, cfg: QuizAutogenConfig) {
   return { startsAt: new Date(starts), endsAt: new Date(starts + cfg.openForMinutes * 60_000) };
 }
 
+/** Effective counts/duration/marking for one scope: explicit override > exam preset > global config. */
+export function resolveScopeSettings(scope: QuizScope, cfg: QuizAutogenConfig) {
+  const p = scope.examPreset ? EXAM_PRESETS[scope.examPreset] : undefined;
+  return {
+    questionCount: scope.questionCount ?? p?.questionCount ?? cfg.questionCount,
+    durationMinutes: scope.durationMinutes ?? p?.durationMinutes ?? cfg.durationMinutes,
+    marksCorrect: scope.marksCorrect ?? p?.marksCorrect ?? null,
+    marksWrong: scope.marksWrong ?? p?.marksWrong ?? null,
+    difficulty: scope.difficulty,
+  };
+}
+
 export function contestTitle(scope: QuizScope, startsAt: Date) {
   const when = startsAt.toLocaleString("en-IN", { timeZone: "Asia/Kolkata", day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true });
-  return `${scope.board} Class ${scope.className} ${scope.subject}${scope.topic ? ` — ${scope.topic}` : ""} Quiz · ${when}`.slice(0, 160);
+  const label = scope.track === "school" ? `${scope.board} Class ${scope.className}` : scope.track === "college" ? `${scope.board} ${scope.className}` : `${scope.examPreset ? EXAM_PRESETS[scope.examPreset]?.label : scope.board} ${scope.className}`;
+  return `${label} ${scope.subject}${scope.topic ? ` — ${scope.topic}` : ""} Quiz · ${when}`.slice(0, 160);
 }
 
 export type GeneratedQuestion = {

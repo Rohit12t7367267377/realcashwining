@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
-import { computeSlot, contestWindow, parseQuizAutogenConfig, quizAutogenConfigSchema, validateGeneratedQuestions, type GeneratedQuestion, type QuizAutogenConfig, type QuizScope } from "./quiz-autogen";
+import { EXAM_PRESETS, resolveScopeSettings, scopeSchema, computeSlot, contestWindow, parseQuizAutogenConfig, quizAutogenConfigSchema, validateGeneratedQuestions, type GeneratedQuestion, type QuizAutogenConfig, type QuizScope } from "./quiz-autogen";
 import { runQuizAutogen, type ClaimResult, type QuizAutogenStore } from "./quiz-autogen.server";
 
-const scope = (subject: string): QuizScope => ({ board: "UP Board", className: "10", subject, topic: "", difficulty: "medium", language: "en" });
+const scope = (subject: string): QuizScope => ({ track: "school", board: "UP Board", className: "10", subject, topic: "", difficulty: "medium", language: "en" });
 const baseCfg = (p: Partial<QuizAutogenConfig> = {}): QuizAutogenConfig => parseQuizAutogenConfig({ enabled: true, questionCount: 5, scopes: [scope("Science"), scope("Maths")], ...p });
 const TOPICS = ["velocity", "acceleration", "displacement", "friction", "momentum", "inertia", "gravity", "pressure", "density", "work", "energy", "power"];
 const goodQ = (i: number) => ({ question: `Which statement correctly describes ${TOPICS[i % TOPICS.length]} in uniform circular motion number ${i}?`, options: [`A${i}`, `B${i}`, `C${i}`, `D${i}`], correct_index: i % 4, explanation: `Because option ${i} follows the definition.`, topic: "Motion" });
@@ -128,5 +128,38 @@ describe("runner: idempotency, retries and safety", () => {
     const m = memoryStore(baseCfg());
     m.runs.set(computeSlot(now, baseCfg()).key, { status: "running", attempts: 1, updated: now.getTime() });
     expect((await runQuizAutogen({ store: m.store, generate: async () => batch(10), now })).status).toBe("busy");
+  });
+});
+
+describe("college and exam scopes", () => {
+  it("applies exam preset count, duration and marking, with explicit overrides winning", () => {
+    const cfg = baseCfg();
+    const exam = scopeSchema.parse({ track: "exam", board: "SSC CGL", className: "Tier 1", subject: "Quant", examPreset: "ssc-cgl" });
+    const eff = resolveScopeSettings(exam, cfg);
+    expect(eff).toMatchObject({ questionCount: 25, durationMinutes: 20, marksCorrect: 2, marksWrong: -0.5 });
+    expect(resolveScopeSettings({ ...exam, questionCount: 10, marksWrong: -1 }, cfg)).toMatchObject({ questionCount: 10, marksWrong: -1 });
+  });
+  it("school scopes keep the global config and no custom marking", () => {
+    expect(resolveScopeSettings(scope("Science"), baseCfg())).toMatchObject({ questionCount: 5, marksCorrect: null, marksWrong: null });
+  });
+  it("rejects bad school class, unknown preset and positive negative-marks", () => {
+    expect(scopeSchema.safeParse({ board: "UP Board", className: "9", subject: "Science" }).success).toBe(false);
+    expect(scopeSchema.safeParse({ track: "exam", board: "X", className: "A", subject: "Quant", examPreset: "nope" }).success).toBe(false);
+    expect(scopeSchema.safeParse({ track: "college", board: "DU", className: "Sem 3", subject: "DBMS", marksWrong: 1 }).success).toBe(false);
+    expect(scopeSchema.safeParse({ track: "college", board: "DU", className: "Sem 3", subject: "DBMS" }).success).toBe(true);
+  });
+  it("every preset is internally sane", () => {
+    for (const p of Object.values(EXAM_PRESETS)) { expect(p.marksCorrect).toBeGreaterThan(0); expect(p.marksWrong).toBeLessThanOrEqual(0); expect(p.questionCount).toBeGreaterThanOrEqual(5); }
+  });
+  it("passes the exam's effective count and marking to contest creation", async () => {
+    const cfg = baseCfg({ scopes: [scopeSchema.parse({ track: "exam", board: "NEET", className: "Paper", subject: "Biology", examPreset: "neet", questionCount: 5 })] });
+    const m = memoryStore(cfg);
+    const seen: { n: number; scope: QuizScope }[] = [];
+    const orig = m.store.createContest.bind(m.store);
+    m.store.createContest = async (a) => { seen.push({ n: a.questions.length, scope: a.scope }); return orig(a); };
+    const r = await runQuizAutogen({ store: m.store, generate: async () => batch(12), now: new Date("2026-10-20T06:00:00Z") });
+    expect(r.status).toBe("created");
+    expect(seen[0]?.n).toBe(5);
+    expect(resolveScopeSettings(seen[0]!.scope, cfg)).toMatchObject({ durationMinutes: 45, marksCorrect: 4, marksWrong: -1 });
   });
 });
