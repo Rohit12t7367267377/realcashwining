@@ -163,3 +163,14 @@ describe("college and exam scopes", () => {
     expect(resolveScopeSettings(seen[0]!.scope, cfg)).toMatchObject({ durationMinutes: 45, marksCorrect: 4, marksWrong: -1 });
   });
 });
+
+describe("default seed configuration", () => {
+  it("the SQL seed is a valid config that parses without falling back", async () => {
+    const { readFileSync } = await import("node:fs");
+    const sql = readFileSync("supabase/migrations/20261020000003_quiz_autogen_defaults.sql", "utf8");
+    const json = JSON.parse(sql.split("$json$")[1]!);
+    const r = quizAutogenConfigSchema.safeParse(json);
+    expect(r.success).toBe(true);
+    if (r.success) { expect(r.data.enabled).toBe(true); expect(r.data.scopes.length).toBe(8); expect(r.data.scopes.every((s) => resolveScopeSettings(s, r.data).questionCount >= 5)).toBe(true); }
+  });
+});

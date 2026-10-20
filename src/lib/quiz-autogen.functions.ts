@@ -32,3 +32,18 @@ export const runQuizAutogenNow = createServerFn({ method: "POST" })
     const { runQuizAutogen, supabaseQuizAutogenStore, aiQuizGenerator } = await import("@/lib/quiz-autogen.server");
     return runQuizAutogen({ store: supabaseQuizAutogenStore(supabaseAdmin as any), generate: aiQuizGenerator, force: true });
   });
+
+/**
+ * Public, no-input trigger used by the app itself, so contests appear even before a cron job is set up.
+ * It is the same idempotent runner: at most one contest per time slot (unique slot key), bounded retries,
+ * and it only does anything when the admin has the engine switched on. It accepts no user input.
+ */
+export const ensureQuizAutogen = createServerFn({ method: "POST" }).handler(async () => {
+  try {
+    const { runQuizAutogen, supabaseQuizAutogenStore, aiQuizGenerator } = await import("@/lib/quiz-autogen.server");
+    const r = await runQuizAutogen({ store: supabaseQuizAutogenStore(supabaseAdmin as any), generate: aiQuizGenerator });
+    return { status: r.status };
+  } catch {
+    return { status: "error" as const };
+  }
+});

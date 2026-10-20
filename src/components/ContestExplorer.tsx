@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { ensureQuizAutogen } from "@/lib/quiz-autogen.functions";
 import { applyFilters, countdown, NO_FILTERS, statusOf, trackOf, type ExplorerContest, type Filters } from "@/lib/contest-explorer";
 
 const STATUS = [["all", "All"], ["live", "Live"], ["upcoming", "Upcoming"], ["ended", "Ended"]] as const;
@@ -16,12 +17,25 @@ export function ContestExplorer() {
   const [now, setNow] = useState(() => Date.now());
   const [loaded, setLoaded] = useState(false);
   useEffect(() => {
+    // Nudge the (idempotent) generator at most every 10 minutes per browser; reload the list if it made one.
+    let nudge: Promise<unknown> = Promise.resolve();
+    try {
+      const last = Number(sessionStorage.getItem("quizAutogenPing") ?? 0);
+      if (Date.now() - last > 10 * 60_000) {
+        sessionStorage.setItem("quizAutogenPing", String(Date.now()));
+        nudge = ensureQuizAutogen().then((r) => (r.status === "created" ? load() : undefined)).catch(() => undefined);
+      }
+    } catch { /* storage blocked: skip */ }
+    void nudge;
+    load();
+    const t = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(t);
+    function load() {
     void supabase.from("contests")
       .select("id, title, contest_type, entry_fee, num_questions, duration_minutes, starts_at, ends_at, results_status, active, marks_correct, marks_wrong, auto_scope")
       .eq("active", true).order("starts_at", { ascending: false, nullsFirst: false }).limit(60)
       .then(({ data }) => { setRows(((data ?? []) as unknown) as ExplorerContest[]); setLoaded(true); });
-    const t = setInterval(() => setNow(Date.now()), 30_000);
-    return () => clearInterval(t);
+    }
   }, []);
   const shown = useMemo(() => applyFilters(rows, f, now), [rows, f, now]);
   const chip = <K extends keyof Filters>(key: K, items: readonly (readonly [string, string])[]) => (
