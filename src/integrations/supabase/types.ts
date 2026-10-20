@@ -4698,6 +4698,14 @@ export type Database = {
           topic_id: string
         }[]
       }
+      get_reading_review: {
+        Args: { _attempt_id: string }
+        Returns: {
+          question_id: string
+          correct_index: number
+          explanation: string
+        }[]
+      }
       submit_reading_attempt: {
         Args: {
           _answers: Json

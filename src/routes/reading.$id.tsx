@@ -82,7 +82,7 @@ function Page() {
 
       const { data: qs } = await supabase
         .from("reading_questions")
-        .select("id, question, options, correct_index, explanation")
+        .select("id, question, options")
         .eq("passage_id", id)
         .order("sort_order")
         .limit(row.num_questions || 50);
@@ -90,8 +90,8 @@ function Page() {
         id: q.id,
         question: q.question,
         options: Array.isArray(q.options) ? (q.options as string[]) : [],
-        correct_index: q.correct_index,
-        explanation: q.explanation,
+        correct_index: -1,
+        explanation: null,
       }));
       if (row.shuffle_questions) shaped = shuffle(shaped);
       setQuestions(shaped);
@@ -150,6 +150,13 @@ function Page() {
         unanswered: Number(r?.unanswered_count ?? 0),
         accuracy: Number(r?.accuracy ?? 0),
       });
+      // Answer keys are revealed server-side only after the attempt is scored.
+      const { data: rev } = await supabase.rpc("get_reading_review", { _attempt_id: attemptId });
+      const key = new Map((rev ?? []).map((r: { question_id: string; correct_index: number; explanation: string | null }) => [r.question_id, r]));
+      setQuestions((qs) => qs.map((q) => {
+        const k = key.get(q.id);
+        return k ? { ...q, correct_index: k.correct_index, explanation: k.explanation } : q;
+      }));
       setPhase("done");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not submit");
