@@ -14,11 +14,14 @@ export const toggleFollow = createServerFn({ method: "POST" })
       const { error } = await supabase.from("follows").delete()
         .eq("follower_id", userId).eq("following_id", data.target_user_id);
       if (error) throw new Error(error.message);
-      return { following: false };
+      return { following: false, status: "none" as const };
     }
     const { error } = await supabase.from("follows").insert({ follower_id: userId, following_id: data.target_user_id });
     if (error) throw new Error(error.message);
-    return { following: true };
+    // The database decides: private accounts turn this into a pending request.
+    const { data: row } = await supabase.from("follows").select("status").eq("follower_id", userId).eq("following_id", data.target_user_id).maybeSingle();
+    const status = ((row as { status?: string } | null)?.status ?? "accepted") as "pending" | "accepted";
+    return { following: status === "accepted", status };
   });
 
 export const postComment = createServerFn({ method: "POST" })

@@ -10,8 +10,8 @@ export const listDmContacts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
     const [{ data: iFollow }, { data: followMe }] = await Promise.all([
-      supabase.from("follows").select("following_id").eq("follower_id", userId),
-      supabase.from("follows").select("follower_id").eq("following_id", userId),
+      supabase.from("follows").select("following_id").eq("follower_id", userId).eq("status", "accepted"),
+      supabase.from("follows").select("follower_id").eq("following_id", userId).eq("status", "accepted"),
     ]);
     const mine = new Set((iFollow ?? []).map((r) => r.following_id));
     const ids = (followMe ?? []).map((r) => r.follower_id).filter((id) => mine.has(id));
@@ -95,15 +95,12 @@ export const getDmConversation = createServerFn({ method: "GET" })
       .eq("id", peerId)
       .maybeSingle();
 
-    const [{ data: a }, { data: b }] = await Promise.all([
-      supabase.from("follows").select("follower_id").eq("follower_id", userId).eq("following_id", peerId).maybeSingle(),
-      supabase.from("follows").select("follower_id").eq("follower_id", peerId).eq("following_id", userId).maybeSingle(),
-    ]);
+    const { data: mutual } = await supabase.rpc("is_mutual_follow", { _a: userId, _b: peerId });
 
     return {
       me: userId,
       peer: (prof ?? null) as Peer | null,
-      canSend: !!a && !!b,
+      canSend: mutual === true,
       messages: msgs ?? [],
     };
   });
@@ -121,6 +118,6 @@ export const sendDm = createServerFn({ method: "POST" })
       .insert({ sender_id: userId, recipient_id: data.peer_id, body: data.body })
       .select("id, sender_id, recipient_id, body, read_at, created_at")
       .single();
-    if (error) throw new Error("You can only chat with people who follow you back.");
+    if (error) throw new Error(/too fast/i.test(error.message) ? error.message : "You can only chat with people who follow you back (and have not blocked each other).");
     return row;
   });

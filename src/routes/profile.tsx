@@ -18,6 +18,8 @@ import { CreatorPanel } from "@/components/CreatorPanel";
 import { useLang, LANGS } from "@/lib/i18n";
 import { useTheme } from "@/lib/theme";
 import { toast } from "sonner";
+import { createPost } from "@/lib/community.functions";
+import { checkUpload } from "@/lib/community-policy";
 import {
   LogOut, Trophy, Target, Award, History, Camera, Grid3X3, Play,
   BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2, Send,
@@ -154,18 +156,19 @@ function ProfilePage() {
       let media_type: string | null = null;
       if (postFile) {
         if (postFile.size > MAX_MB * 1024 * 1024) throw new Error(`File must be under ${MAX_MB}MB`);
-        media_type = postFile.type.startsWith("video") ? "video" : "image";
+        const chk = checkUpload(postFile); if (!chk.ok) throw new Error(chk.error);
+        media_type = chk.kind;
         const ext = postFile.name.split(".").pop() || "bin";
         const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
         const { error: upErr } = await supabase.storage.from("community").upload(path, postFile, { contentType: postFile.type });
         if (upErr) throw new Error(upErr.message);
         media_url = path;
       }
-      const { error } = await supabase.from("community_posts").insert({
-        user_id: user.id, body: postBody.trim(), media_url, media_type,
-      });
-      if (error) throw new Error(error.message);
-      toast.success("Shared!");
+      const r = await createPost({ data: {
+        category: media_type === "video" ? "video" : "post", body: postBody.trim(),
+        ...(media_url && media_type ? { media: { path: media_url, kind: media_type as "image" | "video" | "document" } } : {}),
+      } });
+      toast.success(r.pendingApproval ? "Submitted — it will appear after approval." : "Shared!");
       setPostBody(""); setPostFile(null); setPostOpen(false);
       if (postFileRef.current) postFileRef.current.value = "";
       await loadSocial();

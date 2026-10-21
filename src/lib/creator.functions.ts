@@ -10,7 +10,7 @@ export const getMyCreatorStats = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const [{ data: posts }, { count: followers }, { data: profile }, { data: creator }] = await Promise.all([
       supabase.from("community_posts").select("id, like_count, comment_count, created_at").eq("user_id", userId),
-      supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", userId),
+      supabase.from("follows").select("*", { count: "exact", head: true }).eq("following_id", userId).eq("status", "accepted"),
       supabase.from("profiles").select("full_name, username, avatar_url, bio").eq("id", userId).maybeSingle(),
       supabase.from("creator_profiles").select("*").eq("user_id", userId).maybeSingle(),
     ]);
@@ -66,7 +66,7 @@ export const applyForMonetization = createServerFn({ method: "POST" })
 
     const [{ data: posts }, { count: followers }] = await Promise.all([
       supabaseAdmin.from("community_posts").select("id").eq("user_id", userId),
-      supabaseAdmin.from("follows").select("*", { count: "exact", head: true }).eq("following_id", userId),
+      supabaseAdmin.from("follows").select("*", { count: "exact", head: true }).eq("following_id", userId).eq("status", "accepted"),
     ]);
     const postIds = (posts ?? []).map((p) => p.id);
     let watchSeconds = 0;
@@ -120,11 +120,9 @@ export const recordPostView = createServerFn({ method: "POST" })
   )
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
-    await supabase.from("post_views").insert({
-      post_id: data.postId,
-      user_id: userId,
-      watch_seconds: data.seconds,
-    });
+    // Watch time is validated and de-duplicated in the database (record_post_watch); raw inserts are revoked.
+    void userId;
+    await (supabase as any).rpc("record_post_watch", { _post: data.postId, _seconds: data.seconds });
     return { ok: true };
   });
 
