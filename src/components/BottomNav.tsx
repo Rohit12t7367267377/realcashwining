@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Zap, Trophy, Sparkles, Gem, User } from "lucide-react";
+import { Zap, Trophy, Sparkles, Gem, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
@@ -7,7 +7,7 @@ const items = [
   { to: "/leaderboard", label: "Ranks", icon: Trophy, center: false },
   { to: "/", label: "Quizzes", icon: Zap, center: true },
   { to: "/hub", label: "Elite Hub", icon: Gem, center: false },
-  { to: "/profile", label: "Profile", icon: User, center: false },
+  { to: "/community", label: "Community", icon: Users, center: false },
 ] as const;
 
 
@@ -18,7 +18,7 @@ export function BottomNav() {
     <nav className="fixed bottom-0 inset-x-0 z-40 border-t border-border/60 glass">
       <ul className="mx-auto flex max-w-2xl items-end justify-around px-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] pt-2">
         {items.map(({ to, label, icon: Icon, center }) => {
-          const active = to === "/" ? path === "/" : path.startsWith(to);
+          const active = to === "/" ? path === "/" : to === "/community" ? /^\/(community|u\/|messages)/.test(path) : path.startsWith(to);
           if (center) {
             return (
               <li key={to} className="flex-1">

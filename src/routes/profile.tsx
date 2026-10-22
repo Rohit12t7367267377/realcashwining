@@ -25,7 +25,7 @@ import {
   BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2, Send,
   Settings, Bell, Shield, Globe,
 
-  Sun, Moon,
+  Sun, Moon, UserRound, Users,
 } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -252,15 +252,11 @@ function ProfilePage() {
         </div>
 
         <div className="mt-3 flex gap-2">
-          <Button
-            variant="outline"
-            className="flex-1 font-bold"
-            onClick={() => { setForm({ full_name: prof.full_name, username: prof.username, bio: prof.bio }); setEditOpen(true); }}
-          >
-            <Pencil className="mr-1 h-4 w-4" /> Edit profile
+          <Button asChild variant="outline" className="flex-1 font-bold">
+            <Link to="/community" search={{ tab: "me" }}><UserRound className="mr-1 h-4 w-4" /> My profile</Link>
           </Button>
-          <Button className="flex-1 bg-gradient-primary font-bold" onClick={() => { setPostOpen(true); }}>
-            <ImagePlus className="mr-1 h-4 w-4" /> New post
+          <Button asChild className="flex-1 bg-gradient-primary font-bold">
+            <Link to="/community"><Users className="mr-1 h-4 w-4" /> Community</Link>
           </Button>
         </div>
       </section>

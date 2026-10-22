@@ -9,13 +9,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PostCard, type FeedItem } from "@/components/community/PostCard";
 import { Composer } from "@/components/community/Composer";
 import { UserAvatar } from "@/components/community/shared";
+import { MyProfileCard } from "@/components/community/MyProfileCard";
 import { useAuthSession } from "@/hooks/use-auth-session";
 import { followAction, listFeed, listFollowRequests, listSocialNotifications, searchPeople } from "@/lib/community.functions";
 import { cn } from "@/lib/utils";
 import type { FollowRequest, PersonHit } from "@/lib/community-types";
 
 export const Route = createFileRoute("/community")({
-  validateSearch: (s: Record<string, unknown>): { post?: string } => (typeof s.post === "string" && /^[0-9a-f-]{36}$/i.test(s.post) ? { post: s.post } : {}),
+  validateSearch: (s: Record<string, unknown>): { post?: string; tab?: "me" } => ({ ...(typeof s.post === "string" && /^[0-9a-f-]{36}$/i.test(s.post) ? { post: s.post } : {}), ...(s.tab === "me" ? { tab: "me" as const } : {}) }),
   head: () => ({ meta: [
     { title: "Community — Guru-G" },
     { name: "description", content: "Learn together: educational posts, videos, quizzes, notes and verified education news from students and teachers." },
@@ -27,15 +28,15 @@ export const Route = createFileRoute("/community")({
 const TABS = [
   { id: "for_you", label: "For you", mode: "for_you" }, { id: "following", label: "Following", mode: "following" }, { id: "explore", label: "Explore", mode: "explore" },
   { id: "trending", label: "Trending", mode: "trending" }, { id: "videos", label: "Videos", mode: "explore", category: "video" }, { id: "quizzes", label: "Quizzes", mode: "explore", category: "quiz" },
-  { id: "news", label: "News", mode: "explore", category: "news" }, { id: "saved", label: "Saved", mode: "saved" },
+  { id: "news", label: "News", mode: "explore", category: "news" }, { id: "saved", label: "Saved", mode: "saved" }, { id: "me", label: "My profile", mode: "user" },
 ] as const;
 type People = PersonHit[];
 
 function Page() {
   const { user, loading } = useAuthSession();
   const nav = useNavigate();
-  const { post: deepLink } = Route.useSearch();
-  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("for_you");
+  const { post: deepLink, tab: startTab } = Route.useSearch();
+  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>(startTab ?? "for_you");
   const [items, setItems] = useState<FeedItem[]>([]);
   const [more, setMore] = useState<{ has: boolean; cursor: string | null; page: number }>({ has: false, cursor: null, page: 0 });
   const [busy, setBusy] = useState(true), [error, setError] = useState<string | null>(null);
@@ -110,8 +111,10 @@ function Page() {
           )}
 
           <nav aria-label="Feed" className="-mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1">
-            {TABS.map((t) => <button key={t.id} onClick={() => setTab(t.id)} aria-current={tab === t.id ? "page" : undefined} className={cn("shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors", tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{t.id === "saved" && <Bookmark className="mr-1 inline h-3 w-3" />}{t.label}</button>)}
+            {TABS.map((t) => <button key={t.id} onClick={() => setTab(t.id)} aria-current={tab === t.id ? "page" : undefined} className={cn("shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors", tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{t.id === "saved" && <Bookmark className="mr-1 inline h-3 w-3" />}{t.id === "me" && <UserRound className="mr-1 inline h-3 w-3" />}{t.label}</button>)}
           </nav>
+
+          {tab === "me" && <MyProfileCard userId={user.id} onPost={() => setCompose(true)} />}
 
           <div className="mt-2 flex gap-1.5 overflow-x-auto lg:hidden" aria-label="Community shortcuts">
             {quick.map((l) => <Link key={l.to} to={l.to} className="relative flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold"><l.icon className="h-3.5 w-3.5" />{l.label}{"badge" in l && l.badge ? <span className="rounded-full bg-destructive px-1.5 text-[10px] font-bold text-white">{l.badge}</span> : null}</Link>)}
@@ -138,7 +141,7 @@ function Page() {
             {!busy && !error && items.length === 0 && (
               <div className="rounded-2xl border border-border bg-card p-8 text-center">
                 <Users className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden />
-                <p className="mt-2 text-sm font-bold">{tab === "following" ? "Nothing from people you follow yet" : tab === "saved" ? "No saved posts yet" : applied ? "No posts match your search" : "No posts here yet"}</p>
+                <p className="mt-2 text-sm font-bold">{tab === "following" ? "Nothing from people you follow yet" : tab === "me" ? "You have not posted yet" : tab === "saved" ? "No saved posts yet" : applied ? "No posts match your search" : "No posts here yet"}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{tab === "following" ? "Follow creators from Explore to see their posts here." : "Be the first to share something useful."}</p>
                 <div className="mt-3 flex justify-center gap-2">{tab === "following" && <Button size="sm" variant="outline" onClick={() => setTab("explore")}>Explore</Button>}<Button size="sm" onClick={() => setCompose(true)}>Create a post</Button></div>
               </div>
