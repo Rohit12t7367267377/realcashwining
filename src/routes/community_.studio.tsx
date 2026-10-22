@@ -8,7 +8,7 @@ import { useAuthSession } from "@/hooks/use-auth-session";
 import { cn } from "@/lib/utils";
 import { getCommunityProfile, getCreatorAnalytics } from "@/lib/community.functions";
 
-export const Route = createFileRoute("/community/studio")({
+export const Route = createFileRoute("/community_/studio")({
   head: () => ({ meta: [{ title: "Creator studio — Guru-G" }] }),
   component: Page,
 });

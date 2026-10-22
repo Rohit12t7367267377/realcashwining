@@ -85,7 +85,7 @@ function Page() {
 
   const quick = [
     { to: "/messages", icon: MessageCircle, label: "Messages" }, { to: "/notifications", icon: Bell, label: "Alerts", badge: unread },
-    { to: "/community/studio", icon: BarChart3, label: "Studio" }, { to: "/community/settings", icon: Settings, label: "Settings" }, { to: "/profile", icon: Wallet, label: "Wallet" },
+    { to: "/community/studio", icon: BarChart3, label: "Studio" }, { to: "/community/settings", icon: Settings, label: "Settings" }, { to: "/wallet", icon: Wallet, label: "Wallet" },
   ] as const;
 
   return (

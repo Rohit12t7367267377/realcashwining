@@ -11,7 +11,7 @@ import { UserAvatar } from "@/components/community/shared";
 import { useAuthSession } from "@/hooks/use-auth-session";
 import { blockAction, getMySettings, listBlocked, saveMySettings } from "@/lib/community.functions";
 
-export const Route = createFileRoute("/community/settings")({
+export const Route = createFileRoute("/community_/settings")({
   head: () => ({ meta: [{ title: "Community settings — Guru-G" }] }),
   component: Page,
 });

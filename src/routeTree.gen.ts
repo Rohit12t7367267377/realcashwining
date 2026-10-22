@@ -85,8 +85,8 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminXpRouteImport } from './routes/admin.xp'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
 import { Route as CodingIdRouteImport } from './routes/coding.$id'
-import { Route as CommunitySettingsRouteImport } from './routes/community.settings'
-import { Route as CommunityStudioRouteImport } from './routes/community.studio'
+import { Route as CommunitySettingsRouteImport } from './routes/community_.settings'
+import { Route as CommunityStudioRouteImport } from './routes/community_.studio'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
 import { Route as GuruIndexRouteImport } from './routes/guru.index'
@@ -507,14 +507,14 @@ const CodingIdRoute = CodingIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const CommunitySettingsRoute = CommunitySettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => CommunityRoute,
+  id: '/community_/settings',
+  path: '/community/settings',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const CommunityStudioRoute = CommunityStudioRouteImport.update({
-  id: '/studio',
-  path: '/studio',
-  getParentRoute: () => CommunityRoute,
+  id: '/community_/studio',
+  path: '/community/studio',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ContestIdRoute = ContestIdRouteImport.update({
   id: '/contest/$id',
@@ -714,7 +714,7 @@ export interface FileRoutesByFullPath {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
-  '/community': typeof CommunityRouteWithChildren
+  '/community': typeof CommunityRoute
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -830,7 +830,7 @@ export interface FileRoutesByTo {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
-  '/community': typeof CommunityRouteWithChildren
+  '/community': typeof CommunityRoute
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -947,7 +947,7 @@ export interface FileRoutesById {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
-  '/community': typeof CommunityRouteWithChildren
+  '/community': typeof CommunityRoute
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -1016,8 +1016,8 @@ export interface FileRoutesById {
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/coding/$id': typeof CodingIdRoute
-  '/community/settings': typeof CommunitySettingsRoute
-  '/community/studio': typeof CommunityStudioRoute
+  '/community_/settings': typeof CommunitySettingsRoute
+  '/community_/studio': typeof CommunityStudioRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket_/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
@@ -1367,8 +1367,8 @@ export interface FileRouteTypes {
     | '/admin/xp'
     | '/category/$id'
     | '/coding/$id'
-    | '/community/settings'
-    | '/community/studio'
+    | '/community_/settings'
+    | '/community_/studio'
     | '/contest/$id'
     | '/cricket_/$id'
     | '/guru/achievements'
@@ -1416,7 +1416,7 @@ export interface RootRouteChildren {
   AiTutorRoute: typeof AiTutorRoute
   AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRoute
-  CommunityRoute: typeof CommunityRouteWithChildren
+  CommunityRoute: typeof CommunityRoute
   CouponsRoute: typeof CouponsRoute
   CricketRoute: typeof CricketRoute
   EventsRoute: typeof EventsRoute
@@ -1445,6 +1445,8 @@ export interface RootRouteChildren {
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   CategoryIdRoute: typeof CategoryIdRoute
   CodingIdRoute: typeof CodingIdRoute
+  CommunitySettingsRoute: typeof CommunitySettingsRoute
+  CommunityStudioRoute: typeof CommunityStudioRoute
   ContestIdRoute: typeof ContestIdRoute
   CricketIdRoute: typeof CricketIdRoute
   MessagesIdRoute: typeof MessagesIdRoute
@@ -2000,19 +2002,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CodingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/community/settings': {
-      id: '/community/settings'
-      path: '/settings'
+    '/community_/settings': {
+      id: '/community_/settings'
+      path: '/community/settings'
       fullPath: '/community/settings'
       preLoaderRoute: typeof CommunitySettingsRouteImport
-      parentRoute: typeof CommunityRoute
+      parentRoute: typeof rootRouteImport
     }
-    '/community/studio': {
-      id: '/community/studio'
-      path: '/studio'
+    '/community_/studio': {
+      id: '/community_/studio'
+      path: '/community/studio'
       fullPath: '/community/studio'
       preLoaderRoute: typeof CommunityStudioRouteImport
-      parentRoute: typeof CommunityRoute
+      parentRoute: typeof rootRouteImport
     }
     '/contest/$id': {
       id: '/contest/$id'
@@ -2366,20 +2368,6 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
-interface CommunityRouteChildren {
-  CommunitySettingsRoute: typeof CommunitySettingsRoute
-  CommunityStudioRoute: typeof CommunityStudioRoute
-}
-
-const CommunityRouteChildren: CommunityRouteChildren = {
-  CommunitySettingsRoute: CommunitySettingsRoute,
-  CommunityStudioRoute: CommunityStudioRoute,
-}
-
-const CommunityRouteWithChildren = CommunityRoute._addFileChildren(
-  CommunityRouteChildren,
-)
-
 interface GuruRouteChildren {
   GuruAchievementsRoute: typeof GuruAchievementsRoute
   GuruAskRoute: typeof GuruAskRoute
@@ -2440,7 +2428,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiTutorRoute: AiTutorRoute,
   AuthRoute: AuthRoute,
   BooksRoute: BooksRoute,
-  CommunityRoute: CommunityRouteWithChildren,
+  CommunityRoute: CommunityRoute,
   CouponsRoute: CouponsRoute,
   CricketRoute: CricketRoute,
   EventsRoute: EventsRoute,
@@ -2469,6 +2457,8 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   CategoryIdRoute: CategoryIdRoute,
   CodingIdRoute: CodingIdRoute,
+  CommunitySettingsRoute: CommunitySettingsRoute,
+  CommunityStudioRoute: CommunityStudioRoute,
   ContestIdRoute: ContestIdRoute,
   CricketIdRoute: CricketIdRoute,
   MessagesIdRoute: MessagesIdRoute,
