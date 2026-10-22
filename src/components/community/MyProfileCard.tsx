@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
-import { BarChart3, Camera, Pencil, Settings, Wallet } from "lucide-react";
+import { Camera, Pencil } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -15,7 +14,7 @@ import { Stars, UserAvatar } from "@/components/community/shared";
 type Me = NonNullable<Awaited<ReturnType<typeof getCommunityProfile>>>;
 
 /** "My profile" inside Community: identity, counts, rating, edit profile and photo, plus shortcuts. Own posts render below it. */
-export function MyProfileCard({ userId, onPost }: { userId: string; onPost: () => void }) {
+export function MyProfileCard({ userId }: { userId: string }) {
   const [me, setMe] = useState<Me | null | undefined>(undefined);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ full_name: "", username: "", bio: "" });
@@ -68,12 +67,6 @@ export function MyProfileCard({ userId, onPost }: { userId: string; onPost: () =
           {([["Posts", me.posts], ["Followers", me.followers], ["Following", me.following]] as const).map(([k, v]) => <div key={k}><dd className="text-base font-black">{v}</dd><dt className="text-[11px] text-muted-foreground">{k}</dt></div>)}
         </dl>
         {me.rating.count > 0 && <p className="mt-2 flex items-center gap-1.5 text-xs"><Stars value={me.rating.avg} /> <b>{me.rating.avg.toFixed(1)}</b><span className="text-muted-foreground">from {me.rating.count} rating{me.rating.count === 1 ? "" : "s"}</span></p>}
-        <div className="mt-3 flex flex-wrap gap-2">
-          <Button size="sm" onClick={onPost}><Pencil className="mr-1 h-4 w-4" />Create a post</Button>
-          <Button asChild size="sm" variant="outline"><Link to="/community/studio"><BarChart3 className="mr-1 h-4 w-4" />Studio</Link></Button>
-          <Button asChild size="sm" variant="outline"><Link to="/community/settings"><Settings className="mr-1 h-4 w-4" />Privacy</Link></Button>
-          <Button asChild size="sm" variant="outline"><Link to="/profile"><Wallet className="mr-1 h-4 w-4" />Wallet &amp; account</Link></Button>
-        </div>
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-md">

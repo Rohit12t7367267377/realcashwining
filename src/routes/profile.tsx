@@ -267,7 +267,6 @@ function ProfilePage() {
           <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider text-muted-foreground">
             <Grid3X3 className="h-4 w-4" /> My posts
           </h2>
-          <Link to="/community" className="text-xs font-bold text-primary hover:underline">Friends feed →</Link>
         </div>
         {posts.length === 0 ? (
           <p className="rounded-2xl bg-card p-6 text-center text-sm text-muted-foreground shadow-soft">
@@ -305,7 +304,7 @@ function ProfilePage() {
           <Settings className="h-4 w-4" /> Settings &amp; more
         </h2>
         <div className="grid grid-cols-2 gap-2">
-          <SettingLink to="/community" icon={<IdCard className="h-4 w-4" />} label="Creator community" />
+          <SettingLink to="/community/studio" icon={<IdCard className="h-4 w-4" />} label="Creator studio" />
           <SettingLink to="/notifications" icon={<Bell className="h-4 w-4" />} label="Notifications" />
           <SettingLink to="/reading" icon={<BookOpen className="h-4 w-4" />} label="Reading history" />
           <SettingLink to="/leaderboard" icon={<Award className="h-4 w-4" />} label="Badges & ranks" />

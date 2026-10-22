@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Bell, Bookmark, BarChart3, Loader2, MessageCircle, PenSquare, Search, Settings, SlidersHorizontal, UserRound, Users, X } from "lucide-react";
+import { Bell, Bookmark, BarChart3, Loader2, MessageCircle, PenSquare, Search, Settings, SlidersHorizontal, UserRound, Users, Wallet, X } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
@@ -85,7 +85,7 @@ function Page() {
 
   const quick = [
     { to: "/messages", icon: MessageCircle, label: "Messages" }, { to: "/notifications", icon: Bell, label: "Alerts", badge: unread },
-    { to: "/community/studio", icon: BarChart3, label: "Studio" }, { to: "/community/settings", icon: Settings, label: "Settings" },
+    { to: "/community/studio", icon: BarChart3, label: "Studio" }, { to: "/community/settings", icon: Settings, label: "Settings" }, { to: "/profile", icon: Wallet, label: "Wallet" },
   ] as const;
 
   return (
@@ -114,11 +114,10 @@ function Page() {
             {TABS.map((t) => <button key={t.id} onClick={() => setTab(t.id)} aria-current={tab === t.id ? "page" : undefined} className={cn("shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors", tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{t.id === "saved" && <Bookmark className="mr-1 inline h-3 w-3" />}{t.id === "me" && <UserRound className="mr-1 inline h-3 w-3" />}{t.label}</button>)}
           </nav>
 
-          {tab === "me" && <MyProfileCard userId={user.id} onPost={() => setCompose(true)} />}
+          {tab === "me" && <MyProfileCard userId={user.id} />}
 
           <div className="mt-2 flex gap-1.5 overflow-x-auto lg:hidden" aria-label="Community shortcuts">
             {quick.map((l) => <Link key={l.to} to={l.to} className="relative flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold"><l.icon className="h-3.5 w-3.5" />{l.label}{"badge" in l && l.badge ? <span className="rounded-full bg-destructive px-1.5 text-[10px] font-bold text-white">{l.badge}</span> : null}</Link>)}
-            <Link to="/profile" className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold"><UserRound className="h-3.5 w-3.5" />My profile</Link>
           </div>
 
           {applied && people.length > 0 && (
@@ -131,7 +130,7 @@ function Page() {
             </div>
           )}
 
-          <button onClick={() => setCompose(true)} className="mt-3 flex w-full items-center gap-3 rounded-2xl border border-dashed border-border bg-card/70 p-3 text-left text-sm text-muted-foreground transition-colors hover:border-primary hover:text-foreground">
+          <button onClick={() => setCompose(true)} className="mt-3 hidden w-full lg:flex items-center gap-3 rounded-2xl border border-dashed border-border bg-card/70 p-3 text-left text-sm text-muted-foreground transition-colors hover:border-primary hover:text-foreground">
             <PenSquare className="h-5 w-5 text-primary" />Share an explanation, video, quiz, notes or news…
           </button>
 
@@ -155,7 +154,6 @@ function Page() {
           <div className="sticky top-20 space-y-4">
             <nav className="rounded-2xl border border-border bg-card p-2" aria-label="Community">
               {quick.map((l) => <Link key={l.to} to={l.to} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold hover:bg-muted"><l.icon className="h-4 w-4" />{l.label}{"badge" in l && l.badge ? <span className="ml-auto rounded-full bg-destructive px-1.5 text-[10px] font-bold text-white">{l.badge}</span> : null}</Link>)}
-              <Link to="/profile" className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold hover:bg-muted"><UserRound className="h-4 w-4" />My profile</Link>
             </nav>
             {requests.length > 0 && (
               <div className="rounded-2xl border border-border bg-card p-3"><h2 className="mb-2 text-sm font-bold">Follow requests</h2>
