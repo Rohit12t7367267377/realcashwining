@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Bell, Megaphone, Trophy, Wallet, Gift, Target, ArrowDownToLine, ArrowUpFromLine } from "lucide-react";
 import { listMyNotifications, type AppNotification } from "@/lib/notifications.functions";
 import { useAuthSession } from "@/hooks/use-auth-session";
+import { SocialNotifications } from "@/components/community/SocialNotifications";
 import { LAST_SEEN_KEY } from "@/lib/notifications-seen";
 
 export const Route = createFileRoute("/notifications")({
@@ -69,6 +70,8 @@ function NotificationsPage() {
           <Link to="/auth" className="text-primary hover:underline">Sign in</Link> to see your notifications.
         </Card>
       )}
+
+      {user && <SocialNotifications />}
 
       {user && isLoading && <Card className="p-6 text-center text-sm text-muted-foreground">Loading…</Card>}
 

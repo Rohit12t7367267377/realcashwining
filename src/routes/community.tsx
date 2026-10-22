@@ -1,318 +1,173 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { AppShell } from "@/components/AppShell";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuthSession } from "@/hooks/use-auth-session";
-import { toggleFollow } from "@/lib/social.functions";
-import { Heart, MessageCircle, ImagePlus, Trash2, Users, Loader2, Lock } from "lucide-react";
+import { Bell, Bookmark, BarChart3, Loader2, MessageCircle, PenSquare, Search, Settings, SlidersHorizontal, UserRound, Users, X } from "lucide-react";
 import { toast } from "sonner";
+import { AppShell } from "@/components/AppShell";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PostCard, type FeedItem } from "@/components/community/PostCard";
+import { Composer } from "@/components/community/Composer";
+import { UserAvatar } from "@/components/community/shared";
+import { useAuthSession } from "@/hooks/use-auth-session";
+import { followAction, listFeed, listFollowRequests, listSocialNotifications, searchPeople } from "@/lib/community.functions";
+import { cn } from "@/lib/utils";
+import type { FollowRequest, PersonHit } from "@/lib/community-types";
 
 export const Route = createFileRoute("/community")({
-  head: () => ({
-    meta: [
-      { title: "Community Feed — Guru-G" },
-      { name: "description", content: "Share posts, photos and videos with friends you follow, like and comment on their wins." },
-      { property: "og:title", content: "Community Feed" },
-      { property: "og:description", content: "Post, like and comment with your quiz friends." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
+  validateSearch: (s: Record<string, unknown>): { post?: string } => (typeof s.post === "string" && /^[0-9a-f-]{36}$/i.test(s.post) ? { post: s.post } : {}),
+  head: () => ({ meta: [
+    { title: "Community — Guru-G" },
+    { name: "description", content: "Learn together: educational posts, videos, quizzes, notes and verified education news from students and teachers." },
+    { property: "og:title", content: "Guru-G Community" }, { property: "og:type", content: "website" }, { name: "twitter:card", content: "summary" },
+  ] }),
   component: Page,
 });
 
-type Post = {
-  id: string;
-  user_id: string;
-  body: string;
-  media_url: string | null;
-  media_type: string | null;
-  like_count: number;
-  comment_count: number;
-  hidden: boolean;
-  created_at: string;
-};
-
-const MAX_MB = 25;
+const TABS = [
+  { id: "for_you", label: "For you", mode: "for_you" }, { id: "following", label: "Following", mode: "following" }, { id: "explore", label: "Explore", mode: "explore" },
+  { id: "trending", label: "Trending", mode: "trending" }, { id: "videos", label: "Videos", mode: "explore", category: "video" }, { id: "quizzes", label: "Quizzes", mode: "explore", category: "quiz" },
+  { id: "news", label: "News", mode: "explore", category: "news" }, { id: "saved", label: "Saved", mode: "saved" },
+] as const;
+type People = PersonHit[];
 
 function Page() {
   const { user, loading } = useAuthSession();
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [names, setNames] = useState<Record<string, string>>({});
-  const [signed, setSigned] = useState<Record<string, string>>({});
-  const [liked, setLiked] = useState<Record<string, boolean>>({});
-  const [mutual, setMutual] = useState<Set<string>>(new Set());
-  const [following, setFollowing] = useState<Set<string>>(new Set());
-  const [busy, setBusy] = useState(false);
-  const [body, setBody] = useState("");
-  const [file, setFile] = useState<File | null>(null);
-  const [openComments, setOpenComments] = useState<string | null>(null);
-  const [comments, setComments] = useState<Record<string, any[]>>({});
-  const [draft, setDraft] = useState("");
-  const [search, setSearch] = useState("");
-  const [people, setPeople] = useState<any[]>([]);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const nav = useNavigate();
+  const { post: deepLink } = Route.useSearch();
+  const [tab, setTab] = useState<(typeof TABS)[number]["id"]>("for_you");
+  const [items, setItems] = useState<FeedItem[]>([]);
+  const [more, setMore] = useState<{ has: boolean; cursor: string | null; page: number }>({ has: false, cursor: null, page: 0 });
+  const [busy, setBusy] = useState(true), [error, setError] = useState<string | null>(null);
+  const [q, setQ] = useState(""), [applied, setApplied] = useState(""), [showFilters, setShowFilters] = useState(false);
+  const [flt, setFlt] = useState({ subject: "", exam: "", level: "" });
+  const [people, setPeople] = useState<People>([]), [compose, setCompose] = useState(false);
+  const [requests, setRequests] = useState<FollowRequest[]>([]);
+  const [unread, setUnread] = useState(0);
+  const seq = useRef(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (reset: boolean) => {
     if (!user) return;
-    const { data: rows } = await supabase
-      .from("community_posts")
-      .select("*")
-      .eq("hidden", false)
-      .order("created_at", { ascending: false })
-      .limit(50);
-    const list = (rows ?? []) as Post[];
-    setPosts(list);
+    const my = ++seq.current;
+    if (reset) { setBusy(true); setError(null); }
+    const t = TABS.find((x) => x.id === tab)!;
+    try {
+      const r = await listFeed({ data: {
+        mode: t.mode, category: "category" in t ? t.category : undefined, q: applied || undefined, subject: flt.subject || undefined, exam: flt.exam || undefined, level: flt.level || undefined,
+        id: deepLink, cursor: reset ? undefined : more.cursor ?? undefined, page: reset ? 0 : more.page,
+      } });
+      if (my !== seq.current) return;
+      setItems((cur) => (reset ? r.items : [...cur, ...r.items.filter((n) => !cur.some((c) => c.id === n.id))]));
+      setMore({ has: r.hasMore, cursor: r.nextCursor, page: r.nextPage });
+    } catch (e) { if (my === seq.current) setError(e instanceof Error ? e.message : "Could not load the feed"); }
+    finally { if (my === seq.current) setBusy(false); }
+  }, [user, tab, applied, flt, deepLink, more.cursor, more.page]);
 
-    const ids = Array.from(new Set(list.map((p) => p.user_id)));
-    if (ids.length) {
-      const { data: profs } = await supabase.from("profiles").select("id,full_name").in("id", ids);
-      const map: Record<string, string> = {};
-      (profs ?? []).forEach((p: any) => (map[p.id] = p.full_name || "Player"));
-      setNames(map);
-    }
-
-    const paths = list.filter((p) => p.media_url).map((p) => p.media_url!) as string[];
-    if (paths.length) {
-      const { data: urls } = await supabase.storage.from("community").createSignedUrls(paths, 3600);
-      const m: Record<string, string> = {};
-      (urls ?? []).forEach((u: any) => { if (u.path && u.signedUrl) m[u.path] = u.signedUrl; });
-      setSigned(m);
-    }
-
-    const { data: myLikes } = await supabase.from("post_likes").select("post_id").eq("user_id", user.id);
-    const lk: Record<string, boolean> = {};
-    (myLikes ?? []).forEach((l: any) => (lk[l.post_id] = true));
-    setLiked(lk);
-
-    const { data: iFollow } = await supabase.from("follows").select("following_id").eq("follower_id", user.id);
-    const { data: followsMe } = await supabase.from("follows").select("follower_id").eq("following_id", user.id);
-    const a = new Set((iFollow ?? []).map((r: any) => r.following_id));
-    const b = new Set((followsMe ?? []).map((r: any) => r.follower_id));
-    setFollowing(a as Set<string>);
-    setMutual(new Set(Array.from(a).filter((id) => b.has(id))) as Set<string>);
+  useEffect(() => { if (!loading && !user) void nav({ to: "/auth" }); }, [loading, user, nav]);
+  useEffect(() => { void load(true); }, [user, tab, applied, flt.subject, flt.exam, flt.level, deepLink]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!user) return;
+    void listFollowRequests().then(setRequests).catch(() => undefined);
+    void listSocialNotifications().then((r) => setUnread(r.unread)).catch(() => undefined);
   }, [user]);
+  useEffect(() => {
+    if (applied.length < 2) { setPeople([]); return; }
+    void searchPeople({ data: { q: applied } }).then(setPeople).catch(() => setPeople([]));
+  }, [applied]);
 
-  useEffect(() => { load(); }, [load]);
-
-  function canInteract(post: Post) {
-    return post.user_id === user?.id || mutual.has(post.user_id);
+  const patch = (id: string, p: Partial<FeedItem>) => setItems((cur) => cur.map((i) => (i.id === id ? { ...i, ...p } : i)));
+  async function respond(userId: string, action: "accept" | "reject") {
+    try { await followAction({ data: { targetId: userId, action } }); setRequests((r) => r.filter((x) => x.userId !== userId)); toast.success(action === "accept" ? "Request accepted" : "Request declined"); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
   }
+  if (loading || !user) return <AppShell wide><Skeleton className="h-40 rounded-2xl" /></AppShell>;
 
-  async function publish() {
-    if (!user || (!body.trim() && !file)) return;
-    setBusy(true);
-    try {
-      let media_url: string | null = null;
-      let media_type: string | null = null;
-      if (file) {
-        if (file.size > MAX_MB * 1024 * 1024) throw new Error(`File must be under ${MAX_MB}MB`);
-        media_type = file.type.startsWith("video") ? "video" : "image";
-        const ext = file.name.split(".").pop() || "bin";
-        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
-        const { error: upErr } = await supabase.storage.from("community").upload(path, file, { contentType: file.type });
-        if (upErr) throw new Error(upErr.message);
-        media_url = path;
-      }
-      const { data: setting } = await supabase.from("app_settings").select("value").eq("key", "community_moderation").maybeSingle();
-      const needsApproval = String((setting as any)?.value) === "true";
-      const { error } = await supabase.from("community_posts").insert({
-        user_id: user.id, body: body.trim(), media_url, media_type, hidden: needsApproval,
-      });
-      if (error) throw new Error(error.message);
-      setBody(""); setFile(null);
-      if (fileRef.current) fileRef.current.value = "";
-      toast.success(needsApproval ? "Posted — waiting for admin approval" : "Posted!");
-      load();
-    } catch (e: any) {
-      toast.error(e?.message ?? "Failed to post");
-    } finally { setBusy(false); }
-  }
-
-  async function like(post: Post) {
-    if (!user) return;
-    if (!canInteract(post)) return toast.error("You can only like posts from friends you both follow");
-    const isLiked = liked[post.id];
-    setLiked({ ...liked, [post.id]: !isLiked });
-    setPosts((ps) => ps.map((p) => (p.id === post.id ? { ...p, like_count: p.like_count + (isLiked ? -1 : 1) } : p)));
-    if (isLiked) await supabase.from("post_likes").delete().eq("post_id", post.id).eq("user_id", user.id);
-    else {
-      const { error } = await supabase.from("post_likes").insert({ post_id: post.id, user_id: user.id });
-      if (error) { toast.error("Could not like this post"); load(); }
-    }
-  }
-
-  async function loadComments(postId: string) {
-    const { data } = await supabase.from("post_comments").select("*").eq("post_id", postId).eq("hidden", false).order("created_at");
-    const rows = data ?? [];
-    const ids = Array.from(new Set(rows.map((r: any) => r.user_id)));
-    if (ids.length) {
-      const { data: profs } = await supabase.from("profiles").select("id,full_name").in("id", ids);
-      setNames((n) => { const m = { ...n }; (profs ?? []).forEach((p: any) => (m[p.id] = p.full_name || "Player")); return m; });
-    }
-    setComments((c) => ({ ...c, [postId]: rows }));
-  }
-
-  async function addComment(post: Post) {
-    if (!user || !draft.trim()) return;
-    if (!canInteract(post)) return toast.error("Only mutual friends can comment");
-    const { error } = await supabase.from("post_comments").insert({ post_id: post.id, user_id: user.id, body: draft.trim() });
-    if (error) return toast.error("Could not comment");
-    setDraft("");
-    loadComments(post.id);
-    setPosts((ps) => ps.map((p) => (p.id === post.id ? { ...p, comment_count: p.comment_count + 1 } : p)));
-  }
-
-  async function removePost(post: Post) {
-    if (post.user_id !== user?.id) return;
-    const { error } = await supabase.from("community_posts").delete().eq("id", post.id);
-    if (error) return toast.error("Could not delete");
-    toast.success("Deleted");
-    load();
-  }
-
-  async function findPeople() {
-    if (!search.trim()) return setPeople([]);
-    const { data } = await supabase.from("profiles").select("id,full_name").ilike("full_name", `%${search.trim()}%`).limit(10);
-    setPeople((data ?? []).filter((p: any) => p.id !== user?.id));
-  }
-
-  async function follow(id: string) {
-    try {
-      const res = await toggleFollow({ data: { target_user_id: id } });
-      toast.success(res.following ? "Following" : "Unfollowed");
-      load();
-    } catch (e: any) { toast.error(e?.message ?? "Failed"); }
-  }
-
-  if (loading) return <AppShell><div className="p-10 text-center text-muted-foreground"><Loader2 className="mx-auto h-6 w-6 animate-spin" /></div></AppShell>;
-
-  if (!user) {
-    return (
-      <AppShell>
-        <Card className="mx-auto mt-10 max-w-md p-8 text-center">
-          <Users className="mx-auto mb-3 h-10 w-10 text-primary" />
-          <h1 className="text-xl font-bold">Community</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Sign in to post, like and comment with your friends.</p>
-          <Link to="/auth"><Button className="mt-4 w-full">Sign in</Button></Link>
-        </Card>
-      </AppShell>
-    );
-  }
+  const quick = [
+    { to: "/messages", icon: MessageCircle, label: "Messages" }, { to: "/notifications", icon: Bell, label: "Alerts", badge: unread },
+    { to: "/community/studio", icon: BarChart3, label: "Studio" }, { to: "/community/settings", icon: Settings, label: "Settings" },
+  ] as const;
 
   return (
-    <AppShell>
-      <div className="mx-auto max-w-xl p-4">
-        <h1 className="text-2xl font-bold">Community</h1>
-        <p className="mb-4 text-sm text-muted-foreground">Post updates. Only friends you follow each other with can like or comment.</p>
-
-        {/* Find people */}
-        <Card className="mb-4 p-3">
-          <div className="flex gap-2">
-            <Input placeholder="Find players by name…" value={search} onChange={(e) => setSearch(e.target.value)} onKeyDown={(e) => e.key === "Enter" && findPeople()} />
-            <Button variant="secondary" onClick={findPeople}>Search</Button>
+    <AppShell wide>
+      <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[minmax(0,1fr)_300px]">
+        <section aria-label="Community feed" className="min-w-0">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-black tracking-tight">Community</h1>
+            <form className="relative ml-auto min-w-0 flex-1 sm:max-w-xs" role="search" onSubmit={(e) => { e.preventDefault(); setApplied(q.trim()); }}>
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden />
+              <Input className="pl-9 pr-8" aria-label="Search posts and people" placeholder="Search posts, subjects, people" value={q} onChange={(e) => setQ(e.target.value)} />
+              {applied && <button type="button" aria-label="Clear search" className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground" onClick={() => { setQ(""); setApplied(""); }}><X className="h-4 w-4" /></button>}
+            </form>
+            <Button size="icon" variant="outline" aria-label="Filters" aria-expanded={showFilters} onClick={() => setShowFilters(!showFilters)}><SlidersHorizontal className="h-4 w-4" /></Button>
           </div>
-          {people.length > 0 && (
-            <div className="mt-3 space-y-2">
-              {people.map((p) => (
-                <div key={p.id} className="flex items-center justify-between text-sm">
-                  <span className="font-medium">{p.full_name || "Player"}</span>
-                  <Button size="sm" variant={following.has(p.id) ? "outline" : "default"} onClick={() => follow(p.id)}>
-                    {following.has(p.id) ? "Unfollow" : "Follow"}
-                  </Button>
-                </div>
-              ))}
+
+          {showFilters && (
+            <div className="mt-2 grid gap-2 rounded-2xl border border-border bg-card p-3 sm:grid-cols-3">
+              <Input aria-label="Subject filter" placeholder="Subject" value={flt.subject} onChange={(e) => setFlt({ ...flt, subject: e.target.value })} />
+              <Input aria-label="Exam filter" placeholder="Exam (e.g. NEET)" value={flt.exam} onChange={(e) => setFlt({ ...flt, exam: e.target.value })} />
+              <Input aria-label="Level filter" placeholder="Class / level" value={flt.level} onChange={(e) => setFlt({ ...flt, level: e.target.value })} />
             </div>
           )}
-        </Card>
 
-        {/* Composer */}
-        <Card className="mb-5 p-4">
-          <Textarea rows={3} placeholder="Share something with your friends…" value={body} onChange={(e) => setBody(e.target.value)} maxLength={1000} />
-          <div className="mt-3 flex items-center gap-2">
-            <input ref={fileRef} type="file" accept="image/*,video/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
-            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-              <ImagePlus className="mr-1 h-4 w-4" /> {file ? "Change media" : "Photo / Video"}
-            </Button>
-            {file && <span className="truncate text-xs text-muted-foreground">{file.name}</span>}
-            <Button className="ml-auto" size="sm" onClick={publish} disabled={busy || (!body.trim() && !file)}>
-              {busy ? "Posting…" : "Post"}
-            </Button>
+          <nav aria-label="Feed" className="-mx-4 mt-3 flex gap-1.5 overflow-x-auto px-4 pb-1">
+            {TABS.map((t) => <button key={t.id} onClick={() => setTab(t.id)} aria-current={tab === t.id ? "page" : undefined} className={cn("shrink-0 rounded-full px-3.5 py-1.5 text-xs font-bold transition-colors", tab === t.id ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:text-foreground")}>{t.id === "saved" && <Bookmark className="mr-1 inline h-3 w-3" />}{t.label}</button>)}
+          </nav>
+
+          <div className="mt-2 flex gap-1.5 overflow-x-auto lg:hidden" aria-label="Community shortcuts">
+            {quick.map((l) => <Link key={l.to} to={l.to} className="relative flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold"><l.icon className="h-3.5 w-3.5" />{l.label}{"badge" in l && l.badge ? <span className="rounded-full bg-destructive px-1.5 text-[10px] font-bold text-white">{l.badge}</span> : null}</Link>)}
+            <Link to="/profile" className="flex shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-semibold"><UserRound className="h-3.5 w-3.5" />My profile</Link>
           </div>
-        </Card>
 
-        {/* Feed */}
-        <div className="space-y-4">
-          {posts.map((p) => {
-            const allowed = canInteract(p);
-            const url = p.media_url ? signed[p.media_url] : null;
-            return (
-              <Card key={p.id} className="overflow-hidden">
-                <div className="flex items-center gap-2 p-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-primary text-sm font-bold text-primary-foreground">
-                    {(names[p.user_id] ?? "P").charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-semibold">{names[p.user_id] ?? "Player"}</div>
-                    <div className="text-[11px] text-muted-foreground">{new Date(p.created_at).toLocaleString()}</div>
-                  </div>
-                  {p.user_id === user.id && (
-                    <button onClick={() => removePost(p)} className="text-muted-foreground hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
-                  )}
-                  {p.user_id !== user.id && !following.has(p.user_id) && (
-                    <Button size="sm" variant="outline" onClick={() => follow(p.user_id)}>Follow</Button>
-                  )}
-                  {p.user_id !== user.id && mutual.has(p.user_id) && (
-                    <Button asChild size="sm" variant="ghost">
-                      <Link to="/messages/$id" params={{ id: p.user_id }}>Message</Link>
-                    </Button>
-                  )}
+          {applied && people.length > 0 && (
+            <div className="mt-3 rounded-2xl border border-border bg-card p-3">
+              <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">People</h2>
+              <ul className="space-y-2">{people.map((p) => (
+                <li key={p.userId}><Link to="/u/$id" params={{ id: p.userId }} className="flex items-center gap-3 rounded-lg p-1 hover:bg-muted">
+                  <UserAvatar author={{ name: p.name, username: p.username, avatar: p.avatar }} /><span className="min-w-0 flex-1"><span className="block truncate text-sm font-bold">{p.name}</span><span className="block truncate text-[11px] text-muted-foreground">{p.username ? `@${p.username} · ` : ""}{p.followers} followers{p.isPrivate ? " · Private" : ""}</span></span></Link></li>
+              ))}</ul>
+            </div>
+          )}
 
-                </div>
-                {p.body && <p className="whitespace-pre-wrap px-3 pb-3 text-sm">{p.body}</p>}
-                {url && p.media_type === "image" && <img src={url} alt="Community post media" loading="lazy" className="max-h-[480px] w-full object-cover" />}
-                {url && p.media_type === "video" && <video src={url} controls className="max-h-[480px] w-full bg-black" />}
-                <div className="flex items-center gap-4 p-3">
-                  <button onClick={() => like(p)} className={`flex items-center gap-1 text-sm ${liked[p.id] ? "text-destructive" : "text-muted-foreground"} ${allowed ? "" : "opacity-50"}`}>
-                    <Heart className={`h-4 w-4 ${liked[p.id] ? "fill-current" : ""}`} /> {p.like_count}
-                  </button>
-                  <button
-                    onClick={() => { const next = openComments === p.id ? null : p.id; setOpenComments(next); if (next) loadComments(p.id); }}
-                    className="flex items-center gap-1 text-sm text-muted-foreground"
-                  >
-                    <MessageCircle className="h-4 w-4" /> {p.comment_count}
-                  </button>
-                  {!allowed && <span className="ml-auto flex items-center gap-1 text-[11px] text-muted-foreground"><Lock className="h-3 w-3" /> Follow each other to interact</span>}
-                </div>
-                {openComments === p.id && (
-                  <div className="border-t bg-muted/30 p-3">
-                    <div className="space-y-2">
-                      {(comments[p.id] ?? []).map((c) => (
-                        <div key={c.id} className="text-sm">
-                          <span className="font-semibold">{names[c.user_id] ?? "Player"}</span>{" "}
-                          <span className="text-muted-foreground">{c.body}</span>
-                        </div>
-                      ))}
-                      {!(comments[p.id] ?? []).length && <div className="text-xs text-muted-foreground">No comments yet.</div>}
-                    </div>
-                    {allowed && (
-                      <div className="mt-3 flex gap-2">
-                        <Input placeholder="Write a comment…" value={draft} onChange={(e) => setDraft(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addComment(p)} maxLength={500} />
-                        <Button size="sm" onClick={() => addComment(p)} disabled={!draft.trim()}>Send</Button>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Card>
-            );
-          })}
-          {!posts.length && <Card className="p-8 text-center text-sm text-muted-foreground">No posts yet. Be the first to share something!</Card>}
-        </div>
+          <button onClick={() => setCompose(true)} className="mt-3 flex w-full items-center gap-3 rounded-2xl border border-dashed border-border bg-card/70 p-3 text-left text-sm text-muted-foreground transition-colors hover:border-primary hover:text-foreground">
+            <PenSquare className="h-5 w-5 text-primary" />Share an explanation, video, quiz, notes or news…
+          </button>
+
+          <div className="mt-4 space-y-4" aria-live="polite" aria-busy={busy}>
+            {busy && [0, 1, 2].map((i) => <Skeleton key={i} className="h-44 rounded-2xl" />)}
+            {!busy && error && <div role="alert" className="rounded-2xl border border-destructive/40 bg-destructive/10 p-4 text-sm">{error} <button className="ml-2 font-bold underline" onClick={() => void load(true)}>Retry</button></div>}
+            {!busy && !error && items.length === 0 && (
+              <div className="rounded-2xl border border-border bg-card p-8 text-center">
+                <Users className="mx-auto h-8 w-8 text-muted-foreground" aria-hidden />
+                <p className="mt-2 text-sm font-bold">{tab === "following" ? "Nothing from people you follow yet" : tab === "saved" ? "No saved posts yet" : applied ? "No posts match your search" : "No posts here yet"}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{tab === "following" ? "Follow creators from Explore to see their posts here." : "Be the first to share something useful."}</p>
+                <div className="mt-3 flex justify-center gap-2">{tab === "following" && <Button size="sm" variant="outline" onClick={() => setTab("explore")}>Explore</Button>}<Button size="sm" onClick={() => setCompose(true)}>Create a post</Button></div>
+              </div>
+            )}
+            {!busy && items.map((p) => <PostCard key={p.id} post={p} onChanged={patch} onRemoved={(id) => setItems((c) => c.filter((x) => x.id !== id))} />)}
+            {!busy && more.has && <div className="text-center"><Button variant="outline" onClick={() => void load(false)}>Load more</Button></div>}
+          </div>
+        </section>
+
+        <aside className="hidden space-y-4 lg:block" aria-label="Community sidebar">
+          <div className="sticky top-20 space-y-4">
+            <nav className="rounded-2xl border border-border bg-card p-2" aria-label="Community">
+              {quick.map((l) => <Link key={l.to} to={l.to} className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold hover:bg-muted"><l.icon className="h-4 w-4" />{l.label}{"badge" in l && l.badge ? <span className="ml-auto rounded-full bg-destructive px-1.5 text-[10px] font-bold text-white">{l.badge}</span> : null}</Link>)}
+              <Link to="/profile" className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold hover:bg-muted"><UserRound className="h-4 w-4" />My profile</Link>
+            </nav>
+            {requests.length > 0 && (
+              <div className="rounded-2xl border border-border bg-card p-3"><h2 className="mb-2 text-sm font-bold">Follow requests</h2>
+                <ul className="space-y-2">{requests.slice(0, 5).map((r) => (
+                  <li key={r.userId} className="flex items-center gap-2"><Link to="/u/$id" params={{ id: r.userId }} className="flex min-w-0 flex-1 items-center gap-2"><UserAvatar author={r.author} size={32} /><span className="truncate text-sm font-semibold">{r.author.name}</span></Link>
+                    <Button size="sm" onClick={() => void respond(r.userId, "accept")}>Accept</Button><Button size="sm" variant="ghost" onClick={() => void respond(r.userId, "reject")}>Decline</Button></li>
+                ))}</ul></div>
+            )}
+            <p className="px-1 text-[11px] leading-relaxed text-muted-foreground">Community is for learning. Posts follow our education-only policy; you can report anything that doesn't. Only people who follow each other can message.</p>
+          </div>
+        </aside>
       </div>
+
+      <Button size="icon" className="fixed bottom-24 right-4 z-30 h-12 w-12 rounded-full bg-gradient-primary shadow-lift lg:hidden" aria-label="Create a post" onClick={() => setCompose(true)}><PenSquare className="h-5 w-5" /></Button>
+      <Composer open={compose} onClose={() => setCompose(false)} userId={user.id} onPosted={() => void load(true)} />
     </AppShell>
   );
 }

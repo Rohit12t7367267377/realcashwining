@@ -85,6 +85,8 @@ import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminXpRouteImport } from './routes/admin.xp'
 import { Route as CategoryIdRouteImport } from './routes/category.$id'
 import { Route as CodingIdRouteImport } from './routes/coding.$id'
+import { Route as CommunitySettingsRouteImport } from './routes/community.settings'
+import { Route as CommunityStudioRouteImport } from './routes/community.studio'
 import { Route as ContestIdRouteImport } from './routes/contest.$id'
 import { Route as CricketIdRouteImport } from './routes/cricket_.$id'
 import { Route as GuruIndexRouteImport } from './routes/guru.index'
@@ -109,6 +111,7 @@ import { Route as PredictIdRouteImport } from './routes/predict_.$id'
 import { Route as ReadingIndexRouteImport } from './routes/reading.index'
 import { Route as ReadingIdRouteImport } from './routes/reading.$id'
 import { Route as ResultIdRouteImport } from './routes/result.$id'
+import { Route as UIdRouteImport } from './routes/u.$id'
 import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as GuruExamsCodeRouteImport } from './routes/guru.exams_.$code'
 import { Route as GuruTopicIdRouteImport } from './routes/guru.topic.$id'
@@ -503,6 +506,16 @@ const CodingIdRoute = CodingIdRouteImport.update({
   path: '/coding/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CommunitySettingsRoute = CommunitySettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => CommunityRoute,
+} as any)
+const CommunityStudioRoute = CommunityStudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
+  getParentRoute: () => CommunityRoute,
+} as any)
 const ContestIdRoute = ContestIdRouteImport.update({
   id: '/contest/$id',
   path: '/contest/$id',
@@ -623,6 +636,11 @@ const ResultIdRoute = ResultIdRouteImport.update({
   path: '/result/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UIdRoute = UIdRouteImport.update({
+  id: '/u/$id',
+  path: '/u/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WalletHistoryRoute = WalletHistoryRouteImport.update({
   id: '/history',
   path: '/history',
@@ -696,7 +714,7 @@ export interface FileRoutesByFullPath {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
-  '/community': typeof CommunityRoute
+  '/community': typeof CommunityRouteWithChildren
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -765,6 +783,8 @@ export interface FileRoutesByFullPath {
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/coding/$id': typeof CodingIdRoute
+  '/community/settings': typeof CommunitySettingsRoute
+  '/community/studio': typeof CommunityStudioRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
@@ -786,6 +806,7 @@ export interface FileRoutesByFullPath {
   '/predict/$id': typeof PredictIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
+  '/u/$id': typeof UIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
@@ -809,7 +830,7 @@ export interface FileRoutesByTo {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
-  '/community': typeof CommunityRoute
+  '/community': typeof CommunityRouteWithChildren
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -877,6 +898,8 @@ export interface FileRoutesByTo {
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/coding/$id': typeof CodingIdRoute
+  '/community/settings': typeof CommunitySettingsRoute
+  '/community/studio': typeof CommunityStudioRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
@@ -898,6 +921,7 @@ export interface FileRoutesByTo {
   '/predict/$id': typeof PredictIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
+  '/u/$id': typeof UIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin': typeof AdminIndexRoute
   '/guru': typeof GuruIndexRoute
@@ -923,7 +947,7 @@ export interface FileRoutesById {
   '/ai-tutor': typeof AiTutorRoute
   '/auth': typeof AuthRoute
   '/books': typeof BooksRoute
-  '/community': typeof CommunityRoute
+  '/community': typeof CommunityRouteWithChildren
   '/coupons': typeof CouponsRoute
   '/cricket': typeof CricketRoute
   '/events': typeof EventsRoute
@@ -992,6 +1016,8 @@ export interface FileRoutesById {
   '/admin/xp': typeof AdminXpRoute
   '/category/$id': typeof CategoryIdRoute
   '/coding/$id': typeof CodingIdRoute
+  '/community/settings': typeof CommunitySettingsRoute
+  '/community/studio': typeof CommunityStudioRoute
   '/contest/$id': typeof ContestIdRoute
   '/cricket_/$id': typeof CricketIdRoute
   '/guru/achievements': typeof GuruAchievementsRoute
@@ -1013,6 +1039,7 @@ export interface FileRoutesById {
   '/predict_/$id': typeof PredictIdRoute
   '/reading/$id': typeof ReadingIdRoute
   '/result/$id': typeof ResultIdRoute
+  '/u/$id': typeof UIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/admin/': typeof AdminIndexRoute
   '/guru/': typeof GuruIndexRoute
@@ -1108,6 +1135,8 @@ export interface FileRouteTypes {
     | '/admin/xp'
     | '/category/$id'
     | '/coding/$id'
+    | '/community/settings'
+    | '/community/studio'
     | '/contest/$id'
     | '/cricket/$id'
     | '/guru/achievements'
@@ -1129,6 +1158,7 @@ export interface FileRouteTypes {
     | '/predict/$id'
     | '/reading/$id'
     | '/result/$id'
+    | '/u/$id'
     | '/wallet/history'
     | '/admin/'
     | '/guru/'
@@ -1220,6 +1250,8 @@ export interface FileRouteTypes {
     | '/admin/xp'
     | '/category/$id'
     | '/coding/$id'
+    | '/community/settings'
+    | '/community/studio'
     | '/contest/$id'
     | '/cricket/$id'
     | '/guru/achievements'
@@ -1241,6 +1273,7 @@ export interface FileRouteTypes {
     | '/predict/$id'
     | '/reading/$id'
     | '/result/$id'
+    | '/u/$id'
     | '/wallet/history'
     | '/admin'
     | '/guru'
@@ -1334,6 +1367,8 @@ export interface FileRouteTypes {
     | '/admin/xp'
     | '/category/$id'
     | '/coding/$id'
+    | '/community/settings'
+    | '/community/studio'
     | '/contest/$id'
     | '/cricket_/$id'
     | '/guru/achievements'
@@ -1355,6 +1390,7 @@ export interface FileRouteTypes {
     | '/predict_/$id'
     | '/reading/$id'
     | '/result/$id'
+    | '/u/$id'
     | '/wallet/history'
     | '/admin/'
     | '/guru/'
@@ -1380,7 +1416,7 @@ export interface RootRouteChildren {
   AiTutorRoute: typeof AiTutorRoute
   AuthRoute: typeof AuthRoute
   BooksRoute: typeof BooksRoute
-  CommunityRoute: typeof CommunityRoute
+  CommunityRoute: typeof CommunityRouteWithChildren
   CouponsRoute: typeof CouponsRoute
   CricketRoute: typeof CricketRoute
   EventsRoute: typeof EventsRoute
@@ -1416,6 +1452,7 @@ export interface RootRouteChildren {
   PredictIdRoute: typeof PredictIdRoute
   ReadingIdRoute: typeof ReadingIdRoute
   ResultIdRoute: typeof ResultIdRoute
+  UIdRoute: typeof UIdRoute
   MessagesIndexRoute: typeof MessagesIndexRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
   ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
@@ -1963,6 +2000,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CodingIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/community/settings': {
+      id: '/community/settings'
+      path: '/settings'
+      fullPath: '/community/settings'
+      preLoaderRoute: typeof CommunitySettingsRouteImport
+      parentRoute: typeof CommunityRoute
+    }
+    '/community/studio': {
+      id: '/community/studio'
+      path: '/studio'
+      fullPath: '/community/studio'
+      preLoaderRoute: typeof CommunityStudioRouteImport
+      parentRoute: typeof CommunityRoute
+    }
     '/contest/$id': {
       id: '/contest/$id'
       path: '/contest/$id'
@@ -2129,6 +2180,13 @@ declare module '@tanstack/react-router' {
       path: '/result/$id'
       fullPath: '/result/$id'
       preLoaderRoute: typeof ResultIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/u/$id': {
+      id: '/u/$id'
+      path: '/u/$id'
+      fullPath: '/u/$id'
+      preLoaderRoute: typeof UIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/wallet/history': {
@@ -2308,6 +2366,20 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface CommunityRouteChildren {
+  CommunitySettingsRoute: typeof CommunitySettingsRoute
+  CommunityStudioRoute: typeof CommunityStudioRoute
+}
+
+const CommunityRouteChildren: CommunityRouteChildren = {
+  CommunitySettingsRoute: CommunitySettingsRoute,
+  CommunityStudioRoute: CommunityStudioRoute,
+}
+
+const CommunityRouteWithChildren = CommunityRoute._addFileChildren(
+  CommunityRouteChildren,
+)
+
 interface GuruRouteChildren {
   GuruAchievementsRoute: typeof GuruAchievementsRoute
   GuruAskRoute: typeof GuruAskRoute
@@ -2368,7 +2440,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiTutorRoute: AiTutorRoute,
   AuthRoute: AuthRoute,
   BooksRoute: BooksRoute,
-  CommunityRoute: CommunityRoute,
+  CommunityRoute: CommunityRouteWithChildren,
   CouponsRoute: CouponsRoute,
   CricketRoute: CricketRoute,
   EventsRoute: EventsRoute,
@@ -2404,6 +2476,7 @@ const rootRouteChildren: RootRouteChildren = {
   PredictIdRoute: PredictIdRoute,
   ReadingIdRoute: ReadingIdRoute,
   ResultIdRoute: ResultIdRoute,
+  UIdRoute: UIdRoute,
   MessagesIndexRoute: MessagesIndexRoute,
   ReadingIndexRoute: ReadingIndexRoute,
   ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,

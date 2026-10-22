@@ -38,7 +38,7 @@ async function authorsOf(ids: string[]) {
 const feedInput = z.object({
   mode: z.enum(["for_you", "following", "explore", "trending", "saved", "user"]).default("for_you"),
   category: z.string().max(20).optional(), subject: z.string().max(60).optional(), exam: z.string().max(60).optional(),
-  level: z.string().max(60).optional(), q: z.string().max(80).optional(), userId: uuid.optional(),
+  level: z.string().max(60).optional(), q: z.string().max(80).optional(), userId: uuid.optional(), id: uuid.optional(),
   cursor: z.string().max(40).optional(), page: z.number().int().min(0).max(50).default(0),
 });
 
@@ -60,6 +60,7 @@ export const listFeed = createServerFn({ method: "POST" })
     if (data.exam) q = q.ilike("exam_tag", clean(data.exam));
     if (data.level) q = q.ilike("education_level", clean(data.level));
     if (data.q && clean(data.q).length >= 2) { const t = clean(data.q); q = q.or(`title.ilike.%${t}%,body.ilike.%${t}%,subject.ilike.%${t}%,exam_tag.ilike.%${t}%`); }
+    if (data.id) q = q.eq("id", data.id);
     if (data.mode === "following") { if (!following.size) return { items: [], hasMore: false, nextCursor: null, nextPage: 0 }; q = q.in("user_id", [...following]); }
     if (data.mode === "user") q = q.eq("user_id", data.userId ?? me);
     if (data.mode === "saved") {

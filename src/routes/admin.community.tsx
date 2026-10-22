@@ -8,6 +8,8 @@ import { Eye, EyeOff, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 import { adminSetPostHidden, adminDeletePost, adminSetPostCommentHidden } from "@/lib/admin-crud.functions";
 import { saveAppSetting } from "@/lib/admin-settings.functions";
+import { adminListReports, adminResolveReport } from "@/lib/community.functions";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/admin/community")({ component: Page });
 
@@ -64,6 +66,8 @@ function Page() {
         <Switch checked={moderation} onCheckedChange={toggleModeration} />
       </Card>
 
+      <ReportQueue />
+
       <h2 className="mb-2 font-semibold">Posts</h2>
       <div className="mb-8 space-y-2">
         {posts.map((p) => (
@@ -105,5 +109,41 @@ function Page() {
         {!comments.length && <Card className="p-6 text-center text-sm text-muted-foreground">No comments yet.</Card>}
       </div>
     </div>
+  );
+}
+
+type Report = Awaited<ReturnType<typeof adminListReports>>[number];
+function ReportQueue() {
+  const [status, setStatus] = useState<"open" | "actioned" | "dismissed">("open");
+  const [rows, setRows] = useState<Report[] | null>(null);
+  const [note, setNote] = useState<Record<string, string>>({});
+  const [err, setErr] = useState<string | null>(null);
+  const load = () => adminListReports({ data: { status } }).then((r) => { setRows(r); setErr(null); }).catch((e) => setErr(e instanceof Error ? e.message : "Could not load reports"));
+  useEffect(() => { setRows(null); void load(); }, [status]); // eslint-disable-line react-hooks/exhaustive-deps
+  async function act(id: string, action: "dismiss" | "hide" | "unhide") {
+    const n = (note[id] ?? "").trim();
+    if (n.length < 3) { toast.error("Add a short note (3+ characters) — it is saved in the audit log."); return; }
+    try { await adminResolveReport({ data: { id, action, note: n } }); toast.success("Done"); void load(); } catch (e) { toast.error(e instanceof Error ? e.message : "Failed"); }
+  }
+  return (
+    <section className="mb-8" aria-labelledby="rq">
+      <div className="mb-2 flex items-center justify-between"><h2 id="rq" className="font-semibold">Report queue</h2>
+        <div className="flex gap-1">{(["open", "actioned", "dismissed"] as const).map((s) => <Button key={s} size="sm" variant={status === s ? "default" : "outline"} onClick={() => setStatus(s)}>{s}</Button>)}</div></div>
+      {err && <Card className="p-3 text-sm text-destructive">{err}</Card>}
+      {rows && rows.length === 0 && <Card className="p-6 text-center text-sm text-muted-foreground">No {status} reports.</Card>}
+      <div className="space-y-2">{(rows ?? []).map((r) => (
+        <Card key={r.id} className="p-3 text-sm">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground"><b className="text-foreground">{r.targetType}</b><span>reason: {r.reason}</span><span>reported by {r.reporter}</span>{r.reportCount > 1 && <b className="text-destructive">{r.reportCount} reports</b>}<span>{new Date(r.createdAt).toLocaleString()}</span></div>
+          {r.preview && <p className="mt-1">{r.preview}</p>}
+          {r.targetAuthor && <p className="text-xs text-muted-foreground">by {r.targetAuthor}{r.targetHidden ? " · currently hidden" : ""}</p>}
+          {r.details && <p className="text-xs">“{r.details}”</p>}
+          {r.status === "open" ? (
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <Input className="h-8 max-w-xs" aria-label="Moderator note" placeholder="Note for the audit log" value={note[r.id] ?? ""} onChange={(e) => setNote({ ...note, [r.id]: e.target.value })} />
+              <Button size="sm" variant="outline" onClick={() => void act(r.id, "dismiss")}>Dismiss</Button>
+              <Button size="sm" variant="destructive" onClick={() => void act(r.id, "hide")}>Hide content</Button>
+            </div>) : <p className="mt-1 text-xs">Resolved: {r.resolutionNote}</p>}
+        </Card>))}</div>
+    </section>
   );
 }
