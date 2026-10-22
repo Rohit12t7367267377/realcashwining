@@ -6,7 +6,7 @@ import { z } from "zod";
 const ALLOWED_SETTING_KEYS = [
   "admin_upi_id", "admin_upi_qr", "min_deposit", "max_deposit", "min_withdrawal",
   "new_user_bonus", "correct_points", "wrong_points", "prize_pool_pct", "prize_pool_total",
-  "branding", "banner", "subscription_config", "community_moderation",
+  "branding", "banner", "subscription_config", "community_moderation", "guru_ai_provider",
 ] as const;
 
 const settingKey = z.enum(ALLOWED_SETTING_KEYS);

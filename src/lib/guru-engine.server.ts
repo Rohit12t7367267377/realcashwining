@@ -309,7 +309,7 @@ export async function resolveTeachingContext(
     sources,
     toolkit: config?.tools.length ? config.tools.join(", ") : toolkitFor(ctx.subject, ctx.topic),
     premium: config?.access === "premium",
-    aiProvider: parseClassroomPreferences(s?.classroom_preferences).aiModel === "openai" ? "openai" : "lovable",
+    aiProvider: await (await import("@/lib/guru-provider.server")).guruAiProvider(),
   };
 }
 

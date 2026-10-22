@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { BackButton } from "@/components/BackButton";
 import { useEffect, useState } from "react";
 import { Bell, Coins, Search, Moon, Sun, Globe } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
@@ -45,6 +46,8 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 glass">
       <div className="mx-auto grid max-w-2xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5">
+        <div className="flex min-w-0 items-center gap-2">
+        <BackButton />
         <Link to="/" className="press flex min-w-0 items-center gap-2">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground font-black shadow-glow">
             G
@@ -54,6 +57,7 @@ export function AppHeader() {
             <div className="text-[10px] uppercase tracking-[0.18em] text-muted-foreground">Learn everything · Win too</div>
           </div>
         </Link>
+        </div>
         <div className="flex shrink-0 items-center gap-1.5">
           <Link
             to="/wallet"

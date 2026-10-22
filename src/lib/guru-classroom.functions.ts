@@ -46,8 +46,8 @@ async function teacherProfile(supabase: {
         .eq("id", row.selected_character_id)
         .maybeSingle()
     : { data: null };
-  const { parseClassroomPreferences } = await import("@/lib/classroom-preferences");
-  const provider = parseClassroomPreferences(row?.classroom_preferences).aiModel === "openai" ? ("openai" as const) : undefined;
+  const { guruAiProvider } = await import("@/lib/guru-provider.server");
+  const provider = (await guruAiProvider()) === "openai" ? ("openai" as const) : undefined;
   return { language, character, stats: row ?? null, provider };
 }
 

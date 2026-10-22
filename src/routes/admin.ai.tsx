@@ -19,6 +19,8 @@ import {
 } from "@/lib/admin-ai.functions";
 import { guruRagStats, guruIndexLessons, guruAddSource } from "@/lib/guru-rag.functions";
 import { toast } from "sonner";
+import { saveAppSetting } from "@/lib/admin-settings.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { Sparkles, Wand2, BookOpen, Library } from "lucide-react";
 
 
@@ -130,6 +132,8 @@ function AdminAiPage() {
       </div>
       <p className="text-sm text-muted-foreground">Control every AI-powered feature in the app. Nothing to install — powered by Lovable AI.</p>
 
+
+      <GuruModelCard />
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="p-5 space-y-4">
           <div>
@@ -368,5 +372,34 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
       </div>
       {children}
     </div>
+  );
+}
+
+/** Which AI model teaches Guru.AI lessons for every student. Admin-only: students no longer see a model picker. */
+function GuruModelCard() {
+  const [value, setValue] = useState<"default" | "openai">("default");
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    void supabase.from("app_settings").select("value").eq("key", "guru_ai_provider").maybeSingle().then(({ data }) => {
+      const v = typeof data?.value === "string" ? data.value : (data?.value as { provider?: string } | null)?.provider;
+      setValue(v === "openai" ? "openai" : "default");
+    });
+  }, []);
+  async function save(next: "default" | "openai") {
+    setBusy(true);
+    try { await saveAppSetting({ data: { key: "guru_ai_provider", value: next === "openai" ? "openai" : "default", reason: "Guru.AI lesson model changed" } }); setValue(next); toast.success(next === "openai" ? "Guru.AI lessons now use ChatGPT" : "Guru.AI lessons now use the default model"); }
+    catch (e) { toast.error(e instanceof Error ? e.message : "Could not save"); } finally { setBusy(false); }
+  }
+  return (
+    <Card className="mt-6 p-5">
+      <h2 className="font-semibold">Guru.AI lesson model</h2>
+      <p className="text-xs text-muted-foreground">Applies to every student's lessons, practice and classroom. Students do not see this setting. ChatGPT needs <code>OPENAI_API_KEY</code> in the server secrets.</p>
+      <div className="mt-3 max-w-xs">
+        <Select value={value} disabled={busy} onValueChange={(v: "default" | "openai") => void save(v)}>
+          <SelectTrigger aria-label="Guru.AI lesson model"><SelectValue /></SelectTrigger>
+          <SelectContent><SelectItem value="default">Guru.AI default (Gemini)</SelectItem><SelectItem value="openai">ChatGPT (OpenAI)</SelectItem></SelectContent>
+        </Select>
+      </div>
+    </Card>
   );
 }

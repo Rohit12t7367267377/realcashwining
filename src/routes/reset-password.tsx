@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+import { BackButton } from "@/components/BackButton";
 export const Route = createFileRoute("/reset-password")({
   component: ResetPasswordPage,
   head: () => ({ meta: [{ title: "Reset password — Guru-G" }] }),
@@ -45,7 +46,8 @@ function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+    <div className="relative min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
+      <BackButton className="absolute left-4 top-4" />
       <Card className="w-full max-w-md p-8">
         <h1 className="text-2xl font-bold mb-1">Set a new password</h1>
         <p className="text-sm text-muted-foreground mb-6">

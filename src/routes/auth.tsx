@@ -9,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Mail } from "lucide-react";
 import { toast } from "sonner";
 
+import { BackButton } from "@/components/BackButton";
 export const Route = createFileRoute("/auth")({
   component: AuthPage,
   head: () => ({ meta: [
@@ -82,7 +83,8 @@ function AuthPage() {
   }
 
   return (
-    <div className="public-brand min-h-screen flex items-center justify-center px-4 py-8 bg-background">
+    <div className="public-brand relative min-h-screen flex items-center justify-center px-4 py-8 bg-background">
+      <BackButton className="absolute left-4 top-4" />
       <Card className="w-full max-w-md p-8">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
           <Mail className="h-7 w-7 text-primary" />

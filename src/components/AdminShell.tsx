@@ -5,6 +5,7 @@ import {
   Bell, Database, Download, AlertTriangle, MessageSquare, Eye, ShoppingBag, Gift, Megaphone, Star, Cog, ScrollText,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { BackButton } from "@/components/BackButton";
 import { cn } from "@/lib/utils";
 
 type Item = { to: string; label: string; icon: React.ElementType; exact?: boolean };
@@ -146,7 +147,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
       </aside>
-      <main className="flex-1 p-8 overflow-auto">{children}</main>
+      <main className="flex-1 p-8 overflow-auto"><BackButton className="mb-4" fallback="/admin" />{children}</main>
     </div>
   );
 }

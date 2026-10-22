@@ -4,9 +4,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
-import { useClassroomPreferences } from "@/hooks/use-classroom-preferences";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { toast } from "sonner";
 import { getGuruDashboard, setGuruLanguage } from "@/lib/guru.functions";
 import {
   GraduationCap, Trophy, Wrench, Library, Sparkles, Orbit, UserRound,
@@ -49,7 +46,6 @@ function GuruDashboard() {
   const qc = useQueryClient();
   const load = useServerFn(getGuruDashboard);
   const setLang = useServerFn(setGuruLanguage);
-  const modelPrefs = useClassroomPreferences();
 
   const { data } = useQuery({ queryKey: ["guru-dashboard"], queryFn: () => load(), enabled: state.loggedIn });
   const langMut = useMutation({
@@ -109,28 +105,6 @@ function GuruDashboard() {
             </button>
           ))}
         </div>
-      </section>
-      <section className="mt-4 rounded-3xl bg-card p-4 shadow-soft" aria-label="AI model">
-        <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">AI model for my lessons</div>
-        <div className="mt-2 flex items-center gap-2">
-          <Select
-            value={modelPrefs.preferences.aiModel}
-            disabled={!modelPrefs.ready}
-            onValueChange={(aiModel: "default" | "openai") => {
-              void modelPrefs.apply({ ...modelPrefs.preferences, aiModel }).then(
-                () => toast.success(aiModel === "openai" ? "Lessons will now use ChatGPT" : "Lessons will now use the Guru.AI default model"),
-                (err) => toast.error(err instanceof Error ? err.message : "Could not save this choice"),
-              );
-            }}
-          >
-            <SelectTrigger aria-label="AI model" className="w-full"><SelectValue /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="default">Guru.AI default (Gemini)</SelectItem>
-              <SelectItem value="openai">ChatGPT (OpenAI)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <p className="mt-2 text-xs text-muted-foreground">Same features either way; only the model that teaches you changes. If ChatGPT is not set up yet, you will see a clear message.</p>
       </section>
 
 
