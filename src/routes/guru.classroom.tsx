@@ -368,7 +368,7 @@ function Classroom() {
 
   const teacherShown = prefs.teacherVisible;
   const vertical = prefs.boardLayout === "vertical";
-  const stageWide = viewMode === "book" || !teacherShown || vertical;
+  const stageWide = viewMode === "book" || !teacherShown || vertical || boardFull;
 
   return (
     <AppShell wide>
@@ -413,12 +413,14 @@ function Classroom() {
           ) : (
             <GuruBookView title={title} sections={bookSections} position={position} onPosition={setPosition} preferences={prefs} onRetry={(i) => void retrySection(i)} busy={busy} />
           )}
-          {teacherShown && viewMode === "teacher" && (
-            <div className={`flex items-center sm:items-start ${vertical ? "order-first justify-center" : "justify-end sm:justify-center"}`}>
+          {teacherShown && (viewMode === "teacher" || boardFull) && (
+            <div className={boardFull
+              ? "classroom-teacher-float pointer-events-none fixed bottom-4 right-3 z-[46] flex w-[84px] justify-center drop-shadow-lg sm:w-[120px]"
+              : `flex items-center sm:items-start ${vertical ? "order-first justify-center" : "justify-end sm:justify-center"}`}>
               <TeacherCharacter
                 teacherName={teacher}
                 state={teacherState}
-                className={TEACHER_WIDTH[prefs.teacherSize]}
+                className={boardFull ? "w-full" : TEACHER_WIDTH[prefs.teacherSize]}
                 showStatus={false}
                 lipSyncLevel={teacherAudio.lipSyncLevel}
               />
