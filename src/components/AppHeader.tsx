@@ -48,7 +48,7 @@ export function AppHeader() {
       <div className="mx-auto grid max-w-2xl grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-2.5">
         <div className="flex min-w-0 items-center gap-2">
         <BackButton />
-        <Link to="/" className="press flex min-w-0 items-center gap-2">
+        <Link to="/guru" className="press flex min-w-0 items-center gap-2" aria-label="Guru.AI home">
           <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground font-black shadow-glow">
             G
           </span>

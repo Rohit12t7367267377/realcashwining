@@ -38,6 +38,16 @@ function Home() {
 
   // Admin-managed subscription page: shown once to the targeted audience.
   const nav = useNavigate();
+  // Guru.AI is the app's home for signed-in users: the first time "/" opens in a session it goes to Guru.AI.
+  // The Quizzes tab still opens this page afterwards.
+  useEffect(() => {
+    if (!mounted || !state.loggedIn) return;
+    try {
+      if (sessionStorage.getItem("gurug_landed") === "1") return;
+      sessionStorage.setItem("gurug_landed", "1");
+    } catch { return; }
+    void nav({ to: "/guru", replace: true });
+  }, [mounted, state.loggedIn, nav]);
   useEffect(() => {
     if (!mounted || !state.loggedIn) return;
     if (localStorage.getItem(SUBSCRIBE_SEEN_KEY) === "1") return;

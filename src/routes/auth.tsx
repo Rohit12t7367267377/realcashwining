@@ -55,7 +55,7 @@ function AuthPage() {
         return;
       }
       toast.success("Account created!");
-      navigate({ to: "/" });
+      { try { sessionStorage.setItem("gurug_landed", "1"); } catch { /* ignore */ } void navigate({ to: "/guru" }); }
     } else {
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
@@ -64,7 +64,7 @@ function AuthPage() {
       setLoading(false);
       if (error) return toast.error(error.message);
       toast.success("Signed in!");
-      navigate({ to: "/" });
+      { try { sessionStorage.setItem("gurug_landed", "1"); } catch { /* ignore */ } void navigate({ to: "/guru" }); }
     }
   }
 
@@ -79,7 +79,7 @@ function AuthPage() {
     }
     if (result.redirected) return;
     toast.success("Signed in!");
-    navigate({ to: "/" });
+    { try { sessionStorage.setItem("gurug_landed", "1"); } catch { /* ignore */ } void navigate({ to: "/guru" }); }
   }
 
   return (
