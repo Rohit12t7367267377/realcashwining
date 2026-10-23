@@ -49,6 +49,13 @@ export function ContestExplorer() {
       return sa - sb || new Date(a.starts_at ?? 0).getTime() - new Date(b.starts_at ?? 0).getTime();
     });
   }, [rows, f, view, now]);
+  const trackCounts = useMemo(() => {
+    const base = applyFilters(rows, { ...NO_FILTERS, status: view === "open" ? "all" : (view as Filters["status"]) }, now)
+      .filter((c) => view !== "open" || statusOf(c, now) !== "ended");
+    const m: Record<string, number> = { all: base.length };
+    for (const c of base) m[trackOf(c)] = (m[trackOf(c)] ?? 0) + 1;
+    return m;
+  }, [rows, view, now]);
   const chip = <K extends keyof Filters | "view">(key: K, items: readonly (readonly [string, string])[]) => (
     <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 [scrollbar-width:none]" role="group" aria-label={String(key)}>
       {items.map(([v, label]) => {
@@ -56,7 +63,7 @@ export function ContestExplorer() {
         return (
         <button key={v} type="button" aria-pressed={cur === v}
           onClick={() => { setLimit(6); if (key === "view") setView(v); else setF({ ...f, [key]: v } as Filters); }}
-          className={cn("shrink-0 rounded-full px-3 py-1.5 text-xs font-bold", cur === v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>{label}</button>
+          className={cn("shrink-0 rounded-full px-3 py-1.5 text-xs font-bold", cur === v ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>{label}{key === "track" ? ` ${trackCounts[v] ?? 0}` : ""}</button>
       );})}
     </div>
   );
@@ -74,7 +81,12 @@ export function ContestExplorer() {
         </>)}
       </div>
       <div className="mt-3 grid gap-2">
-        {shown.length === 0 && <div className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">No contests match these filters.</div>}
+        {shown.length === 0 && (
+          <div className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">
+            No contests match these filters.
+            {view !== "ended" && <button type="button" onClick={() => { setView("ended"); setLimit(6); }} className="press mt-2 block w-full rounded-xl bg-muted py-2.5 text-xs font-bold text-foreground">Show ended contests</button>}
+          </div>
+        )}
         {shown.slice(0, limit).map((c) => {
           const st = statusOf(c, now), tr = trackOf(c);
           const paid = Number(c.entry_fee) > 0;

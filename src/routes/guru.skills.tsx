@@ -129,7 +129,7 @@ function GuruSkillsPage() {
             <div className="text-xs font-black">{track.mentor.name}</div>
             <div className="text-[11px] text-muted-foreground">Your AI {track.mentor.role.toLowerCase()}</div>
           </div>
-          <Link to="/guru/classroom" search={{ topic: `${track.title} — ${track.stages[stage]}` }} className="ml-auto">
+          <Link to="/guru/classroom" search={{ topic: `${track.title} — ${track.stages[stage]}`, go: "1" }} className="ml-auto">
             <Button size="sm" variant="secondary">Teach on board</Button>
           </Link>
         </div>

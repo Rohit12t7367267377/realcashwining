@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
+import { TeachTopicCard } from "@/components/TeachTopicCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -358,26 +359,7 @@ function CollegePage() {
             </Button>
           )}
 
-          {tab === "teacher" && (
-            <section className="mt-3 rounded-3xl bg-card p-4 shadow-soft">
-              <h2 className="text-sm font-black">AI Teacher</h2>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Let the 2D AI teacher explain “{topic.name}” step by step on the interactive board.
-              </p>
-              <Button
-                className="mt-2 w-full bg-gradient-primary"
-                onClick={() =>
-                  window.dispatchEvent(
-                    new CustomEvent("guru:teach", {
-                      detail: { topic: `${subject?.name} • ${topic.name}`, subject: subject?.name },
-                    }),
-                  )
-                }
-              >
-                Teach me on the board
-              </Button>
-            </section>
-          )}
+          {tab === "teacher" && <TeachTopicCard topic={`${subject?.name ?? ""} • ${topic.name}`} />}
 
           {notes && (tab === "notes" || tab === "examples" || tab === "practice" || tab === "exam") && (
             <section className="mt-3 grid gap-3">

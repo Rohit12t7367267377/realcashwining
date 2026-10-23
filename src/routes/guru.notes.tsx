@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
+import { TeachTopicCard } from "@/components/TeachTopicCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/lib/user-store";
@@ -269,6 +270,8 @@ function GuruSchoolPage() {
             </div>
           </div>
         </section>
+
+        <TeachTopicCard topic={`${notes.title} (Class ${scope.className} ${scope.subject}, ${scope.board})`} />
 
         <GuruLessonDepth key={notes.title} scope="school" topic={notes.title} subject={scope.subject} levelLabel={`${scope.board} · ${scope.className}`} language={language} material={JSON.stringify(notes)} />
 

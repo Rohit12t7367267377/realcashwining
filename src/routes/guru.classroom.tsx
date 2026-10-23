@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/guru/classroom")({
-  validateSearch: (s: Record<string, unknown>) => ({ topic: typeof s.topic === "string" ? s.topic : undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({ topic: typeof s.topic === "string" ? s.topic : undefined, ...(s.go === "1" ? { go: "1" as const } : {}) }) as { topic: string | undefined; go?: "1" },
   head: () => ({
     meta: [
       { title: "AI Teacher Classroom — Learn Any Topic Live | Guru.AI" },
@@ -63,7 +63,7 @@ const TEACHER_COLUMN = {
 
 function Classroom() {
   const { state } = useUser();
-  const { topic: topicParam } = Route.useSearch();
+  const { topic: topicParam, go: autoGo } = Route.useSearch();
   const turnFn = useServerFn(guruClassroomTurn);
   const evalFn = useServerFn(guruEvaluateAnswer);
   const saveFn = useServerFn(guruClassroomProgress);
@@ -345,6 +345,15 @@ function Classroom() {
       toast.success("Lesson saved — XP added to your profile");
     } catch (err) { toast.error(err instanceof Error ? err.message : "Could not save your lesson"); }
   }
+
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (autoGo === "1" && topicParam && !autoStarted.current) {
+      autoStarted.current = true;
+      void startLesson(topicParam);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoGo, topicParam]);
 
   if (!state.loggedIn) {
     return (
