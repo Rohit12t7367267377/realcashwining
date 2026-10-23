@@ -7,6 +7,7 @@ import { guruSpeak } from "@/lib/guru-extras.functions";
 import { Loader2, Mic, Volume2, X, BookOpen, Square } from "lucide-react";
 import { toast } from "sonner";
 import { useLang } from "@/lib/i18n";
+import { useVoiceInput } from "@/hooks/use-voice-input";
 
 /** Split long page text into TTS-sized chunks on sentence boundaries. */
 function chunkText(text: string, size = 1200): string[] {
@@ -39,8 +40,7 @@ export function GuruVoiceDock() {
   const [answer, setAnswer] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [reading, setReading] = useState(false);
-  const [listening, setListening] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
   const stopRef = useRef(false);
 
   function stopAudio() {
@@ -103,22 +103,8 @@ export function GuruVoiceDock() {
     }
   }
 
-  function listen() {
-    const w = window as unknown as {
-      SpeechRecognition?: new () => any;
-      webkitSpeechRecognition?: new () => any;
-    };
-    const SR = w.SpeechRecognition ?? w.webkitSpeechRecognition;
-    if (!SR) return toast.info("Voice input isn't supported on this browser — type instead.");
-    const rec = new SR();
-    rec.lang = lang === "hi" ? "hi-IN" : "en-IN";
-    rec.interimResults = false;
-    rec.onresult = (ev: any) => setQuestion(String(ev.results[0][0].transcript ?? ""));
-    rec.onerror = () => setListening(false);
-    rec.onend = () => setListening(false);
-    setListening(true);
-    rec.start();
-  }
+  const voice = useVoiceInput(lang);
+  const listen = () => voice.start((t) => setQuestion(t));
 
   if (!open) {
     return (
@@ -126,15 +112,15 @@ export function GuruVoiceDock() {
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open Guru.AI voice assistant"
-        className="press fixed bottom-24 right-4 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-lift"
+        className="press fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-3 z-40 flex h-11 w-11 items-center justify-center rounded-full bg-gradient-primary text-primary-foreground shadow-lift ring-2 ring-background"
       >
-        <Mic className="h-6 w-6" />
+        <Mic className="h-5 w-5" />
       </button>
     );
   }
 
   return (
-    <div className="fixed bottom-24 right-4 z-40 w-[min(22rem,calc(100vw-2rem))] rounded-3xl bg-card p-4 shadow-lift ring-1 ring-border">
+    <div className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-3 z-40 w-[min(22rem,calc(100vw-1.5rem))] rounded-3xl bg-card p-4 shadow-lift ring-1 ring-border">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-bold">
           <Volume2 className="h-4 w-4 text-primary" /> Guru.AI Voice
@@ -155,7 +141,7 @@ export function GuruVoiceDock() {
           disabled={busy}
         />
         <Button type="button" variant="outline" onClick={listen} aria-label="Speak your question" disabled={busy}>
-          <Mic className={`h-4 w-4 ${listening ? "animate-pulse text-destructive" : ""}`} />
+          <Mic className={`h-4 w-4 ${voice.listening ? "animate-pulse text-destructive" : ""}`} />
         </Button>
         <Button type="submit" className="press bg-gradient-primary" disabled={busy || !question.trim()} aria-label="Ask Guru.AI">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Volume2 className="h-4 w-4" />}

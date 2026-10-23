@@ -25,7 +25,7 @@ import {
   BookOpen, IdCard, MessageSquare, HelpCircle, LifeBuoy, Pencil, ImagePlus, Loader2, Send,
   Settings, Bell, Shield, Globe,
 
-  Sun, Moon, UserRound, Users,
+  Sun, Moon, UserRound, Users, Wallet, Search,
 } from "lucide-react";
 
 export const Route = createFileRoute("/profile")({
@@ -212,6 +212,9 @@ function ProfilePage() {
     <AppShell>
       {/* Feature row (top) */}
       <section className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1">
+        <TopLink to="/wallet" icon={<Wallet className="h-4 w-4" />} label={`Wallet ₹${Number(wallet?.balance ?? 0).toFixed(0)}`} />
+        <TopLink to="/notifications" icon={<Bell className="h-4 w-4" />} label="Notifications" />
+        <TopLink to="/search" icon={<Search className="h-4 w-4" />} label="Search" />
         <TopLink to="/messages" icon={<Send className="h-4 w-4" />} label="Messages" />
         <TopLink to="/books" icon={<BookOpen className="h-4 w-4" />} label="Library" />
 

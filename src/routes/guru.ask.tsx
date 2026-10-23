@@ -10,7 +10,9 @@ import { guruImageDoubt } from "@/lib/guru-extras.functions";
 import { guruEngineSpeak } from "@/lib/guru-engine.functions";
 import { guruBoardLesson } from "@/lib/guru-board.functions";
 import { useTeacherAudio } from "@/hooks/use-teacher-audio";
-import { ImagePlus, Loader2, Send, Sparkles, Volume2, X } from "lucide-react";
+import { ImagePlus, Loader2, Mic, Send, Sparkles, Volume2, X } from "lucide-react";
+import { useVoiceInput } from "@/hooks/use-voice-input";
+import { useLang } from "@/lib/i18n";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/guru/ask")({
@@ -42,6 +44,8 @@ function AskPage() {
 
   const [image, setImage] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
+  const { lang } = useLang();
+  const voice = useVoiceInput(lang);
   const [busy, setBusy] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [board, setBoard] = useState<{ title: string; lines: string[]; teacher: string } | null>(null);
@@ -179,12 +183,24 @@ function AskPage() {
         <Button type="button" variant="outline" onClick={() => fileRef.current?.click()} aria-label="Upload a photo">
           <ImagePlus className="h-4 w-4" />
         </Button>
-        <Input
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder="Ask any doubt, or upload a photo…"
-          disabled={busy}
-        />
+        <div className="relative min-w-0 flex-1">
+          <Input
+            className="pr-11"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder="Ask any doubt, or upload a photo…"
+            disabled={busy}
+          />
+          <button
+            type="button"
+            onClick={() => voice.start((t) => setPrompt(t))}
+            disabled={busy}
+            aria-label="Speak your question"
+            className="absolute right-1.5 top-1/2 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-primary hover:bg-primary/10"
+          >
+            <Mic className={`h-4 w-4 ${voice.listening ? "animate-pulse text-destructive" : ""}`} />
+          </button>
+        </div>
         <Button type="submit" className="press bg-gradient-primary" disabled={busy || (!image && !prompt.trim())}>
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
         </Button>
