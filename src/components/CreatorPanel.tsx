@@ -6,6 +6,7 @@ import { getMyCreatorStats, applyForMonetization } from "@/lib/creator.functions
 import { BadgeCheck, Eye, Star, Clock, Users, IdCard, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { ScrollText } from "lucide-react";
 
 /** Creator dashboard: YouTube-style analytics + monetization progress. */
@@ -16,6 +17,19 @@ export function CreatorPanel() {
   const fetchStats = useServerFn(getMyCreatorStats);
   const apply = useServerFn(applyForMonetization);
   const { data } = useQuery({ queryKey: ["my-creator"], queryFn: () => fetchStats(), staleTime: 60_000 });
+
+  const { data: kycStatus } = useQuery({
+    queryKey: ["my-kyc-status"],
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      if (!u.user) return "none";
+      const { data: rows } = await supabase.from("kyc_submissions").select("status").eq("user_id", u.user.id);
+      const list = (rows ?? []).map((r) => r.status);
+      return list.includes("approved") ? "approved" : list.includes("pending") ? "pending" : "none";
+    },
+    staleTime: 60_000,
+  });
+  const kycOk = kycStatus === "approved";
 
   const applyMut = useMutation({
     mutationFn: () => apply(),
@@ -82,12 +96,22 @@ export function CreatorPanel() {
           <IdCard className="h-4 w-4" /> Complete KYC to receive payouts
         </Link>
       ) : !data.eligible ? (
-        <Link to="/community" search={{ compose: "1" }} className="press mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-primary px-3 py-2 text-xs font-black text-primary-foreground">
-          <ImagePlus className="h-4 w-4" /> Create a post to progress
+        agreed ? (
+          <Link to="/community" search={{ compose: "1" }} className="press mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-primary px-3 py-2 text-xs font-black text-primary-foreground">
+            <ImagePlus className="h-4 w-4" /> Create a post to progress
+          </Link>
+        ) : (
+          <button type="button" disabled aria-disabled className="mt-3 flex min-h-11 w-full cursor-not-allowed items-center justify-center gap-2 rounded-xl bg-muted px-3 py-2 text-xs font-black text-muted-foreground">
+            <ImagePlus className="h-4 w-4" /> Accept the terms to create a post
+          </button>
+        )
+      ) : !kycOk ? (
+        <Link to="/kyc" className="press mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-gold px-3 py-2 text-xs font-black text-amber-950">
+          <IdCard className="h-4 w-4" /> {kycStatus === "pending" ? "KYC in review — check status" : "Verify KYC to apply for monetization"}
         </Link>
       ) : (
         <Button
-          className="press mt-3 w-full bg-gradient-primary font-bold"
+          className="press mt-3 min-h-11 w-full bg-gradient-primary font-bold"
           disabled={!agreed || data.status === "pending" || applyMut.isPending}
           onClick={() => applyMut.mutate()}
         >

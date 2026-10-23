@@ -64,6 +64,10 @@ export const applyForMonetization = createServerFn({ method: "POST" })
     const { userId } = context;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
+    const { data: kycRow } = await supabaseAdmin.from("kyc_submissions").select("status")
+      .eq("user_id", userId).eq("status", "approved").limit(1).maybeSingle();
+    if (!kycRow) throw new Error("Verify your KYC first, then apply for monetization.");
+
     const [{ data: posts }, { count: followers }] = await Promise.all([
       supabaseAdmin.from("community_posts").select("id").eq("user_id", userId),
       supabaseAdmin.from("follows").select("*", { count: "exact", head: true }).eq("following_id", userId).eq("status", "accepted"),
