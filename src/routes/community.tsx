@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import type { FollowRequest, PersonHit } from "@/lib/community-types";
 
 export const Route = createFileRoute("/community")({
-  validateSearch: (s: Record<string, unknown>): { post?: string; tab?: "me" } => ({ ...(typeof s.post === "string" && /^[0-9a-f-]{36}$/i.test(s.post) ? { post: s.post } : {}), ...(s.tab === "me" ? { tab: "me" as const } : {}) }),
+  validateSearch: (s: Record<string, unknown>): { post?: string; tab?: "me"; compose?: "1" } => ({ ...(typeof s.post === "string" && /^[0-9a-f-]{36}$/i.test(s.post) ? { post: s.post } : {}), ...(s.tab === "me" ? { tab: "me" as const } : {}), ...(s.compose === "1" ? { compose: "1" as const } : {}) }),
   head: () => ({ meta: [
     { title: "Community — Guru-G" },
     { name: "description", content: "Learn together: educational posts, videos, quizzes, notes and verified education news from students and teachers." },
@@ -35,7 +35,7 @@ type People = PersonHit[];
 function Page() {
   const { user, loading } = useAuthSession();
   const nav = useNavigate();
-  const { post: deepLink, tab: startTab } = Route.useSearch();
+  const { post: deepLink, tab: startTab, compose: autoCompose } = Route.useSearch();
   const [tab, setTab] = useState<(typeof TABS)[number]["id"]>(startTab ?? "for_you");
   const [items, setItems] = useState<FeedItem[]>([]);
   const [more, setMore] = useState<{ has: boolean; cursor: string | null; page: number }>({ has: false, cursor: null, page: 0 });
@@ -46,6 +46,7 @@ function Page() {
   const [requests, setRequests] = useState<FollowRequest[]>([]);
   const [unread, setUnread] = useState(0);
   const seq = useRef(0);
+  useEffect(() => { if (autoCompose === "1") setCompose(true); }, [autoCompose]);
 
   const load = useCallback(async (reset: boolean) => {
     if (!user) return;

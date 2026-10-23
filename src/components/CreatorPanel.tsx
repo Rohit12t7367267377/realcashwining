@@ -82,7 +82,7 @@ export function CreatorPanel() {
           <IdCard className="h-4 w-4" /> Complete KYC to receive payouts
         </Link>
       ) : !data.eligible ? (
-        <Link to="/profile" className="press mt-3 flex items-center justify-center gap-2 rounded-xl bg-gradient-primary px-3 py-2 text-xs font-black text-primary-foreground">
+        <Link to="/community" search={{ compose: "1" }} className="press mt-3 flex min-h-11 items-center justify-center gap-2 rounded-xl bg-gradient-primary px-3 py-2 text-xs font-black text-primary-foreground">
           <ImagePlus className="h-4 w-4" /> Create a post to progress
         </Link>
       ) : (
