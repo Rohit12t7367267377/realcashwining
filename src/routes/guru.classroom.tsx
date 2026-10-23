@@ -372,7 +372,7 @@ function Classroom() {
 
   return (
     <AppShell wide>
-      <section className="rounded-3xl bg-gradient-hero p-3 text-primary-foreground shadow-lift animate-rise-in sm:p-5">
+      <section className={`rounded-3xl bg-gradient-hero p-3 text-primary-foreground shadow-lift animate-rise-in sm:p-5 ${blocks.length ? "hidden sm:block" : ""}`}>
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
           <GraduationCap className="h-3.5 w-3.5" /> AI Teacher Classroom
         </div>
@@ -407,15 +407,9 @@ function Classroom() {
           <ClassroomSettings preferences={prefs} apply={boardPreferences.apply} disabled={!boardPreferences.ready} viewMode={viewMode} onViewMode={setViewMode} boardFull={boardFull} onBoardFull={setBoardFull} />
         </div>
         {boardPreferences.error && <p role="alert" className="mb-2 text-sm text-destructive">{boardPreferences.error}</p>}
-        {roadmap && !boardFull && (
-          <details className="mb-2 rounded-xl bg-secondary/60 px-3 py-2 text-xs">
-            <summary className="cursor-pointer font-bold">🗺️ Roadmap <span className="font-normal text-muted-foreground">— tap to read</span></summary>
-            <p className="mt-1.5 leading-snug">{roadmap}</p>
-          </details>
-        )}
         <div className={`classroom-stage grid min-w-0 grid-cols-1 gap-4 ${vertical ? "classroom-board-vertical" : "classroom-board-horizontal"} ${stageWide ? "" : TEACHER_COLUMN[prefs.teacherSize]}`}>
           {viewMode === "teacher" ? (
-            <GuruBoardCanvas title={title} blocks={blocks} revealed={blocks.length} stepLabel={stepLabel} preferences={prefs} activeSegment={narrating ? teacherAudio.activeSegment : position} scrollToSegment={position} loading={busy} />
+            <GuruBoardCanvas title={title} roadmap={roadmap} blocks={blocks} revealed={blocks.length} stepLabel={stepLabel} preferences={prefs} activeSegment={narrating ? teacherAudio.activeSegment : position} scrollToSegment={position} loading={busy} />
           ) : (
             <GuruBookView title={title} sections={bookSections} position={position} onPosition={setPosition} preferences={prefs} onRetry={(i) => void retrySection(i)} busy={busy} />
           )}

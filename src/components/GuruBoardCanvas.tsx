@@ -17,6 +17,7 @@ export function GuruBoardCanvas({
   activeSegment,
   loading = false,
   scrollToSegment,
+  roadmap,
 }: {
   title: string;
   blocks: BoardBlock[];
@@ -27,6 +28,8 @@ export function GuruBoardCanvas({
   loading?: boolean;
   /** When set, the board scrolls this segment into view (used to keep position across view/mode switches). */
   scrollToSegment?: number;
+  /** Short lesson roadmap shown as a tiny collapsible strip in the header (kept out of the main content). */
+  roadmap?: string | null;
 }) {
   const contentRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -42,10 +45,18 @@ export function GuruBoardCanvas({
   } as CSSProperties;
   return (
     <div className="learning-board min-w-0 flex-1" data-preset={preferences.preset} data-font={preferences.font} data-density={preferences.density} style={custom} role="region" aria-label="Teaching board" aria-busy={loading}>
-      <div className="board-header flex flex-wrap items-center justify-between gap-2">
-        <h2 className="min-w-0 break-words font-bold">{title}</h2>
-        {stepLabel ? (
-          <span className="board-label shrink-0 px-2 py-1 text-xs font-bold">{stepLabel}</span>
+      <div className="board-header">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="min-w-0 break-words font-bold">{title}</h2>
+          {stepLabel ? (
+            <span className="board-label shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold">{stepLabel}</span>
+          ) : null}
+        </div>
+        {roadmap ? (
+          <details className="mt-1 text-[11px] leading-snug opacity-90">
+            <summary className="cursor-pointer font-bold">🗺️ Roadmap</summary>
+            <p className="mt-1">{roadmap}</p>
+          </details>
         ) : null}
       </div>
 
