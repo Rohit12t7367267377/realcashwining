@@ -183,7 +183,8 @@
   font-size: var(--board-font-size);
   line-height: var(--board-line-spacing);
   min-height: 400px;
-  overflow-wrap: anywhere;
+  overflow-wrap: break-word;
+  word-break: normal;
 }
 .learning-board[data-preset="green"] { --board-background: oklch(0.28 0.06 155); --board-foreground: oklch(0.97 0.015 90); --board-accent: oklch(0.86 0.15 90); }
 .learning-board[data-preset="midnight"] { --board-background: oklch(0.2 0.015 265); --board-foreground: oklch(0.96 0.01 240); --board-accent: oklch(0.79 0.13 180); }
@@ -193,8 +194,8 @@
 .learning-board[data-font="serif"] { font-family: Georgia, "Times New Roman", serif; }
 .learning-board[data-font="mono"] { font-family: ui-monospace, monospace; }
 .learning-board h2, .learning-board h3 { font-family: inherit; letter-spacing: 0; }
-.board-header { border-bottom: 1px solid color-mix(in oklab, var(--board-foreground) 22%, transparent); padding-bottom: 14px; }
-.board-header h2 { font-size: 1.2em; }
+.board-header { border-bottom: 1px solid color-mix(in oklab, var(--board-foreground) 22%, transparent); padding: 8px 10px; border-radius: 6px; background: color-mix(in oklab, var(--board-accent) 14%, var(--board-background)); }
+.board-header h2 { font-size: 1.05em; line-height: 1.3; color: var(--board-accent); }
 .board-content { max-height: 65dvh; min-height: 290px; overflow-y: auto; padding: 16px 4px 8px; scrollbar-gutter: stable; }
 .board-content:focus-visible { outline: 2px solid var(--board-accent); outline-offset: 2px; }
 .board-segment { padding: 12px; margin-bottom: 14px; border-left: 3px solid transparent; }
@@ -214,9 +215,11 @@
 .teacher-board-compact .teacher-character { width: 76px; }
 @media (min-width: 640px) { .teacher-board-compact .teacher-character { width: 92px; } }
 @media (max-width: 639px) {
-  .learning-board { padding: 14px; min-height: 340px; }
-  .board-content { min-height: 240px; }
-  .board-segment { padding: 8px; }
+  .learning-board { padding: 10px; min-height: 300px; }
+  .board-header h2 { font-size: 0.95em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .board-content { min-height: 240px; max-height: 72dvh; padding: 10px 0 6px; }
+  .board-segment { padding: 8px 6px; margin-bottom: 10px; }
+  .board-heading { font-size: 1.1em; }
 }
 
 @layer base {

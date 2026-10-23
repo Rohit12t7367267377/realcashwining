@@ -372,15 +372,15 @@ function Classroom() {
 
   return (
     <AppShell wide>
-      <section className="rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift animate-rise-in">
+      <section className="rounded-3xl bg-gradient-hero p-3 text-primary-foreground shadow-lift animate-rise-in sm:p-5">
         <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
           <GraduationCap className="h-3.5 w-3.5" /> AI Teacher Classroom
         </div>
-        <h1 className="mt-1 text-2xl font-black">Teach Me anything</h1>
-        <p className="mt-1 text-sm opacity-90">
+        <h1 className="mt-0.5 text-lg font-black sm:text-2xl">Teach Me anything</h1>
+        <p className="mt-1 hidden text-sm opacity-90 sm:block">
           Your 2D teacher explains step by step on a live board, asks you questions and adapts to your level.
         </p>
-        <div className="mt-4 flex gap-2">
+        <div className="mt-2 flex gap-2 sm:mt-4">
           <Input
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
@@ -398,7 +398,7 @@ function Classroom() {
         </div>
       </section>
 
-      <section className={`mt-5 ${boardFull ? "classroom-fullscreen" : ""}`} aria-label="Interactive classroom">
+      <section className={`mt-3 ${boardFull ? "classroom-fullscreen" : ""}`} aria-label="Interactive classroom">
         <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
           {boardFull && (
             <Button ref={exitRef} variant="outline" size="sm" onClick={() => setBoardFull(false)} aria-label="Exit full screen"><Minimize2 /> Exit full screen</Button>
@@ -407,7 +407,12 @@ function Classroom() {
           <ClassroomSettings preferences={prefs} apply={boardPreferences.apply} disabled={!boardPreferences.ready} viewMode={viewMode} onViewMode={setViewMode} boardFull={boardFull} onBoardFull={setBoardFull} />
         </div>
         {boardPreferences.error && <p role="alert" className="mb-2 text-sm text-destructive">{boardPreferences.error}</p>}
-        {roadmap && !boardFull && <p className="mb-2 rounded-xl bg-secondary/60 p-3 text-sm"><b>Roadmap:</b> {roadmap}</p>}
+        {roadmap && !boardFull && (
+          <details className="mb-2 rounded-xl bg-secondary/60 px-3 py-2 text-xs">
+            <summary className="cursor-pointer font-bold">🗺️ Roadmap <span className="font-normal text-muted-foreground">— tap to read</span></summary>
+            <p className="mt-1.5 leading-snug">{roadmap}</p>
+          </details>
+        )}
         <div className={`classroom-stage grid min-w-0 grid-cols-1 gap-4 ${vertical ? "classroom-board-vertical" : "classroom-board-horizontal"} ${stageWide ? "" : TEACHER_COLUMN[prefs.teacherSize]}`}>
           {viewMode === "teacher" ? (
             <GuruBoardCanvas title={title} blocks={blocks} revealed={blocks.length} stepLabel={stepLabel} preferences={prefs} activeSegment={narrating ? teacherAudio.activeSegment : position} scrollToSegment={position} loading={busy} />

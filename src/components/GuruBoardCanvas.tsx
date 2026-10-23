@@ -175,7 +175,7 @@ function Block({ block }: { block: BoardBlock }) {
           {block.parts?.length ? (
             <dl className="mt-2 space-y-1 text-[0.9em]">
               {block.parts.map((part, i) => (
-                <div key={i} className="flex gap-2"><dt className="shrink-0 font-bold">{part.label}:</dt><dd className="min-w-0 break-words opacity-90">{part.note}</dd></div>
+                <div key={i} className="flex flex-col gap-0.5 sm:flex-row sm:gap-2"><dt className="font-bold sm:shrink-0">{part.label}:</dt><dd className="min-w-0 break-words opacity-90">{part.note}</dd></div>
               ))}
             </dl>
           ) : null}
