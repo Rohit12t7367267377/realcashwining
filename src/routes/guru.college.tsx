@@ -5,7 +5,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
-import { TeachTopicCard } from "@/components/TeachTopicCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -359,7 +358,7 @@ function CollegePage() {
             </Button>
           )}
 
-          {tab === "teacher" && <TeachTopicCard topic={`${subject?.name ?? ""} • ${topic.name}`} />}
+          {tab === "teacher" && <p className="mt-3 rounded-2xl bg-card p-3 text-xs text-muted-foreground shadow-soft">Tap “Start class” in the AI Teacher section above to learn “{topic.name}” live on the board.</p>}
 
           {notes && (tab === "notes" || tab === "examples" || tab === "practice" || tab === "exam") && (
             <section className="mt-3 grid gap-3">

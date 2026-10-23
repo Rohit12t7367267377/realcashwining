@@ -5,7 +5,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
-import { TeachTopicCard } from "@/components/TeachTopicCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/lib/user-store";
@@ -239,8 +238,8 @@ function GuruSchoolPage() {
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
             <School className="h-3.5 w-3.5" /> {scope.board} • Class {scope.className} • {scope.subject}
           </div>
-          <h1 className="mt-1 text-2xl font-black leading-tight">{notes.title}</h1>
-          {notes.intro && <p className="mt-2 text-sm opacity-95">{notes.intro}</p>}
+          <h1 className="mt-1 text-xl font-black leading-tight">{notes.title}</h1>
+          {notes.intro && <p className="mt-1.5 line-clamp-3 text-[13px] leading-snug opacity-95">{notes.intro}</p>}
 
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <button type="button" onClick={teachOnBoard} className="press inline-flex items-center gap-1.5 rounded-full bg-primary-foreground px-3 py-1.5 text-[11px] font-black text-primary">
@@ -271,7 +270,6 @@ function GuruSchoolPage() {
           </div>
         </section>
 
-        <TeachTopicCard topic={`${notes.title} (Class ${scope.className} ${scope.subject}, ${scope.board})`} />
 
         <GuruLessonDepth key={notes.title} scope="school" topic={notes.title} subject={scope.subject} levelLabel={`${scope.board} · ${scope.className}`} language={language} material={JSON.stringify(notes)} />
 

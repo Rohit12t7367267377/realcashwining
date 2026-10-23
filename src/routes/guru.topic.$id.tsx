@@ -4,7 +4,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { AppShell } from "@/components/AppShell";
-import { TeachTopicCard } from "@/components/TeachTopicCard";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
 import { getGuruTopic, guruAsk, generateTopicTest, submitTopicTest } from "@/lib/guru.functions";
@@ -107,9 +106,9 @@ function TopicPage() {
 
   return (
     <AppShell>
-      <header className="rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift">
+      <header className="rounded-3xl bg-gradient-hero p-4 text-primary-foreground shadow-lift">
         <div className="text-[10px] font-bold uppercase tracking-widest opacity-90">{crumb || "Guru.AI School"}</div>
-        <h1 className="mt-1 text-2xl font-black">{topic?.title ?? (isLoading ? "Loading…" : "Topic")}</h1>
+        <h1 className="mt-1 text-xl font-black leading-tight">{topic?.title ?? (isLoading ? "Loading…" : "Topic")}</h1>
         {topic && (
           <div className="mt-2 flex items-center gap-2 text-[11px] opacity-90">
             <span className="rounded-full bg-primary-foreground/20 px-2 py-0.5 capitalize">{topic.difficulty ?? "easy"}</span>
@@ -118,7 +117,6 @@ function TopicPage() {
           </div>
         )}
       </header>
-      {topic && <TeachTopicCard topic={[topic.breadcrumb.board, topic.breadcrumb.className, topic.breadcrumb.subject, topic.title].filter(Boolean).join(" • ")} />}
 
       {(topic?.objectives.length ?? 0) > 0 && (
         <section className="mt-4 rounded-2xl bg-card p-4 shadow-soft">

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Baby, BookOpen, ArrowRight, Loader2, Download } from "lucide-react";
+import { Baby, BookOpen, ArrowRight, Loader2, Download, Play } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { GuruBoardCanvas } from "@/components/GuruBoardCanvas";
 import { TeacherCharacter } from "@/components/TeacherCharacter";
@@ -58,9 +59,22 @@ export function GuruLessonDepth({ topic, scope = "universal", subject, levelLabe
   }
 
   return <section className="mt-4 min-w-0 space-y-3" aria-label="Lesson depth">
+    <div className="flex items-center gap-3 rounded-3xl bg-gradient-hero p-3 text-primary-foreground shadow-lift">
+      <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/20 text-4xl" role="img" aria-label="AI teacher">🧑‍🏫</span>
+      <div className="min-w-0 flex-1">
+        <div className="text-[10px] font-black uppercase tracking-widest opacity-90">AI Teacher</div>
+        <div className="line-clamp-2 text-sm font-bold leading-snug">{topic}</div>
+      </div>
+      <Link to="/guru/classroom" search={{ topic: [subject, topic].filter(Boolean).join(" • "), go: "1" }}
+        className="press inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full bg-white px-4 text-xs font-black text-primary shadow-soft">
+        <Play className="h-4 w-4" aria-hidden /> Start class
+      </Link>
+    </div>
+    <div className="grid grid-cols-2 gap-2">
+      <Button variant="outline" className="min-h-11" disabled={busy || !topic.trim()} onClick={() => void run("easier")}><Baby className="h-4 w-4" /> Explain Easy</Button>
+      <Button className="min-h-11" disabled={busy || !topic.trim()} onClick={() => void run("deeper")}><BookOpen className="h-4 w-4" /> Explain Deeply</Button>
+    </div>
     <div className="flex flex-wrap items-center gap-2">
-      <Button variant="outline" disabled={busy || !topic.trim()} onClick={() => void run("easier")}><Baby className="h-4 w-4" /> Explain Easy</Button>
-      <Button disabled={busy || !topic.trim()} onClick={() => void run("deeper")}><BookOpen className="h-4 w-4" /> Explain Deeply</Button>
       {busy && <span role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Preparing lesson…</span>}
     </div>
     {error && <div role="alert" className="text-sm text-destructive">{error}</div>}
