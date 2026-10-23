@@ -172,3 +172,15 @@ describe("section generation pipeline (AI mocked)", () => {
     expect(out.every((x) => x.steps.length && x.answer)).toBe(true);
   });
 });
+
+describe("spoken narration", () => {
+  it("uses the teacher's friendly explanation per block and falls back to board text when unusable", async () => {
+    const { lessonSegments } = await import("./lesson-segments");
+    const board = [{ type: "text", text: "Force equals mass times acceleration." }, { type: "text", text: "Second block text." }] as never;
+    const segs = lessonSegments("t", board, ["Dekho, jab hum kisi cheez ko dhakka dete hain to wo tez hoti hai.", ""]);
+    expect(segs[0]!.narration).toMatch(/^Dekho/);
+    expect(segs[1]!.narration).toBe("Second block text.");
+    expect(lessonSegments("t", board)[0]!.narration).toBe("Force equals mass times acceleration.");
+    expect(lessonSegments("t", board, "not an array")[0]!.narration).toBe("Force equals mass times acceleration.");
+  });
+});

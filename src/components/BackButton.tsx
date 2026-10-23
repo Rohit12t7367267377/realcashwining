@@ -2,6 +2,8 @@ import { useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const ROOT_TABS = new Set(["/guru", "/community", "/leaderboard", "/hub"]);
+
 /**
  * The one Back control for the whole app. Goes to the previous screen in this app; if there is none
  * (deep link, new tab, installed app start) it goes to the home page. Hidden on the home page itself.
@@ -10,7 +12,8 @@ export function BackButton({ className, fallback = "/" }: { className?: string; 
   const router = useRouter();
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
-  if (path === "/") return null;
+  // Root tabs have nowhere meaningful to go back to, so no arrow there.
+  if (path === "/" || ROOT_TABS.has(path.replace(/\/+$/, ""))) return null;
   function back() {
     const canGoBack = typeof window !== "undefined" && window.history.length > 1 && (window.history.state?.__TSR_index ?? 1) > 0;
     if (canGoBack) router.history.back();

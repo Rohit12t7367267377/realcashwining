@@ -23,6 +23,10 @@ export const classroomPreferencesSchema = z.object({
   // Teacher visibility is independent of the board: hiding never touches lesson content or progress.
   teacherVisible: z.boolean().default(true),
   teacherSize: z.enum(["small", "medium", "large"]).default("medium"),
+  // Board layout: "horizontal" keeps the teacher beside a wide board; "vertical" stacks the teacher above a tall board.
+  boardLayout: z.enum(["horizontal", "vertical"]).default("horizontal"),
+  // How the teacher speaks the board: "explain" = friendly spoken explanation in the teacher's own words; "read" = the exact board text.
+  teacherVoice: z.enum(["explain", "read"]).default("explain"),
   // Which AI answers the student's lessons. Same features either way; only the model changes.
   aiModel: z.enum(["default", "openai"]).default("default"),
 }).strict().superRefine((value, ctx) => {

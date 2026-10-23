@@ -31,7 +31,7 @@ function chunkText(text: string, size = 1200): string[] {
  * Guru.AI voice assistant dock — available on every Guru.AI section.
  * Ask aloud (Gemini answers, spoken back) or have the page's paragraphs read out.
  */
-export function GuruVoiceDock() {
+export function GuruVoiceDock({ inline = false }: { inline?: boolean }) {
   const ask = useServerFn(speakAnswer);
   const speak = useServerFn(guruSpeak);
   const { lang } = useLang();
@@ -107,7 +107,9 @@ export function GuruVoiceDock() {
   const listen = () => voice.start((t) => setQuestion(t));
 
   if (!open) {
-    return (
+    return inline ? (
+      <Button type="button" variant="outline" size="sm" onClick={() => setOpen(true)} aria-label="Open Guru.AI voice assistant"><Mic /> Voice</Button>
+    ) : (
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -120,7 +122,7 @@ export function GuruVoiceDock() {
   }
 
   return (
-    <div className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-3 z-40 w-[min(22rem,calc(100vw-1.5rem))] rounded-3xl bg-card p-4 shadow-lift ring-1 ring-border">
+    <div className="fixed bottom-[calc(5.25rem+env(safe-area-inset-bottom))] right-3 z-[46] w-[min(22rem,calc(100vw-1.5rem))] rounded-3xl bg-card p-4 shadow-lift ring-1 ring-border">
       <div className="flex items-center justify-between">
         <h2 className="flex items-center gap-2 text-sm font-bold">
           <Volume2 className="h-4 w-4 text-primary" /> Guru.AI Voice

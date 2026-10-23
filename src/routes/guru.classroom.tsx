@@ -11,6 +11,7 @@ import { guruClassroomTurn, guruEvaluateAnswer, guruClassroomProgress, guruLesso
 import { useLessonNarration } from "@/hooks/use-lesson-narration";
 import { useClassroomPreferences } from "@/hooks/use-classroom-preferences";
 import { ClassroomSettings } from "@/components/ClassroomSettings";
+import { GuruVoiceDock } from "@/components/GuruVoiceDock";
 import { LessonPlayback } from "@/components/LessonPlayback";
 import { lessonSegments } from "@/lib/lesson-segments";
 import { GuruBookView, type BookSection } from "@/components/GuruBookView";
@@ -146,11 +147,6 @@ function Classroom() {
 
   function stopVoice() {
     teacherAudio.stop();
-  }
-
-  async function toggleTeacher() {
-    try { await boardPreferences.apply({ ...prefs, teacherVisible: !prefs.teacherVisible }); }
-    catch (err) { toast.error(err instanceof Error ? err.message : "Could not save this setting"); }
   }
 
   /** Appends extra teaching (re-explanations, doubts, corrections) to the same lesson and moves there. */
@@ -362,7 +358,8 @@ function Classroom() {
   }
 
   const teacherShown = prefs.teacherVisible;
-  const stageWide = viewMode === "book" || !teacherShown;
+  const vertical = prefs.boardLayout === "vertical";
+  const stageWide = viewMode === "book" || !teacherShown || vertical;
 
   return (
     <AppShell wide>
@@ -393,31 +390,23 @@ function Classroom() {
       </section>
 
       <section className={`mt-5 ${boardFull ? "classroom-fullscreen" : ""}`} aria-label="Interactive classroom">
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <div role="group" aria-label="How to learn" className="inline-flex rounded-full bg-secondary p-1 text-xs font-bold">
-            <button type="button" aria-pressed={viewMode === "teacher"} onClick={() => setViewMode("teacher")} className={`flex items-center gap-1 rounded-full px-3 py-1.5 ${viewMode === "teacher" ? "bg-primary text-primary-foreground" : ""}`}><Presentation className="h-3.5 w-3.5" /> Teacher-led</button>
-            <button type="button" aria-pressed={viewMode === "book"} onClick={() => setViewMode("book")} className={`flex items-center gap-1 rounded-full px-3 py-1.5 ${viewMode === "book" ? "bg-primary text-primary-foreground" : ""}`}><BookOpen className="h-3.5 w-3.5" /> Book</button>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <Button variant="outline" size="sm" onClick={() => void toggleTeacher()} aria-pressed={!teacherShown} disabled={!boardPreferences.ready}>
-              {teacherShown ? <EyeOff /> : <Eye />} {teacherShown ? "Hide teacher" : "Show teacher"}
-            </Button>
-            <Button ref={exitRef} variant="outline" size="sm" onClick={() => setBoardFull((v) => !v)} aria-pressed={boardFull}>
-              {boardFull ? <Minimize2 /> : <Maximize2 />} {boardFull ? "Exit full screen" : "Full screen"}
-            </Button>
-            <ClassroomSettings preferences={prefs} apply={boardPreferences.apply} disabled={!boardPreferences.ready} />
-          </div>
+        <div className="mb-3 flex flex-wrap items-center justify-end gap-2">
+          {boardFull && (
+            <Button ref={exitRef} variant="outline" size="sm" onClick={() => setBoardFull(false)} aria-label="Exit full screen"><Minimize2 /> Exit full screen</Button>
+          )}
+          <GuruVoiceDock inline />
+          <ClassroomSettings preferences={prefs} apply={boardPreferences.apply} disabled={!boardPreferences.ready} viewMode={viewMode} onViewMode={setViewMode} boardFull={boardFull} onBoardFull={setBoardFull} />
         </div>
         {boardPreferences.error && <p role="alert" className="mb-2 text-sm text-destructive">{boardPreferences.error}</p>}
         {roadmap && !boardFull && <p className="mb-2 rounded-xl bg-secondary/60 p-3 text-sm"><b>Roadmap:</b> {roadmap}</p>}
-        <div className={`classroom-stage grid min-w-0 grid-cols-1 gap-4 ${stageWide ? "" : TEACHER_COLUMN[prefs.teacherSize]}`}>
+        <div className={`classroom-stage grid min-w-0 grid-cols-1 gap-4 ${vertical ? "classroom-board-vertical" : "classroom-board-horizontal"} ${stageWide ? "" : TEACHER_COLUMN[prefs.teacherSize]}`}>
           {viewMode === "teacher" ? (
             <GuruBoardCanvas title={title} blocks={blocks} revealed={blocks.length} stepLabel={stepLabel} preferences={prefs} activeSegment={narrating ? teacherAudio.activeSegment : position} scrollToSegment={position} loading={busy} />
           ) : (
             <GuruBookView title={title} sections={bookSections} position={position} onPosition={setPosition} preferences={prefs} onRetry={(i) => void retrySection(i)} busy={busy} />
           )}
           {teacherShown && viewMode === "teacher" && (
-            <div className="flex items-center justify-end sm:items-start sm:justify-center">
+            <div className={`flex items-center sm:items-start ${vertical ? "order-first justify-center" : "justify-end sm:justify-center"}`}>
               <TeacherCharacter
                 teacherName={teacher}
                 state={teacherState}

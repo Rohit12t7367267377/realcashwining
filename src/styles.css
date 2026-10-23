@@ -487,7 +487,7 @@ html, body { max-width: 100%; overflow-x: clip; }
 
 /* Classroom: distraction-free full-screen board and book reading view. The same DOM is only restyled, never remounted. */
 body.classroom-lock { overflow: hidden; }
-.classroom-fullscreen { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)); background: var(--background); }
+.classroom-fullscreen { position: fixed; inset: 0; z-index: 45; display: flex; flex-direction: column; gap: 8px; overflow-y: auto; padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom)); background: var(--background); }
 .classroom-fullscreen .classroom-stage { flex: 1 1 auto; min-height: 0; }
 .classroom-fullscreen .learning-board { height: 100%; display: flex; flex-direction: column; min-height: 0; }
 .classroom-fullscreen .board-content { max-height: none; flex: 1 1 auto; min-height: 0; }
@@ -496,3 +496,9 @@ body.classroom-lock { overflow: hidden; }
 .book-view .board-segment { max-width: 72ch; }
 .classroom-fullscreen .book-view .board-segment { max-width: 78ch; margin-inline: auto; }
 @media (prefers-reduced-motion: reduce) { .board-segment { animation: none !important; } }
+
+/* Board layout choice (Classroom settings): tall board with the teacher on top, or wide board with the teacher beside it. */
+.classroom-board-vertical .board-content { min-height: 58dvh; max-height: 78dvh; }
+.classroom-board-horizontal .board-content { max-height: 52dvh; }
+.classroom-fullscreen .classroom-board-vertical .board-content,
+.classroom-fullscreen .classroom-board-horizontal .board-content { max-height: none; min-height: 0; }

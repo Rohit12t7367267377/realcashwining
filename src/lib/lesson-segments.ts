@@ -17,6 +17,15 @@ export function boardBlockText(block: BoardBlock): string {
   }
 }
 
-export function lessonSegments(topicId: string, board: BoardBlock[]): LessonSegment[] {
-  return board.map((block, order) => ({ id: `${topicId}:segment:${order + 1}`, topicId, order, board: block, narration: boardBlockText(block) }));
+/**
+ * Segments for the board. `spoken` (optional) is the teacher's own friendly explanation, one entry per block.
+ * A missing, empty or oversized entry falls back to the exact board text, so narration never goes silent or drifts off-topic.
+ */
+export function lessonSegments(topicId: string, board: BoardBlock[], spoken?: unknown): LessonSegment[] {
+  const say = Array.isArray(spoken) ? spoken : [];
+  return board.map((block, order) => {
+    const s = typeof say[order] === "string" ? (say[order] as string).replace(/\s+/g, " ").trim() : "";
+    const usable = s.length >= 12 && s.length <= 700 ? s : "";
+    return { id: `${topicId}:segment:${order + 1}`, topicId, order, board: block, narration: usable || boardBlockText(block) };
+  });
 }

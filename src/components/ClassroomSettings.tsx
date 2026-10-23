@@ -5,23 +5,47 @@ import { Slider } from "@/components/ui/slider";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Settings2, RotateCcw, Check, Loader2 } from "lucide-react";
+import { Settings2, RotateCcw, Check, Loader2, Presentation, BookOpen, Maximize2, Rows3, Columns3 } from "lucide-react";
 import { GuruBoardCanvas } from "@/components/GuruBoardCanvas";
 import { BOARD_PRESETS, DEFAULT_CLASSROOM_PREFERENCES, contrastRatio, type ClassroomPreferences } from "@/lib/classroom-preferences";
 import { toast } from "sonner";
 
-export function ClassroomSettings({ preferences, apply, disabled = false }: { preferences: ClassroomPreferences; apply: (next: ClassroomPreferences) => Promise<void>; disabled?: boolean }) {
+type Mode = "teacher" | "book";
+export function ClassroomSettings({ preferences, apply, disabled = false, viewMode, onViewMode, boardFull, onBoardFull }: {
+  preferences: ClassroomPreferences; apply: (next: ClassroomPreferences) => Promise<void>; disabled?: boolean;
+  viewMode: Mode; onViewMode: (m: Mode) => void; boardFull: boolean; onBoardFull: (v: boolean) => void;
+}) {
   const [open, setOpen] = useState(false);
   const [draft, setDraft] = useState(preferences);
+  const [mode, setMode] = useState<Mode>(viewMode);
+  const [full, setFull] = useState(boardFull);
   const [saving, setSaving] = useState(false);
   const patch = (value: Partial<ClassroomPreferences>) => setDraft((old) => ({ ...old, ...value }));
   return <>
-    <Button variant="outline" size="sm" disabled={disabled} onClick={() => { setDraft(preferences); setOpen(true); }}><Settings2 /> Classroom settings</Button>
+    <Button variant="outline" size="sm" disabled={disabled} onClick={() => { setDraft(preferences); setMode(viewMode); setFull(boardFull); setOpen(true); }}><Settings2 /> Classroom settings</Button>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] max-w-3xl overflow-y-auto">
         <DialogHeader><DialogTitle>Classroom settings</DialogTitle><DialogDescription>Your board appearance. Lesson content stays unchanged.</DialogDescription></DialogHeader>
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-4">
+            <Label>How to learn</Label>
+            <div role="group" aria-label="How to learn" className="grid grid-cols-2 gap-2">
+              <Button type="button" variant={mode === "teacher" ? "default" : "outline"} aria-pressed={mode === "teacher"} onClick={() => setMode("teacher")}><Presentation /> Teacher-led</Button>
+              <Button type="button" variant={mode === "book" ? "default" : "outline"} aria-pressed={mode === "book"} onClick={() => setMode("book")}><BookOpen /> Book</Button>
+            </div>
+            <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+              <Label htmlFor="board-full" className="flex-1"><span className="flex items-center gap-1"><Maximize2 className="h-4 w-4" /> Full screen board</span><span className="block text-xs font-normal text-muted-foreground">A big, distraction-free board. Press Esc to come back.</span></Label>
+              <Switch id="board-full" checked={full} onCheckedChange={setFull} />
+            </div>
+            <Label>Board layout</Label>
+            <div role="group" aria-label="Board layout" className="grid grid-cols-2 gap-2">
+              <Button type="button" variant={draft.boardLayout === "horizontal" ? "default" : "outline"} aria-pressed={draft.boardLayout === "horizontal"} onClick={() => patch({ boardLayout: "horizontal" })}><Columns3 /> Horizontal</Button>
+              <Button type="button" variant={draft.boardLayout === "vertical" ? "default" : "outline"} aria-pressed={draft.boardLayout === "vertical"} onClick={() => patch({ boardLayout: "vertical" })}><Rows3 /> Vertical</Button>
+            </div>
+            <p className="text-xs text-muted-foreground">Horizontal: wide board with the teacher beside it. Vertical: tall board with the teacher on top.</p>
+            <Label>How the teacher speaks</Label>
+            <Select value={draft.teacherVoice} onValueChange={(teacherVoice: ClassroomPreferences['teacherVoice']) => patch({ teacherVoice })}><SelectTrigger aria-label="How the teacher speaks"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="explain">Friendly teacher — explains in own words</SelectItem><SelectItem value="read">Read the board text exactly</SelectItem></SelectContent></Select>
+            <p className="text-xs text-muted-foreground">For your doubts and new explanations the teacher talks to you like a real teacher instead of reading the board aloud.</p>
             <div className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
               <Label htmlFor="teacher-visible" className="flex-1">Show teacher<span className="block text-xs font-normal text-muted-foreground">Hiding the teacher never pauses or changes the lesson.</span></Label>
               <Switch id="teacher-visible" checked={draft.teacherVisible} onCheckedChange={(teacherVisible) => patch({ teacherVisible })} />
@@ -54,7 +78,7 @@ export function ClassroomSettings({ preferences, apply, disabled = false }: { pr
           <Button disabled={saving} onClick={async () => {
             if (draft.background && draft.foreground && contrastRatio(draft.background, draft.foreground) < 4.5) return toast.error('Choose text and background colors with stronger contrast.');
             setSaving(true);
-            try { await apply(draft); setOpen(false); toast.success('Board settings saved'); }
+            try { await apply(draft); onViewMode(mode); onBoardFull(full); setOpen(false); toast.success('Classroom settings saved'); }
             catch (err) { toast.error(err instanceof Error ? err.message : 'Could not save board settings'); }
             finally { setSaving(false); }
           }}>{saving ? <Loader2 className="animate-spin" /> : <Check />} Apply settings</Button>

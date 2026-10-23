@@ -1,4 +1,5 @@
 import { GuruLessonDepth } from "@/components/GuruLessonDepth";
+import { GuruVoiceDock } from "@/components/GuruVoiceDock";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -174,6 +175,7 @@ function UniversalAiPage() {
         </div>
         <h1 className="mt-1 text-2xl font-black">Ask Guru.AI anything</h1>
         <p className="mt-1 text-xs opacity-90">Type it, speak it, snap a photo of it, or search the web.</p>
+        <div className="mt-3 flex justify-end"><GuruVoiceDock inline /></div>
       </header>
 
       <div className="mt-3 grid grid-cols-3 gap-2">
