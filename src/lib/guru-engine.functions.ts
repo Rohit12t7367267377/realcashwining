@@ -122,10 +122,10 @@ export const guruEngineSpeak = createServerFn({ method: "POST" })
     const audio = await synthesizeSpeech(data.text, {
       voiceId: voice.voiceId,
       fallbackVoiceId: voice.fallbackVoiceId,
-      speed: voice.speed,
+      speed: 1, // speed is applied in the player (playbackRate) so it works for every provider and changes live
       provider: voice.provider,
     });
-    return { audioBase64: audio.base64, mimeType: audio.mimeType, provider: audio.provider, voiceLabel: voice.label };
+    return { audioBase64: audio.base64, mimeType: audio.mimeType, provider: audio.provider, voiceLabel: voice.label, speed: Math.min(1.5, Math.max(0.5, voice.speed || 1)) };
   });
 
 /** Voices a student can preview and choose from. */

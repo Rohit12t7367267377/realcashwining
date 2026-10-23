@@ -9,6 +9,7 @@ import { Settings2, RotateCcw, Check, Loader2, Presentation, BookOpen, Maximize2
 import { GuruBoardCanvas } from "@/components/GuruBoardCanvas";
 import { BOARD_PRESETS, DEFAULT_CLASSROOM_PREFERENCES, contrastRatio, type ClassroomPreferences } from "@/lib/classroom-preferences";
 import { toast } from "sonner";
+import { ClassroomVoiceSettings } from "@/components/ClassroomVoiceSettings";
 
 type Mode = "teacher" | "book";
 export function ClassroomSettings({ preferences, apply, disabled = false, viewMode, onViewMode, boardFull, onBoardFull }: {
@@ -25,7 +26,8 @@ export function ClassroomSettings({ preferences, apply, disabled = false, viewMo
     <Button variant="outline" size="sm" disabled={disabled} onClick={() => { setDraft(preferences); setMode(viewMode); setFull(boardFull); setOpen(true); }}><Settings2 /> Classroom settings</Button>
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-[90dvh] max-w-3xl overflow-y-auto">
-        <DialogHeader><DialogTitle>Classroom settings</DialogTitle><DialogDescription>Your board appearance. Lesson content stays unchanged.</DialogDescription></DialogHeader>
+        <DialogHeader><DialogTitle>Classroom settings</DialogTitle><DialogDescription>Teacher voice and speed, plus your board appearance. Lesson content stays unchanged.</DialogDescription></DialogHeader>
+        <ClassroomVoiceSettings active={open} />
         <div className="grid gap-5 md:grid-cols-2">
           <div className="space-y-4">
             <Label>How to learn</Label>

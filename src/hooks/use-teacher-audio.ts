@@ -5,6 +5,8 @@ export type LipSyncLevel = 0 | 1 | 2 | 3;
 type TeacherAudio = {
   audioBase64: string;
   mimeType?: string;
+  /** Playback speed 0.5 - 1.5 (applied by the player). */
+  speed?: number;
   onEnded?: () => void;
   onError?: () => void;
 };
@@ -27,6 +29,8 @@ export function useTeacherAudio() {
   const [lipSyncLevel, setLipSyncLevel] = useState<LipSyncLevel>(0);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+  const speedRef = useRef(1);
+  const userPausedRef = useRef(false);
 
   const updateLevel = useCallback((next: LipSyncLevel) => {
     if (levelRef.current === next) return;
@@ -42,6 +46,7 @@ export function useTeacherAudio() {
 
   const stop = useCallback(() => {
     tokenRef.current += 1;
+    userPausedRef.current = true;
     stopAnalysis();
     const audio = audioRef.current;
     if (audio) {
@@ -61,6 +66,7 @@ export function useTeacherAudio() {
 
       try {
         const context = contextRef.current ?? new AudioContextCtor();
+        if (!contextRef.current) context.onstatechange = () => { if (context.state === "suspended" || (context.state as string) === "interrupted") void context.resume().catch(() => undefined); };
         contextRef.current = context;
         const analyser = analyserRef.current ?? context.createAnalyser();
         analyser.fftSize = 256;
@@ -98,13 +104,18 @@ export function useTeacherAudio() {
   );
 
   const play = useCallback(
-    async ({ audioBase64, mimeType, onEnded, onError }: TeacherAudio) => {
+    async ({ audioBase64, mimeType, speed, onEnded, onError }: TeacherAudio) => {
       const token = ++tokenRef.current;
       stopAnalysis();
       const audio = audioRef.current ?? new Audio();
       audioRef.current = audio;
       audio.src = `data:${mimeType || "audio/mpeg"};base64,${audioBase64}`;
       audio.preload = "auto";
+      if (typeof speed === "number") speedRef.current = Math.min(1.5, Math.max(0.5, speed));
+      audio.defaultPlaybackRate = speedRef.current;
+      audio.playbackRate = speedRef.current;
+      (audio as HTMLAudioElement & { preservesPitch?: boolean }).preservesPitch = true;
+      userPausedRef.current = false;
 
       const analysed = startAnalysis(audio);
       setPaused(false);
@@ -125,6 +136,11 @@ export function useTeacherAudio() {
         setSpeaking(false);
         setProgress(1);
         onEnded?.();
+      };
+      audio.onpause = () => {
+        // The OS or browser paused us (not the student): continue instead of cutting the lesson off.
+        if (token !== tokenRef.current || userPausedRef.current || audio.ended) return;
+        setTimeout(() => { if (token === tokenRef.current && !userPausedRef.current && audio.paused && !audio.ended) void audio.play().catch(() => undefined); }, 150);
       };
       audio.onerror = () => {
         if (token !== tokenRef.current) return;
@@ -150,6 +166,7 @@ export function useTeacherAudio() {
   const pause = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || audio.paused) return;
+    userPausedRef.current = true;
     audio.pause();
     stopAnalysis();
     setSpeaking(false);
@@ -159,10 +176,22 @@ export function useTeacherAudio() {
   const resume = useCallback(async () => {
     const audio = audioRef.current;
     if (!audio || !audio.src) return;
+    userPausedRef.current = false;
     startAnalysis(audio);
     try { await audio.play(); }
     catch (err) { stopAnalysis(); setSpeaking(false); throw err; }
   }, [startAnalysis, stopAnalysis]);
+
+  useEffect(() => {
+    const onVoice = (e: Event) => {
+      const sp = Number((e as CustomEvent<{ speed?: number }>).detail?.speed);
+      if (!Number.isFinite(sp)) return;
+      speedRef.current = Math.min(1.5, Math.max(0.5, sp));
+      if (audioRef.current) audioRef.current.playbackRate = speedRef.current;
+    };
+    window.addEventListener("guru:voice-changed", onVoice);
+    return () => window.removeEventListener("guru:voice-changed", onVoice);
+  }, []);
 
   useEffect(
     () => () => {
