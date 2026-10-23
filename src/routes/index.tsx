@@ -219,18 +219,17 @@ function Home() {
 
 
       {/* 1 · Welcome card */}
-      <section className="overflow-hidden rounded-3xl bg-gradient-hero p-5 text-primary-foreground shadow-lift animate-rise-in">
+      <section className="overflow-hidden rounded-3xl bg-gradient-hero p-4 text-primary-foreground shadow-lift animate-rise-in">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
           <div className="min-w-0">
             <p className="text-xs uppercase tracking-widest opacity-80">Welcome back</p>
-            <h1 className="mt-1 truncate text-2xl font-black">Hey {state.name.split(" ")[0]} 👋</h1>
-            <p className="mt-1 text-sm opacity-90">Ready to learn and play today?</p>
-          </div>
+            <h1 className="mt-1 truncate text-xl font-black">Hey {state.name.split(" ")[0]} 👋</h1>
+                      </div>
           <Link to="/wallet" className="press shrink-0 rounded-xl bg-white/15 px-3 py-2 text-[11px] font-bold backdrop-blur">
             Wallet →
           </Link>
         </div>
-        <div className="mt-5 grid grid-cols-4 gap-2 text-center">
+        <div className="mt-3 grid grid-cols-4 gap-1.5 text-center">
           <Stat label="Wallet" value={`₹${balance.toFixed(0)}`} />
           <Stat label="Won" value={`₹${won.toFixed(0)}`} />
           <Stat label="Played" value={String(played)} />
@@ -243,16 +242,16 @@ function Home() {
 
       {/* 2 · Contest banner (featured) */}
       {featured && (
-        <section className="mt-3 overflow-hidden rounded-3xl bg-gradient-primary p-5 text-primary-foreground shadow-lift animate-rise-in">
+        <section className="mt-3 overflow-hidden rounded-3xl bg-gradient-primary p-4 text-primary-foreground shadow-lift animate-rise-in">
           <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest opacity-90">
             <Sparkles className="h-3.5 w-3.5" /> Featured contest
           </div>
-          <h2 className="mt-1 text-xl font-black leading-tight">{featured.title}</h2>
+          <h2 className="mt-1 line-clamp-2 text-lg font-black leading-tight">{featured.title}</h2>
           <div className="mt-1 text-sm opacity-90">
             {Number(featured.entry_fee) > 0 ? `Entry ₹${featured.entry_fee}` : "FREE entry"}
             {Number(featured.first_prize) > 0 && ` · 1st prize ₹${featured.first_prize}`}
           </div>
-          <div className="mt-4 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+          <div className="mt-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
             <div className="flex min-w-0 items-center gap-1.5 rounded-xl bg-white/15 px-3 py-2 text-xs font-bold backdrop-blur">
               <Timer className="h-3.5 w-3.5 shrink-0" />
               <Countdown target={featured.ends_at ?? featured.starts_at ?? null} />
@@ -283,75 +282,29 @@ function Home() {
       )}
 
       {/* Free match predictions */}
-      <section className="mt-6">
+      <section className="mt-3">
         <Link to="/predict" className="card-lift flex items-center justify-between rounded-2xl border border-primary/30 bg-card p-4 shadow-soft">
           <div className="min-w-0">
             <div className="text-sm font-bold">🏏 Free Match Predictions</div>
-            <div className="text-[11px] text-muted-foreground">Predict every over, earn points, climb the leaderboard. 100% free.</div>
+            <div className="text-[11px] text-muted-foreground">Predict every over · 100% free</div>
           </div>
           <span className="ml-3 shrink-0 rounded-full bg-primary px-3 py-1 text-[11px] font-bold text-primary-foreground">Play</span>
         </Link>
       </section>
 
-      {/* 3 · Live contests */}
-      <section className="mt-6">
-        <SectionHeader title="🔥 Live Contests" subtitle="Open now — join and play" />
-        <div className="mt-3 grid gap-2">
-          {live.length === 0 && (
-            <div className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">
-              No contests are live right now. Please check back later.
-            </div>
-          )}
-          {live.slice(0, 5).map((c) => (
-            <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="card-lift flex items-center justify-between rounded-2xl bg-gradient-primary p-4 text-primary-foreground shadow-soft">
-              <div className="min-w-0">
-                <div className="truncate text-sm font-bold">{c.title}</div>
-                <div className="text-[11px] opacity-90">
-                  {Number(c.entry_fee) > 0 ? `Entry ₹${c.entry_fee}` : "FREE"}
-                  {Number(c.first_prize) > 0 && ` · 1st ₹${c.first_prize}`}
-                  {c.ends_at && ` · Ends ${new Date(c.ends_at).toLocaleString()}`}
-                </div>
-              </div>
-              <Trophy className="h-5 w-5 shrink-0" />
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Upcoming contests */}
-      {upcoming.length > 0 && (
-        <section className="mt-6">
-          <SectionHeader title="⏰ Upcoming Contests" subtitle="Starting soon — be ready" />
-          <div className="mt-3 grid gap-2">
-            {upcoming.map((c) => (
-              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="card-lift flex items-center justify-between rounded-2xl bg-card p-3 shadow-soft">
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-bold">{c.title}</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {c.starts_at && `Starts ${new Date(c.starts_at).toLocaleString()}`}
-                    {Number(c.entry_fee) > 0 ? ` · Entry ₹${c.entry_fee}` : " · FREE"}
-                  </div>
-                </div>
-                <span className="shrink-0 rounded-full bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary">Upcoming</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
       <ContestExplorer />
 
       {/* Learn & compete: real routes into the Guru.AI learning sections */}
-      <section className="mt-6" aria-label="Learn with Guru.AI">
+      <section className="mt-5" aria-label="Learn with Guru.AI">
         <SectionHeader title="Learn with Guru.AI" subtitle="School · College · Exams · Coding" />
-        <div className="mt-3 grid grid-cols-2 gap-3">
+        <div className="-mx-4 mt-2 flex snap-x gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
           {([
             { to: "/guru/college", icon: GraduationCap, title: "Learn with Guru.AI", sub: "College — degree, semester, subject" },
             { to: "/guru/exams", icon: Target, title: "General Knowledge", sub: "Competitive Exams — JEE, NEET, UPSC, SSC…" },
             { to: "/guru/notes", icon: School, title: "School Learning", sub: "Classes 10, 11 & 12 — every board" },
             { to: "/guru/skills", icon: Code2, title: "Coding & DSA", sub: "Roadmaps, practice and coding quizzes" },
           ] as const).map((c) => (
-            <Link key={c.to} to={c.to} className="press card-lift flex min-h-[104px] flex-col justify-between rounded-2xl bg-card p-3.5 shadow-soft">
+            <Link key={c.to} to={c.to} className="press card-lift flex min-h-[96px] w-[150px] shrink-0 snap-start flex-col justify-between rounded-2xl bg-card p-3 shadow-soft">
               <c.icon className="h-6 w-6 text-primary" aria-hidden />
               <div>
                 <div className="text-sm font-black leading-tight">{c.title}</div>
@@ -363,28 +316,27 @@ function Home() {
       </section>
 
       {/* 4 · Quiz categories */}
-      <section className="mt-6">
+      <section className="mt-5">
         <SectionHeader title="Quiz Categories" subtitle="Sports · GK · Coding" />
-        <div className="mt-3 grid grid-cols-3 gap-3">
+        <div className="-mx-4 mt-2 flex snap-x gap-2.5 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
           {CATEGORIES.map((c) => (
             <Link
               key={c.id}
               to="/category/$id"
               params={{ id: c.id }}
-              className="card-lift group flex flex-col items-center rounded-2xl bg-card p-4 text-center shadow-soft"
+              className="card-lift group flex w-[104px] shrink-0 snap-start flex-col items-center rounded-2xl bg-card p-3 text-center shadow-soft"
             >
-              <div className={`flex h-14 w-14 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-3xl shadow-md`}>
+              <div className={`flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${c.color} text-2xl shadow-md`}>
                 {c.emoji}
               </div>
               <div className="mt-2 text-sm font-bold leading-tight">{c.name}</div>
-              <div className="mt-0.5 text-[10px] leading-tight text-muted-foreground">{c.short}</div>
-            </Link>
+                          </Link>
           ))}
         </div>
       </section>
 
       {/* 5 · Live scores */}
-      <Link to="/live-scores" className="press mt-6 block rounded-2xl border border-destructive/30 bg-gradient-card px-4 py-3 shadow-soft transition hover:shadow-glow">
+      <Link to="/live-scores" className="press mt-5 block rounded-2xl border border-destructive/30 bg-gradient-card px-4 py-3 shadow-soft transition hover:shadow-glow">
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
             <span className="flex h-2 w-2 shrink-0 rounded-full bg-destructive"><span className="h-full w-full animate-ping rounded-full bg-destructive" /></span>
@@ -397,47 +349,10 @@ function Home() {
 
       {/* 5b · Google-style live cricket scores (same verified feed as /live-scores) */}
       <section className="mt-3">
-        <CricketScoreboard active compact limit={3} />
+        <CricketScoreboard active compact limit={2} />
       </section>
 
-      {/* 6 · Recently completed */}
-      {completed.length > 0 && (
-        <section className="mt-6">
-          <SectionHeader title="🏁 Recently Completed" subtitle="Results declared — see who won" />
-          <div className="mt-3 grid gap-2">
-            {completed.map((c) => (
-              <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className="card-lift flex items-center justify-between rounded-2xl bg-muted/40 p-3 shadow-soft">
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-bold">{c.title}</div>
-                  <div className="text-[11px] text-muted-foreground">
-                    {Number(c.first_prize) > 0 && `1st Prize ₹${c.first_prize} · `}Results out
-                  </div>
-                </div>
-                <span className="shrink-0 rounded-full bg-success/15 px-2 py-1 text-[10px] font-bold text-success">Declared</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* 7 · Explore shortcuts */}
-      <section className="mt-6">
-        <SectionHeader title="Explore" subtitle="Jump straight in" />
-        <div className="mt-3 grid grid-cols-4 gap-2">
-          <ExploreTile to="/reading" emoji="📖" label="Reading" />
-          <ExploreTile to="/cricket" emoji="🏏" label="Cricket" />
-          <Link to="/category/$id" params={{ id: "gk" }} className="press card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
-            <span className="text-2xl">🌍</span>GK
-          </Link>
-          <Link to="/category/$id" params={{ id: "coding" }} className="press card-lift flex flex-col items-center gap-1 rounded-2xl bg-card p-3 text-center text-xs font-bold shadow-soft">
-            <span className="text-2xl">💻</span>Coding
-          </Link>
-        </div>
-      </section>
-
-
-
-
+      <div className="h-2" />
     </AppShell>
   );
 }
