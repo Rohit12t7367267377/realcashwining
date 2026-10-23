@@ -215,9 +215,10 @@
 .teacher-board-compact .teacher-character { width: 76px; }
 @media (min-width: 640px) { .teacher-board-compact .teacher-character { width: 92px; } }
 @media (max-width: 639px) {
-  .learning-board { padding: 10px; min-height: 300px; }
+  .learning-board { padding: 10px; min-height: calc(100dvh - 9rem); }
   .board-header h2 { font-size: 0.95em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .board-content { min-height: 240px; max-height: 72dvh; padding: 10px 0 6px; }
+  .board-content { min-height: calc(100dvh - 15rem); max-height: calc(100dvh - 12rem); padding: 10px 0 6px; }
+  .book-view .board-content { max-height: calc(100dvh - 12rem); }
   .board-segment { padding: 8px 6px; margin-bottom: 10px; }
   .board-heading { font-size: 1.1em; }
 }
