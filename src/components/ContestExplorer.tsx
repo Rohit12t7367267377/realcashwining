@@ -80,7 +80,7 @@ export function ContestExplorer() {
           <Input aria-label="Search subject, class or exam" placeholder="Search subject, class or exam" value={f.subject} onChange={(e) => setF({ ...f, subject: e.target.value })} />
         </>)}
       </div>
-      <div className="mt-3 grid gap-2">
+      <div className="mt-3 grid min-w-0 grid-cols-1 gap-2.5">
         {shown.length === 0 && (
           <div className="rounded-2xl bg-card p-4 text-center text-sm text-muted-foreground shadow-soft">
             No contests match these filters.
@@ -90,21 +90,26 @@ export function ContestExplorer() {
         {shown.slice(0, limit).map((c) => {
           const st = statusOf(c, now), tr = trackOf(c);
           const paid = Number(c.entry_fee) > 0;
+          const cut = c.title.lastIndexOf(" · ");
+          const name = cut > 0 ? c.title.slice(0, cut) : c.title;
+          const when = cut > 0 ? c.title.slice(cut + 3) : "";
+          const TRACK_LABEL: Record<string, string> = { school: "School", college: "College", exam: "Exam", coding: "Coding" };
           const body = (
-            <>
-              <div className="min-w-0">
-                <div className="truncate text-sm font-bold">{c.title}</div>
-                <div className="text-[11px] text-muted-foreground">
-                  {tr === "coding" ? "Coding" : c.num_questions + " questions"} · {c.duration_minutes} min
-                  {c.marks_correct != null && ` · +${c.marks_correct}/${c.marks_wrong ?? 0}`}
-                  {c.auto_scope?.difficulty && ` · ${c.auto_scope.difficulty}`}
-                </div>
-                <div className="text-[11px] font-bold text-primary">{countdown(c, now)}</div>
+            <div className="w-full min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <span className="truncate text-[10px] font-black uppercase tracking-wider text-muted-foreground">{TRACK_LABEL[tr] ?? "Quiz"}{when && ` · ${when}`}</span>
+                <span className={cn("shrink-0 rounded-full px-2.5 py-1 text-[10px] font-black uppercase tracking-wide", st === "live" ? "bg-success/15 text-success" : st === "upcoming" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground")}>{paid ? "Unavailable" : st}</span>
               </div>
-              <span className={cn("shrink-0 rounded-full px-2 py-1 text-[10px] font-bold", st === "live" ? "bg-success/15 text-success" : st === "upcoming" ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground")}>{paid ? "Unavailable" : st}</span>
-            </>
+              <div className="mt-1 break-words text-[15px] font-bold leading-snug">{name}</div>
+              <div className="mt-1 text-[11px] leading-snug text-muted-foreground">
+                {tr === "coding" ? "Coding" : c.num_questions + " questions"} · {c.duration_minutes} min
+                {c.marks_correct != null && ` · +${c.marks_correct}/${c.marks_wrong ?? 0}`}
+                {c.auto_scope?.difficulty && ` · ${c.auto_scope.difficulty}`}
+              </div>
+              <div className="mt-1 text-xs font-bold text-primary">{countdown(c, now)}</div>
+            </div>
           );
-          const cls = "card-lift flex items-center justify-between gap-2 rounded-2xl bg-card p-3 shadow-soft";
+          const cls = "card-lift block w-full min-w-0 overflow-hidden rounded-2xl bg-card p-3.5 shadow-soft";
           return tr === "coding"
             ? <Link key={c.id} to="/coding/$id" params={{ id: c.id }} className={cls}>{body}</Link>
             : <Link key={c.id} to="/contest/$id" params={{ id: c.id }} className={cls}>{body}</Link>;
