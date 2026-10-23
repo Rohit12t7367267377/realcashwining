@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
+import { CappedList } from "@/components/CappedList";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
 import { browseCurriculum } from "@/lib/guru.functions";
@@ -113,7 +114,7 @@ function SchoolPage() {
             {level === "books" && <Link to="/guru/notes" search={{ boardId: trail[0]?.id, boardName: trail[0]?.title, classId: trail[1]?.id, className: trail[1]?.title, subjectId: trail[2]?.id, subjectName: trail[2]?.title, stream }}><Button className="mt-3">Open subject study outline</Button></Link>}
           </div>
         )}
-        {items.map((it) =>
+        <CappedList limit={8}>{items.map((it) =>
           level === "topics" ? (
             <Link
               key={it.id}
@@ -122,8 +123,8 @@ function SchoolPage() {
               className="card-lift flex items-center justify-between gap-3 rounded-2xl bg-card p-3.5 shadow-soft"
             >
               <div className="min-w-0">
-                <div className="truncate text-sm font-bold">{it.title}</div>
-                {it.subtitle && <div className="truncate text-[11px] text-muted-foreground">{it.subtitle}</div>}
+                <div className="break-words text-sm font-bold leading-snug">{it.title}</div>
+                {it.subtitle && <div className="text-[11px] leading-snug text-muted-foreground">{it.subtitle}</div>}
               </div>
               <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
             </Link>
@@ -135,13 +136,13 @@ function SchoolPage() {
               className="press card-lift flex items-center justify-between gap-3 rounded-2xl bg-card p-3.5 text-left shadow-soft"
             >
               <div className="min-w-0">
-                <div className="truncate text-sm font-bold">{it.title}</div>
-                {it.subtitle && <div className="truncate text-[11px] text-muted-foreground">{it.subtitle}</div>}
+                <div className="break-words text-sm font-bold leading-snug">{it.title}</div>
+                {it.subtitle && <div className="text-[11px] leading-snug text-muted-foreground">{it.subtitle}</div>}
               </div>
               <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
             </button>
           ),
-        )}
+        )}</CappedList>
       </section>
     </AppShell>
   );

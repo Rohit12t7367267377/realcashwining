@@ -4,6 +4,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { CappedList } from "@/components/CappedList";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/lib/user-store";
 import {
@@ -342,10 +343,10 @@ function ExamDetailPage() {
               </Button>
             )}
           </div>
-          <div className="mt-2 grid gap-1.5">
+          <CappedList limit={8} className="mt-2 grid gap-1.5">
             {topics.map((t) => (
-              <div key={t} className="flex items-center justify-between gap-2 rounded-2xl bg-secondary/50 px-3 py-2">
-                <span className="text-xs font-semibold">{t}</span>
+              <div key={t} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl bg-secondary/50 px-3 py-2">
+                <span className="min-w-0 flex-1 basis-40 break-words text-xs font-semibold leading-snug">{t}</span>
                 <div className="flex shrink-0 gap-1">
                   <button
                     type="button"
@@ -379,7 +380,7 @@ function ExamDetailPage() {
                 No topics yet — tap “Load topics” and Guru.AI will build the syllabus topic list.
               </p>
             )}
-          </div>
+          </CappedList>
         </section>
       )}
 

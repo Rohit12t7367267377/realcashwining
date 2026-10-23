@@ -272,7 +272,7 @@ function GuruSkillsPage() {
             <div className="flex items-center gap-2">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-xl">{t.emoji}</span>
               <div className="min-w-0">
-                <div className="truncate text-sm font-black">{t.title}</div>
+                <div className="break-words text-sm font-black leading-snug">{t.title}</div>
                 <div className="text-[11px] text-muted-foreground">{t.blurb}</div>
               </div>
             </div>

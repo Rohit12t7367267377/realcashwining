@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
 import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
+import { CappedList } from "@/components/CappedList";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useUser } from "@/lib/user-store";
@@ -587,7 +588,7 @@ function GuruSchoolPage() {
           {chaptersQ.data?.some((c) => !c.fromDb) && <p className="mb-3 text-xs text-muted-foreground">Study outline — check the official syllabus for current-year exam coverage.</p>}
           {chaptersQ.isLoading && <Empty text="Loading chapters…" />}
           {chaptersQ.isError && <p role="alert">Could not load chapters. <Button variant="outline" onClick={() => void chaptersQ.refetch()}>Try again</Button></p>}
-          <div className="grid gap-2">
+          <CappedList limit={8}>
             {(chaptersQ.data ?? []).map((c, i) => (
               <button
                 key={c.id}
@@ -600,11 +601,11 @@ function GuruSchoolPage() {
                 <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-gradient-to-br ${gradientFor(c.name)} text-sm font-black text-primary-foreground`}>
                   {i + 1}
                 </span>
-                <span className="min-w-0 flex-1 text-sm font-bold">{c.name}</span>
+                <span className="min-w-0 flex-1 break-words text-sm font-bold leading-snug">{c.name}</span>
                 <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
               </button>
             ))}
-          </div>
+          </CappedList>
         </>
       )}
 
@@ -612,7 +613,7 @@ function GuruSchoolPage() {
         <>
           <Step n={5} label="Choose a topic" />
           {topicsQ.isLoading && <Empty text="Loading topics…" />}
-          <div className="grid gap-2">
+          <CappedList limit={8}>
             {(topicsQ.data ?? []).map((t) => {
               const p = getProgress(progress, { ...scope, topic: t.name });
               return (
@@ -623,7 +624,7 @@ function GuruSchoolPage() {
                   className="press card-lift flex items-center justify-between gap-3 rounded-2xl bg-card p-3.5 text-left shadow-soft"
                 >
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-bold">{t.emoji} {t.name}</div>
+                    <div className="break-words text-sm font-bold leading-snug">{t.emoji} {t.name}</div>
                     {p && (
                       <div className="text-[11px] text-muted-foreground">
                         {p.opened ? "Read" : ""}{p.quizScore != null ? ` · Quiz ${p.quizScore}%` : ""}{p.revised ? " · Revised" : ""}
@@ -634,7 +635,7 @@ function GuruSchoolPage() {
                 </button>
               );
             })}
-          </div>
+          </CappedList>
 
           <form
             className="mt-3 flex gap-2"

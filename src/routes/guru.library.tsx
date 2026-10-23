@@ -269,7 +269,7 @@ function GuruLibraryPage() {
                   </span>
                 )}
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-black">{r.title}</div>
+                  <div className="line-clamp-2 break-words text-sm font-black leading-snug">{r.title}</div>
                   <div className="truncate text-[11px] text-muted-foreground">
                     {[r.author, r.publisher].filter(Boolean).join(" • ") || r.source_name}
                   </div>
@@ -307,7 +307,7 @@ function GuruLibraryPage() {
                 <div className="flex items-center gap-2">
                   <span className="text-xl">{b.emoji}</span>
                   <div className="min-w-0">
-                    <div className="truncate text-sm font-black">{b.title}</div>
+                    <div className="line-clamp-2 break-words text-sm font-black leading-snug">{b.title}</div>
                     <div className="text-[11px] text-muted-foreground">
                       {[b.board, b.className, b.subject].filter(Boolean).join(" • ")}
                     </div>

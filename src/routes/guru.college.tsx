@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { useScrollOnChange } from "@/hooks/use-scroll-on-change";
 import { AppShell } from "@/components/AppShell";
+import { CappedList } from "@/components/CappedList";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -271,7 +272,7 @@ function CollegePage() {
             {step === "topic" && "Topic"}
           </h2>
           {listMut.isPending && <p className="mt-2 text-xs text-muted-foreground">Loading…</p>}
-          <div className="mt-2 grid gap-1.5">
+          <CappedList limit={8} className="mt-2 grid gap-1.5">
             {(listMut.data ?? []).map((item) => (
               <button
                 key={item.id}
@@ -321,7 +322,7 @@ function CollegePage() {
             {!listMut.isPending && !(listMut.data ?? []).length && (
               <p className="text-xs text-muted-foreground">Nothing here yet — go back and pick another option.</p>
             )}
-          </div>
+          </CappedList>
         </section>
       )}
 
