@@ -116,6 +116,9 @@ async function sha256(text: string): Promise<string> {
  * so lessons, notes, quizzes and outlines are generated once and reused — saving AI credits.
  * Never use for personal doubts. If the table is missing the call simply runs uncached.
  */
+/** Counts real AI calls made by cachedChat (cache misses); used by the admin pre-generator to pace itself. */
+export const aiStats = { misses: 0 };
+
 export async function cachedChat(kind: string, messages: ChatMessage[], opts: AiChatOptions = {}): Promise<string> {
   let key = "";
   let db: Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"] | null = null;
@@ -126,6 +129,7 @@ export async function cachedChat(kind: string, messages: ChatMessage[], opts: Ai
     const hit = (data as { response?: string } | null)?.response;
     if (hit) return hit;
   } catch { db = null; }
+  aiStats.misses += 1;
   const out = await callAiChat(messages, opts);
   if (db && key) {
     try {

@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AdminShell } from "@/components/AdminShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,6 +18,8 @@ import {
   listAllCategories,
 } from "@/lib/admin-ai.functions";
 import { adminAiStatus } from "@/lib/admin-ai.functions";
+import { adminPregenerateSubject } from "@/lib/admin-pregen.functions";
+import { schoolSubjects } from "@/lib/school-curriculum";
 import { guruRagStats, guruIndexLessons, guruAddSource } from "@/lib/guru-rag.functions";
 import { toast } from "sonner";
 import { saveAppSetting } from "@/lib/admin-settings.functions";
@@ -135,6 +137,7 @@ function AdminAiPage() {
 
 
       <GuruModelCard />
+      <PregenerateCard />
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="p-5 space-y-4">
           <div>
@@ -408,6 +411,70 @@ function GuruModelCard() {
           <SelectContent><SelectItem value="default">Guru.AI default (Gemini)</SelectItem><SelectItem value="openai">ChatGPT (OpenAI)</SelectItem></SelectContent>
         </Select>
       </div>
+    </Card>
+  );
+}
+
+
+const BOARDS = ["Uttar Pradesh Board of High School and Intermediate Education", "Central Board of Secondary Education (CBSE)", "Bihar School Examination Board (BSEB)"];
+
+/** Generate every chapter, topic, note and quiz once and save it in the backend so students never trigger the AI. */
+function PregenerateCard() {
+  const run = useServerFn(adminPregenerateSubject);
+  const [board, setBoard] = useState(BOARDS[0]);
+  const [grade, setGrade] = useState(10);
+  const [language, setLanguage] = useState<"en" | "hi">("en");
+  const [withQuiz, setWithQuiz] = useState(true);
+  const [all, setAll] = useState(true);
+  const subjects = schoolSubjects(board, grade);
+  const [subject, setSubject] = useState(subjects[0] ?? "Mathematics");
+  const [log, setLog] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
+  const stop = useRef(false);
+  useEffect(() => { if (!subjects.includes(subject)) setSubject(subjects[0] ?? ""); }, [board, grade]); // eslint-disable-line react-hooks/exhaustive-deps
+  const add = (line: string) => setLog((l) => [...l.slice(-40), line]);
+
+  async function start() {
+    stop.current = false; setBusy(true); setLog([]);
+    const list = all ? subjects : [subject];
+    try {
+      for (const sub of list) {
+        let guard = 0;
+        while (!stop.current && guard++ < 400) {
+          const r = await run({ data: { board, className: String(grade), subject: sub, language, withQuiz } });
+          add(`${sub}: ${r.chapters} chapters · ${r.topics} topics seen · ${r.notesReady} notes saved${withQuiz ? ` · ${r.quizReady} quizzes` : ""}${r.error ? ` · ⚠ ${r.error}` : ""}`);
+          if (r.error) { toast.error(`${sub}: ${r.error}`); stop.current = true; break; }
+          if (r.done) { add(`✅ ${sub} fully saved`); break; }
+        }
+        if (stop.current) break;
+      }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Generation stopped"); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <Card className="mt-6 p-5">
+      <h2 className="font-semibold">Pre-generate lessons (save once, reuse forever)</h2>
+      <p className="text-xs text-muted-foreground">Builds every chapter, topic, notes and quiz for the chosen class and saves them in the backend. Students then read saved content and no AI credit is used. Uses your OpenAI balance once; you can stop and continue any time — finished items are never regenerated.</p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div><Label>Board</Label>
+          <Select value={board} onValueChange={setBoard}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{BOARDS.map((b) => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent></Select></div>
+        <div><Label>Class</Label>
+          <Select value={String(grade)} onValueChange={(v) => setGrade(Number(v))}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{Array.from({ length: 12 }, (_, i) => i + 1).map((g) => <SelectItem key={g} value={String(g)}>Class {g}</SelectItem>)}</SelectContent></Select></div>
+        <div><Label>Subject</Label>
+          <Select value={subject} disabled={all} onValueChange={setSubject}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{subjects.map((x) => <SelectItem key={x} value={x}>{x}</SelectItem>)}</SelectContent></Select></div>
+        <div><Label>Language</Label>
+          <Select value={language} onValueChange={(v: "en" | "hi") => setLanguage(v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent><SelectItem value="en">English</SelectItem><SelectItem value="hi">हिन्दी</SelectItem></SelectContent></Select></div>
+      </div>
+      <div className="mt-3 flex flex-wrap items-center gap-4 text-sm">
+        <label className="flex items-center gap-2"><Switch checked={all} onCheckedChange={setAll} /> All subjects of this class</label>
+        <label className="flex items-center gap-2"><Switch checked={withQuiz} onCheckedChange={setWithQuiz} /> Also save quizzes</label>
+      </div>
+      <div className="mt-3 flex gap-2">
+        <Button disabled={busy} onClick={() => void start()}>{busy ? "Generating…" : "Generate & save"}</Button>
+        {busy && <Button variant="outline" onClick={() => { stop.current = true; }}>Stop</Button>}
+      </div>
+      {log.length > 0 && <pre className="mt-3 max-h-56 overflow-auto rounded-lg bg-muted p-3 text-[11px] leading-snug whitespace-pre-wrap" role="log">{log.join("\n")}</pre>}
     </Card>
   );
 }
