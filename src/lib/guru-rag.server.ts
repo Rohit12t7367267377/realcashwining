@@ -42,16 +42,15 @@ export function chunkText(text: string, size = 1200, overlap = 150): string[] {
 
 /** Embed one or more strings. Returns [] when AI is not configured. */
 export async function embedTexts(inputs: string[]): Promise<number[][]> {
-  const key = process.env.LOVABLE_API_KEY;
+  const own = process.env.OPENAI_API_KEY && process.env.AI_PROVIDER !== "lovable";
+  const key = own ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
   if (!key || inputs.length === 0) return [];
-  const res = await fetch(EMBED_URL, {
+  const res = await fetch(own ? "https://api.openai.com/v1/embeddings" : EMBED_URL, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Lovable-API-Key": key,
-      "X-Lovable-AIG-SDK": "fetch",
-    },
-    body: JSON.stringify({ model: GURU_EMBED_MODEL, input: inputs }),
+    headers: own
+      ? { "Content-Type": "application/json", Authorization: `Bearer ${key}` }
+      : { "Content-Type": "application/json", "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },
+    body: JSON.stringify({ model: own ? "text-embedding-3-small" : GURU_EMBED_MODEL, input: inputs }),
   });
   if (!res.ok) {
     const text = await res.text().catch(() => "");

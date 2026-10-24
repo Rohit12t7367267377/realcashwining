@@ -151,7 +151,7 @@ export function buildTeachMessages(ctx: TeachContext) {
  * Falls back to a helpful offline reply when no AI provider is configured.
  */
 export async function guruTeach(ctx: TeachContext): Promise<{ content: string; provider: string }> {
-  if (!process.env.LOVABLE_API_KEY) {
+  if (!(process.env.OPENAI_API_KEY || process.env.LOVABLE_API_KEY)) {
     const t = ctx.topic?.title ?? "this topic";
     return {
       provider: "offline",
@@ -184,7 +184,7 @@ export async function guruGenerateQuestions(args: {
   language: string;
   count: number;
 }): Promise<GuruQuestion[]> {
-  if (!process.env.LOVABLE_API_KEY) return [];
+  if (!(process.env.OPENAI_API_KEY || process.env.LOVABLE_API_KEY)) return [];
   const { extractJson } = await import("@/lib/ai-gateway.server");
   const raw = await callAiChat(
     [

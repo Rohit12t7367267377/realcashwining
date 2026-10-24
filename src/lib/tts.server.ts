@@ -43,13 +43,16 @@ export async function synthesizeSpeech(
     // fall through to the gateway when ElevenLabs rejects the request
   }
 
-  const key = process.env.LOVABLE_API_KEY;
+  const own = Boolean(process.env.OPENAI_API_KEY) && process.env.AI_PROVIDER !== "lovable";
+  const key = own ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("Voice is not configured yet.");
-  const res = await fetch(GATEWAY_TTS_URL, {
+  const res = await fetch(own ? "https://api.openai.com/v1/audio/speech" : GATEWAY_TTS_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Lovable-API-Key": key },
+    headers: own
+      ? { "Content-Type": "application/json", Authorization: `Bearer ${key}` }
+      : { "Content-Type": "application/json", "Lovable-API-Key": key },
     body: JSON.stringify({
-      model: "openai/gpt-4o-mini-tts",
+      model: own ? "gpt-4o-mini-tts" : "openai/gpt-4o-mini-tts",
       input: clean,
       voice: opts.fallbackVoiceId || opts.voiceId || "alloy",
       response_format: "mp3",
@@ -63,5 +66,5 @@ export async function synthesizeSpeech(
     throw new Error(`Voice request failed (${res.status}): ${body.slice(0, 200)}`);
   }
   const buf = await res.arrayBuffer();
-  return { base64: Buffer.from(buf).toString("base64"), mimeType: "audio/mpeg", provider: "lovable-ai" };
+  return { base64: Buffer.from(buf).toString("base64"), mimeType: "audio/mpeg", provider: own ? "openai" : "lovable-ai" };
 }

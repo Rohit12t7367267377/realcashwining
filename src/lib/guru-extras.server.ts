@@ -87,7 +87,8 @@ export async function visionExplain(args: {
   language?: string;
   characterStyle?: string | null;
 }): Promise<{ content: string; provider: string }> {
-  const key = process.env.LOVABLE_API_KEY;
+  const own = Boolean(process.env.OPENAI_API_KEY) && process.env.AI_PROVIDER !== "lovable";
+  const key = own ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("AI is not configured yet. Please ask the admin to enable AI.");
 
   const system = [
@@ -100,15 +101,13 @@ export async function visionExplain(args: {
     .filter(Boolean)
     .join(" ");
 
-  const res = await fetch(GATEWAY_CHAT, {
+  const res = await fetch(own ? "https://api.openai.com/v1/chat/completions" : GATEWAY_CHAT, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "Lovable-API-Key": key,
-      "X-Lovable-AIG-SDK": "fetch",
-    },
+    headers: own
+      ? { "Content-Type": "application/json", Authorization: `Bearer ${key}` }
+      : { "Content-Type": "application/json", "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "fetch" },
     body: JSON.stringify({
-      model: VISION_MODEL,
+      model: own ? (process.env.OPENAI_MODEL || "gpt-4o-mini") : VISION_MODEL,
       messages: [
         { role: "system", content: system },
         {

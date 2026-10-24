@@ -227,7 +227,7 @@ export const adminKnowledgeStatus = createServerFn({ method: "GET" })
       embedded: Number(embedded.count ?? 0),
       resources: Number(resources.count ?? 0),
       indexedResources: Number(indexedResources.count ?? 0),
-      aiConfigured: Boolean(process.env.LOVABLE_API_KEY),
+      aiConfigured: Boolean(process.env.OPENAI_API_KEY || process.env.LOVABLE_API_KEY),
       embedModel: "openai/text-embedding-3-small",
     };
   });

@@ -19,8 +19,20 @@ const DEFAULT_MODEL = "google/gemini-3-flash-preview";
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const OPENAI_DEFAULT_MODEL = "gpt-4o-mini"; // override with the OPENAI_MODEL secret
 
+/**
+ * Which provider serves AI calls when the caller does not force one:
+ * the owner's own OPENAI_API_KEY when it is set, otherwise the Lovable gateway.
+ * Set AI_PROVIDER=lovable to keep using the gateway even when an OpenAI key exists.
+ */
+export function defaultAiProvider(): "lovable" | "openai" {
+  if (process.env.AI_PROVIDER === "lovable") return "lovable";
+  if (process.env.AI_PROVIDER === "openai" || process.env.OPENAI_API_KEY) return process.env.OPENAI_API_KEY ? "openai" : "lovable";
+  return "lovable";
+}
+export const hasAiKey = () => Boolean(process.env.OPENAI_API_KEY || process.env.LOVABLE_API_KEY);
+
 export async function callAiChat(messages: ChatMessage[], opts: AiChatOptions = {}): Promise<string> {
-  const openai = opts.provider === "openai";
+  const openai = (opts.provider ?? defaultAiProvider()) === "openai";
   const key = openai ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
   if (!key) throw new Error(openai ? "ChatGPT is not configured yet (missing OPENAI_API_KEY). Choose the default model in Classroom settings." : "AI is not configured (missing LOVABLE_API_KEY)");
 

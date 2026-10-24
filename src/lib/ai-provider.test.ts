@@ -21,7 +21,19 @@ describe("student-selectable AI provider", () => {
     expect(JSON.parse(String(init.body)).model).not.toContain("gemini");
   });
   it("keeps using the Lovable gateway by default", async () => {
-    vi.stubEnv("LOVABLE_API_KEY", "lov-test");
+    vi.stubEnv("LOVABLE_API_KEY", "lov-test"); vi.stubEnv("OPENAI_API_KEY", ""); vi.stubEnv("AI_PROVIDER", "");
+    const f = vi.fn(async () => ok()); vi.stubGlobal("fetch", f);
+    await callAiChat([{ role: "user", content: "x" }], {});
+    expect((f.mock.calls[0] as unknown as [string])[0]).toContain("ai.gateway.lovable.dev");
+  });
+  it("uses the owner's own OpenAI key for every AI call once it is set", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "sk-own"); vi.stubEnv("LOVABLE_API_KEY", "lov-test"); vi.stubEnv("AI_PROVIDER", "");
+    const f = vi.fn(async () => ok()); vi.stubGlobal("fetch", f);
+    await callAiChat([{ role: "user", content: "x" }], {});
+    expect((f.mock.calls[0] as unknown as [string])[0]).toBe("https://api.openai.com/v1/chat/completions");
+  });
+  it("AI_PROVIDER=lovable keeps the gateway even when an OpenAI key exists", async () => {
+    vi.stubEnv("OPENAI_API_KEY", "sk-own"); vi.stubEnv("LOVABLE_API_KEY", "lov-test"); vi.stubEnv("AI_PROVIDER", "lovable");
     const f = vi.fn(async () => ok()); vi.stubGlobal("fetch", f);
     await callAiChat([{ role: "user", content: "x" }], {});
     expect((f.mock.calls[0] as unknown as [string])[0]).toContain("ai.gateway.lovable.dev");
