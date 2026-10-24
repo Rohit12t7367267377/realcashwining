@@ -17,6 +17,7 @@ import {
   readAiSettingsAdmin,
   listAllCategories,
 } from "@/lib/admin-ai.functions";
+import { adminAiStatus } from "@/lib/admin-ai.functions";
 import { guruRagStats, guruIndexLessons, guruAddSource } from "@/lib/guru-rag.functions";
 import { toast } from "sonner";
 import { saveAppSetting } from "@/lib/admin-settings.functions";
@@ -379,6 +380,8 @@ function Row({ label, hint, children }: { label: string; hint?: string; children
 function GuruModelCard() {
   const [value, setValue] = useState<"default" | "openai">("default");
   const [busy, setBusy] = useState(false);
+  const statusFn = useServerFn(adminAiStatus);
+  const status = useQuery({ queryKey: ["admin-ai-status"], queryFn: () => statusFn(), staleTime: 30_000 });
   useEffect(() => {
     void supabase.from("app_settings").select("value").eq("key", "guru_ai_provider").maybeSingle().then(({ data }) => {
       const v = typeof data?.value === "string" ? data.value : (data?.value as { provider?: string } | null)?.provider;
@@ -394,6 +397,11 @@ function GuruModelCard() {
     <Card className="mt-6 p-5">
       <h2 className="font-semibold">Guru.AI lesson model</h2>
       <p className="text-xs text-muted-foreground">Applies to every student's lessons, practice and classroom. Students do not see this setting. ChatGPT needs <code>OPENAI_API_KEY</code> in the server secrets.</p>
+      <p className="mt-2 rounded-lg bg-muted px-3 py-2 text-xs" role="status">
+        {status.isLoading ? "Checking which AI is active…" : status.data
+          ? `Active AI: ${status.data.active === "openai" ? `OpenAI (${status.data.model})` : "Lovable gateway"} · OPENAI_API_KEY ${status.data.openaiKey ? "found ✓" : "NOT found ✗"} · LOVABLE_API_KEY ${status.data.lovableKey ? "found" : "not set"}${status.data.forced ? ` · AI_PROVIDER=${status.data.forced}` : ""}`
+          : "Could not read AI status."}
+      </p>
       <div className="mt-3 max-w-xs">
         <Select value={value} disabled={busy} onValueChange={(v: "default" | "openai") => void save(v)}>
           <SelectTrigger aria-label="Guru.AI lesson model"><SelectValue /></SelectTrigger>

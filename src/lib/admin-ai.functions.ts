@@ -233,3 +233,17 @@ Rules:
 
     return { passage_id: created.id, title: created.title, questions: questions.length };
   });
+
+/** Which AI the server is really using right now (never returns key values). Admin only. */
+export const adminAiStatus = createServerFn({ method: "POST" })
+  .middleware([requireAdminPassword])
+  .handler(async () => {
+    const { defaultAiProvider } = await import("@/lib/ai-gateway.server");
+    return {
+      active: defaultAiProvider(),
+      openaiKey: Boolean(process.env.OPENAI_API_KEY),
+      lovableKey: Boolean(process.env.LOVABLE_API_KEY),
+      forced: process.env.AI_PROVIDER || null,
+      model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+    };
+  });
