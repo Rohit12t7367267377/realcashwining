@@ -19,6 +19,7 @@ import {
 } from "@/lib/admin-ai.functions";
 import { adminAiStatus } from "@/lib/admin-ai.functions";
 import { adminPregenerateSubject } from "@/lib/admin-pregen.functions";
+import { adminPregenOptions, adminCollegeLevel, adminPregenExam, adminPregenLibrary, adminPregenCollege } from "@/lib/admin-pregen-more.functions";
 import { schoolSubjects } from "@/lib/school-curriculum";
 import { guruRagStats, guruIndexLessons, guruAddSource } from "@/lib/guru-rag.functions";
 import { toast } from "sonner";
@@ -138,6 +139,7 @@ function AdminAiPage() {
 
       <GuruModelCard />
       <PregenerateCard />
+      <PregenerateMoreCard />
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Card className="p-5 space-y-4">
           <div>
@@ -470,6 +472,106 @@ function PregenerateCard() {
         <label className="flex items-center gap-2"><Switch checked={all} onCheckedChange={setAll} /> All subjects of this class</label>
         <label className="flex items-center gap-2"><Switch checked={withQuiz} onCheckedChange={setWithQuiz} /> Also save quizzes</label>
       </div>
+      <div className="mt-3 flex gap-2">
+        <Button disabled={busy} onClick={() => void start()}>{busy ? "Generating…" : "Generate & save"}</Button>
+        {busy && <Button variant="outline" onClick={() => { stop.current = true; }}>Stop</Button>}
+      </div>
+      {log.length > 0 && <pre className="mt-3 max-h-56 overflow-auto rounded-lg bg-muted p-3 text-[11px] leading-snug whitespace-pre-wrap" role="log">{log.join("\n")}</pre>}
+    </Card>
+  );
+}
+
+
+type Item = { id: string; name: string };
+
+/** Same save-once idea for Exams, Library and College. */
+function PregenerateMoreCard() {
+  const opts = useServerFn(adminPregenOptions);
+  const level = useServerFn(adminCollegeLevel);
+  const runExam = useServerFn(adminPregenExam);
+  const runLib = useServerFn(adminPregenLibrary);
+  const runCol = useServerFn(adminPregenCollege);
+  const q = useQuery({ queryKey: ["pregen-options"], queryFn: () => opts(), staleTime: 60_000 });
+  const [section, setSection] = useState<"exams" | "library" | "college">("exams");
+  const [exam, setExam] = useState<string>("all");
+  const [degree, setDegree] = useState<Item | null>(null);
+  const [regs, setRegs] = useState<Item[]>([]); const [reg, setReg] = useState<Item | null>(null);
+  const [terms, setTerms] = useState<Item[]>([]); const [term, setTerm] = useState<Item | null>(null);
+  const [withLessons, setWithLessons] = useState(true);
+  const [log, setLog] = useState<string[]>([]);
+  const [busy, setBusy] = useState(false);
+  const stop = useRef(false);
+  const add = (l: string) => setLog((x) => [...x.slice(-40), l]);
+
+  async function pickDegree(id: string) {
+    const d = q.data?.degrees.find((x) => x.id === id) ?? null;
+    setDegree(d); setReg(null); setTerm(null); setRegs([]); setTerms([]);
+    if (!d) return;
+    try { setRegs(await level({ data: { level: "regulations", degreeId: d.id, degree: d.name } })); } catch (e) { toast.error(e instanceof Error ? e.message : "Could not load universities"); }
+  }
+  async function pickReg(id: string) {
+    const r = regs.find((x) => x.id === id) ?? null;
+    setReg(r); setTerm(null); setTerms([]);
+    if (!r || !degree) return;
+    try { setTerms(await level({ data: { level: "terms", degreeId: degree.id, degree: degree.name, regulationId: r.id, regulation: r.name } })); } catch (e) { toast.error(e instanceof Error ? e.message : "Could not load semesters"); }
+  }
+
+  async function loopUntilDone(label: string, step: () => Promise<{ done: boolean; error: string | null; line: string }>) {
+    let guard = 0;
+    while (!stop.current && guard++ < 400) {
+      const r = await step();
+      add(`${label}: ${r.line}${r.error ? ` · ⚠ ${r.error}` : ""}`);
+      if (r.error) { toast.error(`${label}: ${r.error}`); stop.current = true; return; }
+      if (r.done) { add(`✅ ${label} fully saved`); return; }
+    }
+  }
+
+  async function start() {
+    stop.current = false; setBusy(true); setLog([]);
+    try {
+      if (section === "exams") {
+        const list = exam === "all" ? (q.data?.exams ?? []) : (q.data?.exams ?? []).filter((e) => e.code === exam);
+        for (const e of list) {
+          if (stop.current) break;
+          await loopUntilDone(e.name, async () => { const r = await runExam({ data: { code: e.code, language: "en", withLessons } }); return { ...r, line: `${r.subjects} subjects · ${r.topics} topics · ${r.lessons} lessons` }; });
+        }
+      } else if (section === "library") {
+        let offset = 0;
+        await loopUntilDone("Library", async () => { const r = await runLib({ data: { offset } }); offset = r.next; return { ...r, line: `${r.next}/${r.total} resources · ${r.lessons} lessons` }; });
+      } else {
+        if (!degree || !reg || !term) { toast.error("Choose degree, university and semester first"); return; }
+        await loopUntilDone(`${degree.name} · ${term.name}`, async () => { const r = await runCol({ data: { degree: degree.name, regulation: reg, term, withQuiz: true } }); return { ...r, line: `${r.subjects} subjects · ${r.topics} topics · ${r.notes} notes · ${r.quizzes} quizzes` }; });
+      }
+    } catch (e) { toast.error(e instanceof Error ? e.message : "Generation stopped"); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <Card className="mt-6 p-5">
+      <h2 className="font-semibold">Pre-generate Exams, Library and College</h2>
+      <p className="text-xs text-muted-foreground">Same idea as above: build once, save in the backend, students read saved content. Safe to stop and run again — saved parts are skipped without using AI.</p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div><Label>Section</Label>
+          <Select value={section} onValueChange={(v: "exams" | "library" | "college") => setSection(v)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>
+            <SelectItem value="exams">Competitive exams</SelectItem><SelectItem value="library">Library ({q.data?.resources ?? 0} resources)</SelectItem><SelectItem value="college">College</SelectItem></SelectContent></Select></div>
+        {section === "exams" && (
+          <div><Label>Exam</Label>
+            <Select value={exam} onValueChange={setExam}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>
+              <SelectItem value="all">All exams</SelectItem>{(q.data?.exams ?? []).map((e) => <SelectItem key={e.code} value={e.code}>{e.name}</SelectItem>)}</SelectContent></Select></div>
+        )}
+        {section === "college" && (<>
+          <div><Label>Degree</Label>
+            <Select value={degree?.id ?? ""} onValueChange={(v) => void pickDegree(v)}><SelectTrigger><SelectValue placeholder="Choose degree" /></SelectTrigger><SelectContent>
+              {(q.data?.degrees ?? []).map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}</SelectContent></Select></div>
+          <div><Label>University / regulation</Label>
+            <Select value={reg?.id ?? ""} disabled={!regs.length} onValueChange={(v) => void pickReg(v)}><SelectTrigger><SelectValue placeholder="Choose university" /></SelectTrigger><SelectContent>
+              {regs.map((r) => <SelectItem key={r.id} value={r.id}>{r.name}</SelectItem>)}</SelectContent></Select></div>
+          <div><Label>Semester / year</Label>
+            <Select value={term?.id ?? ""} disabled={!terms.length} onValueChange={(v) => setTerm(terms.find((t) => t.id === v) ?? null)}><SelectTrigger><SelectValue placeholder="Choose semester" /></SelectTrigger><SelectContent>
+              {terms.map((t) => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}</SelectContent></Select></div>
+        </>)}
+      </div>
+      {section === "exams" && <label className="mt-3 flex items-center gap-2 text-sm"><Switch checked={withLessons} onCheckedChange={setWithLessons} /> Also save "Explain Easy / Deeply" lessons for every topic</label>}
       <div className="mt-3 flex gap-2">
         <Button disabled={busy} onClick={() => void start()}>{busy ? "Generating…" : "Generate & save"}</Button>
         {busy && <Button variant="outline" onClick={() => { stop.current = true; }}>Stop</Button>}

@@ -56,6 +56,8 @@ export function seniorStudyOutline(grade: number, subject: string): string[] | u
 /** One stable name per board so "UP Board", "Uttar Pradesh Board of High School…" and pre-generated content all share the same saved lessons. */
 export function canonicalBoard(board: string): string {
   const b = board.trim();
+  // Only real school boards are renamed; a college "regulation" such as "Rajasthan Technical University" stays untouched.
+  if (!/board|cbse|cisce|icse|bseb|msbshse|upmsp|rbse|mpbse|wbbse|wbchse/i.test(b)) return b;
   const map: Array<[RegExp, string]> = [
     [/up.board|uttar pradesh|upmsp/i, "UP Board (Uttar Pradesh)"],
     [/cbse|central board/i, "CBSE"],
@@ -70,6 +72,6 @@ export function canonicalBoard(board: string): string {
 }
 /** "Class 10" and "10" both become "10". */
 export function canonicalClass(className: string): string {
-  const n = classNumber(className);
-  return n ? String(n) : className.trim();
+  const c = className.trim();
+  return /^(class\s*)?\d{1,2}$/i.test(c) ? String(classNumber(c)) : c;
 }

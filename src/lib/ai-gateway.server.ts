@@ -117,7 +117,7 @@ async function sha256(text: string): Promise<string> {
  * Never use for personal doubts. If the table is missing the call simply runs uncached.
  */
 /** Counts real AI calls made by cachedChat (cache misses); used by the admin pre-generator to pace itself. */
-export const aiStats = { misses: 0 };
+export const aiStats = { misses: 0, hits: 0 };
 
 export async function cachedChat(kind: string, messages: ChatMessage[], opts: AiChatOptions = {}): Promise<string> {
   let key = "";
@@ -135,6 +135,29 @@ export async function cachedChat(kind: string, messages: ChatMessage[], opts: Ai
     try {
       if (opts.responseFormat === "json_object") extractJson(out); // never cache a broken answer
       await (db as any).from("ai_content_cache").upsert({ cache_key: key, kind, response: out }, { onConflict: "cache_key" }); // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch { /* caching is optional */ }
+  }
+  return out;
+}
+
+
+/** Like cachedChat but the saved answer is found by an explicit content key (not by the exact prompt text). */
+export async function cachedChatKeyed(kind: string, keyParts: unknown[], messages: ChatMessage[], opts: AiChatOptions = {}): Promise<string> {
+  let key = "";
+  let db: any = null; // eslint-disable-line @typescript-eslint/no-explicit-any
+  try {
+    key = await sha256(JSON.stringify([kind, keyParts]));
+    db = (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data } = await db.from("ai_content_cache").select("response").eq("cache_key", key).maybeSingle();
+    const hit = (data as { response?: string } | null)?.response;
+    if (hit) { aiStats.hits += 1; return hit; }
+  } catch { db = null; }
+  aiStats.misses += 1;
+  const out = await callAiChat(messages, opts);
+  if (db && key) {
+    try {
+      if (opts.responseFormat === "json_object") extractJson(out);
+      await db.from("ai_content_cache").upsert({ cache_key: key, kind, response: out }, { onConflict: "cache_key" });
     } catch { /* caching is optional */ }
   }
   return out;

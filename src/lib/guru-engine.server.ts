@@ -8,7 +8,7 @@
  * retrieved authorized knowledge, and produces a teaching turn
  * (speech + interactive board + question).
  */
-import { callAiChat, extractJson, cachedChat } from "@/lib/ai-gateway.server";
+import { callAiChat, extractJson, cachedChat, cachedChatKeyed } from "@/lib/ai-gateway.server";
 import { retrieveGuruContext, formatSources } from "@/lib/guru-rag.server";
 import { normalizeBoardBlocks } from "@/lib/guru-board-blocks";
 import { lessonSegments, type LessonSegment } from "@/lib/lesson-segments";
@@ -395,11 +395,12 @@ export async function runTeachTurn(args: {
     .join("\n")
     .slice(-3000);
 
-  const raw = await callAiChat(
-    [
+  // A first turn (no conversation yet) is the same lesson for everyone, so it is generated once and saved.
+  const reusable = !transcript && !args.studentText;
+  const messages: Array<{ role: "system" | "user"; content: string }> = [
       { role: "system", content: buildEnginePrompt(args) },
       {
-        role: "user",
+        role: "user" as const,
         content: [
           `Topic: ${args.ctx.topic}`,
           transcript ? `Lesson so far:\n${transcript}` : "",
@@ -408,9 +409,11 @@ export async function runTeachTurn(args: {
           .filter(Boolean)
           .join("\n\n"),
       },
-    ],
-    withProvider(args.resolved, { temperature: 0.6, model: "google/gemini-3.7-flash", responseFormat: "json_object" as const }),
-  );
+    ];
+  const turnOpts = withProvider(args.resolved, { temperature: 0.6, model: "google/gemini-3.7-flash", responseFormat: "json_object" as const });
+  const raw = reusable
+    ? await cachedChatKeyed("lesson-turn", ["v1", args.ctx.scope, args.ctx.refId ?? null, args.ctx.topic, args.ctx.subject ?? null, args.ctx.levelLabel ?? null, args.ctx.material ?? null, args.resolved.language, args.mode, args.level], messages, turnOpts)
+    : await callAiChat(messages, turnOpts);
 
   const p = (extractJson(raw) ?? {}) as Record<string, unknown>;
   const board = normalizeBoardBlocks(p.board);

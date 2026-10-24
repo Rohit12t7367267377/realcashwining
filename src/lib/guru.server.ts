@@ -1,5 +1,5 @@
 // Server-only helpers for the Guru.AI world. No client imports.
-import { callAiChat, openaiKey } from "@/lib/ai-gateway.server";
+import { callAiChat, cachedChat, openaiKey } from "@/lib/ai-gateway.server";
 
 export const GURU_XP_PER_LEVEL = 250;
 
@@ -161,7 +161,9 @@ export async function guruTeach(ctx: TeachContext): Promise<{ content: string; p
         `Once an AI provider is configured, ${ctx.character?.name ?? "your character"} will explain this step by step in your language.`,
     };
   }
-  const content = await callAiChat(buildTeachMessages(ctx), { temperature: 0.4 });
+  const content = ctx.intent === "doubt" || ctx.intent === "chat"
+    ? await callAiChat(buildTeachMessages(ctx), { temperature: 0.4 })
+    : await cachedChat("guru-teach", buildTeachMessages(ctx), { temperature: 0.4 });
   return { content, provider: "lovable-ai" };
 }
 
