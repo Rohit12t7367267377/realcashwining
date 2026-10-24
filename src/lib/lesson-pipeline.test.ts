@@ -9,7 +9,8 @@ const callAiChat = vi.fn();
 let failing: (() => Promise<string>) | null = null;
 vi.mock("@/lib/ai-gateway.server", async () => {
   const real = await vi.importActual<typeof import("./ai-gateway.server")>("./ai-gateway.server");
-  return { ...real, callAiChat: (...a: unknown[]) => (failing ? failing() : callAiChat(...a)) };
+  const mocked = (...a: unknown[]) => (failing ? failing() : callAiChat(...a));
+  return { ...real, callAiChat: mocked, cachedChat: (_kind: string, ...a: unknown[]) => mocked(...a) };
 });
 vi.mock("@/lib/guru-rag.server", () => ({ retrieveGuruContext: vi.fn(), formatSources: vi.fn(() => "") }));
 
