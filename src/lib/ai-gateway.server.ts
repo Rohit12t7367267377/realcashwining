@@ -90,3 +90,34 @@ export function extractJson(text: string): unknown {
   }
   throw new Error("AI did not return valid JSON");
 }
+
+
+async function sha256(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+
+/**
+ * Same as callAiChat, but identical requests are answered from the backend (table ai_content_cache)
+ * so lessons, notes, quizzes and outlines are generated once and reused — saving AI credits.
+ * Never use for personal doubts. If the table is missing the call simply runs uncached.
+ */
+export async function cachedChat(kind: string, messages: ChatMessage[], opts: AiChatOptions = {}): Promise<string> {
+  let key = "";
+  let db: Awaited<typeof import("@/integrations/supabase/client.server")>["supabaseAdmin"] | null = null;
+  try {
+    key = await sha256(JSON.stringify([kind, messages, opts.responseFormat ?? "text"]));
+    db = (await import("@/integrations/supabase/client.server")).supabaseAdmin;
+    const { data } = await (db as any).from("ai_content_cache").select("response").eq("cache_key", key).maybeSingle(); // eslint-disable-line @typescript-eslint/no-explicit-any
+    const hit = (data as { response?: string } | null)?.response;
+    if (hit) return hit;
+  } catch { db = null; }
+  const out = await callAiChat(messages, opts);
+  if (db && key) {
+    try {
+      if (opts.responseFormat === "json_object") extractJson(out); // never cache a broken answer
+      await (db as any).from("ai_content_cache").upsert({ cache_key: key, kind, response: out }, { onConflict: "cache_key" }); // eslint-disable-line @typescript-eslint/no-explicit-any
+    } catch { /* caching is optional */ }
+  }
+  return out;
+}

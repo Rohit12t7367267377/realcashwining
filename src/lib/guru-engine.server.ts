@@ -8,7 +8,7 @@
  * retrieved authorized knowledge, and produces a teaching turn
  * (speech + interactive board + question).
  */
-import { callAiChat, extractJson } from "@/lib/ai-gateway.server";
+import { callAiChat, extractJson, cachedChat } from "@/lib/ai-gateway.server";
 import { retrieveGuruContext, formatSources } from "@/lib/guru-rag.server";
 import { normalizeBoardBlocks } from "@/lib/guru-board-blocks";
 import { lessonSegments, type LessonSegment } from "@/lib/lesson-segments";
@@ -470,7 +470,7 @@ export async function runLessonOutline(args: { ctx: TeachContextInput; resolved:
   let roadmap: string | null = null;
   let fallback = false;
   try {
-    const raw = await callAiChat(
+    const raw = await cachedChat("lesson-outline", 
       [
         {
           role: "system",
@@ -549,7 +549,7 @@ export async function runLessonSection(args: {
     const extra = continueFrom.length
       ? `\n\nThis section was only partly written. Already on the board:\n${continueFrom.map((b) => JSON.stringify(b).slice(0, 220)).join("\n")}\nReturn ONLY the missing remainder blocks that complete this section, continuing from exactly where it stopped.`
       : "";
-    const raw = await callAiChat(
+    const raw = await cachedChat("lesson-section", 
       [{ role: "system", content: system }, { role: "user", content: user + extra }],
       withProvider(args.resolved, { temperature: 0.5, model: LESSON_MODEL, responseFormat: "json_object" as const, timeoutMs: SECTION_TIMEOUT_MS }),
     );
@@ -601,7 +601,7 @@ export async function runPracticeSet(args: {
   count: number;
   avoid: string[];
 }): Promise<PracticeQuestion[]> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("practice-set", 
     [
       {
         role: "system",

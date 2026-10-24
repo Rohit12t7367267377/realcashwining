@@ -1,4 +1,4 @@
-import { callAiChat, extractJson } from "@/lib/ai-gateway.server";
+import { callAiChat, extractJson, cachedChat } from "@/lib/ai-gateway.server";
 
 export type ExamQuestion = {
   question: string;
@@ -33,7 +33,7 @@ function langLine(language: "en" | "hi") {
 
 /** Official-style syllabus + paper pattern for a competitive exam. */
 export async function buildExamSyllabus(exam: string, language: "en" | "hi"): Promise<ExamSyllabus> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("exam-syllabus", 
     [
       {
         role: "system",
@@ -65,7 +65,7 @@ export async function buildExamSyllabus(exam: string, language: "en" | "hi"): Pr
 
 /** Topic list for one exam subject (used when the admin has not added topics yet). */
 export async function buildExamTopics(exam: string, subject: string): Promise<string[]> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("exam-topics", 
     [
       {
         role: "system",
@@ -102,7 +102,7 @@ export async function buildExamQuestions(input: {
         : input.mode === "quiz"
           ? "Build a quick revision quiz."
           : "Build focused practice questions that build the concept step by step.";
-  const raw = await callAiChat(
+  const raw = await cachedChat("exam-questions", 
     [
       {
         role: "system",
@@ -146,7 +146,7 @@ export async function buildStudyPlan(input: {
   weakTopics: string[];
   language: "en" | "hi";
 }): Promise<StudyPlan> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("exam-plan", 
     [
       {
         role: "system",

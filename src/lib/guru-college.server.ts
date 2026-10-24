@@ -1,4 +1,4 @@
-import { callAiChat, extractJson } from "@/lib/ai-gateway.server";
+import { callAiChat, extractJson, cachedChat } from "@/lib/ai-gateway.server";
 
 const str = (v: unknown) => String(v ?? "").trim();
 const arr = (v: unknown) =>
@@ -38,7 +38,7 @@ export async function suggestCollegeList(input: {
     units: "List the units of this subject in syllabus order as 'Unit 1: <title>' style strings (4-6 units).",
     topics: "List 5-10 teachable topics inside this unit in teaching order.",
   };
-  const raw = await callAiChat(
+  const raw = await cachedChat("college-list", 
     [
       {
         role: "system",
@@ -69,7 +69,7 @@ export async function buildCodingQuestions(input: {
   language: string;
   count: number;
 }): Promise<CodingQuestion[]> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("college-code", 
     [
       {
         role: "system",
@@ -107,7 +107,7 @@ export async function buildOutputPredictions(input: {
   language: string;
   count: number;
 }): Promise<OutputPrediction[]> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("college-output", 
     [
       {
         role: "system",

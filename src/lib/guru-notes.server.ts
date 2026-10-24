@@ -1,4 +1,4 @@
-import { callAiChat, extractJson } from "@/lib/ai-gateway.server";
+import { callAiChat, extractJson, cachedChat } from "@/lib/ai-gateway.server";
 import type { NotesPayload, QuizItem } from "@/lib/guru-notes";
 
 type Scope = { board: string; className: string; subject: string; language: "en" | "hi" };
@@ -27,7 +27,7 @@ function pairs(v: unknown, a: string, b: string) {
 
 /** Syllabus chapter list for a board/class/subject. */
 export async function suggestChapterList(s: Scope): Promise<string[]> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("chapters", 
     [
       {
         role: "system",
@@ -44,7 +44,7 @@ export async function suggestChapterList(s: Scope): Promise<string[]> {
 
 /** Topics inside one chapter. */
 export async function suggestTopicList(s: Scope & { chapter: string }): Promise<string[]> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("topics", 
     [
       {
         role: "system",
@@ -65,7 +65,7 @@ export async function suggestTopicList(s: Scope & { chapter: string }): Promise<
 
 /** Full notes for one topic, structured for a colourful UI. */
 export async function buildClassNotes(s: Scope & { topic: string }): Promise<NotesPayload> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("notes", 
     [
       {
         role: "system",
@@ -105,7 +105,7 @@ export async function buildClassNotes(s: Scope & { topic: string }): Promise<Not
 
 /** A short MCQ quiz for the topic. */
 export async function buildTopicQuiz(s: Scope & { topic: string }): Promise<QuizItem[]> {
-  const raw = await callAiChat(
+  const raw = await cachedChat("quiz", 
     [
       {
         role: "system",
