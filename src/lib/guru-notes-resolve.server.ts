@@ -1,4 +1,4 @@
-import { classNumber, seniorStudyOutline } from "./school-curriculum";
+import { canonicalBoard, canonicalClass, classNumber, seniorStudyOutline } from "./school-curriculum";
 import { fallbackChapters } from "./school-syllabus-fallback";
 import { suggestChapterList, suggestTopicList } from "@/lib/guru-notes.server";
 
@@ -10,7 +10,7 @@ export async function resolveChapters(data: NotesScope): Promise<string[]> {
   const outline = /up.board|uttar pradesh|cbse|central board|bihar|bseb/i.test(data.board)
     ? seniorStudyOutline(grade, data.subject) : undefined;
   if (outline) return outline;
-  const key = { kind: "chapters" as const, board: data.board, class_name: data.className, subject: data.subject, chapter: "", language: data.language };
+  const key = { kind: "chapters" as const, board: canonicalBoard(data.board), class_name: canonicalClass(data.className), subject: data.subject, chapter: "", language: data.language };
   const cached = await readSyllabusCache(key);
   if (cached?.length) return cached;
   try {
@@ -25,7 +25,7 @@ export async function resolveChapters(data: NotesScope): Promise<string[]> {
 }
 
 export async function resolveTopics(data: NotesScope & { chapter: string }): Promise<string[]> {
-  const key = { kind: "topics" as const, board: data.board, class_name: data.className, subject: data.subject, chapter: data.chapter, language: data.language };
+  const key = { kind: "topics" as const, board: canonicalBoard(data.board), class_name: canonicalClass(data.className), subject: data.subject, chapter: data.chapter, language: data.language };
   const cached = await readSyllabusCache(key);
   if (cached?.length) return cached;
   try {

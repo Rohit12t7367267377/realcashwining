@@ -1,3 +1,4 @@
+import { canonicalBoard, canonicalClass } from "@/lib/school-curriculum";
 import { callAiChat, extractJson, cachedChat } from "@/lib/ai-gateway.server";
 import type { NotesPayload, QuizItem } from "@/lib/guru-notes";
 
@@ -10,7 +11,7 @@ function langLine(language: "en" | "hi") {
 }
 
 function scopeLine(s: Scope) {
-  return `Board: ${s.board}. Class: ${s.className}. Subject: ${s.subject}.`;
+  return `Board: ${canonicalBoard(s.board)}. Class: ${canonicalClass(s.className)}. Subject: ${s.subject}.`;
 }
 
 function asArray(v: unknown): string[] {

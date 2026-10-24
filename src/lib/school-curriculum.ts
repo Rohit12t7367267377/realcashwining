@@ -52,3 +52,24 @@ export function seniorStudyOutline(grade: number, subject: string): string[] | u
   };
   return outlines[subject];
 }
+
+/** One stable name per board so "UP Board", "Uttar Pradesh Board of High School…" and pre-generated content all share the same saved lessons. */
+export function canonicalBoard(board: string): string {
+  const b = board.trim();
+  const map: Array<[RegExp, string]> = [
+    [/up.board|uttar pradesh|upmsp/i, "UP Board (Uttar Pradesh)"],
+    [/cbse|central board/i, "CBSE"],
+    [/icse|cisce|indian certificate|indian school certificate/i, "ICSE / CISCE"],
+    [/bihar|bseb/i, "Bihar Board (BSEB)"],
+    [/maharashtra|msbshse/i, "Maharashtra Board (MSBSHSE)"],
+    [/madhya|mp.board|mpbse/i, "MP Board"],
+    [/rajasthan|rbse/i, "Rajasthan Board"],
+    [/west bengal|wbbse|wbchse/i, "West Bengal Board"],
+  ];
+  return map.find(([re]) => re.test(b))?.[1] ?? b;
+}
+/** "Class 10" and "10" both become "10". */
+export function canonicalClass(className: string): string {
+  const n = classNumber(className);
+  return n ? String(n) : className.trim();
+}
