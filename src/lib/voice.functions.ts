@@ -18,7 +18,9 @@ export const speakAnswer = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => {
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_chat");
     const { callAiChat } = await import("@/lib/ai-gateway.server");
     const { synthesizeSpeech } = await import("@/lib/tts.server");
 

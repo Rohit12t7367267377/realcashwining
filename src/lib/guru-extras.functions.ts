@@ -7,6 +7,8 @@ export const guruWebAnswer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ query: z.string().trim().min(2).max(500) }).parse(d))
   .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_chat");
     const { webSearch, formatWebResults } = await import("@/lib/guru-extras.server");
     const { callAiChat } = await import("@/lib/ai-gateway.server");
 
@@ -65,6 +67,8 @@ export const guruImageDoubt = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_photo");
     const { visionExplain } = await import("@/lib/guru-extras.server");
     const { supabase, userId } = context;
 
@@ -129,7 +133,9 @@ export const guruImageDoubt = createServerFn({ method: "POST" })
 export const guruSpeak = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ text: z.string().trim().min(1).max(3000) }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_voice");
     const { synthesizeSpeech } = await import("@/lib/tts.server");
     const audio = await synthesizeSpeech(data.text);
     return { audioBase64: audio.base64, mimeType: audio.mimeType, provider: audio.provider };

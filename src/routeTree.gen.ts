@@ -69,6 +69,7 @@ import { Route as AdminLibraryRouteImport } from './routes/admin.library'
 import { Route as AdminLiveScoresRouteImport } from './routes/admin.live-scores'
 import { Route as AdminMembershipsRouteImport } from './routes/admin.memberships'
 import { Route as AdminMissionsRouteImport } from './routes/admin.missions'
+import { Route as AdminMonetizationRouteImport } from './routes/admin.monetization'
 import { Route as AdminNotificationsRouteImport } from './routes/admin.notifications'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminPredictRouteImport } from './routes/admin.predict'
@@ -116,6 +117,7 @@ import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as GuruExamsCodeRouteImport } from './routes/guru.exams_.$code'
 import { Route as GuruTopicIdRouteImport } from './routes/guru.topic.$id'
 import { Route as ApiPublicHooksAutomationRouteImport } from './routes/api/public/hooks/automation'
+import { Route as ApiPublicHooksMonetizationMaintenanceRouteImport } from './routes/api/public/hooks/monetization-maintenance'
 import { Route as ApiPublicHooksPredTickRouteImport } from './routes/api/public/hooks/pred-tick'
 import { Route as ApiPublicHooksPushConfigRouteImport } from './routes/api/public/hooks/push-config'
 import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
@@ -426,6 +428,11 @@ const AdminMissionsRoute = AdminMissionsRouteImport.update({
   path: '/missions',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminMonetizationRoute = AdminMonetizationRouteImport.update({
+  id: '/monetization',
+  path: '/monetization',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminNotificationsRoute = AdminNotificationsRouteImport.update({
   id: '/notifications',
   path: '/notifications',
@@ -662,6 +669,12 @@ const ApiPublicHooksAutomationRoute =
     path: '/api/public/hooks/automation',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksMonetizationMaintenanceRoute =
+  ApiPublicHooksMonetizationMaintenanceRouteImport.update({
+    id: '/api/public/hooks/monetization-maintenance',
+    path: '/api/public/hooks/monetization-maintenance',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksPredTickRoute = ApiPublicHooksPredTickRouteImport.update({
   id: '/api/public/hooks/pred-tick',
   path: '/api/public/hooks/pred-tick',
@@ -767,6 +780,7 @@ export interface FileRoutesByFullPath {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/monetization': typeof AdminMonetizationRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/predict': typeof AdminPredictRoute
@@ -815,6 +829,7 @@ export interface FileRoutesByFullPath {
   '/guru/exams/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/monetization-maintenance': typeof ApiPublicHooksMonetizationMaintenanceRoute
   '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -882,6 +897,7 @@ export interface FileRoutesByTo {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/monetization': typeof AdminMonetizationRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/predict': typeof AdminPredictRoute
@@ -930,6 +946,7 @@ export interface FileRoutesByTo {
   '/guru/exams/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/monetization-maintenance': typeof ApiPublicHooksMonetizationMaintenanceRoute
   '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -1000,6 +1017,7 @@ export interface FileRoutesById {
   '/admin/live-scores': typeof AdminLiveScoresRoute
   '/admin/memberships': typeof AdminMembershipsRoute
   '/admin/missions': typeof AdminMissionsRoute
+  '/admin/monetization': typeof AdminMonetizationRoute
   '/admin/notifications': typeof AdminNotificationsRoute
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/predict': typeof AdminPredictRoute
@@ -1048,6 +1066,7 @@ export interface FileRoutesById {
   '/guru/exams_/$code': typeof GuruExamsCodeRoute
   '/guru/topic/$id': typeof GuruTopicIdRoute
   '/api/public/hooks/automation': typeof ApiPublicHooksAutomationRoute
+  '/api/public/hooks/monetization-maintenance': typeof ApiPublicHooksMonetizationMaintenanceRoute
   '/api/public/hooks/pred-tick': typeof ApiPublicHooksPredTickRoute
   '/api/public/hooks/push-config': typeof ApiPublicHooksPushConfigRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
@@ -1119,6 +1138,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/monetization'
     | '/admin/notifications'
     | '/admin/payments'
     | '/admin/predict'
@@ -1167,6 +1187,7 @@ export interface FileRouteTypes {
     | '/guru/exams/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/monetization-maintenance'
     | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -1234,6 +1255,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/monetization'
     | '/admin/notifications'
     | '/admin/payments'
     | '/admin/predict'
@@ -1282,6 +1304,7 @@ export interface FileRouteTypes {
     | '/guru/exams/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/monetization-maintenance'
     | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -1351,6 +1374,7 @@ export interface FileRouteTypes {
     | '/admin/live-scores'
     | '/admin/memberships'
     | '/admin/missions'
+    | '/admin/monetization'
     | '/admin/notifications'
     | '/admin/payments'
     | '/admin/predict'
@@ -1399,6 +1423,7 @@ export interface FileRouteTypes {
     | '/guru/exams_/$code'
     | '/guru/topic/$id'
     | '/api/public/hooks/automation'
+    | '/api/public/hooks/monetization-maintenance'
     | '/api/public/hooks/pred-tick'
     | '/api/public/hooks/push-config'
     | '/api/public/hooks/push-dispatch'
@@ -1458,6 +1483,7 @@ export interface RootRouteChildren {
   MessagesIndexRoute: typeof MessagesIndexRoute
   ReadingIndexRoute: typeof ReadingIndexRoute
   ApiPublicHooksAutomationRoute: typeof ApiPublicHooksAutomationRoute
+  ApiPublicHooksMonetizationMaintenanceRoute: typeof ApiPublicHooksMonetizationMaintenanceRoute
   ApiPublicHooksPredTickRoute: typeof ApiPublicHooksPredTickRoute
   ApiPublicHooksPushConfigRoute: typeof ApiPublicHooksPushConfigRoute
   ApiPublicHooksPushDispatchRoute: typeof ApiPublicHooksPushDispatchRoute
@@ -1890,6 +1916,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminMissionsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/monetization': {
+      id: '/admin/monetization'
+      path: '/monetization'
+      fullPath: '/admin/monetization'
+      preLoaderRoute: typeof AdminMonetizationRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/notifications': {
       id: '/admin/notifications'
       path: '/notifications'
@@ -2219,6 +2252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksAutomationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/monetization-maintenance': {
+      id: '/api/public/hooks/monetization-maintenance'
+      path: '/api/public/hooks/monetization-maintenance'
+      fullPath: '/api/public/hooks/monetization-maintenance'
+      preLoaderRoute: typeof ApiPublicHooksMonetizationMaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/pred-tick': {
       id: '/api/public/hooks/pred-tick'
       path: '/api/public/hooks/pred-tick'
@@ -2305,6 +2345,7 @@ interface AdminRouteChildren {
   AdminLiveScoresRoute: typeof AdminLiveScoresRoute
   AdminMembershipsRoute: typeof AdminMembershipsRoute
   AdminMissionsRoute: typeof AdminMissionsRoute
+  AdminMonetizationRoute: typeof AdminMonetizationRoute
   AdminNotificationsRoute: typeof AdminNotificationsRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
   AdminPredictRoute: typeof AdminPredictRoute
@@ -2349,6 +2390,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminLiveScoresRoute: AdminLiveScoresRoute,
   AdminMembershipsRoute: AdminMembershipsRoute,
   AdminMissionsRoute: AdminMissionsRoute,
+  AdminMonetizationRoute: AdminMonetizationRoute,
   AdminNotificationsRoute: AdminNotificationsRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
   AdminPredictRoute: AdminPredictRoute,
@@ -2470,6 +2512,8 @@ const rootRouteChildren: RootRouteChildren = {
   MessagesIndexRoute: MessagesIndexRoute,
   ReadingIndexRoute: ReadingIndexRoute,
   ApiPublicHooksAutomationRoute: ApiPublicHooksAutomationRoute,
+  ApiPublicHooksMonetizationMaintenanceRoute:
+    ApiPublicHooksMonetizationMaintenanceRoute,
   ApiPublicHooksPredTickRoute: ApiPublicHooksPredTickRoute,
   ApiPublicHooksPushConfigRoute: ApiPublicHooksPushConfigRoute,
   ApiPublicHooksPushDispatchRoute: ApiPublicHooksPushDispatchRoute,

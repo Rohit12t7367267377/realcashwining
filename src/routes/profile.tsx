@@ -13,6 +13,7 @@ import { useAuthSession } from "@/hooks/use-auth-session";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyContestStats } from "@/lib/stats.functions";
 import { getMyWallet } from "@/lib/wallet.functions";
+import { MyCreditsCard } from "@/components/MyCreditsCard";
 import { getMyXp } from "@/lib/gamification.functions";
 import { CreatorPanel } from "@/components/CreatorPanel";
 import { useLang, LANGS } from "@/lib/i18n";
@@ -222,6 +223,7 @@ function ProfilePage() {
         <TopLink to="/faq" icon={<HelpCircle className="h-4 w-4" />} label="FAQ" />
         <TopLink to="/support" icon={<LifeBuoy className="h-4 w-4" />} label="Support" />
       </section>
+      <MyCreditsCard />
 
       {/* Instagram-style header */}
       <section className="mt-3 rounded-3xl bg-card p-4 shadow-soft">

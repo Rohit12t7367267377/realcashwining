@@ -173,6 +173,8 @@ export const guruAskResource = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, data.intent === "doubt" ? "guru_doubt" : "guru_lesson");
     const { data: res } = await context.supabase
       .from("guru_resources")
       .select("title, author, publisher, subject, class_name, board, license, source_name, chunk_count, access_type")

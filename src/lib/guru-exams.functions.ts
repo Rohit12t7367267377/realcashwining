@@ -135,7 +135,11 @@ export const getExamQuestions = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => buildExamQuestions(data));
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "exam_ai");
+    return buildExamQuestions(data);
+  });
 
 /** Save an attempt so performance analysis and weak topics stay accurate. */
 export const saveExamAttempt = createServerFn({ method: "POST" })
@@ -173,4 +177,8 @@ export const getExamStudyPlan = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => buildStudyPlan(data));
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "exam_ai");
+    return buildStudyPlan(data);
+  });

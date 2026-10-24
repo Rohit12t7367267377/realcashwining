@@ -59,7 +59,11 @@ export const getCodingQuestions = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => buildCodingQuestions(data));
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "college_ai");
+    return buildCodingQuestions(data);
+  });
 
 /** Predict-the-output MCQs. */
 export const getOutputPredictions = createServerFn({ method: "POST" })
@@ -74,7 +78,11 @@ export const getOutputPredictions = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => buildOutputPredictions(data));
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "college_ai");
+    return buildOutputPredictions(data);
+  });
 
 /** Explain, debug or review the code written in the editor. */
 export const runCodeReview = createServerFn({ method: "POST" })
@@ -89,7 +97,11 @@ export const runCodeReview = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => reviewCode(data));
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "college_ai");
+    return reviewCode(data);
+  });
 
 /** Read + write learner progress for College and Exam topics. */
 export const saveLearnProgress = createServerFn({ method: "POST" })

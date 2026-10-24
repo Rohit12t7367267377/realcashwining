@@ -1,3 +1,4 @@
+import { UpgradePrompt } from "@/components/UpgradePrompt";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
   Outlet,
@@ -131,6 +132,7 @@ function RootComponent() {
       <Outlet />
       <Toaster position="top-center" richColors closeButton />
       <PushPrompt />
+      <UpgradePrompt />
     </QueryClientProvider>
   );
 }

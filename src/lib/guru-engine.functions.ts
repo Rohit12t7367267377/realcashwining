@@ -35,6 +35,8 @@ export const guruEngineTurn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => turnInput.parse(d))
   .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, data.mode === "doubt" ? "guru_doubt" : "guru_lesson");
     const { resolveTeachingContext, runTeachTurn } = await import("@/lib/guru-engine.server");
     const db = context.supabase as never as Parameters<typeof resolveTeachingContext>[0];
 

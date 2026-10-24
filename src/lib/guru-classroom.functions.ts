@@ -56,6 +56,8 @@ export const guruClassroomTurn = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => turnInput.parse(d))
   .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, data.mode === "doubt" ? "guru_doubt" : "guru_lesson");
     const { resolveTeachingContext, runTeachTurn } = await import("@/lib/guru-engine.server");
     const ctx = { scope: "classroom" as const, topic: data.topic, material: data.context };
     const resolved = await resolveTeachingContext(context.supabase as never, context.userId, ctx);
@@ -196,6 +198,8 @@ export const guruLessonOutline = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ topic: z.string().trim().min(2).max(300) }).parse(d))
   .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_lesson");
     const { runLessonOutline } = await import("@/lib/guru-engine.server");
     const { ctx, resolved } = await classroomContext(context, data.topic);
     const outline = await runLessonOutline({ ctx, resolved });
@@ -239,6 +243,8 @@ export const guruPracticeSet = createServerFn({ method: "POST" })
     }).parse(d),
   )
   .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_notes");
     const { runPracticeSet } = await import("@/lib/guru-engine.server");
     const { ctx, resolved } = await classroomContext(context, data.topic);
     const questions = await runPracticeSet({ ctx, resolved, difficulty: data.difficulty, kind: data.kind, count: data.count, avoid: data.avoid.slice(-30) });

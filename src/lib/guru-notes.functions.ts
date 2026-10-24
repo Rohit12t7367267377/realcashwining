@@ -30,13 +30,21 @@ export const listNotesTopics = createServerFn({ method: "POST" })
 export const getClassNotes = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ ...scope, topic: z.string().trim().min(2).max(160) }).parse(d))
-  .handler(async ({ data }) => buildClassNotes(data));
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_notes");
+    return buildClassNotes(data);
+  });
 
 /** 5-question MCQ quiz for the topic. */
 export const getTopicQuiz = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ ...scope, topic: z.string().trim().min(2).max(160) }).parse(d))
-  .handler(async ({ data }) => buildTopicQuiz(data));
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_notes");
+    return buildTopicQuiz(data);
+  });
 
 /** Ask a doubt about the current notes topic; answered like a patient teacher. */
 export const askNotesDoubt = createServerFn({ method: "POST" })
@@ -54,4 +62,8 @@ export const askNotesDoubt = createServerFn({ method: "POST" })
       })
       .parse(d),
   )
-  .handler(async ({ data }) => answerNotesDoubt(data));
+  .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_doubt");
+    return answerNotesDoubt(data);
+  });

@@ -316,6 +316,8 @@ export const guruAsk = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ context, data }) => {
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, data.intent === "chat" ? "guru_chat" : data.intent === "doubt" ? "guru_doubt" : "guru_lesson");
     const { supabase, userId } = context;
     const { data: row } = await supabase.from("guru_student_xp").select("*").eq("user_id", userId).maybeSingle();
     const language = row?.preferred_language ?? "en";

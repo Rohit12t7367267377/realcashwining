@@ -47,6 +47,7 @@ const GROUPS: { title: string; items: Item[] }[] = [
       { to: "/admin/store", label: "Store & Orders", icon: ShoppingBag },
       { to: "/admin/memberships", label: "VIP Plans", icon: Crown },
       { to: "/admin/subscriptions", label: "Subscriptions", icon: Crown },
+      { to: "/admin/monetization", label: "AI Credits & Plans", icon: Zap },
       { to: "/admin/coupons", label: "Coupons", icon: Ticket },
       { to: "/admin/payments", label: "Payments", icon: Banknote },
     ],

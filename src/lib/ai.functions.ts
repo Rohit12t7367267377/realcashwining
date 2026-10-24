@@ -132,6 +132,8 @@ export const askAiDoubt = createServerFn({ method: "POST" })
   .handler(async ({ context, data }) => {
     const settings = await readAiSettings(context.supabase as never);
     if (!settings.enabled || !settings.doubtEnabled) throw new Error("AI Doubt Assistant is disabled by admin.");
+    const { enforceFeature } = await import("@/lib/monetization.server");
+    await enforceFeature(context.userId, "guru_doubt");
 
     // Load last ~20 messages for context
     const { data: hist } = await context.supabase
