@@ -1,3 +1,4 @@
+import { openaiKey } from "@/lib/ai-gateway.server";
 // Server-only text-to-speech. Prefers ElevenLabs (connector key) and falls back
 // to the Lovable AI gateway TTS models.
 
@@ -43,8 +44,8 @@ export async function synthesizeSpeech(
     // fall through to the gateway when ElevenLabs rejects the request
   }
 
-  const own = Boolean(process.env.OPENAI_API_KEY) && process.env.AI_PROVIDER !== "lovable";
-  const key = own ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
+  const own = Boolean(openaiKey()) && process.env.AI_PROVIDER !== "lovable";
+  const key = own ? openaiKey() : process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("Voice is not configured yet.");
   const res = await fetch(own ? "https://api.openai.com/v1/audio/speech" : GATEWAY_TTS_URL, {
     method: "POST",

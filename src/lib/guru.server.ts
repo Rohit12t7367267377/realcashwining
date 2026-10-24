@@ -1,5 +1,5 @@
 // Server-only helpers for the Guru.AI world. No client imports.
-import { callAiChat } from "@/lib/ai-gateway.server";
+import { callAiChat, openaiKey } from "@/lib/ai-gateway.server";
 
 export const GURU_XP_PER_LEVEL = 250;
 
@@ -151,7 +151,7 @@ export function buildTeachMessages(ctx: TeachContext) {
  * Falls back to a helpful offline reply when no AI provider is configured.
  */
 export async function guruTeach(ctx: TeachContext): Promise<{ content: string; provider: string }> {
-  if (!(process.env.OPENAI_API_KEY || process.env.LOVABLE_API_KEY)) {
+  if (!(openaiKey() || process.env.LOVABLE_API_KEY)) {
     const t = ctx.topic?.title ?? "this topic";
     return {
       provider: "offline",
@@ -184,7 +184,7 @@ export async function guruGenerateQuestions(args: {
   language: string;
   count: number;
 }): Promise<GuruQuestion[]> {
-  if (!(process.env.OPENAI_API_KEY || process.env.LOVABLE_API_KEY)) return [];
+  if (!(openaiKey() || process.env.LOVABLE_API_KEY)) return [];
   const { extractJson } = await import("@/lib/ai-gateway.server");
   const raw = await callAiChat(
     [

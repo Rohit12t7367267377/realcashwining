@@ -19,6 +19,20 @@ const DEFAULT_MODEL = "google/gemini-3-flash-preview";
 const OPENAI_URL = "https://api.openai.com/v1/chat/completions";
 const OPENAI_DEFAULT_MODEL = "gpt-4o-mini"; // override with the OPENAI_MODEL secret
 
+/** The owner's OpenAI key. Accepts OPENAI_API_KEY plus common misspelled names (OPENAI_KEY, OPEN_AI_API_KEY, CHATGPT_API_KEY…). */
+export function openaiKey(): string | undefined {
+  const direct = process.env.OPENAI_API_KEY?.trim();
+  if (direct) return direct;
+  for (const [name, value] of Object.entries(process.env)) {
+    if (/^(OPEN_?AI|CHAT_?GPT)[A-Z_]*(KEY|TOKEN)$/i.test(name.trim()) && value?.trim()) return value.trim();
+  }
+  return undefined;
+}
+/** Names (never values) of env vars that look like an OpenAI key, to help the admin spot a typo. */
+export function openaiKeyNames(): string[] {
+  return Object.keys(process.env).filter((n) => /OPEN_?AI|CHAT_?GPT/i.test(n));
+}
+
 /**
  * Which provider serves AI calls when the caller does not force one:
  * the owner's own OPENAI_API_KEY when it is set, otherwise the Lovable gateway.
@@ -26,14 +40,14 @@ const OPENAI_DEFAULT_MODEL = "gpt-4o-mini"; // override with the OPENAI_MODEL se
  */
 export function defaultAiProvider(): "lovable" | "openai" {
   if (process.env.AI_PROVIDER === "lovable") return "lovable";
-  if (process.env.AI_PROVIDER === "openai" || process.env.OPENAI_API_KEY) return process.env.OPENAI_API_KEY ? "openai" : "lovable";
+  if (process.env.AI_PROVIDER === "openai" || openaiKey()) return openaiKey() ? "openai" : "lovable";
   return "lovable";
 }
-export const hasAiKey = () => Boolean(process.env.OPENAI_API_KEY || process.env.LOVABLE_API_KEY);
+export const hasAiKey = () => Boolean(openaiKey() || process.env.LOVABLE_API_KEY);
 
 export async function callAiChat(messages: ChatMessage[], opts: AiChatOptions = {}): Promise<string> {
   const openai = (opts.provider ?? defaultAiProvider()) === "openai";
-  const key = openai ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
+  const key = openai ? openaiKey() : process.env.LOVABLE_API_KEY;
   if (!key) throw new Error(openai ? "ChatGPT is not configured yet (missing OPENAI_API_KEY). Choose the default model in Classroom settings." : "AI is not configured (missing LOVABLE_API_KEY)");
 
   const body: Record<string, unknown> = {

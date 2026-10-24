@@ -1,3 +1,4 @@
+import { openaiKey } from "@/lib/ai-gateway.server";
 // Server-only RAG helpers for Guru.AI: embed text, index curriculum into
 // public.guru_ai_sources, and retrieve relevant passages for AI answers.
 
@@ -42,8 +43,8 @@ export function chunkText(text: string, size = 1200, overlap = 150): string[] {
 
 /** Embed one or more strings. Returns [] when AI is not configured. */
 export async function embedTexts(inputs: string[]): Promise<number[][]> {
-  const own = process.env.OPENAI_API_KEY && process.env.AI_PROVIDER !== "lovable";
-  const key = own ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
+  const own = openaiKey() && process.env.AI_PROVIDER !== "lovable";
+  const key = own ? openaiKey() : process.env.LOVABLE_API_KEY;
   if (!key || inputs.length === 0) return [];
   const res = await fetch(own ? "https://api.openai.com/v1/embeddings" : EMBED_URL, {
     method: "POST",

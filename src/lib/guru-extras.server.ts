@@ -1,3 +1,4 @@
+import { openaiKey } from "@/lib/ai-gateway.server";
 // Server-only providers for Guru.AI Phase 12 (web search), Phase 13 (image
 // doubt / vision) and Phase 14 (voice output). Every provider is abstracted so
 // it can be swapped later without touching the frontend.
@@ -87,8 +88,8 @@ export async function visionExplain(args: {
   language?: string;
   characterStyle?: string | null;
 }): Promise<{ content: string; provider: string }> {
-  const own = Boolean(process.env.OPENAI_API_KEY) && process.env.AI_PROVIDER !== "lovable";
-  const key = own ? process.env.OPENAI_API_KEY : process.env.LOVABLE_API_KEY;
+  const own = Boolean(openaiKey()) && process.env.AI_PROVIDER !== "lovable";
+  const key = own ? openaiKey() : process.env.LOVABLE_API_KEY;
   if (!key) throw new Error("AI is not configured yet. Please ask the admin to enable AI.");
 
   const system = [

@@ -399,7 +399,7 @@ function GuruModelCard() {
       <p className="text-xs text-muted-foreground">Applies to every student's lessons, practice and classroom. Students do not see this setting. ChatGPT needs <code>OPENAI_API_KEY</code> in the server secrets.</p>
       <p className="mt-2 rounded-lg bg-muted px-3 py-2 text-xs" role="status">
         {status.isLoading ? "Checking which AI is active…" : status.data
-          ? `Active AI: ${status.data.active === "openai" ? `OpenAI (${status.data.model})` : "Lovable gateway"} · OPENAI_API_KEY ${status.data.openaiKey ? "found ✓" : "NOT found ✗"} · LOVABLE_API_KEY ${status.data.lovableKey ? "found" : "not set"}${status.data.forced ? ` · AI_PROVIDER=${status.data.forced}` : ""}`
+          ? `Active AI: ${status.data.active === "openai" ? `OpenAI (${status.data.model})` : "Lovable gateway"} · OPENAI_API_KEY ${status.data.openaiKey ? "found ✓" : "NOT found ✗"} · LOVABLE_API_KEY ${status.data.lovableKey ? "found" : "not set"}${status.data.forced ? ` · AI_PROVIDER=${status.data.forced}` : ""}${!status.data.openaiKey ? ` · OpenAI-like names seen: ${status.data.seenNames.length ? status.data.seenNames.join(", ") : "none"}` : ""}`
           : "Could not read AI status."}
       </p>
       <div className="mt-3 max-w-xs">
